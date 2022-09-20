@@ -25,7 +25,10 @@ jobs: # list of things to do
         uses: actions/checkout@v2
  
       - name: Install Dependencies
-        run: npm ci && npm install @typescript-eslint/eslint-plugin@latest --save-dev && npm install eslint-plugin-prettier@latest --save-dev 
+        run: npm ci
+             && npm install @typescript-eslint/eslint-plugin@latest --save-dev
+             && npm install eslint-plugin-prettier@latest --save-dev
+             && npm install eslint-config-prettier --save-dev
  
       - name: Code Linting
         run: npm run lint
