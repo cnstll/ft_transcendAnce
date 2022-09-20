@@ -11,13 +11,13 @@ import { TestService } from './test.service';
 
 @Controller('test')
 export class TestController {
-  constructor(private testService: TestService) { }
+  constructor(private testService: TestService) {}
 
   @Post('signup')
   signup() {
     // signup(@Body() dto: AuthDto) {
     // return this.authService.signup(dto);
-    return 'i am signing up'
+    return 'i am signing up';
   }
 
   // @HttpCode(HttpStatus.OK)
