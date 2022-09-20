@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  frontend:
+    build: ./frontend/
+    container_name: frontend 
+    ports:
+      - 8080:3000
+    volumes:
+      - ./frontend/app:/home/app
+      - ./frontend/entrypoint_scripts/:/home/
+    entrypoint: /home/start.sh
+
+  backend:
+    build: ./backend/
+    container_name: backend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./backend/app:/home/app
+      # - ./backend/entrypoint_scripts/:/home/
+    command: npm run start:dev
+  dev-db:
+    image: postgres:13
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: nest
