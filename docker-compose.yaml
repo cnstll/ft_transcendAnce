@@ -18,8 +18,8 @@ services:
       - 3000:3000
     volumes:
       - ./backend/app:/home/app
-      # - ./backend/entrypoint_scripts/:/home/
-    command: npm run start:dev
+      - ./backend/entrypoint_scripts/:/home/
+    entrypoint: /home/start.sh
   dev-db:
     image: postgres:13
     ports:
