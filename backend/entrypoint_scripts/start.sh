@@ -1,4 +1,5 @@
 #!/bin/bash
 
-npm install -ci
-npm run start:dev
+npm install -ci;
+npx prisma migrate dev --name updatedb; 
+npm run start:dev;

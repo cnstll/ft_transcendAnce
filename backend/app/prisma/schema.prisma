@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId       String         @id @default(uuid())
+  nickName     String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  status       UserStatus     @default(OFFLINE)
+  /// avatarImg
+  /// userStatus (FK)
+  ///  wins?
+  ///  losts?
+  ///  eloScore? 
+  MatchHistory MatchHistory[]
+}
+
+model MatchHistory {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ///  player1     User   @relation(fields: [user1UserId], references: [userId])
+  ///  user1UserId String
+  ///  player2     User   @relation(fields: [user2UserId], references: [userId])
+  ///  user2UserId String
+  players   User[]
+  score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
+}
+
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  PLAYING
+}
