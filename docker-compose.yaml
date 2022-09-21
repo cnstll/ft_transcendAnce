@@ -8,23 +8,34 @@ services:
       - 8080:3000
     volumes:
       - ./frontend/app:/home/app
-      - ./frontend/entrypoint_scripts/:/home/
-    entrypoint: /home/start.sh
+      - ./frontend/entrypoint_scripts/:/home/entrypoint_scripts
+    entrypoint: /home/entrypoint_scripts/start.sh
+    networks:
+      - frontend
 
   backend:
     build: ./backend/
     container_name: backend
     ports:
       - 3000:3000
+      - 5555:5555
     volumes:
       - ./backend/app:/home/app
-      - ./backend/entrypoint_scripts/:/home/
-    entrypoint: /home/start.sh
+      - ./backend/entrypoint_scripts/:/home/entrypoint_scripts
+    entrypoint: /home/entrypoint_scripts/start.sh
+    networks:
+      - backend
+      - frontend
   dev-db:
+    container_name: db 
     image: postgres:13
     ports:
-      - 5434:5432
+      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
-      POSTGRES_DB: nest
+    networks:
+      - backend
+networks:
+  frontend:
+  backend:
