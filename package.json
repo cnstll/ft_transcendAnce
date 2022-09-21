@@ -1,16 +1,11 @@
 {
   "scripts": {
-    "lint:back": "eslint backend/app/src/ --ext .ts",
-    "lint:front": "eslint frontend/app/src/ --ext .js",
+    "lint:back": "eslint backend/app/src/ --ext .ts --fix",
+    "lint:front": "eslint frontend/app/src/ --ext .js --fix",
     "lint": "npm run lint:back ; npm run lint:front",
     "test:back": "cd backend/app/ && npm run test",
-    "test": "npm run test:back"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm run lint"
-    }
+    "test": "npm run test:back",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.38.0",
@@ -18,6 +13,6 @@
     "eslint": "8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "husky": "^8.0.1"
+    "husky": "^8.0.0"
   }
 }
