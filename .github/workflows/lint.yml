@@ -16,14 +16,15 @@ jobs: # list of things to do
     name: Linting # job name (unique id)
     runs-on: ubuntu-latest # on which machine to run
     steps: # list of steps
-      - name: Install NodeJS
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.NODE_VERSION }}
- 
       - name: Code Checkout
-        uses: actions/checkout@v2
- 
+        uses: actions/checkout@v3
+      
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+         node-version: ${{ env.NODE_VERSION }}
+         cache: 'npm'
+         
       - name: Install Dependencies
         run: npm ci
              && npm install @typescript-eslint/eslint-plugin@latest --save-dev
