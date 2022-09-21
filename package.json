@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "lint:back": "eslint backend/app/src/ --ext .ts --fix",
-    "lint:front": "eslint frontend/app/src/ --ext .js --fix ",
+    "lint:back": "eslint backend/app/src/ --ext .ts",
+    "lint:front": "eslint frontend/app/src/ --ext .js",
     "lint": "npm run lint:back ; npm run lint:front"
   },
   "devDependencies": {
