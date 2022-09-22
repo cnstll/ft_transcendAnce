@@ -18,27 +18,73 @@ model User {
   updatedAt    DateTime       @updatedAt
   status       UserStatus     @default(OFFLINE)
   /// avatarImg
-  /// userStatus (FK)
   ///  wins?
   ///  losts?
-  ///  eloScore? 
-  MatchHistory MatchHistory[]
+  ///  eloScore?
+  // MatchHistory MatchHistory[]
+
+  player1 Match[] @relation("player1")
+  player2 Match[] @relation("player2")
+  requester Friendship[] @relation("requester")
+  addressee Friendship[] @relation("addressee")
 }
 
-model MatchHistory {
+model Friendship {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status FriendshipStatus @default(PENDING)
+  requesterId String
+  requester User @relation("requester", fields: [requesterId], references: [userId])
+  addresseeId String
+  addressee User @relation("addressee", fields: [addresseeId], references: [userId])
+}
+
+// model MatchHistory {
+//   id        String   @id @default(uuid())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   ///  player1     User   @relation(fields: [user1UserId], references: [userId])
+//   ///  user1UserId String
+//   ///  player2     User   @relation(fields: [user2UserId], references: [userId])
+//   ///  user2UserId String
+//   players   User[]
+//   score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
+// }
+
+model Match {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  ///  player1     User   @relation(fields: [user1UserId], references: [userId])
-  ///  user1UserId String
-  ///  player2     User   @relation(fields: [user2UserId], references: [userId])
-  ///  user2UserId String
-  players   User[]
+
+  player1Id String
+  player1 User @relation("player1", fields: [player1Id], references: [userId])
+  player2Id String
+  player2 User @relation("player2", fields: [player2Id], references: [userId])
   score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
 }
 
 enum UserStatus {
-  ONLINE
   OFFLINE
+  ONLINE
   PLAYING
+}
+
+enum ChannelRole {
+  DEFAULT
+  ADMIN
+  OWNER
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+  DIRECTMESSAGE
+}
+
+enum FriendshipStatus {
+  PENDING
+  APPROVED
+  REFUSED
 }
