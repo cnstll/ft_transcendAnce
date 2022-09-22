@@ -1,8 +1,11 @@
 {
   "scripts": {
-    "lint:back": "eslint backend/app/src/ --ext .ts --fix",
-    "lint:front": "eslint frontend/app/src/ --ext .js --fix",
-    "lint": "npm run lint:back ; npm run lint:front",
+    "lint:back": "eslint backend/app/src/ --ext .ts",
+    "lint:front": "eslint frontend/app/src/ --ext .js",
+    "lint": "npm run lint:back ; npm run lint:front ; echo 'Do `npm run format`, if needed'",
+    "format:back": "eslint backend/app/src/ --ext .ts --fix",
+    "format:front": "eslint frontend/app/src/ --ext .js --fix",
+    "format": "npm run lint:back ; npm run lint:front",
     "test:back": "cd backend/app/ && npm run test",
     "test": "npm run test:back",
     "cleanup:stop": "docker stop $(docker ps -qa);",
