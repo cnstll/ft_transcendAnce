@@ -14,6 +14,8 @@ services:
       - frontend
 
   backend:
+    depends_on:
+      - dev-db
     build: ./backend/
     container_name: backend
     ports:
