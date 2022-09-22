@@ -1,0 +1,48 @@
+name: Feature request
+description: File a feature request
+title: "[User Story] Short description"
+labels: ["enhancement"]
+assignees:
+  -
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request!
+        Please select the relevant label options and milestone
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: Write a clear and concise description of what the User story.
+      placeholder: |
+        As a [persona],
+        I want to [functionality],
+        so that [value (persona focused)].
+      value: |
+        As a [persona],
+        I want to [functionality],
+        so that [value (persona focused)].
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Expected Behavior / Acceptance criteria
+      description: |
+        Describe what you want to happen with as much details as possible
+        it should be testable.
+        it should be clear and concise
+        it should provide user perspective
+      placeholder: When [user] does [this], then it should do [that]
+    validations:
+      required: true
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: Add any additional information or proposed solutions
+      placeholder: Anything relevant, it's optional
+    validations:
+      required: false
+
