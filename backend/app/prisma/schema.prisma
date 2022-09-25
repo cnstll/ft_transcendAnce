@@ -10,31 +10,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  userId       String         @id @default(uuid())
-  nickName     String         @unique
-  passwordHash String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  status       UserStatus     @default(OFFLINE)
-  /// avatarImg
-  /// userStatus (FK)
-  ///  wins?
-  ///  losts?
-  ///  eloScore? 
-  MatchHistory MatchHistory[]
+model Users {
+  id                String    @id @default(uuid())
+  nickName          String    @unique()
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  userFriends       Friends[] @relation(name: "users")
+  friendUserFriends Friends[] @relation(name: "friend_users")
 }
 
-model MatchHistory {
+model Friends {
+  id        String   @id @default(uuid())
+  user_id   String
+  friend_id String
+  user      Users    @relation(name: "users", fields: [user_id], references: [id])
+  friend    Users    @relation(name: "friend_users", fields: [friend_id], references: [id])
+  status    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([user_id, friend_id])
+}
+
+model Matches {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  ///  player1     User   @relation(fields: [user1UserId], references: [userId])
-  ///  user1UserId String
-  ///  player2     User   @relation(fields: [user2UserId], references: [userId])
-  ///  user2UserId String
-  players   User[]
+  ///  players   User[]
   score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
+}
+
+enum ChanelPrivilegeCode {
+  ADMIN
+  USER
+  OWNER
+}
+
+enum FriendshipStatus {
+  PENDING
+  REQUESTED
+  ACCEPTED
+  REFUSED
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+  DIRECTMESSAGE
 }
 
 enum UserStatus {
