@@ -9,9 +9,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       datasources: {
         db: {
           url: config.get('DATABASE_URL'),
-        }
-      }
-    })
+        },
+      },
+    });
   }
   async onModuleInit() {
     await this.$connect();
