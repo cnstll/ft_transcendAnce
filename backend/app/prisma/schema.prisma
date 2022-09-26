@@ -133,7 +133,6 @@ model Ban {
 }
 
 enum FriendshipStatus {
-  PENDING
   REQUESTED
   ACCEPTED
   REFUSED
