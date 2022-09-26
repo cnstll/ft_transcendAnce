@@ -18,16 +18,16 @@ model User {
   updatedAt     DateTime       @updatedAt
   status        UserStatus     @default(OFFLINE)
   avatarImg     String?
-  wins          Int?
-  losts         Int?
-  eloScore      Int?           @default(0)
+  eloScore      Int            @default(0)
 
-  friendRequester Friendship[]      @relation("requester")
-  friendAddressee Friendship[]      @relation("addressee")
-  playerOnMatches UserMatch[]       @relation("player")
-  achievements    UserAchievement[] @relation("userAchievement")
-  messages        Message[]         @relation("userMessage")
-  
+  friendsRequester  Friendship[]        @relation("requester")
+  friendsAddressee  Friendship[]        @relation("addressee")
+  playerOnMatches   UserMatch[]         @relation("player")
+  achievements      UserAchievement[]   @relation("userAchievement")
+  messagesSent      Message[]           @relation("messageSender")
+  userOnChannels    ChannelUser[]       @relation("userOnChannel")
+  banRequester      Ban[]               @relation("banRequester")
+  bannedUser        Ban[]               @relation("bannedUser")
 }
 
 model Friendship {
@@ -66,7 +66,7 @@ model Achievement {
   id                String              @id @default(cuid())
   achievement       UserAchievement[]   @relation("userAchievement")
   label             String
-  image             String
+  image             String?
 }
 
 model UserAchievement {
@@ -80,17 +80,56 @@ model UserAchievement {
   updatedAt         DateTime      @updatedAt
 }
 
-model Message {
+model Channel {
   id                String        @id @default(cuid())
-  userId            String
-  user              User          @relation("userMessage", fields: [userId], references: [id], onDelete: Cascade)
+  type              ChannelType   @default(PUBLIC)
+  passwordHash      String
 
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  messages          Message[]     @relation("channelMessage")
+  users             ChannelUser[] @relation("channelUsers")
+  channelBans       Ban[]         @relation("banOnChannel")
 }
 
-enum ChanelPrivilegeCode {
-  ADMIN
-  USER
-  OWNER
+model Message {
+  id                String        @id @default(cuid())
+  content           String
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  senderId          String
+  sender            User          @relation("messageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  channelId         String
+  channel           Channel       @relation("channelMessage", fields: [channelId], references: [id], onDelete: Cascade)
+}
+
+model ChannelUser {
+  userId          String
+  user            User          @relation("userOnChannel", fields: [userId], references: [id], onDelete: Cascade)
+  channelId       String
+  channel         Channel       @relation("channelUsers", fields: [channelId], references: [id], onDelete: Cascade)
+  @@id([userId, channelId])
+
+  role              ChannelRole   @default(USER)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model Ban {
+  bannedUserId      String
+  bannedUser        User          @relation("bannedUser", fields: [bannedUserId], references: [id], onDelete: Cascade)
+  banChannelId      String
+  banChannel        Channel       @relation("banOnChannel", fields: [banChannelId], references: [id], onDelete: Cascade)
+  @@id([bannedUserId, banChannelId])
+
+  banRequesterId    String
+  banRequester      User          @relation("banRequester", fields: [banRequesterId], references: [id], onDelete: SetNull)
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 enum FriendshipStatus {
@@ -114,7 +153,7 @@ enum UserStatus {
 }
 
 enum ChannelRole {
-  DEFAULT
+  USER
   ADMIN
   OWNER
 }
