@@ -5,7 +5,7 @@
     "lint": "npm run lint:back ; npm run lint:front ; echo 'Do `npm run format`, if needed'",
     "format:back": "eslint backend/app/src/ --ext .ts --fix",
     "format:front": "eslint frontend/app/src/ --ext .js --fix",
-    "format": "npm run lint:back ; npm run lint:front",
+    "format": "npm run format:back ; npm run format:front",
     "test:back": "cd backend/app/ && npm run test",
     "test": "npm run test:back",
     "cleanup:stop": "docker stop $(docker ps -qa);",
