@@ -37,7 +37,7 @@ model Friendship {
   addressee   User              @relation("addressee", fields: [addresseeId], references: [id], onDelete: Cascade)
   @@id([requesterId, addresseeId])
 
-  status      FriendshipStatus  @default(PENDING)
+  status      FriendshipStatus  @default(REQUESTED)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 }
