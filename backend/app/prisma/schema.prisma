@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  userId       String         @id @default(uuid())
+  id           String         @id @default(uuid())
   nickName     String         @unique
   passwordHash String
   createdAt    DateTime       @default(now())
@@ -22,46 +22,54 @@ model User {
   ///  losts?
   ///  eloScore?
   // MatchHistory MatchHistory[]
+  // player1 MatchHistory[] @relation("player1")
+  // player2 MatchHistory[] @relation("player2")
 
-  player1 Match[] @relation("player1")
-  player2 Match[] @relation("player2")
-  requester Friendship[] @relation("requester")
-  addressee Friendship[] @relation("addressee")
+  player UserMatch[]      @relation("player")
+  requester Friendship[]  @relation("requester")
+  addressee Friendship[]  @relation("addressee")
 }
 
 model Friendship {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id Int                  @id @default(autoincrement())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   status FriendshipStatus @default(PENDING)
   requesterId String
-  requester User @relation("requester", fields: [requesterId], references: [userId])
+  requester User          @relation("requester", fields: [requesterId], references: [id])
   addresseeId String
-  addressee User @relation("addressee", fields: [addresseeId], references: [userId])
+  addressee User          @relation("addressee", fields: [addresseeId], references: [id])
 }
 
 // model MatchHistory {
 //   id        String   @id @default(uuid())
 //   createdAt DateTime @default(now())
 //   updatedAt DateTime @updatedAt
-//   ///  player1     User   @relation(fields: [user1UserId], references: [userId])
-//   ///  user1UserId String
-//   ///  player2     User   @relation(fields: [user2UserId], references: [userId])
-//   ///  user2UserId String
-//   players   User[]
+
+//   player1Id String
+//   player1 User @relation("player1", fields: [player1Id], references: [userId])
+//   player2Id String
+//   player2 User @relation("player2", fields: [player2Id], references: [userId])
 //   score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
 // }
 
 model Match {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String        @id @default(uuid())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-  player1Id String
-  player1 User @relation("player1", fields: [player1Id], references: [userId])
-  player2Id String
-  player2 User @relation("player2", fields: [player2Id], references: [userId])
-  score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
+  match     UserMatch[]   @relation("match")
+  score     Json          @default("{\"player1\" : 0, \"player2\" : 0}")
+}
+
+model UserMatch {
+  id        String        @id @default(uuid())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  playerId  String
+  player User             @relation("player", fields: [playerId], references: [id])
+  matchId String
+  match Match             @relation("match", fields: [matchId], references: [id])
 }
 
 enum UserStatus {
