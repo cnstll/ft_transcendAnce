@@ -16,14 +16,17 @@
     "cleanup": "npm run cleanup:stop && npm run cleanup:containers && npm run cleanup:images && npm run cleanup:volumes && npm run cleanup:network",
     "prisma:studio": "docker exec -it backend npx prisma studio",
     "prisma:migrate": "docker exec -it backend npx prisma migrate dev",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "build": "tsc"
   },
   "devDependencies": {
+    "@types/react": "^18.0.21",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "cross-env": "^7.0.3",
     "eslint": "8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "husky": "^8.0.1"
+    "husky": "^8.0.1",
+    "typescript": "^4.8.3"
   }
 }
