@@ -11,50 +11,39 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
-  nickName     String         @unique
-  passwordHash String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  status       UserStatus     @default(OFFLINE)
-  /// avatarImg
-  ///  wins?
-  ///  losts?
-  ///  eloScore?
-  // MatchHistory MatchHistory[]
-  // player1 MatchHistory[] @relation("player1")
-  // player2 MatchHistory[] @relation("player2")
+  id            String         @id @default(cuid())
+  nickName      String         @unique()
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  status        UserStatus     @default(OFFLINE)
+  avatarImg     String?
+  wins          Int?
+  losts         Int?
+  eloScore      Int?           @default(0)
 
-  player UserMatch[]      @relation("player")
-  requester Friendship[]  @relation("requester")
-  addressee Friendship[]  @relation("addressee")
+  friendRequester Friendship[]      @relation("requester")
+  friendAddressee Friendship[]      @relation("addressee")
+  playerOnMatches UserMatch[]       @relation("player")
+  achievements    UserAchievement[] @relation("userAchievement")
+  messages        Message[]         @relation("userMessage")
+  
 }
 
 model Friendship {
-  id Int                  @id @default(autoincrement())
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  status FriendshipStatus @default(PENDING)
   requesterId String
-  requester User          @relation("requester", fields: [requesterId], references: [id])
+  requester   User              @relation("requester", fields: [requesterId], references: [id], onDelete: Cascade)
   addresseeId String
-  addressee User          @relation("addressee", fields: [addresseeId], references: [id])
+  addressee   User              @relation("addressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  @@id([requesterId, addresseeId])
+
+  status      FriendshipStatus  @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
-// model MatchHistory {
-//   id        String   @id @default(uuid())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   player1Id String
-//   player1 User @relation("player1", fields: [player1Id], references: [userId])
-//   player2Id String
-//   player2 User @relation("player2", fields: [player2Id], references: [userId])
-//   score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
-// }
-
 model Match {
-  id        String        @id @default(uuid())
+  id        String        @id @default(cuid())
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -63,13 +52,59 @@ model Match {
 }
 
 model UserMatch {
-  id        String        @id @default(uuid())
+  playerId  String
+  player    User          @relation("player", fields: [playerId], references: [id], onDelete: Cascade)
+  matchId   String
+  match     Match         @relation("match", fields: [matchId], references: [id], onDelete: Cascade)
+  @@id([playerId, matchId])
+
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  playerId  String
-  player User             @relation("player", fields: [playerId], references: [id])
-  matchId String
-  match Match             @relation("match", fields: [matchId], references: [id])
+}
+
+model Achievement {
+  id                String              @id @default(cuid())
+  achievement       UserAchievement[]   @relation("userAchievement")
+  label             String
+  image             String
+}
+
+model UserAchievement {
+  userId            String
+  user              User          @relation("userAchievement", fields: [userId], references: [id], onDelete: Cascade)
+  achievementId     String
+  achievement       Achievement   @relation("userAchievement", fields: [achievementId], references: [id], onDelete: Cascade)
+  @@id([userId, achievementId])
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+model Message {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation("userMessage", fields: [userId], references: [id], onDelete: Cascade)
+
+}
+
+enum ChanelPrivilegeCode {
+  ADMIN
+  USER
+  OWNER
+}
+
+enum FriendshipStatus {
+  PENDING
+  REQUESTED
+  ACCEPTED
+  REFUSED
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+  DIRECTMESSAGE
 }
 
 enum UserStatus {
@@ -84,15 +119,3 @@ enum ChannelRole {
   OWNER
 }
 
-enum ChannelType {
-  PUBLIC
-  PRIVATE
-  PROTECTED
-  DIRECTMESSAGE
-}
-
-enum FriendshipStatus {
-  PENDING
-  APPROVED
-  REFUSED
-}
