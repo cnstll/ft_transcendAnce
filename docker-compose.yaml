@@ -19,6 +19,7 @@ services:
     ports:
       - 3000:3000
       - 5555:5555
+      - 5556:5556
     volumes:
       - ./backend/app:/home/app
       - ${ENTRYPOINT_PATH}:/home/entrypoint_scripts
