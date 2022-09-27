@@ -23,11 +23,13 @@ model User {
   friendsRequester  Friendship[]        @relation("requester")
   friendsAddressee  Friendship[]        @relation("addressee")
   playerOnMatches   UserMatch[]         @relation("player")
-  achievements      UserAchievement[]   @relation("userAchievement")
+  achievements      UserAchievement[]   @relation("userAchievements")
   messagesSent      Message[]           @relation("messageSender")
   userOnChannels    ChannelUser[]       @relation("userOnChannel")
   banRequester      Ban[]               @relation("banRequester")
   bannedUser        Ban[]               @relation("bannedUser")
+
+  @@map("users")
 }
 
 model Friendship {
@@ -41,6 +43,8 @@ model Friendship {
   status      FriendshipStatus  @default(REQUESTED)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+
+  @@map("friendships")
 }
 
 model Match {
@@ -50,6 +54,8 @@ model Match {
 
   match     UserMatch[]   @relation("match")
   score     Json          @default("{\"player1\" : 0, \"player2\" : 0}")
+
+  @@map("matches")
 }
 
 model UserMatch {
@@ -62,6 +68,8 @@ model UserMatch {
 
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+
+  @@map("user_matches")
 }
 
 model Achievement {
@@ -69,11 +77,13 @@ model Achievement {
   achievement       UserAchievement[]   @relation("userAchievement")
   label             String
   image             String?
+
+  @@map("achievements")
 }
 
 model UserAchievement {
   userId            String
-  user              User          @relation("userAchievement", fields: [userId], references: [id], onDelete: Cascade)
+  user              User          @relation("userAchievements", fields: [userId], references: [id], onDelete: Cascade)
   achievementId     String
   achievement       Achievement   @relation("userAchievement", fields: [achievementId], references: [id], onDelete: Cascade)
   @@id([userId, achievementId])
@@ -81,11 +91,13 @@ model UserAchievement {
 
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+
+  @@map("user_achievements")
 }
 
 model Channel {
   id                String        @id @default(cuid())
-  name              String?
+  name              String?       @unique
   type              ChannelType   @default(PUBLIC)
   passwordHash      String
 
@@ -95,6 +107,8 @@ model Channel {
   messages          Message[]     @relation("channelMessage")
   users             ChannelUser[] @relation("channelUsers")
   channelBans       Ban[]         @relation("banOnChannel")
+
+  @@map("channels")
 }
 
 model Message {
@@ -108,6 +122,8 @@ model Message {
   sender            User          @relation("messageSender", fields: [senderId], references: [id], onDelete: Cascade)
   channelId         String
   channel           Channel       @relation("channelMessage", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
 }
 
 model ChannelUser {
@@ -120,6 +136,8 @@ model ChannelUser {
   role              ChannelRole   @default(USER)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+
+  @@map("channel_users")
 }
 
 model Ban {
@@ -128,13 +146,15 @@ model Ban {
   banChannelId      String
   banChannel        Channel       @relation("banOnChannel", fields: [banChannelId], references: [id], onDelete: Cascade)
   @@id([bannedUserId, banChannelId])
+  @@unique([bannedUserId, banChannelId])
 
-  banRequesterId    String
-  banRequester      User          @relation("banRequester", fields: [banRequesterId], references: [id], onDelete: SetNull)
-  @@unique([bannedUserId, banRequesterId, banChannelId])
+  banRequesterId    String?
+  banRequester      User?          @relation("banRequester", fields: [banRequesterId], references: [id], onDelete: SetNull)
 
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+
+  @@map("bans")
 }
 
 enum FriendshipStatus {
