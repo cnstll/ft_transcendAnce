@@ -31,7 +31,7 @@
     "test:db:rm": "docker compose rm test-db -s -f -v",
     "test:db:up": "docker compose up test-db -d",
     "test:db:restart": "npm run test:db:rm && npm run test:db:up",
-    "prisma:reset:test": "docker exec -it backend npx dotenv -e .env.test -- prisma migrate reset -f",
+    "prisma:reset:test": "docker exec -it backend npx dotenv -e .env.test -- prisma db push --force-reset",
     "backend:test:e2e": "npm run prisma:reset:test && docker exec -it backend npx dotenv -e .env.test -- npm run test:e2e",
     "backend:test:coverage": "npm run prisma:reset:test && docker exec -it backend npx dotenv -e .env.test -- npm run test:e2e:coverage",
     "backend:test:unit": "docker exec -it backend npx dotenv -e .env.test -- npm run test:watch",
