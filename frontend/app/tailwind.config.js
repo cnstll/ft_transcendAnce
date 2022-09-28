@@ -13,7 +13,7 @@ module.exports = {
       'black': '#000000',
     },
     fontFamily: {
-      sans: ['Aldrich', 'Apple Color Emoji']
+      sans: ['Aldrich']
     },
     extend: {},
   },
