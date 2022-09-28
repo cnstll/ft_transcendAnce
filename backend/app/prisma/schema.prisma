@@ -10,44 +10,154 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id                String    @id @default(uuid())
-  nickName          String    @unique()
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  userFriends       Friends[] @relation(name: "users")
-  friendUserFriends Friends[] @relation(name: "friend_users")
+model User {
+  id            String         @id @default(cuid())
+  nickName      String         @unique()
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  status        UserStatus     @default(OFFLINE)
+  avatarImg     String?
+  eloScore      Int            @default(0)
+
+  friendsRequester  Friendship[]        @relation("requester")
+  friendsAddressee  Friendship[]        @relation("addressee")
+  playerOnMatches   UserMatch[]         @relation("player")
+  achievements      UserAchievement[]   @relation("userAchievements")
+  messagesSent      Message[]           @relation("messageSender")
+  userOnChannels    ChannelUser[]       @relation("userOnChannel")
+  banRequester      Ban[]               @relation("banRequester")
+  bannedUser        Ban[]               @relation("bannedUser")
+
+  @@map("users")
 }
 
-model Friends {
-  id        String   @id @default(uuid())
-  user_id   String
-  friend_id String
-  user      Users    @relation(name: "users", fields: [user_id], references: [id])
-  friend    Users    @relation(name: "friend_users", fields: [friend_id], references: [id])
-  status    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Friendship {
+  requesterId String
+  requester   User              @relation("requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User              @relation("addressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  @@id([requesterId, addresseeId])
+  @@unique([requesterId, addresseeId])
 
-  @@unique([user_id, friend_id])
+  status      FriendshipStatus  @default(REQUESTED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@map("friendships")
 }
 
-model Matches {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ///  players   User[]
-  score     Json     @default("{\"player1\" : 0, \"player2\" : 0}")
+model Match {
+  id        String        @id @default(cuid())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  match     UserMatch[]   @relation("match")
+  score     Json          @default("{\"player1\" : 0, \"player2\" : 0}")
+
+  @@map("matches")
 }
 
-enum ChanelPrivilegeCode {
-  ADMIN
-  USER
-  OWNER
+model UserMatch {
+  playerId  String
+  player    User          @relation("player", fields: [playerId], references: [id], onDelete: Cascade)
+  matchId   String
+  match     Match         @relation("match", fields: [matchId], references: [id], onDelete: Cascade)
+  @@id([playerId, matchId])
+  @@unique([playerId, matchId])
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("user_matches")
+}
+
+model Achievement {
+  id                String              @id @default(cuid())
+  achievement       UserAchievement[]   @relation("userAchievement")
+  label             String
+  image             String?
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  userId            String
+  user              User          @relation("userAchievements", fields: [userId], references: [id], onDelete: Cascade)
+  achievementId     String
+  achievement       Achievement   @relation("userAchievement", fields: [achievementId], references: [id], onDelete: Cascade)
+  @@id([userId, achievementId])
+  @@unique([userId, achievementId])
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("user_achievements")
+}
+
+model Channel {
+  id                String        @id @default(cuid())
+  name              String?       @unique
+  type              ChannelType   @default(PUBLIC)
+  passwordHash      String
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  messages          Message[]     @relation("channelMessage")
+  users             ChannelUser[] @relation("channelUsers")
+  channelBans       Ban[]         @relation("banOnChannel")
+
+  @@map("channels")
+}
+
+model Message {
+  id                String        @id @default(cuid())
+  content           String
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  senderId          String
+  sender            User          @relation("messageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  channelId         String
+  channel           Channel       @relation("channelMessage", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model ChannelUser {
+  userId          String
+  user            User          @relation("userOnChannel", fields: [userId], references: [id], onDelete: Cascade)
+  channelId       String
+  channel         Channel       @relation("channelUsers", fields: [channelId], references: [id], onDelete: Cascade)
+  @@id([userId, channelId])
+
+  role              ChannelRole   @default(USER)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("channel_users")
+}
+
+model Ban {
+  bannedUserId      String
+  bannedUser        User          @relation("bannedUser", fields: [bannedUserId], references: [id], onDelete: Cascade)
+  banChannelId      String
+  banChannel        Channel       @relation("banOnChannel", fields: [banChannelId], references: [id], onDelete: Cascade)
+  @@id([bannedUserId, banChannelId])
+  @@unique([bannedUserId, banChannelId])
+
+  banRequesterId    String?
+  banRequester      User?          @relation("banRequester", fields: [banRequesterId], references: [id], onDelete: SetNull)
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("bans")
 }
 
 enum FriendshipStatus {
-  PENDING
   REQUESTED
   ACCEPTED
   REFUSED
@@ -61,7 +171,14 @@ enum ChannelType {
 }
 
 enum UserStatus {
-  ONLINE
   OFFLINE
+  ONLINE
   PLAYING
 }
+
+enum ChannelRole {
+  USER
+  ADMIN
+  OWNER
+}
+
