@@ -33,6 +33,8 @@
     "test:db:restart": "npm run test:db:rm && npm run test:db:up",
     "prisma:reset:test": "docker exec -it backend npx dotenv -e .env.test -- prisma migrate reset -f",
     "backend:test:e2e": "npm run prisma:reset:test && docker exec -it backend npx dotenv -e .env.test -- npm run test:e2e",
+    "backend:test:coverage": "npm run prisma:reset:test && docker exec -it backend npx dotenv -e .env.test -- npm run test:e2e:coverage",
+    "backend:test:unit": "docker exec -it backend npx dotenv -e .env.test -- npm run test:watch",
     "prepare": "husky install"
   },
   "devDependencies": {
