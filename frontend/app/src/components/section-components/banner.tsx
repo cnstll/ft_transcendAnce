@@ -8,16 +8,18 @@ import {useState} from 'react';
 function UserInfo()
 {
     return (
-        <div className="w-8/12 h-full bg-purple text-white text-lg sm:text-xs md:text-sm font-bold flex flex-col">
-            <Link to="/profile">
-                <p className="flex justify-center">Profile</p>
-            </Link>
-            <Link to="/ranking">
-                <p className="flex justify-center">Ranking</p>
-            </Link>
-            <Link to="/sign-in">
-                <p className="flex justify-center">Log Out</p>
-            </Link>
+        <div className="absolute top-20">
+            <div className="w-24 h-22 py-2 bg-purple text-white text-xs sm:text-xs md:text-sm font-bold flex flex-col gap-1">
+                <Link to="/profile">
+                    <p className="flex justify-center hover:underline">Profile</p>
+                </Link>
+                <Link to="/ranking">
+                    <p className="flex justify-center hover:underline">Ranking</p>
+                </Link>
+                <Link to="/sign-in">
+                <p className="flex justify-center hover:underline">Log Out</p>
+                </Link>
+            </div>
         </div>
     )
 }
@@ -31,27 +33,30 @@ function Banner (props)
     }
 
     return (
-        <div className="flex flex-row px-5 py-5">
-            <Link to="/">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
-                    {props.text}
-                </h1>
-            </Link>
-            <div className="pt-2 relative mx-auto text-gray-600">
-                <input className=" bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none"
-                    type="search" name="search" placeholder="Search player"/>
-                    <button type="submit" className="absolute right-0 top-0 mt-5 mr-4">
-                        <FontAwesomeIcon icon={faMagnifyingGlass}/>
-                    </button>
+        <div className="flex flex-row px-5 py-5 justify-between flex-shrink-0">
+                <Link to="/">
+                    <h1 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
+                        {props.text}
+                    </h1>
+                </Link>
+            <div className="fixed left-1/2 sm:left-1/2 md:left-1/2 lg:left-1/2 xl:left-3/4 top-6">
+                <div className="relative">
+                    <input className=" bg-white h-10 px-5 py-5 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"
+                        type="search" name="search" placeholder="Search player"/>
+                        <button type="submit" className="absolute top-2 right-2">
+                            <FontAwesomeIcon icon={faMagnifyingGlass}/>
+                        </button>
+                </div>
             </div>
-            <div className="flex flex-col gap-2">
-                <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2 place-items-end">
-                    <img className="w-4/12 h-4/12 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Rounded avatar"/>
-                    <button onClick={showInfo} className="text-white font-bold">
+            <div className="relative">
+                <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
+                    <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+                        src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Rounded avatar"/>
+                     <button onClick={showInfo} className="text-white font-bold">
                         <FontAwesomeIcon icon={faChevronDown} />
                     </button>
                 </div>
-                {isShown && <UserInfo/> }
+                {isShown && <UserInfo /> }
             </div>
         </div>
     );

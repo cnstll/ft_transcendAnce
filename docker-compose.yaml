@@ -14,16 +14,15 @@ services:
       - frontend
 
   backend:
-    depends_on:
-      - dev-db
     build: ./backend/
     container_name: backend
     ports:
       - 3000:3000
       - 5555:5555
+      - 5556:5556
     volumes:
       - ./backend/app:/home/app
-      - ./backend/entrypoint_scripts/:/home/entrypoint_scripts
+      - ${ENTRYPOINT_PATH}:/home/entrypoint_scripts
     entrypoint: /home/entrypoint_scripts/start.sh
     networks:
       - backend
@@ -33,6 +32,16 @@ services:
     image: postgres:13
     ports:
       - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    networks:
+      - backend
+  test-db:
+    container_name: test-db 
+    image: postgres:13
+    ports:
+      - 5433:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123

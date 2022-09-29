@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -15,10 +15,34 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/ (POST)', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .post('/auth/create')
+      .send({ name: 'a' })
+      .expect(201)
+  });
+  it('/ (POST)', () => {
+    return request(app.getHttpServer())
+      .post('/auth/create')
+      .send({ name: 'a' })
+      .expect(500)
+  });
+  it('/ (POST)', () => {
+    return request(app.getHttpServer())
+      .post('/auth/create')
+      .send({ name: 'b' })
+      .expect(201)
+  });
+  it('/ (POST)', () => {
+    return request(app.getHttpServer())
+      .post('/auth/create')
+      .send({ name: 'c' })
+      .expect(201)
+  });
+  it('/ (POST)', () => {
+    return request(app.getHttpServer())
+      .post('/auth/create')
+      .send({ name: 'd' })
+      .expect(201)
   });
 });

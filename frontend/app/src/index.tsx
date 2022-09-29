@@ -13,6 +13,7 @@ import Profile from './components/global-components/profile';
 import Ranking from './components/global-components/ranking';
 import Play from './components/global-components/play';
 import Chat from './components/global-components/chat';
+import PageNotFound from './components/global-components/page-not-found';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -24,6 +25,7 @@ root.render(
             <Route path ="/ranking" element={<Ranking />} />
             <Route path ="/play" element={<Play />} />
             <Route path ="/chat" element={<Chat />} />
+            <Route path='*' element={<PageNotFound />} />
         </Routes>
     </BrowserRouter>
 );
