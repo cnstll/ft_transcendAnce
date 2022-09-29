@@ -16,10 +16,10 @@ import { Api42OauthGuard } from './guard/api42.auth-guards';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-  @Post('create')
-  signup(@Body() dto: AuthDto) {
-    return this.authService.userCreate(dto);
-  }
+  //   @Post('create')
+  //   signup(@Body() dto: AuthDto) {
+  //     return this.authService.userCreate(dto);
+  //   }
 
   @Get('test-env')
   testEnvVars(@Res() response: Response): Response<any> {
@@ -60,6 +60,6 @@ export class AuthController {
       authInfo.accessToken,
     );
     const jwt = this.authService.login(userData);
-    return res.cookie('jwtToken', `${jwt}`).redirect('/');
+    return res.cookie('jwtToken', `${jwt}`).redirect('http://localhost:8080/');
   }
 }

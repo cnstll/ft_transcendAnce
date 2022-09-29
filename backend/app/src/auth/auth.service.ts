@@ -22,14 +22,14 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async userCreate(dto: AuthDto) {
-    const user = await this.prisma.users.create({
-      data: {
-        nickName: dto.name.toString(),
-      },
-    });
-    return user;
-  }
+  //   async userCreate(dto: AuthDto) {
+  //     const user = await this.prisma.users.create({
+  //       data: {
+  //         nickName: dto.name.toString(),
+  //       },
+  //     });
+  //     return user;
+  //   }
   async retrieveProfileData(accessToken: string): Promise<any> {
     const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
