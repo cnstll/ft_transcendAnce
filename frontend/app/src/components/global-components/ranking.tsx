@@ -12,8 +12,8 @@ function Ranking () {
             <Banner text = < FontAwesomeIcon icon={faHouse} /> />
             <div className="flex justify-center mt-6">
                 <OneBox>
-                    <h1 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl">RANKING</h1>
-                    <p className="flex justify-end mt-6 px-12 text-lg sm:text-lg md:text-xl lg:text-2xl">SCORE</p>
+                    <h1 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">RANKING</h1>
+                    <p className="flex justify-end mt-6 px-12 text-lg sm:text-lg md:text-xl lg:text-2xl font-bold">SCORE</p>
                 </OneBox>
             </div>
         </Background>
