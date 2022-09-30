@@ -9,7 +9,7 @@ function UserInfo()
 {
     return (
         <div className="absolute top-20">
-            <div className="w-24 h-22 py-2 bg-purple text-white text-xs sm:text-xs md:text-sm font-bold flex flex-col gap-1">
+            <div className="w-24 h-22 py-2 bg-purple text-white text-xs sm:text-xs md:text-sm font-bold flex flex-col gap-1 border border-white">
                 <Link to="/profile">
                     <p className="flex justify-center hover:underline">Profile</p>
                 </Link>
@@ -33,7 +33,7 @@ function Banner (props)
     }
 
     return (
-        <div className="flex flex-row px-5 py-5 justify-between flex-shrink-0">
+        <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
                 <Link to="/">
                     <h1 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
                         {props.text}
