@@ -1,5 +1,6 @@
 {
   "name": "transcendance",
+  "main": "src/index.tsx",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
