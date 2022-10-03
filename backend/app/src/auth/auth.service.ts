@@ -7,9 +7,10 @@ export class AuthService {
   constructor(private prisma: PrismaService) {}
 
   async userCreate(dto: AuthDto) {
-    const user = await this.prisma.users.create({
+    const user = await this.prisma.user.create({
       data: {
         nickName: dto.name.toString(),
+        passwordHash: 'ahash',
       },
     });
     return user;
