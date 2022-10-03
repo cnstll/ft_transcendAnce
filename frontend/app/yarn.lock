@@ -1241,10 +1241,10 @@
   dependencies:
     "prop-types" "^15.8.1"
 
-"@humanwhocodes/config-array@^0.10.4":
-  "integrity" "sha512-mXAIHxZT3Vcpg83opl1wGlVZ9xydbfZO3r5YfRSH6Gpp2J/PfdBP0wbDa2sO6/qRbcalpoevVyW6A/fI6LfeMw=="
-  "resolved" "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.10.4.tgz"
-  "version" "0.10.4"
+"@humanwhocodes/config-array@^0.10.5":
+  "integrity" "sha512-MDl6D6sBsaV452/QSdX+4CXIjZhIcI0PELsxUjk4U828yd58vk3bTIvk/6w5FY+4hIy9sLW0sfrV7K7Kc++j/w=="
+  "resolved" "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.10.7.tgz"
+  "version" "0.10.7"
   dependencies:
     "@humanwhocodes/object-schema" "^1.2.1"
     "debug" "^4.1.1"
@@ -4035,6 +4035,11 @@
   optionalDependencies:
     "source-map" "~0.6.1"
 
+"eslint-config-prettier@^8.5.0":
+  "integrity" "sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q=="
+  "resolved" "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-8.5.0.tgz"
+  "version" "8.5.0"
+
 "eslint-config-react-app@^7.0.1":
   "integrity" "sha512-K6rNzvkIeHaTd8m/QEh1Zko0KI7BACWkkneSs6s9cKZC/J27X3eZR6Upt1jkmZ/4FK+XUOPPxMEN7+lbUXfSlA=="
   "resolved" "https://registry.npmjs.org/eslint-config-react-app/-/eslint-config-react-app-7.0.1.tgz"
@@ -4122,6 +4127,13 @@
     "language-tags" "^1.0.5"
     "minimatch" "^3.1.2"
     "semver" "^6.3.0"
+
+"eslint-plugin-prettier@^4.2.1":
+  "integrity" "sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ=="
+  "resolved" "https://registry.npmjs.org/eslint-plugin-prettier/-/eslint-plugin-prettier-4.2.1.tgz"
+  "version" "4.2.1"
+  dependencies:
+    "prettier-linter-helpers" "^1.0.0"
 
 "eslint-plugin-react-hooks@^4.3.0":
   "integrity" "sha512-oFc7Itz9Qxh2x4gNHStv3BqJq54ExXmfC+a1NjAta66IAN87Wu0R/QArgIS9qKzX3dXKPI9H5crl9QchNMY9+g=="
@@ -4212,13 +4224,13 @@
     "normalize-path" "^3.0.0"
     "schema-utils" "^4.0.0"
 
-"eslint@*", "eslint@^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8", "eslint@^3 || ^4 || ^5 || ^6 || ^7 || ^8", "eslint@^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0", "eslint@^6.0.0 || ^7.0.0 || ^8.0.0", "eslint@^7.0.0 || ^8.0.0", "eslint@^7.5.0 || ^8.0.0", "eslint@^8.0.0", "eslint@^8.1.0", "eslint@^8.3.0", "eslint@>= 6", "eslint@>=5":
-  "integrity" "sha512-w7C1IXCc6fNqjpuYd0yPlcTKKmHlHHktRkzmBPZ+7cvNBQuiNjx0xaMTjAJGCafJhQkrFJooREv0CtrVzmHwqg=="
-  "resolved" "https://registry.npmjs.org/eslint/-/eslint-8.23.1.tgz"
-  "version" "8.23.1"
+"eslint@*", "eslint@^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8", "eslint@^3 || ^4 || ^5 || ^6 || ^7 || ^8", "eslint@^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0", "eslint@^6.0.0 || ^7.0.0 || ^8.0.0", "eslint@^7.0.0 || ^8.0.0", "eslint@^7.5.0 || ^8.0.0", "eslint@^8.0.0", "eslint@^8.1.0", "eslint@^8.24.0", "eslint@^8.3.0", "eslint@>= 6", "eslint@>=5", "eslint@>=7.0.0", "eslint@>=7.28.0":
+  "integrity" "sha512-dWFaPhGhTAiPcCgm3f6LI2MBWbogMnTJzFBbhXVRQDJPkr9pGZvVjlVfXd+vyDcWPA2Ic9L2AXPIQM0+vk/cSQ=="
+  "resolved" "https://registry.npmjs.org/eslint/-/eslint-8.24.0.tgz"
+  "version" "8.24.0"
   dependencies:
     "@eslint/eslintrc" "^1.3.2"
-    "@humanwhocodes/config-array" "^0.10.4"
+    "@humanwhocodes/config-array" "^0.10.5"
     "@humanwhocodes/gitignore-to-minimatch" "^1.0.2"
     "@humanwhocodes/module-importer" "^1.0.1"
     "ajv" "^6.10.0"
@@ -4402,6 +4414,11 @@
   "integrity" "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="
   "resolved" "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz"
   "version" "3.1.3"
+
+"fast-diff@^1.1.2":
+  "integrity" "sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w=="
+  "resolved" "https://registry.npmjs.org/fast-diff/-/fast-diff-1.2.0.tgz"
+  "version" "1.2.0"
 
 "fast-glob@^3.2.11", "fast-glob@^3.2.9":
   "integrity" "sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w=="
@@ -7281,6 +7298,18 @@
   "integrity" "sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w=="
   "resolved" "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.1.2.tgz"
   "version" "1.1.2"
+
+"prettier-linter-helpers@^1.0.0":
+  "integrity" "sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w=="
+  "resolved" "https://registry.npmjs.org/prettier-linter-helpers/-/prettier-linter-helpers-1.0.0.tgz"
+  "version" "1.0.0"
+  dependencies:
+    "fast-diff" "^1.1.2"
+
+"prettier@>=2.0.0":
+  "integrity" "sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g=="
+  "resolved" "https://registry.npmjs.org/prettier/-/prettier-2.7.1.tgz"
+  "version" "2.7.1"
 
 "pretty-bytes@^5.3.0", "pretty-bytes@^5.4.1":
   "integrity" "sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg=="
