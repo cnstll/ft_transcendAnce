@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.development.env',
+      envFilePath: '.env.dev',
       isGlobal: true,
     }),
     AuthModule,
@@ -15,4 +15,4 @@ import { PrismaModule } from './prisma/prisma.module';
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

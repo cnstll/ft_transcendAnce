@@ -3,7 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HttpModule } from '@nestjs/axios';
 import { PassportModule } from '@nestjs/passport';
-import { Api42Strategy } from 'src/strategy/api42.strategy';
+import { Api42Strategy } from '../strategy/api42.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '../strategy/jwt.strategy';
@@ -27,4 +27,4 @@ import { JwtStrategy } from '../strategy/jwt.strategy';
     }),
   ],
 })
-export class AuthModule {}
+export class AuthModule { }
