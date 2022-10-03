@@ -3,3 +3,4 @@ node_modules
 /.blackbox/pubring.kbx~
 /.blackbox/secring.gpg
 /backend/app/.env
+/backend/app/.env.test
