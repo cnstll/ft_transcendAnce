@@ -36,7 +36,6 @@
     "backend:test:coverage": "npm run prisma:reset:test && docker exec -it backend npx dotenv -e .env.test -- npm run test:e2e:coverage",
     "backend:test:unit": "docker exec -it backend npx dotenv -e .env.test -- npm run test:watch",
     "prepare": "husky install"
-
   },
   "devDependencies": {
     "@types/react": "^18.0.21",
@@ -48,6 +47,5 @@
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
     "typescript": "^4.8.3"
-  },
-  "dependencies": {}
+  }
 }

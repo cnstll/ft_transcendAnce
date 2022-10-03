@@ -1,10 +1,48 @@
-import Banner from '../section-components/banner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import { Link } from 'react-router-dom';
+import Banner from '../section-components/banner';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
 import BackgroundGeneral from "../../img/disco2.png";
+import DropDownMenu  from '../section-components/drop-down-menu';
+import MenuOpen from '../section-components/menu-open';
+
+
+function ChannelOptions()
+{
+    return (
+        <div>
+            <Link to="/profile">
+                <p className="flex justify-center hover:underline ">Leave channel</p>
+            </Link>
+            <Link to="/ranking">
+                <p className="flex justify-center hover:underline">Change settings</p>
+            </Link>
+            <Link to="/sign-in">
+                <p className="flex justify-center hover:underline">Invite user</p>
+            </Link>
+            <Link to="/sign-in">
+                <p className="flex justify-center hover:underline">Ban user</p>
+            </Link>
+        </div>)
+}
+
+function FriendOptions()
+{
+    return (<div>
+                <Link to="/profile">
+                    <p className="flex justify-center hover:underline px-2">Invite to play</p>
+                </Link>
+                <Link to="/ranking">
+                    <p className="flex justify-center hover:underline px-2">Remove from friends</p>
+                </Link>
+                <Link to="/sign-in">
+                    <p className="flex justify-center hover:underline px-2">Ban user</p>
+                </Link>
+        </div>)
+}
 
 function Chat () {
     return (
@@ -19,16 +57,24 @@ function Chat () {
                 </SideBox>
                 <CenterBox>
                     <div className="h-full bg-cover bg-no-repeat border-2 border-purple" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
-                        <h1 className="flex justify-center px-5 py-5 font-bold">
-                            [Channel name]
-                        </h1>
+                      <div className="flex flex-row">
+                        <div className="basis-7/8">
+                          <h1 className="flex justify-center p-5 font-bold">
+                              [Channel name]
+                          </h1>
+                        </div>
+                        <div className="basis-1/8 p-5">
+                          <DropDownMenu><MenuOpen><ChannelOptions/></MenuOpen></DropDownMenu>
+                        </div>
+                      </div>
                     </div>
                     <ChatBox/>
                 </CenterBox>
                 <SideBox>
-                    <h1 className="flex justify-center font-bold">
-                        FRIENDS
-                    </h1>
+                  <h1 className="flex justify-center font-bold">
+                      FRIENDS
+                  </h1>
+                  <DropDownMenu><MenuOpen><FriendOptions/></MenuOpen></DropDownMenu>
                 </SideBox>
         </div>
     </div>
