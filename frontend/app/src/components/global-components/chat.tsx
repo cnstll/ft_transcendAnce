@@ -14,17 +14,17 @@ function ChannelOptions()
 {
     return (
         <div>
-            <Link to="/profile">
-                <p className="flex justify-center hover:underline ">Leave channel</p>
+            <Link to="/">
+                <p className="text-center hover:underline ">Leave channel</p>
             </Link>
-            <Link to="/ranking">
-                <p className="flex justify-center hover:underline">Change settings</p>
+            <Link to="/">
+                <p className="text-center hover:underline">Change settings</p>
             </Link>
-            <Link to="/sign-in">
-                <p className="flex justify-center hover:underline">Invite user</p>
+            <Link to="/">
+                <p className="text-center hover:underline">Invite user</p>
             </Link>
-            <Link to="/sign-in">
-                <p className="flex justify-center hover:underline">Ban user</p>
+            <Link to="/">
+                <p className="text-center hover:underline">Ban user</p>
             </Link>
         </div>)
 }
@@ -32,14 +32,14 @@ function ChannelOptions()
 function FriendOptions()
 {
     return (<div>
-                <Link to="/profile">
-                    <p className="flex justify-center hover:underline px-2">Invite to play</p>
+                <Link to="/">
+                    <p className="text-center hover:underline">Invite to play</p>
                 </Link>
-                <Link to="/ranking">
-                    <p className="flex justify-center hover:underline px-2">Remove from friends</p>
+                <Link to="/">
+                    <p className="text-center hover:underline">Remove from friends</p>
                 </Link>
-                <Link to="/sign-in">
-                    <p className="flex justify-center hover:underline px-2">Ban user</p>
+                <Link to="/">
+                    <p className="text-center hover:underline">Ban user</p>
                 </Link>
         </div>)
 }
@@ -57,13 +57,13 @@ function Chat () {
                 </SideBox>
                 <CenterBox>
                     <div className="h-full bg-cover bg-no-repeat border-2 border-purple" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
-                      <div className="flex flex-row">
-                        <div className="basis-7/8">
+                      <div className="flex">
+                        <div className="flex-1">
                           <h1 className="flex justify-center p-5 font-bold">
                               [Channel name]
                           </h1>
                         </div>
-                        <div className="basis-1/8 p-5">
+                        <div className="p-5 flex justify-center">
                           <DropDownMenu><MenuOpen><ChannelOptions/></MenuOpen></DropDownMenu>
                         </div>
                       </div>

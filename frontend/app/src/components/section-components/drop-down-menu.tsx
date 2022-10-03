@@ -10,8 +10,8 @@ function DropDownMenu(props) {
   }
 
   return (
-    <div className="relative">
-      <button onClick={showInfo} className="text-white font-bold">
+    <div className="relative inline-block mb-20">
+      <button onClick={showInfo} className="relative flex items-center text-white font-bold">
         <FontAwesomeIcon icon={faEllipsis} />
       </button>
       {isShown && props.children}
