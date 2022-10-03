@@ -3,7 +3,7 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { Link } from 'react-router-dom';
-import {useState} from 'react';
+import { useState } from 'react';
 
 function UserInfo()
 {
@@ -29,7 +29,7 @@ function Banner (props)
     const [isShown, setIsShown] = useState(false);
 
     const showInfo = event => {
-    setIsShown(current => !current);
+        setIsShown(current => !current);
     }
 
     return (
