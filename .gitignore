@@ -4,3 +4,4 @@ node_modules
 /.blackbox/secring.gpg
 /backend/app/.env
 /backend/app/.env.test
+/backend/app/.env.dev
