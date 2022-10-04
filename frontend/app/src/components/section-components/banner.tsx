@@ -1,9 +1,9 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
-import {useState} from 'react';
+import { useState } from 'react';
 
 function UserInfo()
 {
@@ -24,14 +24,12 @@ function UserInfo()
     )
 }
 
-function Banner (props)
-{
-    const [isShown, setIsShown] = useState(false);
+function Banner(props) {
+  const [isShown, setIsShown] = useState(false);
 
-    const showInfo = event => {
-    setIsShown(current => !current);
-    }
-
+  const showInfo = (event) => {
+    setIsShown((current) => !current);
+  };
     return (
         <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
             <Link to="/">
@@ -57,8 +55,12 @@ function Banner (props)
                 </div>
                 {isShown && <UserInfo /> }
             </div>
+
         </div>
-    );
+        {isShown && <UserInfo />}
+      </div>
+    </div>
+  );
 }
 
-export default Banner
+export default Banner;
