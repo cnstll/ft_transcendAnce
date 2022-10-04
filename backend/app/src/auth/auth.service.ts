@@ -34,7 +34,7 @@ export class AuthService {
     const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    let profile = await lastValueFrom(req);
+    const profile = await lastValueFrom(req);
     const tailoredProfile = {
       provider: 'api42',
       id: profile.data.id.toString(),
