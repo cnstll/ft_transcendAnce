@@ -3,7 +3,7 @@ import BackgroundSignin from "../../img/disco.png";
 
 function Background (props) {
     return (
-    <div className="h-screen bg-cover bg-no-repeat" style={{ backgroundImage: `url(${props.background})` }}>
+    <div className="h-full min-h-screen bg-cover bg-no-repeat" style={{ backgroundImage: `url(${props.background})` }}>
         {props.children}
     </div>
     );
