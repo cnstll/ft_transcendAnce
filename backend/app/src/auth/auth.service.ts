@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AuthDto } from './dto';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';

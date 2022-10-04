@@ -1,17 +1,7 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { Profile } from 'passport';
+// import { Profile } from 'passport';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
 import { Api42OauthGuard } from './guard/api42.auth-guards';
 
 @Controller('auth')
@@ -46,10 +36,10 @@ export class AuthController {
   @Get('redirect')
   async api42Redirect(@Req() req: any, @Res() res: Response): Promise<void> {
     const {
-      user,
+      //   user,
       authInfo,
     }: {
-      user: Profile;
+      //   user: Profile;
       authInfo: {
         accessToken: string;
         refreshToken: string;
