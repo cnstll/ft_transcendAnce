@@ -4,22 +4,21 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import MenuOpen from './menu-open';
 
 function UserInfo()
 {
     return (
-        <div className="absolute top-20">
-            <div className="w-24 h-22 py-2 bg-purple text-white text-xs sm:text-xs md:text-sm font-bold flex flex-col gap-1 border border-white">
-                <Link to="/profile">
-                    <p className="flex justify-center hover:underline">Profile</p>
-                </Link>
-                <Link to="/ranking">
-                    <p className="flex justify-center hover:underline">Ranking</p>
-                </Link>
-                <Link to="/sign-in">
-                <p className="flex justify-center hover:underline">Log Out</p>
-                </Link>
-            </div>
+        <div>
+          <Link to="/profile">
+              <p className="flex justify-center hover:underline">Profile</p>
+          </Link>
+          <Link to="/ranking">
+              <p className="flex justify-center hover:underline">Ranking</p>
+          </Link>
+          <Link to="/sign-in">
+          <p className="flex justify-center hover:underline">Log Out</p>
+          </Link>
         </div>
     )
 }
@@ -56,7 +55,7 @@ function Banner (props)
                         <FontAwesomeIcon icon={faChevronDown} />
                     </button>
                 </div>
-                {isShown && <UserInfo /> }
+                {isShown && <MenuOpen className="top-20"><UserInfo /></MenuOpen>}
             </div>
         </div>
     );
