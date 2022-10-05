@@ -1,3 +1,22 @@
+const MESSAGE_DATA = [
+    {
+        id: 1,
+        message: "Who would like to go dancing?",
+        image: "https://flowbite.com/docs/images/people/profile-picture-1.jpg"
+    },
+    {
+        id: 2,
+        message: "Sure, do you have a place in mind?",
+        image: "https://flowbite.com/docs/images/people/profile-picture-2.jpg"
+    },
+    {
+        id: 3,
+        message: "Let's go to the Macumba!",
+        image: "https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+    },
+];
+
+
 
 function OtherUserMessage(props)
 {

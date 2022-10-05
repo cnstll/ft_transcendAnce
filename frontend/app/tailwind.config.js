@@ -11,12 +11,11 @@ module.exports = {
       'dark-blue': '#04A3A5',
       'purple': '#0F0F24',
       'purple-light': '#5454B6',
-      black: colors.black,
-      white: colors.white,
-      gray: colors.gray,
-      emerald: colors.emerald,
-      indigo: colors.indigo,
-      yellow: colors.yellow,
+      'white': colors.white,
+      'black': colors.black,
+      'green': colors.green,
+      'gray': colors.gray,
+      'red': colors.red,
     },
     fontFamily: {
       sans: ['Aldrich', 'sans-serif']
