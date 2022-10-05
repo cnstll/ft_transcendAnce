@@ -25,15 +25,15 @@ function UsersListItem(props) {
       <div className="flex items-center justify-center mr-2">
         <img className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full" src={props.image} alt="Rounded avatar" />
         <div className="relative">
-          <div className="absolute h-14 w-14 -left-2 z-10">
-            {props.status === "ONLINE" && <FontAwesomeIcon icon={faCirclePlain} />}
-            {props.status === "OFFLINE" && <FontAwesomeIcon icon={faCircle} />}
+          <div className="absolute -left-2 z-10">
+            {props.status === "ONLINE" && <FontAwesomeIcon className="text-green-600" icon={faCirclePlain} />}
+            {props.status === "OFFLINE" && <FontAwesomeIcon className="text-gray-500" icon={faCirclePlain} />}
             {props.status === "PLAYING" && <FontAwesomeIcon icon={faGamepad} />}
           </div>
         </div>
       </div>
-      <div className="w-24 sm:w-12 md:w-16 lg:w-20 xl:w-24">
-        <p className="mx-2 truncate">{props.nickname}</p>
+      <div className="w-32">
+        <p className="ml-3 truncate">{props.nickname}</p>
       </div>
       <div className="content-center mx-2 mt-1">
         <DropDownButton><DropDownMenu><UserOptions /></DropDownMenu></DropDownButton>
