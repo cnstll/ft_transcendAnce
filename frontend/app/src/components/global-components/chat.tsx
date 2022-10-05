@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import { faHouse, faSquarePlus } from '@fortawesome/free-solid-svg-icons'
 import { Link } from 'react-router-dom';
 import Banner from '../section-components/banner';
 import SideBox from '../section-components/side-box';
@@ -9,6 +9,35 @@ import BackgroundGeneral from "../../img/disco2.png";
 import DropDownButton  from '../section-components/drop-down-button';
 import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
+import ChannelsList from '../section-components/channels-list';
+
+const CHANNELS_DATA = [
+  {
+    id: '10',
+    name: 'Les démons de minuit',
+    type: 'PUBLIC',
+  },
+  {
+    id: '20',
+    name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
+    type: 'PRIVATE',
+  },
+  {
+    id: '30',
+    name: 'You shall not pass',
+    type: 'PROTECTED',
+  },
+  {
+    id: '40',
+    name: 'Daphné',
+    type: 'DIRECTMESSAGE',
+  },
+  {
+    id: '50',
+    name: 'John',
+    type: 'DIRECTMESSAGE',
+  },
+];
 
 const CHANUSERS_DATA = [
   {
@@ -60,34 +89,38 @@ function Chat () {
     return (
     <div className="h-screen bg-black">
         <Banner text = < FontAwesomeIcon icon={faHouse} /> />
-        <div className="flex flex-row gap-14 px-5 justify-center mt-6 text-white text-xs sm:text-xs md:text-xl lg:text-3xl">
-                <SideBox>
-                    <div className="flex justify-center flex-row gap-4 font-bold">
-                        <h1>CHANNEL</h1>
-                        <button>+</button>
-                    </div>
-                </SideBox>
-                <CenterBox>
-                    <div className="h-full bg-cover bg-no-repeat border-2 border-purple" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
-                      <div className="flex">
-                        <div className="flex-1">
-                          <h1 className="flex justify-center p-5 font-bold">
-                              [Channel name]
-                          </h1>
-                        </div>
-                        <div className="p-5 flex justify-center">
-                          <DropDownButton><DropDownMenu><ChannelOptions/></DropDownMenu></DropDownButton>
-                        </div>
-                      </div>
-                    </div>
-                    <ChatBox/>
-                </CenterBox>
-                <SideBox>
-                  <h1 className="flex justify-center font-bold">
-                      MEMBERS
-                  </h1>
-                  <UsersList channelUsers={CHANUSERS_DATA} />
-                </SideBox>
+        <div className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+                gap-10 px-5 justify-center mt-6 text-white text-3xl">
+          <SideBox>
+              <div className="flex items-center justify-center flex-row gap-2 font-bold">
+                  <h1>CHANNELS</h1>
+                  <div className="flex justify-center">
+                    <button className="mx-2"><FontAwesomeIcon icon={faSquarePlus} /></button>
+                  </div>
+              </div>
+            <ChannelsList channels={CHANNELS_DATA} />
+          </SideBox>
+          <CenterBox>
+              <div className="h-full bg-cover bg-no-repeat border-2 border-purple" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
+                <div className="flex">
+                  <div className="flex-1">
+                    <h1 className="flex justify-center p-5 font-bold">
+                        [Channel name]
+                    </h1>
+                  </div>
+                  <div className="p-5 flex justify-center">
+                    <DropDownButton><DropDownMenu><ChannelOptions/></DropDownMenu></DropDownButton>
+                  </div>
+                </div>
+              </div>
+              <ChatBox/>
+          </CenterBox>
+          <SideBox>
+            <h1 className="flex justify-center font-bold">
+                MEMBERS
+            </h1>
+            <UsersList channelUsers={CHANUSERS_DATA} />
+          </SideBox>
         </div>
     </div>
     );

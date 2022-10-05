@@ -3,7 +3,6 @@ import DropDownMenu from "./drop-down-menu";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGamepad, faCircle as faCirclePlain } from '@fortawesome/free-solid-svg-icons';
-import { faCircle } from '@fortawesome/free-regular-svg-icons';
 
 function UserOptions() {
   return (<div>
