@@ -1,16 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-<<<<<<< HEAD
-=======
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
->>>>>>> dc279c2795881ac638fb457125a1583b1b621905
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-<<<<<<< HEAD
-import MenuOpen from './drop-down-menu';
-=======
->>>>>>> dc279c2795881ac638fb457125a1583b1b621905
 
 function UserInfo()
 {

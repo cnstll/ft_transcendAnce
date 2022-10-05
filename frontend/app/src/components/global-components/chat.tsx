@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import { Link } from 'react-router-dom';
-import Banner from '../section-components/banner';
-=======
 import Banner from '../section-components/banner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse } from '@fortawesome/free-solid-svg-icons'
->>>>>>> dc279c2795881ac638fb457125a1583b1b621905
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
