@@ -13,7 +13,7 @@ module.exports = {
       'black': '#000000',
     },
     fontFamily: {
-      sans: ['Aldrich']
+      sans: ['Aldrich', 'sans-serif']
     },
     extend: {},
   },

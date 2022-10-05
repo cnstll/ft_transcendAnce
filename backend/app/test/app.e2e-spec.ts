@@ -15,34 +15,40 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (POST)', () => {
-    return request(app.getHttpServer())
-      .post('/auth/create')
-      .send({ name: 'a' })
-      .expect(201)
-  });
-  it('/ (POST)', () => {
-    return request(app.getHttpServer())
-      .post('/auth/create')
-      .send({ name: 'a' })
-      .expect(500)
-  });
-  it('/ (POST)', () => {
-    return request(app.getHttpServer())
-      .post('/auth/create')
-      .send({ name: 'b' })
-      .expect(201)
-  });
-  it('/ (POST)', () => {
-    return request(app.getHttpServer())
-      .post('/auth/create')
-      .send({ name: 'c' })
-      .expect(201)
-  });
-  it('/ (POST)', () => {
-    return request(app.getHttpServer())
-      .post('/auth/create')
-      .send({ name: 'd' })
-      .expect(201)
+  // it('/ (POST)', () => {
+  //   return request(app.getHttpServer())
+  //     .post('/auth/create')
+  //     .send({ name: 'a' })
+  //     .expect(201)
+  // });
+  // it('/ (POST)', () => {
+  //   return request(app.getHttpServer())
+  //     .post('/auth/create')
+  //     .send({ name: 'a' })
+  //     .expect(500)
+  // });
+  // it('/ (POST)', () => {
+  //   return request(app.getHttpServer())
+  //     .post('/auth/create')
+  //     .send({ name: 'b' })
+  //     .expect(201)
+  // });
+  // it('/ (POST)', () => {
+  //   return request(app.getHttpServer())
+  //     .post('/auth/create')
+  //     .send({ name: 'c' })
+  //     .expect(201)
+  // });
+  // it('/ (POST)', () => {
+  //   return request(app.getHttpServer())
+  //     .post('/auth/create')
+  //     .send({ name: 'd' })
+  //     .expect(201)
+  // });
+  it('redirect to 42 login page', async function() {
+    const response = await request(app.getHttpServer())
+      .get('/auth/signin').redirects(2)
+    expect(200);
+    expect(response.text).toContain("42");
   });
 });
