@@ -55,7 +55,6 @@ function Banner(props) {
                 </div>
                 {isShown && <UserInfo /> }
             </div>
-        {isShown && <UserInfo />}
       </div>
   );
 }
