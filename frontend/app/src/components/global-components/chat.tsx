@@ -6,9 +6,36 @@ import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
 import BackgroundGeneral from "../../img/disco2.png";
-import DropDownMenu  from '../section-components/drop-down-menu';
-import MenuOpen from '../section-components/menu-open';
+import DropDownButton  from '../section-components/drop-down-button';
+import DropDownMenu from '../section-components/drop-down-menu';
+import UsersList from '../section-components/users-list';
 
+const CHANUSERS_DATA = [
+  {
+    id: '10',
+    nickname: 'Alexandra',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+    status: 'OFFLINE',
+  },
+  {
+    id: '20',
+    nickname: 'Alexandre',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+    status: 'ONLINE',
+  },
+  {
+    id: '30',
+    nickname: 'Alexandrinedrinedrine',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+    status: 'PLAYING',
+  },
+  {
+    id: '40',
+    nickname: 'Alexandro',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+    status: 'PLAYING',
+  },
+];
 
 function ChannelOptions()
 {
@@ -26,21 +53,6 @@ function ChannelOptions()
             <Link to="/">
                 <p className="text-center hover:underline">Ban user</p>
             </Link>
-        </div>)
-}
-
-function FriendOptions()
-{
-    return (<div>
-                <Link to="/">
-                    <p className="text-center hover:underline">Invite to play</p>
-                </Link>
-                <Link to="/">
-                    <p className="text-center hover:underline">Remove from friends</p>
-                </Link>
-                <Link to="/">
-                    <p className="text-center hover:underline">Ban user</p>
-                </Link>
         </div>)
 }
 
@@ -64,7 +76,7 @@ function Chat () {
                           </h1>
                         </div>
                         <div className="p-5 flex justify-center">
-                          <DropDownMenu><MenuOpen><ChannelOptions/></MenuOpen></DropDownMenu>
+                          <DropDownButton><DropDownMenu><ChannelOptions/></DropDownMenu></DropDownButton>
                         </div>
                       </div>
                     </div>
@@ -72,9 +84,9 @@ function Chat () {
                 </CenterBox>
                 <SideBox>
                   <h1 className="flex justify-center font-bold">
-                      FRIENDS
+                      MEMBERS
                   </h1>
-                  <DropDownMenu><MenuOpen><FriendOptions/></MenuOpen></DropDownMenu>
+                  <UsersList channelUsers={CHANUSERS_DATA} />
                 </SideBox>
         </div>
     </div>

@@ -1,9 +1,9 @@
 {
   "scripts": {
-    "dev-env:up": "docker compose up dev-db frontend backend",
+    "dev-env:up": "npm run decrypt && docker compose up dev-db frontend backend",
     "dev-env:down": "docker compose down",
     "test-env:down": "docker compose down",
-    "test-env:up": "docker compose --env-file .env.test up test-db frontend backend",
+    "test-env:up": "npm run decrypt && docker compose --env-file .env.test up test-db frontend backend",
     "lint:back": "eslint backend/app/src/ --ext .ts --config ./backend/app/.eslintrc.js",
     "lint:front": "eslint frontend/app/src/ --ext .ts --config ./frontend/app/.eslintrc.js",
     "lint": "npm run lint:back && npm run lint:front",
@@ -12,6 +12,10 @@
     "format": "npm run format:back && npm run format:front",
     "test:back": "cd backend/app/ && npm run test",
     "test": "npm run test:back",
+    "decrypt": "blackbox_decrypt_all_files",
+    "encrypt": "blackbox_update_all_files",
+    "edit:start": "blackbox_edit_start",
+    "edit:end": "blackbox_edit_end",
     "cleanup:stop": "docker stop $(docker ps -qa);",
     "cleanup:containers": "docker rm $(docker ps -qa);",
     "cleanup:images": "docker rmi -f $(docker images -qa);",
@@ -38,6 +42,8 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@types/passport-jwt": "^3.0.6",
+    "@types/passport-oauth2": "^1.4.11",
     "@types/react": "^18.0.21",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "cross-env": "^7.0.3",
@@ -47,5 +53,12 @@
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.1",
     "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@nestjs/jwt": "^9.0.0",
+    "@nestjs/passport": "^9.0.0",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
+    "passport-oauth2": "^1.6.1"
   }
 }

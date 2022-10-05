@@ -1,10 +1,9 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import MenuOpen from './menu-open';
+import MenuOpen from './drop-down-menu';
 
 function UserInfo()
 {
@@ -23,9 +22,8 @@ function UserInfo()
     )
 }
 
-function Banner (props)
-{
-    const [isShown, setIsShown] = useState(false);
+function Banner(props) {
+  const [isShown, setIsShown] = useState(false);
 
     const showInfo = event => {
         setIsShown(current => !current);
@@ -47,7 +45,7 @@ function Banner (props)
                         </button>
                 </div>
             </div>
-            <div className="relative">
+            <div className="relative grid">
                 <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
                     <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
                         src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Rounded avatar"/>
@@ -55,10 +53,10 @@ function Banner (props)
                         <FontAwesomeIcon icon={faChevronDown} />
                     </button>
                 </div>
-                {isShown && <MenuOpen className="top-20"><UserInfo /></MenuOpen>}
+                  {isShown && <div className='top-20'><MenuOpen><UserInfo /></MenuOpen></div>}
             </div>
         </div>
-    );
+  );
 }
 
 export default Banner
