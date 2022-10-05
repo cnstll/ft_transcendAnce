@@ -21,7 +21,7 @@ import { AuthMiddleware } from './middleware/auth.middleware';
         return {
           secret: process.env.JWT_SECRET,
           signOptions: {
-            expiresIn: '3600s',
+            expiresIn: '15s',
           },
         };
       },
@@ -31,6 +31,6 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('auth');
+    consumer.apply(AuthMiddleware).forRoutes('auth/signin');
   }
 }
