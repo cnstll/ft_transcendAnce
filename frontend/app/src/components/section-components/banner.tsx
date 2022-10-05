@@ -4,23 +4,23 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import DropDownButton from './drop-down-button';
+import DropDownMenu from './drop-down-menu';
 
 function UserInfo()
 {
     return (
-        <div className="absolute top-14 sm:top-14 md:top-16 lg:top-20">
-            <div className="w-24 h-22 py-2 bg-purple text-white text-xs sm:text-xs md:text-sm font-bold flex flex-col gap-1 border border-white">
-                <Link to="/profile">
-                    <p className="flex justify-center hover:underline">Profile</p>
-                </Link>
-                <Link to="/ranking">
-                    <p className="flex justify-center hover:underline">Ranking</p>
-                </Link>
-                <Link to="/sign-in">
-                <p className="flex justify-center hover:underline">Log Out</p>
-                </Link>
-            </div>
-        </div>
+      <div>
+        <Link to="/profile">
+            <p className="text-center hover:underline my-2">Profile</p>
+        </Link>
+        <Link to="/ranking">
+            <p className="text-center hover:underline my-2">Ranking</p>
+        </Link>
+        <Link to="/sign-in">
+        <p className="text-center hover:underline my-2">Log Out</p>
+        </Link>
+      </div>
     )
 }
 
@@ -53,10 +53,10 @@ function Banner(props) {
                      <button onClick={showInfo} className="text-white font-bold">
                         <FontAwesomeIcon icon={faChevronDown} />
                     </button>
+                  </div>
+                    {isShown && <div className='top-20'><DropDownMenu><UserInfo /></DropDownMenu></div>}
+                  </div>
                 </div>
-                {isShown && <UserInfo /> }
-            </div>
-      </div>
   );
 }
 

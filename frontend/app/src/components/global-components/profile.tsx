@@ -6,6 +6,35 @@ import { faPencil } from '@fortawesome/free-solid-svg-icons'
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
+import UsersList from '../section-components/users-list';
+
+const FRIENDS_DATA = [
+  {
+    id: '10',
+    nickname: 'Alexandre',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+    status: 'PLAYING',
+  },
+  {
+    id: '20',
+    nickname: 'Alexandrinedrinedrine',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+    status: 'OFFLINE',
+  },
+  {
+    id: '30',
+    nickname: 'Alexandro',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+    status: 'ONLINE',
+  },
+
+  {
+    id: '40',
+    nickname: 'Alexandra',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+    status: 'ONLINE',
+  },
+];
 
 function Profile () {
     return (
@@ -39,6 +68,7 @@ function Profile () {
                 </CenterBox>
                 <SideBox>
                     <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
+                    <UsersList channelUsers={FRIENDS_DATA} />
                 </SideBox>
             </div>
         </Background>
