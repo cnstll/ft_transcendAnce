@@ -4,6 +4,7 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons'
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
+import Message from '../section-components/message';
 import BackgroundGeneral from "../../img/disco2.png";
 
 function Chat () {
@@ -22,6 +23,7 @@ function Chat () {
                         <h1 className="flex justify-center p-5">
                             [Channel name]
                         </h1>
+                        <Message/>
                     </div>
                     <ChatBox/>
                 </CenterBox>
