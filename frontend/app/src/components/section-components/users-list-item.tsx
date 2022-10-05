@@ -2,25 +2,19 @@ import DropDownButton from "./drop-down-button";
 import DropDownMenu from "./drop-down-menu";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGamepad, faCircle as faCirclePlain, faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faGamepad, faCircle as faCirclePlain } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 
-const options = [
-  {path: '/', label: 'Invite to play'},
-  {path: '/', label: 'Remove from friends'},
-  {path: '/', label: 'Ban user'},
-]
-
-function ChannelUserOptions() {
+function UserOptions() {
   return (<div>
             <Link to="/">
-                <p className="text-center hover:underline">Invite to play</p>
+                <p className="text-center hover:underline my-2">Invite to play</p>
             </Link>
             <Link to="/">
-                <p className="text-center hover:underline">Remove from friends</p>
+                <p className="text-center hover:underline my-2">Remove from friends</p>
             </Link>
             <Link to="/">
-                <p className="text-center hover:underline">Ban user</p>
+                <p className="text-center hover:underline my-2">Ban user</p>
             </Link>
           </div>)
 }
@@ -42,7 +36,7 @@ function UsersListItem(props) {
         <p className="mx-2 truncate">{props.nickname}</p>
       </div>
       <div className="content-center mx-2 mt-1">
-        <DropDownButton><DropDownMenu><ChannelUserOptions /></DropDownMenu></DropDownButton>
+        <DropDownButton><DropDownMenu><UserOptions /></DropDownMenu></DropDownButton>
       </div>
     </div>
   )
