@@ -57,7 +57,7 @@ function CurrentUserMessage(props)
 {
     return (
         <div className="flex flex-row justify-end items-center gap-4">
-            <div className="w-2/6 h-1/6 max-w-[30rem] min-w-[150px] min-h-[2rem]
+            <div className="w-2/6 h-1/6 min-w-[150px] min-h-[2rem]
                 p-2 bg-blue rounded-2xl text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm">
                 {props.message}
             </div>
