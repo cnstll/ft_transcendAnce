@@ -7,6 +7,7 @@ import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
+import StatsBox from '../section-components/stats-box';
 
 const FRIENDS_DATA = [
   {
@@ -64,7 +65,18 @@ function Profile () {
                     </div>
                 </SideBox>
                 <CenterBox>
-                    <h1 className="flex justify-center p-5 font-bold">MATCH HISTORY</h1>
+                <div className="h-full overflow-auto">
+                      <div className="flex">
+                        <div className="flex-1">
+                          <h1 className="flex justify-center p-5 font-bold">
+                              MATCH HISTORY
+                          </h1>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="py-10">
+                        <StatsBox/>
+                    </div>
                 </CenterBox>
                 <SideBox>
                     <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>

@@ -5,6 +5,7 @@ import Banner from '../section-components/banner';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
+import Message from '../section-components/message';
 import BackgroundGeneral from "../../img/disco2.png";
 import DropDownButton  from '../section-components/drop-down-button';
 import DropDownMenu from '../section-components/drop-down-menu';
@@ -58,9 +59,10 @@ function ChannelOptions()
 
 function Chat () {
     return (
-    <div className="h-screen bg-black">
+    <div className="h-full min-h-screen bg-black">
         <Banner text = < FontAwesomeIcon icon={faHouse} /> />
-        <div className="flex flex-row gap-14 px-5 justify-center mt-6 text-white text-xs sm:text-xs md:text-xl lg:text-3xl">
+        <div className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+                gap-10 px-5 justify-center mt-6 text-white text-3xl">
                 <SideBox>
                     <div className="flex justify-center flex-row gap-4 font-bold">
                         <h1>CHANNEL</h1>
@@ -68,7 +70,7 @@ function Chat () {
                     </div>
                 </SideBox>
                 <CenterBox>
-                    <div className="h-full bg-cover bg-no-repeat border-2 border-purple" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
+                    <div className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-auto" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
                       <div className="flex">
                         <div className="flex-1">
                           <h1 className="flex justify-center p-5 font-bold">
@@ -79,8 +81,8 @@ function Chat () {
                           <DropDownButton><DropDownMenu><ChannelOptions/></DropDownMenu></DropDownButton>
                         </div>
                       </div>
+                        <Message/>
                     </div>
-                    <ChatBox/>
                 </CenterBox>
                 <SideBox>
                   <h1 className="flex justify-center font-bold">
@@ -88,6 +90,9 @@ function Chat () {
                   </h1>
                   <UsersList channelUsers={CHANUSERS_DATA} />
                 </SideBox>
+        </div>
+        <div className="flex justify-center">
+            <ChatBox/>
         </div>
     </div>
     );
