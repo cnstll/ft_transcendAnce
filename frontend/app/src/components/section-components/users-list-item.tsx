@@ -20,7 +20,7 @@ function UserOptions() {
 
 function UsersListItem(props) {
   return (
-    <div className="flex items-center justify-center my-4">
+    <div className="flex items-center justify-center">
       <div className="flex items-center justify-center mr-2">
         <img className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full" src={props.image} alt="Rounded avatar" />
         <div className="relative">

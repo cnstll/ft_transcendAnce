@@ -1,17 +1,20 @@
 import ChannelsListItem from "./channels-list-item";
+import { Channel } from "../global-components/chat";
 
-function ChannelsList(props) {
+type ChannelsListProps = {
+  channels: Channel[];
+}
+
+function ChannelsList({ channels }: ChannelsListProps) {
   return (
-    <ul className="text-white text-base">
-      {props.channels.map((channel) => (
+    <div className="p-4 flex flex-col gap-4 text-base my-4">
+      {channels.map((channel) => (
         <ChannelsListItem
           key={channel.id}
-          id={channel.id}
-          name={channel.name}
-          type={channel.type}
+          channelItem={channel}
           />
       ))}
-    </ul>
+    </div>
   );
 }
 

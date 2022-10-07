@@ -11,29 +11,35 @@ import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 
+export interface Channel {
+  id: string;
+  name: string;
+  type: "PUBLIC" | "PRIVATE" | "PROTECTED" | "DIRECTMESSAGE";
+}
+
 const CHANNELS_DATA = [
   {
-    id: '10',
+    id: '456e4567e89b1',
     name: 'Les démons de minuit',
     type: 'PUBLIC',
   },
   {
-    id: '20',
+    id: '456e4567e89b2',
     name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
     type: 'PRIVATE',
   },
   {
-    id: '30',
+    id: '456e4567e89b3',
     name: 'You shall not pass',
     type: 'PROTECTED',
   },
   {
-    id: '40',
+    id: '456e4567e89b4',
     name: 'Daphné',
     type: 'DIRECTMESSAGE',
   },
   {
-    id: '50',
+    id: '456e4567e89b5',
     name: 'John',
     type: 'DIRECTMESSAGE',
   },
