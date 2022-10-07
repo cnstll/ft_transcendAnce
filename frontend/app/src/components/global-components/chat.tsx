@@ -99,12 +99,6 @@ function Chat () {
         <div className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl">
           <SideBox>
-              {/* <div className="flex items-center justify-center flex-row gap-2 font-bold">
-                  <h1>CHANNELS</h1>
-                  <div className="flex justify-center">
-                    <button className="mx-2"><FontAwesomeIcon icon={faSquarePlus} /></button>
-                  </div>
-              </div> */}
             <ChannelHeader />
             <ChannelsList channels={CHANNELS_DATA} />
           </SideBox>
