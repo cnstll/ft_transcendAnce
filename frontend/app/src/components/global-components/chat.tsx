@@ -14,7 +14,7 @@ export interface User {
   id: string;
   image: string;
   nickname: string;
-  status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+  status: "OFFLINE" | "ONLINE" | "PLAYING";
 }
 
 const CHANUSERS_DATA : User[] = [

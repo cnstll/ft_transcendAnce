@@ -7,8 +7,9 @@ import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
+import { User } from './chat';
 
-const FRIENDS_DATA = [
+const FRIENDS_DATA: User[] = [
   {
     id: '10',
     nickname: 'Alexandre',

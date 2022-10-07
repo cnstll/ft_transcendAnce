@@ -1,7 +1,11 @@
-function OneBox(props) {
+type OneBoxProps = {
+  children: React.ReactNode;
+}
+
+function OneBox({children}: OneBoxProps) {
     return (
         <div className="bg-purple text-white h-[40rem] w-9/12">
-            {props.children}
+            {children}
         </div>
     );
 }
