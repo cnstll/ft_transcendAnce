@@ -7,13 +7,13 @@ import { faGamepad, faCircle as faCirclePlain } from '@fortawesome/free-solid-sv
 function UserOptions() {
   return (<div>
             <Link to="/">
+                <p className="text-center hover:underline my-2">See Profile</p>
+            </Link>
+            <Link to="/">
                 <p className="text-center hover:underline my-2">Invite to play</p>
             </Link>
             <Link to="/">
-                <p className="text-center hover:underline my-2">Remove from friends</p>
-            </Link>
-            <Link to="/">
-                <p className="text-center hover:underline my-2">Ban user</p>
+                <p className="text-center hover:underline my-2">Remove from friends / Ban user</p>
             </Link>
           </div>)
 }

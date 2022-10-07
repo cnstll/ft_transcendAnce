@@ -6,8 +6,9 @@ type ChannelsListProps = {
 }
 
 function ChannelsList({ channels }: ChannelsListProps) {
+
   return (
-    <div className="p-4 flex flex-col gap-4 text-base my-4">
+    <div className="flex flex-col text-base my-4">
       {channels.map((channel) => (
         <ChannelsListItem
           key={channel.id}
