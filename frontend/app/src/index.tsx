@@ -1,8 +1,6 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {
     BrowserRouter,
-    BrowserRouter as Router,
     Route,
     Routes,
   } from "react-router-dom";
@@ -15,7 +13,7 @@ import Play from './components/global-components/play';
 import Chat from './components/global-components/chat';
 import PageNotFound from './components/global-components/page-not-found';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <BrowserRouter>
         <Routes>
