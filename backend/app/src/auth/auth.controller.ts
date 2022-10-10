@@ -1,16 +1,7 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { Profile } from 'passport';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
 import { Api42OauthGuard } from './guard/api42.auth-guards';
 
 @Controller('auth')
@@ -22,7 +13,7 @@ export class AuthController {
   //   }
 
   @Get('test-env')
-  testEnvVars(@Res() response: Response): Response<any> {
+  testEnvVars(@Res() response: Response): Response {
     response.json({
       authorizationURL: process.env.API_AUTHORIZATION_URL,
       tokenURL: process.env.API_TOKEN_URL,
