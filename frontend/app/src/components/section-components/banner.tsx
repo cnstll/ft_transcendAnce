@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 function UserInfo() {
   return (
-    <div className="absolute top-20">
+    <div className="absolute top-14 sm:top-14 md:top-16 lg:top-20">
       <div className="w-24 h-22 py-2 bg-purple text-white text-xs sm:text-xs md:text-sm font-bold flex flex-col gap-1 border border-white">
         <Link to="/profile">
           <p className="flex justify-center hover:underline">Profile</p>
