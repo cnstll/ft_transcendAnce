@@ -81,7 +81,7 @@ function Profile() {
               </div>
             </div>
             <div className="py-10">
-              <StatBox />
+              <StatsBox />
             </div>
           </CenterBox>
           <SideBox>
