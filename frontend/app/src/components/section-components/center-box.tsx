@@ -10,4 +10,4 @@ function CenterBox({children}: CenterBoxProps) {
     );
 }
 
-export default CenterBox
+export default CenterBox;

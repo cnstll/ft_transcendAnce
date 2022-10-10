@@ -10,4 +10,4 @@ function SideBox({children}: SideBoxProps) {
     );
 }
 
-export default SideBox
+export default SideBox;
