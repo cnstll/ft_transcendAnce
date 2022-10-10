@@ -16,6 +16,7 @@ module.exports = {
       'green': colors.green,
       'gray': colors.gray,
       'red': colors.red,
+      'black': colors.black,
     },
     fontFamily: {
       sans: ['Aldrich', 'sans-serif']
