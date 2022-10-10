@@ -11,27 +11,34 @@ import DropDownButton  from '../section-components/drop-down-button';
 import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 
-const CHANUSERS_DATA = [
+export interface User {
+  id: string;
+  image: string;
+  nickname: string;
+  status: "OFFLINE" | "ONLINE" | "PLAYING";
+}
+
+const CHANUSERS_DATA : User[] = [
   {
-    id: '10',
+    id: '123e4567e89b1',
     nickname: 'Alexandra',
     image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
     status: 'OFFLINE',
   },
   {
-    id: '20',
+    id: '123e4567e89b2',
     nickname: 'Alexandre',
     image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
     status: 'ONLINE',
   },
   {
-    id: '30',
+    id: '123e4567e89b3',
     nickname: 'Alexandrinedrinedrine',
     image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
     status: 'PLAYING',
   },
   {
-    id: '40',
+    id: '123e4567e89b4',
     nickname: 'Alexandro',
     image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
     status: 'PLAYING',

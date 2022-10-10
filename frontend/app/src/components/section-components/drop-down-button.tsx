@@ -2,7 +2,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 
-function DropDownButton(props) {
+type DropDownButtonProps = {
+  children: React.ReactNode;
+}
+
+function DropDownButton({children}: DropDownButtonProps) {
   const [isShown, setIsShown] = useState(false);
 
   function showInfo() {
@@ -15,7 +19,7 @@ function DropDownButton(props) {
         <FontAwesomeIcon icon={faEllipsis} />
       </button>
       <div className="relative">
-        {isShown && props.children}
+        {isShown && children}
       </div>
     </div>
   );
