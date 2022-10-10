@@ -1,6 +1,6 @@
-type CenterBoxProps = {
+interface CenterBoxProps {
   children: React.ReactNode;
-};
+}
 
 function CenterBox({ children }: CenterBoxProps) {
   return (

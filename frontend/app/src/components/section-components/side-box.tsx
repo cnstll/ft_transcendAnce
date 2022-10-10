@@ -1,6 +1,6 @@
-type SideBoxProps = {
+interface SideBoxProps {
   children: React.ReactNode;
-};
+}
 
 function SideBox({ children }: SideBoxProps) {
   return (
