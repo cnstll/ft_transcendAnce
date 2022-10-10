@@ -19,7 +19,7 @@ function Chat () {
                 </SideBox>
                 <CenterBox>
                     <div className="h-full bg-cover bg-no-repeat border-2 border-purple" style={{ backgroundImage: `url(${BackgroundGeneral})` }}>
-                        <h1 className="flex justify-center p-5">
+                        <h1 className="flex justify-center px-5 py-5 font-bold">
                             [Channel name]
                         </h1>
                     </div>
