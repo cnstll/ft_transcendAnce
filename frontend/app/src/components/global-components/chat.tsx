@@ -5,6 +5,7 @@ import Banner from '../section-components/banner';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
+import Message from '../section-components/message';
 import BackgroundGeneral from "../../img/disco2.png";
 import DropDownButton  from '../section-components/drop-down-button';
 import DropDownMenu from '../section-components/drop-down-menu';
@@ -94,7 +95,7 @@ function ChannelOptions()
 
 function Chat () {
     return (
-    <div className="h-screen bg-black">
+    <div className="h-full min-h-screen bg-black">
         <Banner text = < FontAwesomeIcon icon={faHouse} /> />
         <div className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl">
@@ -123,6 +124,9 @@ function Chat () {
             </h1>
             <UsersList channelUsers={CHANUSERS_DATA} />
           </SideBox>
+        </div>
+        <div className="flex justify-center">
+            <ChatBox/>
         </div>
     </div>
     );
