@@ -12,12 +12,7 @@ import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
-
-export interface Channel {
-  id: string;
-  name: string;
-  type: "PUBLIC" | "PRIVATE" | "PROTECTED" | "DIRECTMESSAGE";
-}
+import { Channel } from "/home/app/src/components/global-components/interface"
 
 const CHANNELS_DATA : Channel[] = [
   {
@@ -46,6 +41,13 @@ const CHANNELS_DATA : Channel[] = [
     type: 'DIRECTMESSAGE',
   },
 ];
+
+export interface User {
+  id: string;
+  image: string;
+  nickname: string;
+  status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+}
 
 const CHANUSERS_DATA = [
   {

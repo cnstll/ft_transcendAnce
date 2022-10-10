@@ -39,7 +39,7 @@ function Banner(props) {
             </Link>
             <div className="relative">
                 <input className=" bg-white h-10 w-24 sm:w-36 sm:h-11 md:w-40 md:h-12 lg:w-56 lg:h-14 xl:w-56 xl:h-14
-                    px-2 py-2 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"
+                    px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"
                     type="text" name="search" placeholder="Search player"/>
                     <button type="submit" className="absolute top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm">
                         <FontAwesomeIcon icon={faMagnifyingGlass}/>

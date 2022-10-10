@@ -76,9 +76,9 @@ function Profile () {
                         </div>
                       </div>
                     </div>
-                    {/* <div className="py-5">
+                    <div className="py-5">
                         <StatsBox/>
-                    </div> */}
+                    </div>
                 </CenterBox>
                 <SideBox>
                     <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
