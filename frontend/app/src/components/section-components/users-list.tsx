@@ -2,7 +2,7 @@ import UsersListItem from "./users-list-item";
 
 function UsersList(props) {
   return (
-    <ul className="text-white text-base">
+    <div className="flex flex-col gap-4 text-base my-4">
       {props.channelUsers.map((channelUser) => (
         <UsersListItem
           key={channelUser.id}
@@ -12,7 +12,7 @@ function UsersList(props) {
           status={channelUser.status}
           />
       ))}
-    </ul>
+    </div>
   );
 }
 
