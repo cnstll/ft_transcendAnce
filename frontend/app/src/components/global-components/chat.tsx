@@ -10,7 +10,6 @@ import DropDownButton  from '../section-components/drop-down-button';
 import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
-import ChannelHeader from '../section-components/channel-header';
 
 export interface Channel {
   id: string;
@@ -99,7 +98,14 @@ function Chat () {
         <div className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl">
           <SideBox>
-            <ChannelHeader />
+            <div className="flex items-center flex-col gap-4 font-bold">
+              <div className="flex items-center">
+                <h1>CHANNELS</h1>
+                <div className="flex justify-center ml-4">
+                  <button className="mx-2"><FontAwesomeIcon icon={faSquarePlus} /></button>
+                </div>
+              </div>
+            </div>
             <ChannelsList channels={CHANNELS_DATA} />
           </SideBox>
           <CenterBox>

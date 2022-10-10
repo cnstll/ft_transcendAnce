@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faCommentDots} from '@fortawesome/free-solid-svg-icons';
+import { faUsers as faChannel, faCommentDots as faMessage} from '@fortawesome/free-solid-svg-icons';
 import { Channel } from "../global-components/chat";
 import { useState } from 'react';
 
@@ -14,25 +14,19 @@ function ChannelsListItem({ channelItem }: ChannelsListProps) {
     setIsActive((current) => !current);
   }
 
-  function channelElementsRender(style?: string) {
-    return (
-      <div className={style + " flex items-center justify-start"}>
+  return (
+    <div onClick={activeStateHandler}>
+      <div className={isActive ? "bg-purple-light flex items-center justify-start" : "flex items-center justify-start"}>
         <div className="flex items-center justify-start mx-2">
-          {(channelItem.type === "PUBLIC" || channelItem.type === "PRIVATE" || channelItem.type === "PROTECTED")
-            && <FontAwesomeIcon className="text-2xl" icon={faUsers} />}
-          {channelItem.type === "DIRECTMESSAGE"  && <FontAwesomeIcon className="text-2xl" icon={faCommentDots} />}
+          {channelItem.type === "DIRECTMESSAGE"
+            && <FontAwesomeIcon className="text-2xl" icon={faMessage} />}
+          {(!(channelItem.type === "DIRECTMESSAGE"))
+            && <FontAwesomeIcon className="text-2xl" icon={faChannel} />}
         </div>
         <div className="w-40 flex-wrap break-words py-4 px-2">
           <p className="ml-3">{channelItem.name}</p>
         </div>
       </div>
-    )
-  }
-
-  return (
-    <div onClick={activeStateHandler}>
-      {isActive && channelElementsRender("bg-purple-light")}
-      {!isActive && channelElementsRender("")}
     </div>
   )
 }
