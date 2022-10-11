@@ -29,9 +29,9 @@ interface UsersListItemProps {
   channelUser: User;
 }
 
-const iconCircle: IconProp = faCirclePlain;
-const iconCircleOffline: IconProp = faCirclePlain;
-const iconGame: IconProp = faGamepad;
+const iconCircle: IconProp = faCirclePlain as IconProp;
+const iconCircleOffline: IconProp = faCirclePlain as IconProp;
+const iconGame: IconProp = faGamepad as IconProp;
 
 function UsersListItem({ channelUser }: UsersListItemProps) {
   return (
