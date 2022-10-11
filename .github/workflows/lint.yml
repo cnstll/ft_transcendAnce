@@ -24,14 +24,16 @@ jobs: # list of things to do
         with:
          node-version: ${{ env.NODE_VERSION }}
          cache: 'npm'
-         
-      - name: Install Dependencies
-        run: npm install
-             && npm ci
-             && npm install @typescript-eslint/eslint-plugin@latest --save-dev
-             && npm install eslint-plugin-prettier@latest --save-dev
-             && npm install eslint-config-prettier --save-dev
-             && npm install eslint-config-react-app --save-dev
- 
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Install Back Dependencies
+        run: npm ci
+        working-directory: ./backend/app
+       
+      - name: Install Front Dependencies
+        run: npm ci
+        working-directory: ./frontend/app 
+
       - name: Code Linting
         run: npm run lint

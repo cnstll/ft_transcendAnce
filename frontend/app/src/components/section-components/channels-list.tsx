@@ -1,7 +1,7 @@
 import ChannelsListItem from "./channels-list-item";
 import { Channel } from "../global-components/chat";
 
-type ChannelsListProps = {
+interface ChannelsListProps {
   channels: Channel[];
 }
 
