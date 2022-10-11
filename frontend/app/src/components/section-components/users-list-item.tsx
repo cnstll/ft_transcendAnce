@@ -22,11 +22,11 @@ function UserOptions() {
       </Link>
     </div>
   );
+}
 
 interface UsersListItemProps {
   channelUser: User;
 }
-
 
 function UsersListItem({ channelUser }: UsersListItemProps) {
   return (
