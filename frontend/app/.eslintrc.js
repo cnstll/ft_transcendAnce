@@ -16,6 +16,7 @@ module.exports = {
     'plugin:@typescript-eslint/strict',
   ],
   rules: {
+    '@typescript-eslint/no-unsafe-assignment': 'error',
     '@typescript-eslint/naming-convention': [
       'error',
       {
@@ -27,6 +28,5 @@ module.exports = {
         format: ['PascalCase'],
       },
     ],
-    '@typescript-eslint/no-unsafe-assignment': 'error',
   },
 };

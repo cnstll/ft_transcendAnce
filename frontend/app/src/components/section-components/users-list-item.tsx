@@ -7,6 +7,7 @@ import {
   faCircle as faCirclePlain,
 } from '@fortawesome/free-solid-svg-icons';
 import type { User } from '../global-components/chat';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 function UserOptions() {
   return (
@@ -42,14 +43,14 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
             {channelUser.status === 'ONLINE' && (
               <FontAwesomeIcon
                 className="text-green-600"
-                icon={faCirclePlain}
+                icon={faCirclePlain as IconProp}
               />
             )}
             {channelUser.status === 'OFFLINE' && (
-              <FontAwesomeIcon className="text-gray-500" icon={faCirclePlain} />
+              <FontAwesomeIcon className="text-gray-500" icon={faCirclePlain as IconProp} />
             )}
             {channelUser.status === 'PLAYING' && (
-              <FontAwesomeIcon icon={faGamepad} />
+              <FontAwesomeIcon icon={faGamepad as IconProp} />
             )}
           </div>
         </div>
