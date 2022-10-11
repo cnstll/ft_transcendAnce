@@ -2,13 +2,14 @@ import BackgroundSignin from '../../img/disco.png';
 import logo from '../../img/42_logo.png';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
+import { Link } from 'react-router-dom';
 
 function SignIn() {
   return (
     <div>
       <Background background={BackgroundSignin}>
         <div className="flex flex-col h-screen justify-center items-center gap-10">
-          <a href="http://localhost:3000/auth/signin">
+          <Link to="auth/signin">
             <Button>
               <div className="flex flex-row justify-center gap-2">
                 <img src={logo} alt="Logo" className="w-2/12" />
@@ -18,7 +19,7 @@ function SignIn() {
                 </p>
               </div>
             </Button>
-          </a>
+          </Link>
         </div>
       </Background>
     </div>
