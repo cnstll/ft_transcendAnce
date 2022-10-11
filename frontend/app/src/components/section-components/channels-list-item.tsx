@@ -3,19 +3,19 @@ import { faUsers as faChannel, faCommentDots as faMessage} from '@fortawesome/fr
 import { Channel } from '../global-components/interface';
 import { useState } from 'react';
 
-type ChannelsListProps = {
+interface ChannelsListProps {
   channelItem: Channel;
 }
 
 function ChannelsListItem({ channelItem }: ChannelsListProps) {
   const [isActive, setIsActive] = useState(false);
 
-  function activeStateHandler() {
+  function ActiveStateHandler() {
     setIsActive((current) => !current);
   }
 
   return (
-    <div onClick={activeStateHandler}>
+    <div onClick={ActiveStateHandler}>
       <div className={isActive ? "bg-purple-light flex items-center justify-start" : "flex items-center justify-start"}>
         <div className="flex items-center justify-start mx-2">
           {channelItem.type === "DIRECTMESSAGE"

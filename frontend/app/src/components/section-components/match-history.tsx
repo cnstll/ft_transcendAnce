@@ -2,8 +2,13 @@ interface MatchData {
   id?: string;
   imageCurrentPlayer: string;
   imageOponent: string;
-  score?: string;
-  matchWon?: boolean;
+  score: string;
+  matchWon: boolean;
+}
+
+interface PictureData {
+  imageCurrentPlayer: string;
+  imageOponent: string;
 }
 
 interface StatusData {
@@ -50,7 +55,7 @@ const matchExamples: MatchData[] = [
   },
 ];
 
-function VersusComponent({ imageCurrentPlayer, imageOponent }: MatchData) {
+function VersusComponent({ imageCurrentPlayer, imageOponent }: PictureData) {
   return (
     <div className="flex flex-row gap-2">
       <img
