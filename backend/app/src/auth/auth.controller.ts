@@ -6,7 +6,7 @@ import { Api42OauthGuard } from './guard/api42.auth-guards';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
   @Get('test-env')
   testEnvVars(@Res() response: Response): Response<any> {
     response.json({
