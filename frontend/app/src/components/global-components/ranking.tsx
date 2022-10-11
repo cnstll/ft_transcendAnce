@@ -1,7 +1,7 @@
 import Banner from '../section-components/banner';
-import BackgroundGeneral from "../../img/disco2.png";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
+import BackgroundGeneral from '../../img/disco2.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import OneBox from '../section-components/one-box';
 import { NumericFormat } from 'react-number-format';
@@ -62,7 +62,7 @@ function RankingList ({position, image, name, score}: RankingData) {
             </td>
             <td>
                 {name}
-            </td> 
+            </td>
             <td className="flex justify-center">
                 < NumericFormat className="text-lg sm:text-lg md:text-xl lg:text-2xl" value={score} thousandSeparator=" " displayType="text"/>
             </td>
@@ -70,40 +70,40 @@ function RankingList ({position, image, name, score}: RankingData) {
     );
 }
 
-function Ranking () {
-    return (
+function Ranking() {
+  return (
     <div>
         <Background background={BackgroundGeneral}>
-            <Banner text = < FontAwesomeIcon icon={faHouse} /> />
+        <Banner text={<FontAwesomeIcon icon={faHouse} />} />
             <div className="flex justify-center mt-6">
                 <OneBox>
                     <h1 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">RANKING</h1>
-                        <table className="min-w-full border-collapse mt-10">
-                            <thead>
-                                <tr>
-                                    <td className="w-10 sm:w-12 md:w-14 lg:w-20">
-                                    </td>
-                                    <td className="w-10 sm:w-12 md:w-14 lg:w-20">
-                                    </td>
-                                    <td className="w-1/6 sm:w-2/6 md:w-3/6 lg:w-4/6">
-                                    </td>
-                                    <td className="flex justify-center text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                                        SCORE
-                                    </td>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {rankingExamples.map((rankingExample) => (
-                                <RankingList position={rankingExample.position} image={rankingExample.image}
-                                    name={rankingExample.name} score={rankingExample.score} />
-                            ))}
-                            </tbody>
-                        </table>
+                      <table className="min-w-full border-collapse mt-10">
+                        <thead>
+                            <tr>
+                                <td className="w-10 sm:w-12 md:w-14 lg:w-20">
+                                </td>
+                                <td className="w-10 sm:w-12 md:w-14 lg:w-20">
+                                </td>
+                                <td className="w-1/6 sm:w-2/6 md:w-3/6 lg:w-4/6">
+                                </td>
+                                <td className="flex justify-center text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                                    SCORE
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {rankingExamples.map((rankingExample) => (
+                            <RankingList position={rankingExample.position} image={rankingExample.image}
+                                name={rankingExample.name} score={rankingExample.score} />
+                        ))}
+                        </tbody>
+                      </table>
                 </OneBox>
             </div>
         </Background>
     </div>
-    );
+  );
 }
 
-export default Ranking
+export default Ranking;
