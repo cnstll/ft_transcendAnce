@@ -28,11 +28,11 @@ jobs: # list of things to do
         run: npm install
 
       - name: Install Back Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./backend/app
        
       - name: Install Front Dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./frontend/app 
 
       - name: Code Linting
