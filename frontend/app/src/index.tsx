@@ -9,8 +9,7 @@ import Play from './components/global-components/play';
 import Chat from './components/global-components/chat';
 import PageNotFound from './components/global-components/page-not-found';
 
-const rootElement: Element = document.getElementById('root') as Element;
-const root: ReactDOM.Root = ReactDOM.createRoot(rootElement);
+const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 root.render(
   <BrowserRouter>
     <Routes>
