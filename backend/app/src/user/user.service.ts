@@ -12,7 +12,7 @@ export class UserService {
       const user = await this.prismaService.user.create({
         data: {
           nickName: dto.nickName,
-          passwordHash: 'very-secure-password',
+          passwordHash: dto.passwordHash,
         },
       });
       return user;
