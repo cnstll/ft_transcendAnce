@@ -8,6 +8,7 @@ import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
 import StatsBox from '../section-components/stats-box';
+import NickNameForm from '../section-components/nickname-form';
 
 const FRIENDS_DATA = [
   {
@@ -77,6 +78,7 @@ function Profile () {
                     <div className="py-10">
                         <StatsBox/>
                     </div>
+                    <div><NickNameForm/></div>
                 </CenterBox>
                 <SideBox>
                     <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
