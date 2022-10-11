@@ -31,10 +31,8 @@ import { UserModule } from '../user/user.module';
     }),
   ],
 })
-
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthMiddleware).forRoutes('auth/signin');
   }
 }
-
