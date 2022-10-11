@@ -9,6 +9,7 @@ import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
+import { MatchData } from './interface';
 
 const FRIENDS_DATA = [
   {
@@ -38,13 +39,20 @@ const FRIENDS_DATA = [
   },
 ];
 
+const matchExamples : MatchData =
+  {
+    numberOfWin: 10,
+    numberOfLoss: 2,
+    ranking: 1,
+  };
+
 function Profile () {
     return (
     <div>
         <Background background={BackgroundGeneral}>
             <Banner text = < FontAwesomeIcon icon={faHouse} /> />
             <div className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
-                gap-10 px-5 justify-center mt-6 text-white text-3xl">
+                gap-10 justify-center mt-6 text-white text-3xl">
                 <SideBox>
                     <div className="flex justify-center">
                         <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
@@ -76,14 +84,14 @@ function Profile () {
                         </div>
                       </div>
                     </div>
-                    <div className="py-5">
-                        <StatsBox/>
-                    </div>
                 </CenterBox>
                 <SideBox>
                     <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
                     <UsersList channelUsers={FRIENDS_DATA} />
                 </SideBox>
+            </div>
+            <div className="flex justify-center">
+              < StatsBox numberOfWin={matchExamples.numberOfWin} numberOfLoss={matchExamples.numberOfLoss} ranking={matchExamples.ranking} />
             </div>
         </Background>
     </div>

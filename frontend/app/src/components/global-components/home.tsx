@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
 
-function Home () {
-    return (
-        <div>
-            <Background background={BackgroundGeneral}>
-                <Banner text="TRANSCENDANCE 🕺"/>
+function Home() {
+  return (
+    <div>
+      <Background background={BackgroundGeneral}>
+        <Banner text="TRANSCENDANCE 🕺" />
                 <div className="flex flex-col h-screen justify-center items-center gap-10">
                     <Link to ="/play">
                         <Button>

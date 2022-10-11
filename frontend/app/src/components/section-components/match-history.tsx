@@ -7,8 +7,8 @@ interface MatchData {
 }
 
 interface StatusData {
-    score: string;
-    matchWon: boolean;
+  score: string;
+  matchWon: boolean;
 }
 
 const matchExamples: MatchData[] = [
@@ -70,7 +70,7 @@ function VersusComponent({ imageCurrentPlayer, imageOponent }: MatchData) {
 
 function StatusComponent({ matchWon, score}: StatusData) {
   return (
-    <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl">
+    <div className="text-base sm:text-base md:text-2xl lg:text-2xl xl:text-3xl">
       {matchWon ? (
         <p className=" text-green-500">WON {score} </p>
       ) : (
@@ -84,7 +84,10 @@ function MatchHistory() {
   return (
     <div className="flex flex-col gap-6 m-10">
       {matchExamples.map((matchExample) => (
-        <div className="flex flex-row gap-32 items-center">
+        <div
+          key={matchExample.id}
+          className="flex flex-row gap-32 items-center"
+        >
           <VersusComponent
             imageCurrentPlayer={matchExample.imageCurrentPlayer}
             imageOponent={matchExample.imageOponent}

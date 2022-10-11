@@ -5,8 +5,14 @@ export interface Channel {
 }
 
 export interface User {
-    id: string;
-    image: string;
-    nickname: string;
-    status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
-  }
+  id: string;
+  image: string;
+  nickname: string;
+  status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+}
+
+export interface MatchData {
+  numberOfWin: number;
+  numberOfLoss: number;
+  ranking: number;
+}

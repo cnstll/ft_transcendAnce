@@ -11,7 +11,7 @@ function UserInfo()
 {
     return (
       <div>
-        <Link to="/profile">
+        <Link to="/profile/ttravis">
             <p className="text-center hover:underline my-2">Profile</p>
         </Link>
         <Link to="/ranking">
