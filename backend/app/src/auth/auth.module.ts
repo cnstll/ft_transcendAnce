@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '../strategy/jwt.strategy';
 import { AuthMiddleware } from './middleware/auth.middleware';
+import { UserModule } from '../user/user.module';
 
 @Module({
   controllers: [AuthController],
@@ -16,12 +17,13 @@ import { AuthMiddleware } from './middleware/auth.middleware';
   imports: [
     HttpModule,
     PassportModule,
+    UserModule,
     JwtModule.registerAsync({
       useFactory: async () => {
         return {
           secret: process.env.JWT_SECRET,
           signOptions: {
-            expiresIn: '15s',
+            expiresIn: '3600s',
           },
         };
       },

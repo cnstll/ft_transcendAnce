@@ -4,6 +4,8 @@ import { lastValueFrom } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { Profile } from 'passport';
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
 
 @Injectable({})
 export class AuthService {
@@ -11,6 +13,7 @@ export class AuthService {
     private prisma: PrismaService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   login(user: Profile) {
@@ -21,14 +24,37 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  //   async userCreate(dto: AuthDto) {
-  //     const user = await this.prisma.users.create({
-  //       data: {
-  //         nickName: dto.name.toString(),
-  //       },
-  //     });
-  //     return user;
-  //   }
+  async validateUser(details: any) {
+    console.log('AuthService');
+    console.log(details);
+    let user = await this.userService.findOne('jescully');
+    console.log(user);
+    if (user) return user;
+    console.log('User not found. Creating...');
+    if (!user) {
+      console.log('creating a user now');
+      user = await this.prisma.user.create({
+        data: {
+          nickName: 'astring',
+          passwordHash: 'hds',
+        },
+      });
+    }
+    return user;
+  }
+
+  public async loginIntra(userData: any, accessToken: string) {
+    const user: User = await this.userService.findOne(userData.login);
+    if (!user) {
+      const data = {
+        nickName: userData.login,
+        passwordHash: accessToken,
+      };
+      this.userService.createUser(data);
+    }
+    return user;
+  }
+
   async retrieveProfileData(accessToken: string): Promise<any> {
     const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
       headers: { Authorization: `Bearer ${accessToken}` },

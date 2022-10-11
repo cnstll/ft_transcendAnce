@@ -11,7 +11,7 @@ export class UserService {
     try {
       const user = await this.prismaService.user.create({
         data: {
-          nickName: dto.name,
+          nickName: dto.nickName,
           passwordHash: 'very-secure-password',
         },
       });
@@ -32,6 +32,14 @@ export class UserService {
   }
   updateUser(): void {
     return;
+  }
+
+  findOne(username: string): Promise<any | undefined> {
+    return this.prismaService.user.findUnique({
+      where: {
+        nickName: username.toString(),
+      },
+    });
   }
 
   deleteUser(): void {

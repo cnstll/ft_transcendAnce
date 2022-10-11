@@ -6,12 +6,7 @@ import { Api42OauthGuard } from './guard/api42.auth-guards';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
-  //   @Post('create')
-  //   signup(@Body() dto: AuthDto) {
-  //     return this.authService.userCreate(dto);
-  //   }
-
+  constructor(private authService: AuthService) { }
   @Get('test-env')
   testEnvVars(@Res() response: Response): Response<any> {
     response.json({
@@ -26,31 +21,17 @@ export class AuthController {
     return response;
   }
 
-  @UseGuards(Api42OauthGuard)
   @Get('signin')
+  @UseGuards(Api42OauthGuard)
   login(): void {
     return;
   }
 
   @UseGuards(Api42OauthGuard)
-  @Get('redirect')
-  async api42Redirect(@Req() req: any, @Res() res: Response): Promise<void> {
-    const {
-      //   user,
-      authInfo,
-    }: {
-      //   user: Profile;
-      authInfo: {
-        accessToken: string;
-        refreshToken: string;
-        results: object;
-      };
-    } = req;
-
-    const userData = await this.authService.retrieveProfileData(
-      authInfo.accessToken,
-    );
-    const jwt = this.authService.login(userData);
-    return res.cookie('jwtToken', `${jwt}`).redirect('http://localhost:8080/');
+  @Get('/42/callback')
+  loginIntra(@Res() res, @Req() req): any {
+    const url = new URL('http://localhost:8080/profile');
+    const token = this.authService.login(req.user);
+    res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
   }
 }
