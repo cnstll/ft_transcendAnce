@@ -1,23 +1,32 @@
 module.exports = {
+  root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
     tsconfigRootDir: __dirname,
-    sourceType: 'module',
+    project: ['./tsconfig.json'],
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
-    'plugin:prettier/recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:@typescript-eslint/strict',
   ],
-  root: true,
-  env: {
-    node: true,
-    jest: true,
+  rules: {
+    '@typescript-eslint/no-unsafe-assignment': 'error',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: ['variable', 'parameter'],
+        format: ['camelCase'],
+      },
+      {
+        selector: ['function', 'interface', 'class'],
+        format: ['PascalCase'],
+      },
+    ],
   },
-  ignorePatterns: ['.eslintrc.js'],
-  rules: {},
 };
