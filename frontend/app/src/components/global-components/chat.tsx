@@ -10,6 +10,42 @@ import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
+import ChannelsList from '../section-components/channels-list';
+import ChannelHeader from '../section-components/channel-header';
+
+export interface Channel {
+  id: string;
+  name: string;
+  type: "PUBLIC" | "PRIVATE" | "PROTECTED" | "DIRECTMESSAGE";
+}
+
+const channelsData : Channel[] = [
+  {
+    id: '456e4567e89b1',
+    name: 'Les démons de minuit',
+    type: 'PUBLIC',
+  },
+  {
+    id: '456e4567e89b2',
+    name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
+    type: 'PRIVATE',
+  },
+  {
+    id: '456e4567e89b3',
+    name: 'You shall not pass',
+    type: 'PROTECTED',
+  },
+  {
+    id: '456e4567e89b4',
+    name: 'Daphné',
+    type: 'DIRECTMESSAGE',
+  },
+  {
+    id: '456e4567e89b5',
+    name: 'John',
+    type: 'DIRECTMESSAGE',
+  },
+];
 
 export interface User {
   id: string;
@@ -70,13 +106,10 @@ function Chat() {
       <Banner text={<FontAwesomeIcon icon={faHouse} />} />
       <div
         className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
-                gap-10 px-5 justify-center mt-6 text-white text-3xl"
-      >
+                gap-10 px-5 justify-center mt-6 text-white text-3xl">
         <SideBox>
-          <div className="flex justify-center flex-row gap-4 font-bold">
-            <h1>CHANNEL</h1>
-            <button>+</button>
-          </div>
+          <ChannelHeader />
+          <ChannelsList channels={channelsData} />
         </SideBox>
         <CenterBox>
           <div

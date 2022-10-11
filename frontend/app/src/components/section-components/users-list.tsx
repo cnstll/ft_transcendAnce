@@ -7,11 +7,11 @@ interface UsersListProps {
 
 function UsersList({ channelUsers }: UsersListProps) {
   return (
-    <ul className="text-white text-base">
+    <div className="flex flex-col text-base my-4 gap-4">
       {channelUsers.map((user) => (
         <UsersListItem key={user.id} channelUser={user} />
       ))}
-    </ul>
+    </div>
   );
 }
 
