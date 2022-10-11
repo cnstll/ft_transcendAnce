@@ -29,6 +29,10 @@ interface UsersListItemProps {
   channelUser: User;
 }
 
+const iconCircle: IconProp = faCirclePlain;
+const iconCircleOffline: IconProp = faCirclePlain;
+const iconGame: IconProp = faGamepad;
+
 function UsersListItem({ channelUser }: UsersListItemProps) {
   return (
     <div className="flex items-center justify-center">
@@ -43,14 +47,14 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
             {channelUser.status === 'ONLINE' && (
               <FontAwesomeIcon
                 className="text-green-600"
-                icon={faCirclePlain as IconProp}
+                icon={iconCircle}
               />
             )}
             {channelUser.status === 'OFFLINE' && (
-              <FontAwesomeIcon className="text-gray-500" icon={faCirclePlain as IconProp} />
+              <FontAwesomeIcon className="text-gray-500" icon={iconCircleOffline} />
             )}
             {channelUser.status === 'PLAYING' && (
-              <FontAwesomeIcon icon={faGamepad as IconProp} />
+              <FontAwesomeIcon icon={iconGame} />
             )}
           </div>
         </div>
