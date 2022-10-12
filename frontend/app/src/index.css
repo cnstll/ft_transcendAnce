@@ -1,5 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Aldrich&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Change Autocomplete styles in Chrome*/
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: 0px 0px 0px 0px solid #5454B6;
+  -webkit-text-fill-color: white ;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  transition: background-color 5000s ease-in-out 0s;
+  color: white;
+}
