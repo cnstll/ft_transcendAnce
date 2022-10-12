@@ -11,7 +11,7 @@ function ChannelHeader() {
           <button className="mx-2"><FontAwesomeIcon icon={faSquarePlus} /></button>
         </div>
       </div>
-      <SearchBox style="h-8 w-36 sm:w-36 sm:h-9 md:w-40 md:h-10 lg:w-56 lg:h-12 xl:w-56 xl:h-12 text-black" placeholder="channel"/>
+      <SearchBox height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 " width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="channel"/>
     </div>
   )
 

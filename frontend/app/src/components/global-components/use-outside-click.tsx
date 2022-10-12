@@ -19,3 +19,23 @@ export function UseOutsideClick(callback: () => void) {
 
   return ref;
 }
+
+export function UseOutsideInputClick(callback: () => void) {
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleClick = (event: Event) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        callback();
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, [ref]);
+
+  return ref;
+}

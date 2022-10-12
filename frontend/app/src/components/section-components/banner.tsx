@@ -47,7 +47,7 @@ function Banner({ text }: BannerProps) {
           {text}
         </h1>
       </Link>
-      <SearchBox style="h-10 w-24 sm:w-36 sm:h-11 md:w-40 md:h-12 lg:w-56 lg:h-14 xl:w-56 xl:h-14" placeholder="player"/>
+      <SearchBox height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 " width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="player"/>
       <div className="relative">
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
           <img
