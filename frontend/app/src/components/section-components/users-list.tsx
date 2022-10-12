@@ -1,18 +1,17 @@
-import UsersListItem from "./users-list-item";
+import UsersListItem from './users-list-item';
+import type { User } from '../global-components/chat';
 
-function UsersList(props) {
+interface UsersListProps {
+  channelUsers: User[];
+}
+
+function UsersList({ channelUsers }: UsersListProps) {
   return (
-    <ul className="text-white text-base">
-      {props.channelUsers.map((channelUser) => (
-        <UsersListItem
-          key={channelUser.id}
-          id={channelUser.id}
-          image={channelUser.image}
-          nickname={channelUser.nickname}
-          status={channelUser.status}
-          />
+    <div className="flex flex-col text-base my-4 gap-4">
+      {channelUsers.map((user) => (
+        <UsersListItem key={user.id} channelUser={user} />
       ))}
-    </ul>
+    </div>
   );
 }
 

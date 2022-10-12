@@ -1,37 +1,29 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { Strategy, VerifyCallback } from 'passport-oauth2';
 import { AuthService } from '../auth/auth.service';
-import { Profile } from 'passport';
-import { StatSyncFn } from 'fs';
+import { Strategy } from 'passport-42';
+import { HttpService } from '@nestjs/axios';
+import { User } from '@prisma/client';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class Api42Strategy extends PassportStrategy(Strategy, 'api42') {
-  constructor(private authService: AuthService) {
-    super(
-      {
-        clientID: process.env.API_UID,
-        callbackURL: process.env.API_URI,
-        tokenURL: process.env.API_TOKEN_URL,
-        authorizationURL: process.env.API_AUTHORIZATION_URL,
-        clientSecret: process.env.API_SECRET,
-      },
-      (
-        accessToken: string,
-        refreshToken: string,
-        results: object,
-        profile: Profile,
-        done: VerifyCallback,
-      ) => {
-        return done(null, profile, {
-          accessToken,
-          refreshToken,
-          results,
-        });
-      },
-    );
+export class Api42Strategy extends PassportStrategy(Strategy) {
+  constructor(
+    private authService: AuthService,
+    private httpService: HttpService,
+  ) {
+    super({
+      clientID: process.env.API_UID,
+      clientSecret: process.env.API_SECRET,
+      callbackURL: process.env.API_URI,
+    });
   }
-  async validate(accessToken: string): Promise<any> {
-    return this.authService.retrieveProfileData(accessToken);
+  async validate(accessToken: string): Promise<User> {
+    const { data } = await lastValueFrom(
+      this.httpService.get('https://api.intra.42.fr/v2/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }),
+    );
+    return this.authService.loginIntra(data, accessToken);
   }
 }
