@@ -1,5 +1,4 @@
 import DropDownButton from './drop-down-button';
-import DropDownMenu from './drop-down-menu';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -64,9 +63,7 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
       </div>
       <div className="content-center mx-2 mt-1">
         <DropDownButton>
-          <DropDownMenu>
             <UserOptions />
-          </DropDownMenu>
         </DropDownButton>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { UseOutsideClick } from './use-outside-click';
 import DropDownMenu from './drop-down-menu';
 
 function UserInfo() {
@@ -33,6 +34,12 @@ function Banner({ text }: BannerProps) {
     setIsShown((current) => !current);
   };
 
+  function HandleClickOutside() {
+    setIsShown(false);
+  }
+
+  const ref = UseOutsideClick(HandleClickOutside);
+
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
       <Link to="/">
@@ -62,7 +69,7 @@ function Banner({ text }: BannerProps) {
             src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
             alt="Rounded avatar"
           />
-          <button onClick={showInfo} className="text-white font-bold">
+          <button ref={ref} onClick={showInfo} className="text-white font-bold">
             <FontAwesomeIcon icon={faChevronDown} />
           </button>
         </div>
