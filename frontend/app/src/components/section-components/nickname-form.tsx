@@ -1,7 +1,7 @@
-import { useRef } from 'react';
+import { FormEvent, useRef } from 'react';
 import { useState } from 'react';
 
-const MOCKUP_DB_NAMES = [
+const mockupDb = [
   { nickName: 'Bob' },
   { nickName: 'Mary' },
   { nickName: 'Alice' },
@@ -14,10 +14,10 @@ function NickNameForm() {
     setNameNotValid(false);
   }
 
-  function onSubmitHandler(event) {
+  function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (
-      MOCKUP_DB_NAMES.some((entry) => {
+      mockupDb.some((entry) => {
         return entry.nickName == nicknameRef.current.value;
       })
     ) {

@@ -1,16 +1,17 @@
 import Banner from '../section-components/banner';
-import BackgroundGeneral from "../../img/disco2.png";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import { faPencil } from '@fortawesome/free-solid-svg-icons'
+import BackgroundGeneral from '../../img/disco2.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
+import { User } from './chat';
 import StatsBox from '../section-components/stats-box';
 import NickNameForm from '../section-components/nickname-form';
 
-const FRIENDS_DATA = [
+const friendsData: User[] = [
   {
     id: '10',
     nickname: 'Alexandre',
@@ -38,8 +39,8 @@ const FRIENDS_DATA = [
   },
 ];
 
-function Profile () {
-    return (
+function Profile() {
+  return (
     <div>
         <Background background={BackgroundGeneral}>
             <Banner text = < FontAwesomeIcon icon={faHouse} /> />
@@ -82,12 +83,12 @@ function Profile () {
                 </CenterBox>
                 <SideBox>
                     <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
-                    <UsersList channelUsers={FRIENDS_DATA} />
+                    <UsersList channelUsers={friendsData} />
                 </SideBox>
             </div>
         </Background>
     </div>
-    );
+  );
 }
 
-export default Profile
+export default Profile;
