@@ -14,6 +14,7 @@ export class UserService {
         data: {
           nickName: dto.nickName,
           passwordHash: dto.passwordHash,
+          avatarImg: dto.avatarImg,
         },
       });
       return user;

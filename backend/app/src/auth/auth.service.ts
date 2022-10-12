@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Profile } from 'passport';
 import { User } from '@prisma/client';
@@ -21,12 +21,14 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
+
   public async loginIntra(userData: AuthDto, accessToken: string) {
     const user: User = await this.userService.findOne(userData.login);
     if (!user) {
       const data = {
         nickName: userData.login,
         passwordHash: accessToken,
+        avatarImg: userData.image_url,
       };
       return this.userService.createUser(data);
     }
@@ -39,6 +41,7 @@ export class AuthService {
       const data = {
         nickName: userData.nickName,
         passwordHash: userData.passwordHash,
+        avatarImg: userData.avatarImg,
       };
       return await this.userService.createUser(data);
     }
