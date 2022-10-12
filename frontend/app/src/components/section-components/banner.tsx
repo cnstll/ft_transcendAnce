@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { UseOutsideClick } from './use-outside-click';
+import { UseOutsideClick } from '../global-components/use-outside-click';
 import DropDownMenu from './drop-down-menu';
+import SearchBox from './search-box';
 
 function UserInfo() {
   return (
@@ -34,11 +34,11 @@ function Banner({ text }: BannerProps) {
     setIsShown((current) => !current);
   };
 
-  function HandleClickOutside() {
+  function ClickOutsideHandler() {
     setIsShown(false);
   }
 
-  const ref = UseOutsideClick(HandleClickOutside);
+  const ref = UseOutsideClick(ClickOutsideHandler);
 
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
@@ -47,21 +47,7 @@ function Banner({ text }: BannerProps) {
           {text}
         </h1>
       </Link>
-      <div className="relative">
-        <input
-          className=" bg-white h-10 w-24 sm:w-36 sm:h-11 md:w-40 md:h-12 lg:w-56 lg:h-14 xl:w-56 xl:h-14
-              px-2 py-2 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"
-          type="text"
-          name="search"
-          placeholder="Search player"
-        />
-        <button
-          type="submit"
-          className="absolute top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm"
-        >
-          <FontAwesomeIcon icon={faMagnifyingGlass} />
-        </button>
-      </div>
+      <SearchBox style="h-10 w-24 sm:w-36 sm:h-11 md:w-40 md:h-12 lg:w-56 lg:h-14 xl:w-56 xl:h-14" placeholder="player"/>
       <div className="relative">
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
           <img

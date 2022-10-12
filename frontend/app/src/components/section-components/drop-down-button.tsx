@@ -1,13 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { UseOutsideClick } from './use-outside-click';
+import { UseOutsideClick } from '../global-components/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 
 interface DropDownButtonProps {
   children: React.ReactNode;
 }
-
 
 function DropDownButton({ children }: DropDownButtonProps) {
   const [isShown, setIsShown] = useState(false);
@@ -16,11 +15,11 @@ function DropDownButton({ children }: DropDownButtonProps) {
     setIsShown((current) => !current);
   }
 
-  function HandleClickOutside() {
+  function ClickOutsideHandler() {
     setIsShown(false);
   }
 
-  const ref = UseOutsideClick(HandleClickOutside);
+  const ref = UseOutsideClick(ClickOutsideHandler);
 
   return (
     <div className="static">
