@@ -21,7 +21,6 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-
   public async loginIntra(userData: AuthDto, accessToken: string) {
     const user: User = await this.userService.findOne(userData.login);
     if (!user) {
