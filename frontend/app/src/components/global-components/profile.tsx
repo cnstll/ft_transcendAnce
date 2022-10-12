@@ -9,6 +9,7 @@ import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
 import { User } from './chat';
 import StatsBox from '../section-components/stats-box';
+import axios from 'axios';
 
 const friendsData: User[] = [
   {
