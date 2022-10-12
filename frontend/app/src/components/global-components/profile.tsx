@@ -7,7 +7,7 @@ import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
-import { User } from './chat';
+import { User } from '../global-components/interface';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
 import { MatchData } from './interface';
@@ -79,16 +79,16 @@ function Profile() {
           <div className="h-full overflow-y-auto">
                 <div className="flex">
                   <div className="flex-1">
-                    <h1 className="flex justify-center p-5 font-bold">
+                    <h2 className="flex justify-center p-5 font-bold">
                         MATCH HISTORY
-                    </h1>
+                    </h2>
                     <MatchHistory/>
                   </div>
                 </div>
               </div>
           </CenterBox>
           <SideBox>
-            <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
+            <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
             <UsersList channelUsers={friendsData} />
           </SideBox>
         </div>

@@ -37,9 +37,9 @@ function Banner({ text }: BannerProps) {
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
       <Link to="/">
-        <h1 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
+        <h2 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
           {text}
-        </h1>
+        </h2>
       </Link>
       <div className="relative">
         <input

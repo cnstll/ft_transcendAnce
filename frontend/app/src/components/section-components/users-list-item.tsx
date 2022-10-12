@@ -6,7 +6,7 @@ import {
   faGamepad,
   faCircle as faCirclePlain,
 } from '@fortawesome/free-solid-svg-icons';
-import type { User } from '../global-components/chat';
+import type { User } from '../global-components/interface';
 
 function UserOptions() {
   return (
