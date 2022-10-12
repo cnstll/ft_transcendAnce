@@ -12,12 +12,7 @@ import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
-
-export interface Channel {
-  id: string;
-  name: string;
-  type: "PUBLIC" | "PRIVATE" | "PROTECTED" | "DIRECTMESSAGE";
-}
+import { Channel, User } from "../global-components/interface"
 
 const channelsData : Channel[] = [
   {
@@ -46,13 +41,6 @@ const channelsData : Channel[] = [
     type: 'DIRECTMESSAGE',
   },
 ];
-
-export interface User {
-  id: string;
-  image: string;
-  nickname: string;
-  status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
-}
 
 const chanUsersData: User[] = [
   {
@@ -113,14 +101,14 @@ function Chat() {
         </SideBox>
         <CenterBox>
           <div
-            className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-auto"
+            className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
             style={{ backgroundImage: `url(${BackgroundGeneral})` }}
           >
             <div className="flex">
               <div className="flex-1">
-                <h1 className="flex justify-center p-5 font-bold">
+                <h2 className="flex justify-center p-5 font-bold">
                   [Channel name]
-                </h1>
+                </h2>
               </div>
               <div className="p-5 flex justify-center">
                 <DropDownButton>
@@ -134,7 +122,7 @@ function Chat() {
           </div>
         </CenterBox>
         <SideBox>
-          <h1 className="flex justify-center font-bold">MEMBERS</h1>
+          <h2 className="flex justify-center font-bold">MEMBERS</h2>
           <UsersList channelUsers={chanUsersData} />
         </SideBox>
       </div>

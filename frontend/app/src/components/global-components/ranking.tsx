@@ -77,7 +77,7 @@ function Ranking() {
         <Banner text={<FontAwesomeIcon icon={faHouse} />} />
             <div className="flex justify-center mt-6">
                 <OneBox>
-                    <h1 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">RANKING</h1>
+                    <h2 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">RANKING</h2>
                       <table className="min-w-full border-collapse mt-10">
                         <thead>
                             <tr>

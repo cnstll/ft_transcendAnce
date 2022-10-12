@@ -17,7 +17,7 @@ export class AuthController {
   @UseGuards(Api42OauthGuard)
   @Get('/42/callback')
   loginIntra(@Res() res, @Req() req): void {
-    const url = new URL('http://localhost:8080/profile');
+    const url = new URL('http://localhost:8080/');
     const token = this.authService.login(req.user);
     res.cookie('jwtToken', `${token} `, { httpOnly: true }).redirect(url);
   }
