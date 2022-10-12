@@ -3,7 +3,7 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react';
 import { UseOutsideInputClick } from "../global-components/use-outside-click"
 
-type SearchBoxProps = {
+interface SearchBoxProps {
   height: string,
   width: string,
   placeholder: string,
