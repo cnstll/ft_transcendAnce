@@ -19,7 +19,7 @@ export class AuthController {
   loginIntra(@Res() res, @Req() req): void {
     const url = new URL('http://localhost:8080/profile');
     const token = this.authService.login(req.user);
-    res.cookie('jwtToken', `${token} `, { httpOnly: true }).redirect(url);
+    res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
   }
 
   @Post('/create-user-dev')

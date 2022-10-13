@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { Response } from 'express';
 
 @Injectable()
 export class UserService {
@@ -52,6 +53,27 @@ export class UserService {
 
   //   return;
   // }
+
+  async updateUserName(
+    oldNickname: string,
+    newNickname: string,
+    res: Response,
+  ) {
+    const updatee: User = await this.findOne(oldNickname);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: updatee.id,
+        },
+        data: {
+          nickName: newNickname,
+        },
+      });
+    } catch (error) {
+      return res.status(200).send();
+    }
+    return res.status(201).send();
+  }
 
   findOne(username: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({

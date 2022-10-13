@@ -1,14 +1,15 @@
+import axios from 'axios';
 import { FormEvent, useRef } from 'react';
 import { useState } from 'react';
 
-const mockupDb = [
-  { nickName: 'Bob' },
-  { nickName: 'Mary' },
-  { nickName: 'Alice' },
-];
+// const mockupDb = [
+//   { nickName: 'Bob' },
+//   { nickName: 'Mary' },
+//   { nickName: 'Alice' },
+// ];
 
 function NickNameForm() {
-  const nicknameRef = useRef(null);
+  const nicknameRef = useRef<HTMLInputElement>(null);
   const [nameNotValid, setNameNotValid] = useState(false);
   function onInputHandler() {
     setNameNotValid(false);
@@ -16,15 +17,24 @@ function NickNameForm() {
 
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (
-      mockupDb.some((entry) => {
-        return entry.nickName == nicknameRef.current.value;
-      })
-    ) {
-      setNameNotValid(true);
-    } else {
-      console.log("It's fine!");
+    try {
+      const nickname = nicknameRef.current ? nicknameRef.current.value : null;
+
+      const res = axios
+        .put('http://localhost:3000/user/update-nickname', {
+          nickname,
+        })
+        .then((res) => {
+          console.log(res);
+        });
+    } catch (error) {
+      console.log(error);
     }
+    // if (res.status == 200) {
+    //   setNameNotValid(true);
+    // } else {
+    //   console.log("It's fine!");
+    // }
   }
   return (
     <div className="absolute block p-6 rounded-lg shadow-lg max-w-sm bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
@@ -40,6 +50,9 @@ function NickNameForm() {
             onInput={onInputHandler}
           ></input>
           {nameNotValid && <div> NOT GOOD</div>}
+        </div>
+        <div>
+          <button> Submit </button>
         </div>
       </form>
     </div>
