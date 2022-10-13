@@ -8,13 +8,13 @@ import {
   Body,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { FriendDto } from './dto/friend.dto';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 
 @Controller('user')
 export class UserController {
@@ -29,22 +29,24 @@ export class UserController {
   @Post('request-friend')
   @UseGuards(JwtAuthGuard)
   createFriendship(
-    @Req() req: any,
+    @GetCurrentUserId() userId: string,
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
-    return this.userService.requestFriend(req.user.userId, data.target, res);
+    return this.userService.requestFriend(userId, data.target, res);
   }
 
   @Put('update-friendship')
   @UseGuards(JwtAuthGuard)
   acceptFriendship(
     @Res() res: Response,
-    @Req() req: any,
+    @GetCurrentUserId() userId: string,
     @Body() data: FriendDto,
   ) {
+    console.log('this is userId', userId);
+    // console.log('this is userId', req.user.userId);
     return this.userService.updateFriendshipStatus(
-      req.user.userId,
+      userId,
       data.target,
       data.friends,
       res,
@@ -55,10 +57,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   updateUserName(
     @Res() res: Response,
-    @Req() req: any,
+    @GetCurrentUserId() userId: string,
     @Body() data: { newNickname: string },
   ) {
-    this.userService.updateUserName(req.user.userId, data.newNickname);
+    this.userService.updateUserName(userId, data.newNickname);
     return res.status(200).send();
   }
 
