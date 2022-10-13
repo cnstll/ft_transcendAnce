@@ -47,40 +47,40 @@ const matchExamples : MatchData =
     ranking: 1,
   };
 
-// function UserInfo() {
+function UserInfo() {
 
-//   const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
 
-//   useEffect(() => {
-//       const fetchUser = async () => {
-//       const response = await axios.get(
-//         "http://localhost:3000/user"
-//       );
-//       setData(response.data);
-//     };
-//     fetchUser();
-//   }, []);
+  useEffect(() => {
+      const fetchUser = async () => {
+      const response = await axios.get(
+        "http://localhost:3000/user"
+      );
+      setData(response.data);
+    };
+    fetchUser();
+  }, []);
     
-//     return (
-//       <>
-//       {data && 
-//         <>
-//         <div className="flex justify-center">
-//           <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-//             src={data.avatarImg} alt="Rounded avatar"/>
-//         </div>
-//       <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
-//         <p>{data.nickname}</p>
-//         <p>{data.passwordHash}</p>
-//         <button>
-//             < FontAwesomeIcon icon={faPencil} />
-//         </button>
-//       </div>
-//       </>
-// });
-//       </>
-//     );
-//   }
+    return (
+      <>
+      {data && 
+        <>
+        <div className="flex justify-center">
+          <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={data.avatarImg} alt="Rounded avatar"/>
+        </div>
+      <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
+        <p>{data.nickname}</p>
+        <p>{data.passwordHash}</p>
+        <button>
+            < FontAwesomeIcon icon={faPencil} />
+        </button>
+      </div>
+      </>
+});
+      </>
+    );
+  }
 
 function Profile() {
   return (
@@ -91,7 +91,7 @@ function Profile() {
           className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
           gap-10 px-5 justify-center mt-6 text-white text-3xl">
           <SideBox>
-            {/* <UserInfo/>  */}
+            <UserInfo/> 
               <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
                   <div className="flex justify-start hover:underline cursor-pointer">
                       <p>Upload a picture</p>
