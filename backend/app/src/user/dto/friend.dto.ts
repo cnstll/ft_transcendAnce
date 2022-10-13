@@ -3,11 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class FriendDto {
   @IsNotEmpty()
   @IsString()
-  requester: string;
+  target: string;
 
-  @IsNotEmpty()
-  @IsString()
-  addressee: string;
-
-  accept: boolean;
+  friends: boolean;
 }

@@ -1,6 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PayloadDto } from '../auth/dto';
 
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
@@ -14,18 +15,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: any): Promise<{ name: string; sub: string }> {
+  async validate(payload: PayloadDto): Promise<PayloadDto> {
     return payload;
   }
 
   private static extractJWT(req: Request): string | null {
-    console.log(process.env.JWT_SECRET);
     if (
       req.cookies &&
       'jwtToken' in req.cookies &&
       req.cookies.jwtToken.length > 0
     ) {
-      console.log(req.cookies.jwtToken);
       return req.cookies.jwtToken;
     } else {
       return null;
