@@ -2,21 +2,23 @@ import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Profile } from 'passport';
 import { User } from '@prisma/client';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
+import { HttpService } from '@nestjs/axios';
 import { UserDto } from '../user/dto/user.dto';
 import { AuthDto } from './dto';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable({})
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private httpService: HttpService,
   ) {}
 
-  login(user: Profile) {
+  login(user) {
     const payload = {
-      name: user.username,
-      sub: user.id,
+      userId: user.id,
     };
     return this.jwtService.sign(payload);
   }
@@ -43,22 +45,23 @@ export class AuthService {
         avatarImg: userData.avatarImg,
       };
       return await this.userService.createUser(data);
+    } else {
+      return;
     }
-    return user;
   }
 
   // We will need a function like this later but it is not of use yet
-  // async retrieveProfileData(accessToken: string): Promise<any> {
-  //   const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
-  //     headers: { Authorization: `Bearer ${accessToken}` },
-  //   });
-  //   const profile = await lastValueFrom(req);
-  //   const tailoredProfile = {
-  //     provider: 'api42',
-  //     id: profile.data.id.toString(),
-  //     displayName: profile.data.displayname,
-  //     username: profile.data.login,
-  //   };
-  //   return tailoredProfile;
-  // }
+  async retrieveProfileData(accessToken: string): Promise<any> {
+    const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const profile = await lastValueFrom(req);
+    const tailoredProfile = {
+      provider: 'api42',
+      id: profile.data.id.toString(),
+      displayName: profile.data.displayname,
+      username: profile.data.login,
+    };
+    return tailoredProfile;
+  }
 }
