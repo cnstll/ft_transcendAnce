@@ -2,39 +2,34 @@ import axios from 'axios';
 import { FormEvent, useRef } from 'react';
 import { useState } from 'react';
 
-// const mockupDb = [
-//   { nickName: 'Bob' },
-//   { nickName: 'Mary' },
-//   { nickName: 'Alice' },
-// ];
-
 function NickNameForm() {
   const nicknameRef = useRef<HTMLInputElement>(null);
-  const [nameNotValid, setNameNotValid] = useState(false);
+  const [nameIsValid, setNameIsValid] = useState(0);
+
   function onInputHandler() {
-    setNameNotValid(false);
+    setNameIsValid(0);
   }
 
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    try {
-      const nickname = nicknameRef.current ? nicknameRef.current.value : null;
-
-      const res = axios
-        .put('http://localhost:3000/user/update-nickname', {
-          nickname,
-        })
-        .then((res) => {
-          console.log(res);
-        });
-    } catch (error) {
-      console.log(error);
-    }
-    // if (res.status == 200) {
-    //   setNameNotValid(true);
-    // } else {
-    //   console.log("It's fine!");
-    // }
+    const nickname = nicknameRef.current ? nicknameRef.current.value : null;
+    console.log(nickname);
+    axios
+      .put(
+        'http://localhost:3000/user/update-nickname',
+        { newNickname: nickname },
+        { withCredentials: true },
+      )
+      .then((res) => {
+        if (res.status == 201) {
+          setNameIsValid(1);
+        } else if (res.status == 200) {
+          setNameIsValid(2);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
   return (
     <div className="absolute block p-6 rounded-lg shadow-lg max-w-sm bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
@@ -49,7 +44,8 @@ function NickNameForm() {
             ref={nicknameRef}
             onInput={onInputHandler}
           ></input>
-          {nameNotValid && <div> NOT GOOD</div>}
+          {nameIsValid === 2 && <div> NOT GOOD</div>}
+          {nameIsValid === 1 && <div> GOOD ! </div>}
         </div>
         <div>
           <button> Submit </button>

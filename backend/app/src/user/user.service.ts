@@ -69,7 +69,7 @@ export class UserService {
 
   async updateUserName(userId: string, newNickname: string, res: Response) {
     try {
-      await this.prismaService.user.update({
+      const data = await this.prismaService.user.update({
         where: {
           id: userId,
         },
@@ -77,9 +77,9 @@ export class UserService {
           nickName: newNickname,
         },
       });
-      return res.status(201).send();
+      return res.status(201).send('Update Success');
     } catch (error) {
-      return res.status(200).send();
+      return res.status(200).send('Update Failed');
     }
   }
 
