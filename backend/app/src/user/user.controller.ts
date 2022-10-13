@@ -11,4 +11,8 @@ export class UserController {
     dto['name'] = name;
     return this.userService.createUser(dto);
   }
+  @Get('/')
+  fetchUser() {
+    return this.userService.fetchUser();
+  }
 }

@@ -62,6 +62,10 @@ export class UserService {
     });
   }
 
+  fetchUser(): User | undefined {
+    return undefined;
+  }
+
   deleteUser(): void {
     return;
   }

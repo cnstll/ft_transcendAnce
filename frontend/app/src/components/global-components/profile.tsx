@@ -1,17 +1,16 @@
 import Banner from '../section-components/banner';
 import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from '@fortawesome/free-solid-svg-icons';
-import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faPencil } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
-import { User } from '../global-components/interface';
+import { User, MatchData } from '../global-components/interface';
 import StatsBox from '../section-components/stats-box';
-import axios from 'axios';
 import MatchHistory from '../section-components/match-history';
-import { MatchData } from './interface';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const friendsData: User[] = [
   {
@@ -48,6 +47,41 @@ const matchExamples : MatchData =
     ranking: 1,
   };
 
+// function UserInfo() {
+
+//   const [data, setData] = useState<any>(null);
+
+//   useEffect(() => {
+//       const fetchUser = async () => {
+//       const response = await axios.get(
+//         "http://localhost:3000/user"
+//       );
+//       setData(response.data);
+//     };
+//     fetchUser();
+//   }, []);
+    
+//     return (
+//       <>
+//       {data && 
+//         <>
+//         <div className="flex justify-center">
+//           <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+//             src={data.avatarImg} alt="Rounded avatar"/>
+//         </div>
+//       <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
+//         <p>{data.nickname}</p>
+//         <p>{data.passwordHash}</p>
+//         <button>
+//             < FontAwesomeIcon icon={faPencil} />
+//         </button>
+//       </div>
+//       </>
+// });
+//       </>
+//     );
+//   }
+
 function Profile() {
   return (
     <div>
@@ -57,16 +91,7 @@ function Profile() {
           className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
           gap-10 px-5 justify-center mt-6 text-white text-3xl">
           <SideBox>
-              <div className="flex justify-center">
-                  <img className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-                      src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="Rounded avatar"/>
-              </div>
-              <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
-                  <p>Travis</p>
-                  <button>
-                      < FontAwesomeIcon icon={faPencil} />
-                  </button>
-              </div>
+            {/* <UserInfo/>  */}
               <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
                   <div className="flex justify-start hover:underline cursor-pointer">
                       <p>Upload a picture</p>
@@ -100,5 +125,6 @@ function Profile() {
     </div>
   );
 }
+
 
 export default Profile;
