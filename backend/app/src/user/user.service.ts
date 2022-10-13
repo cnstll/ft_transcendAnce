@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, FriendshipStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -28,6 +28,18 @@ export class UserService {
     }
   }
 
+  async deleteUser(userNickname: string) {
+    try {
+      await this.prismaService.user.delete({
+        where: {
+          nickName: userNickname,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   logInUser(): void {
     return;
   }
@@ -35,23 +47,73 @@ export class UserService {
     return;
   }
 
-  // async requestFriend(requesterNickname: string, futureFriendNickname: string) {
-  //   const requester: User = await this.findOne(requesterNickname);
-  //   const futureFriend: User = await this.findOne(futureFriendNickname);
-  //   try {
-  //     const Friendship = await this.prismaService.friendship.create({
-  //       data: {
-  //         requester: requester,
-  //         addressee: futureFriend
-  //       },
-  //     });
+  async requestFriend(requesterNickname: string, futureFriendNickname: string) {
+    const requester: User = await this.findOne(requesterNickname);
+    const futureFriend: User = await this.findOne(futureFriendNickname);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: requester.id,
+        },
+        data: {
+          friendsRequester: {
+            create: [{ addresseeId: futureFriend.id }],
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return;
+  }
 
-  //   } catch (error) {
+  async updateUserName(userId: string, newNickname: string) {
+    const updatee: User = await this.findOne(userId);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: updatee.id,
+        },
+        data: {
+          nickName: newNickname,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return;
+  }
 
-  //   }
-
-  //   return;
-  // }
+  async acceptFriend(requesterNickname: string, adresseeNickname: string) {
+    const status: FriendshipStatus = 'ACCEPTED';
+    const requester: User = await this.findOne(requesterNickname);
+    const adressee: User = await this.findOne(adresseeNickname);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: adressee.id,
+        },
+        data: {
+          friendsAddressee: {
+            update: {
+              where: {
+                friendshipId: {
+                  requesterId: requester.id,
+                  addresseeId: adressee.id,
+                },
+              },
+              data: {
+                status: status,
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+  }
 
   findOne(username: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({
@@ -59,9 +121,5 @@ export class UserService {
         nickName: username.toString(),
       },
     });
-  }
-
-  deleteUser(): void {
-    return;
   }
 }
