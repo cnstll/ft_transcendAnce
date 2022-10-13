@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Channel, User } from "../global-components/chat";
+import { Channel, User } from "../global-components/interface";
 import NormUrl from "../customed-hooks/norm-url";
 
 interface SearchItemProps {

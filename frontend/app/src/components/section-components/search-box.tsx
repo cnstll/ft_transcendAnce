@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react';
 import { UseOutsideInputClick } from "../customed-hooks/use-outside-click"
-import { User, Channel } from "../global-components/chat";
+import { User, Channel } from "../global-components/interface";
 import SearchItem from "./search-item";
 
 interface SearchBoxProps {

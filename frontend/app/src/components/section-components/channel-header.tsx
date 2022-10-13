@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons'
 import SearchBox from './search-box';
-import { Channel } from '../global-components/chat'
+import { Channel } from '../global-components/interface'
 
 const channelsData : Channel[] = [
   {

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { UseOutsideButtonClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 import SearchBox from './search-box';
-import { User } from "../global-components/chat";
+import { User } from "../global-components/interface";
 
 const usersData: User[] = [
   {
@@ -34,16 +34,17 @@ const usersData: User[] = [
   },
 ];
 
-function UserInfo() {
-  return (
-    <div>
-      <Link to="/profile">
-        <p className="text-center hover:underline my-2">Profile</p>
-      </Link>
-      <Link to="/ranking">
-        <p className="text-center hover:underline my-2">Ranking</p>
-      </Link>
-      <Link to="/sign-in">
+function UserInfo()
+{
+    return (
+      <div>
+        <Link to="/profile/ttravis">
+            <p className="text-center hover:underline my-2">Profile</p>
+        </Link>
+        <Link to="/ranking">
+            <p className="text-center hover:underline my-2">Ranking</p>
+        </Link>
+        <Link to="/sign-in">
         <p className="text-center hover:underline my-2">Log Out</p>
       </Link>
     </div>
@@ -71,9 +72,9 @@ function Banner({ text }: BannerProps) {
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
       <Link to="/">
-        <h1 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
+        <h2 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
           {text}
-        </h1>
+        </h2>
       </Link>
       <SearchBox height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 " width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="player" users={usersData}/>
       <div className="relative">

@@ -1,12 +1,12 @@
 import DropDownButton from './drop-down-button';
+import NormUrl from "../customed-hooks/norm-url";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGamepad,
   faCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import type { User } from '../global-components/chat';
-import NormUrl from "../customed-hooks/norm-url";
+import type { User } from '../global-components/interface';
 
 interface UserOptionsProps {
   nickname : string,
