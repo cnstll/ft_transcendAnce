@@ -2,21 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UserService } from '../user/user.service';
-import { HttpService } from '@nestjs/axios';
-import { AuthDto, PayloadDto } from './dto';
+// import { HttpService } from '@nestjs/axios';
+import { AuthDto } from './dto';
 import { UserDto } from 'src/user/dto/user.dto';
+import { Payload } from './types/';
 
 @Injectable({})
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
-    private httpService: HttpService,
+    private readonly userService: UserService, // private httpService: HttpService,
   ) {}
 
-  login(user: PayloadDto) {
-    const payload = {
-      userId: user.id,
+  login(user: Payload) {
+    const payload: Payload = {
+      userId: user.userId,
       nickName: user.nickName,
     };
     return this.jwtService.sign(payload);
