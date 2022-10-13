@@ -1,24 +1,31 @@
 import DropDownButton from './drop-down-button';
-import DropDownMenu from './drop-down-menu';
+import NormUrl from "../customed-hooks/norm-url";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGamepad,
-  faCircle as faCirclePlain,
+  faCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import type { User } from '../global-components/interface';
 
-function UserOptions() {
+interface UserOptionsProps {
+  nickname : string,
+}
+
+function UserOptions({nickname}: UserOptionsProps) {
   return (
     <div>
+      <Link to={NormUrl("/profile/", nickname)}>
+        <p className="text-center hover:underline my-2">Go to profile</p>
+      </Link>
       <Link to="/">
         <p className="text-center hover:underline my-2">Invite to play</p>
       </Link>
       <Link to="/">
-        <p className="text-center hover:underline my-2">Remove from friends</p>
+        <p className="text-center hover:underline my-2 truncate">Block {nickname}</p>
       </Link>
       <Link to="/">
-        <p className="text-center hover:underline my-2">Ban user</p>
+        <p className="text-center hover:underline my-2 truncate">Ban {nickname}</p>
       </Link>
     </div>
   );
@@ -42,11 +49,11 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
             {channelUser.status === 'ONLINE' && (
               <FontAwesomeIcon
                 className="text-green-600"
-                icon={faCirclePlain}
+                icon={faCircle}
               />
             )}
             {channelUser.status === 'OFFLINE' && (
-              <FontAwesomeIcon className="text-gray-500" icon={faCirclePlain} />
+              <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
             )}
             {channelUser.status === 'PLAYING' && (
               <FontAwesomeIcon icon={faGamepad} />
@@ -59,9 +66,7 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
       </div>
       <div className="content-center mx-2 mt-1">
         <DropDownButton>
-          <DropDownMenu>
-            <UserOptions />
-          </DropDownMenu>
+            <UserOptions nickname={channelUser.nickname}/>
         </DropDownButton>
       </div>
     </div>

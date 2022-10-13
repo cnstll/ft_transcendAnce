@@ -8,7 +8,6 @@ import ChatBox from '../section-components/chat-box';
 import Message from '../section-components/message';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
@@ -112,9 +111,7 @@ function Chat() {
               </div>
               <div className="p-5 flex justify-center">
                 <DropDownButton>
-                  <DropDownMenu>
                     <ChannelOptions />
-                  </DropDownMenu>
                 </DropDownButton>
               </div>
             </div>

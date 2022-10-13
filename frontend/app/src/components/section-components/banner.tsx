@@ -1,9 +1,38 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { UseOutsideButtonClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
+import SearchBox from './search-box';
+import { User } from "../global-components/interface";
+
+const usersData: User[] = [
+  {
+    id: '123e4567e89b1',
+    nickname: 'Alexandra',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+    status: 'OFFLINE',
+  },
+  {
+    id: '123e4567e89b2',
+    nickname: 'Alexandre',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+    status: 'ONLINE',
+  },
+  {
+    id: '123e4567e89b3',
+    nickname: 'Alexandrinedrinedrine',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+    status: 'PLAYING',
+  },
+  {
+    id: '123e4567e89b4',
+    nickname: 'Alexandro',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+    status: 'PLAYING',
+  },
+];
 
 function UserInfo()
 {
@@ -34,6 +63,12 @@ function Banner({ text }: BannerProps) {
     setIsShown((current) => !current);
   };
 
+  function ClickOutsideHandler() {
+    setIsShown(false);
+  }
+
+  const ref = UseOutsideButtonClick(ClickOutsideHandler);
+
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
       <Link to="/">
@@ -41,21 +76,7 @@ function Banner({ text }: BannerProps) {
           {text}
         </h2>
       </Link>
-      <div className="relative">
-        <input
-          className=" bg-white h-10 w-24 sm:w-36 sm:h-11 md:w-40 md:h-12 lg:w-56 lg:h-14 xl:w-56 xl:h-14
-              px-2 py-2 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"
-          type="text"
-          name="search"
-          placeholder="Search player"
-        />
-        <button
-          type="submit"
-          className="absolute top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm"
-        >
-          <FontAwesomeIcon icon={faMagnifyingGlass} />
-        </button>
-      </div>
+      <SearchBox height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 " width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="player" users={usersData}/>
       <div className="relative">
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
           <img
@@ -63,7 +84,7 @@ function Banner({ text }: BannerProps) {
             src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
             alt="Rounded avatar"
           />
-          <button onClick={showInfo} className="text-white font-bold">
+          <button ref={ref} onClick={showInfo} className="text-white font-bold">
             <FontAwesomeIcon icon={faChevronDown} />
           </button>
         </div>

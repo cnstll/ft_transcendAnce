@@ -8,7 +8,7 @@ function PageNotFound() {
     >
       \
       <h1 className="text-white font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
-        404 Page not found
+        404 🕺 vibe not found
       </h1>
     </div>
   );
