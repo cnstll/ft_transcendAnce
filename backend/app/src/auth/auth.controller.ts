@@ -16,15 +16,19 @@ export class AuthController {
 
   @UseGuards(Api42OauthGuard)
   @Get('/42/callback')
-  loginIntra(@Res() res, @Req() req): void {
+  async loginIntra(@Res() res, @Req() req): Promise<void> {
     const url = new URL('http://localhost:8080/profile');
     const token = this.authService.login(req.user);
     res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
   }
 
   @Post('/create-user-dev')
-  create_user_dev(@Res() res, @Body() req) {
-    this.authService.create_user_dev(req);
-    res.status(201).send();
+  async create_user_dev(@Res() res, @Body() req) {
+    const user = await this.authService.create_user_dev(req);
+    if (user) {
+      res.status(201).send();
+    } else {
+      res.status(304).send();
+    }
   }
 }

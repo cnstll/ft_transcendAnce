@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, FriendshipStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -29,6 +29,18 @@ export class UserService {
     }
   }
 
+  async deleteUser(userNickname: string) {
+    try {
+      await this.prismaService.user.delete({
+        where: {
+          nickName: userNickname,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   logInUser(): void {
     return;
   }
@@ -36,43 +48,69 @@ export class UserService {
     return;
   }
 
-  // async requestFriend(requesterNickname: string, futureFriendNickname: string) {
-  //   const requester: User = await this.findOne(requesterNickname);
-  //   const futureFriend: User = await this.findOne(futureFriendNickname);
-  //   try {
-  //     const Friendship = await this.prismaService.friendship.create({
-  //       data: {
-  //         requester: requester,
-  //         addressee: futureFriend
-  //       },
-  //     });
-
-  //   } catch (error) {
-
-  //   }
-
-  //   return;
-  // }
-
-  async updateUserName(
-    oldNickname: string,
-    newNickname: string,
-    res: Response,
-  ) {
-    const updatee: User = await this.findOne(oldNickname);
+  async requestFriend(requesterId: string, futureFriendNickname: string) {
+    const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
       await this.prismaService.user.update({
         where: {
-          id: updatee.id,
+          id: requesterId,
+        },
+        data: {
+          friendsRequester: {
+            create: [{ addresseeId: futureFriend.id }],
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return;
+  }
+
+  async updateUserName(userId: string, newNickname: string, res: Response) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
         },
         data: {
           nickName: newNickname,
         },
       });
+      return res.status(201).send();
     } catch (error) {
       return res.status(200).send();
     }
-    return res.status(201).send();
+  }
+
+  async acceptFriend(requesterNickname: string, addresseeId: string) {
+    const status: FriendshipStatus = 'ACCEPTED';
+    const requester: User = await this.findOne(requesterNickname);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: addresseeId,
+        },
+        data: {
+          friendsAddressee: {
+            update: {
+              where: {
+                friendshipId: {
+                  requesterId: requester.id,
+                  addresseeId: addresseeId,
+                },
+              },
+              data: {
+                status: status,
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return;
+    }
   }
 
   findOne(username: string): Promise<User | undefined> {
@@ -81,9 +119,5 @@ export class UserService {
         nickName: username.toString(),
       },
     });
-  }
-
-  deleteUser(): void {
-    return;
   }
 }
