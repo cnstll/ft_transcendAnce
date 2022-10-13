@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Api42OauthGuard } from './guard/api42.auth-guards';
-import { JwtAuthGuard } from './guard/jwt.auth-guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,10 +19,7 @@ export class AuthController {
   async loginIntra(@Res() res, @Req() req): Promise<void> {
     const url = new URL('http://localhost:8080/');
     const token = this.authService.login(req.user);
-    // res.cookie('jwtToken', `${token} `, { httpOnly: true }).redirect(url);
-    res
-      .cookie('jwtToken', `${token}`, { httpOnly: true })
-      .redirect('http://localhost:3000');
+    res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
   }
 
   @Post('/create-user-dev')

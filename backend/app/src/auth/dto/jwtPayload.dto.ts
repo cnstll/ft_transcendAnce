@@ -1,13 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class FriendDto {
+export class PayloadDto {
   @IsNotEmpty()
   @IsString()
-  requester: string;
+  nickName: string;
 
   @IsNotEmpty()
   @IsString()
-  addressee: string;
-
-  accept: boolean;
+  id: string;
 }

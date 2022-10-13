@@ -29,27 +29,24 @@ export class UserController {
     return this.userService.fetchUser();
 
   @Post('request-friend')
-  createFriendship(@Res() res: any, @Body() data: FriendDto) {
-    this.userService.requestFriend(data.requester, data.addressee),
+  @UseGuards(JwtAuthGuard)
+  createFriendship(@Req() req: any, @Res() res: any, @Body() data: FriendDto) {
+    this.userService.requestFriend(req.user.userId, data.addressee),
       res.status(201).send();
   }
+
   @Put('update-friendship')
   @UseGuards(JwtAuthGuard)
   acceptFriendship(@Res() res: any, @Req() req: any, @Body() data: FriendDto) {
-    console.log(req.user);
-    this.userService.acceptFriend(data.requester, data.addressee),
+    this.userService.acceptFriend(data.requester, req.user.userId),
       res.status(200).send();
   }
 
   @Put('update-nickname')
   @UseGuards(JwtAuthGuard)
   updateUserName(@Res() res: any, @Req() req: any, @Body() data: any) {
-    console.log(req.user);
-    if (data.old == req.user.nickName) {
-      this.userService.updateUserName(data.old, data.new);
-      return res.status(200).send();
-    }
-    return res.status(401).send();
+    this.userService.updateUserName(req.user.userId, data.newNickname);
+    return res.status(200).send();
   }
 
   @Delete('delete')
