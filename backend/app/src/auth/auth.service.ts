@@ -5,7 +5,7 @@ import { User } from '@prisma/client';
 import { UserService } from '../user/user.service';
 import { HttpService } from '@nestjs/axios';
 import { UserDto } from '../user/dto/user.dto';
-import { AuthDto } from './dto';
+import { AuthDto, PayloadDto } from './dto';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable({})
@@ -16,7 +16,7 @@ export class AuthService {
     private httpService: HttpService,
   ) {}
 
-  login(user) {
+  login(user: PayloadDto) {
     const payload = {
       userId: user.id,
       nickName: user.nickName,

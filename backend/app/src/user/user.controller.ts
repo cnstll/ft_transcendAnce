@@ -26,15 +26,16 @@ export class UserController {
   }
 
   @Post('request-friend')
-  createFriendship(@Res() res: any, @Body() data: FriendDto) {
-    this.userService.requestFriend(data.requester, data.addressee),
+  @UseGuards(JwtAuthGuard)
+  createFriendship(@Req() req: any, @Res() res: any, @Body() data: FriendDto) {
+    this.userService.requestFriend(req.user.userId, data.addressee),
       res.status(201).send();
   }
+
   @Put('update-friendship')
   @UseGuards(JwtAuthGuard)
   acceptFriendship(@Res() res: any, @Req() req: any, @Body() data: FriendDto) {
-    console.log(req.user);
-    this.userService.acceptFriend(data.requester, data.addressee),
+    this.userService.acceptFriend(data.requester, req.user.userId),
       res.status(200).send();
   }
 

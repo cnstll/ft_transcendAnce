@@ -47,13 +47,12 @@ export class UserService {
     return;
   }
 
-  async requestFriend(requesterNickname: string, futureFriendNickname: string) {
-    const requester: User = await this.findOne(requesterNickname);
+  async requestFriend(requesterId: string, futureFriendNickname: string) {
     const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
       await this.prismaService.user.update({
         where: {
-          id: requester.id,
+          id: requesterId,
         },
         data: {
           friendsRequester: {
@@ -83,14 +82,13 @@ export class UserService {
     return;
   }
 
-  async acceptFriend(requesterNickname: string, adresseeNickname: string) {
+  async acceptFriend(requesterNickname: string, addresseeId: string) {
     const status: FriendshipStatus = 'ACCEPTED';
     const requester: User = await this.findOne(requesterNickname);
-    const adressee: User = await this.findOne(adresseeNickname);
     try {
       await this.prismaService.user.update({
         where: {
-          id: adressee.id,
+          id: addresseeId,
         },
         data: {
           friendsAddressee: {
@@ -98,7 +96,7 @@ export class UserService {
               where: {
                 friendshipId: {
                   requesterId: requester.id,
-                  addresseeId: adressee.id,
+                  addresseeId: addresseeId,
                 },
               },
               data: {
