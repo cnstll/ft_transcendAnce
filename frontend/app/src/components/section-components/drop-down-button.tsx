@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { UseOutsideClick } from '../global-components/use-outside-click';
+import { UseOutsideButtonClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 
 interface DropDownButtonProps {
@@ -19,7 +19,7 @@ function DropDownButton({ children }: DropDownButtonProps) {
     setIsShown(false);
   }
 
-  const ref = UseOutsideClick(ClickOutsideHandler);
+  const ref = UseOutsideButtonClick(ClickOutsideHandler);
 
   return (
     <div className="static">

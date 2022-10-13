@@ -2,9 +2,37 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { UseOutsideClick } from '../global-components/use-outside-click';
+import { UseOutsideButtonClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 import SearchBox from './search-box';
+import { User } from "../global-components/chat";
+
+const usersData: User[] = [
+  {
+    id: '123e4567e89b1',
+    nickname: 'Alexandra',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+    status: 'OFFLINE',
+  },
+  {
+    id: '123e4567e89b2',
+    nickname: 'Alexandre',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+    status: 'ONLINE',
+  },
+  {
+    id: '123e4567e89b3',
+    nickname: 'Alexandrinedrinedrine',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+    status: 'PLAYING',
+  },
+  {
+    id: '123e4567e89b4',
+    nickname: 'Alexandro',
+    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+    status: 'PLAYING',
+  },
+];
 
 function UserInfo() {
   return (
@@ -38,7 +66,7 @@ function Banner({ text }: BannerProps) {
     setIsShown(false);
   }
 
-  const ref = UseOutsideClick(ClickOutsideHandler);
+  const ref = UseOutsideButtonClick(ClickOutsideHandler);
 
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
@@ -47,7 +75,7 @@ function Banner({ text }: BannerProps) {
           {text}
         </h1>
       </Link>
-      <SearchBox height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 " width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="player"/>
+      <SearchBox height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 " width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="player" users={usersData}/>
       <div className="relative">
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
           <img

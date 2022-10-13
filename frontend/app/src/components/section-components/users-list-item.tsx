@@ -3,22 +3,29 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGamepad,
-  faCircle as faCirclePlain,
+  faCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import type { User } from '../global-components/chat';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import NormUrl from "../customed-hooks/norm-url";
 
-function UserOptions() {
+interface UserOptionsProps {
+  nickname : string,
+}
+
+function UserOptions({nickname}: UserOptionsProps) {
   return (
     <div>
+      <Link to={NormUrl("/profile/", nickname)}>
+        <p className="text-center hover:underline my-2">Go to profile</p>
+      </Link>
       <Link to="/">
         <p className="text-center hover:underline my-2">Invite to play</p>
       </Link>
       <Link to="/">
-        <p className="text-center hover:underline my-2">Remove from friends</p>
+        <p className="text-center hover:underline my-2 truncate">Block {nickname}</p>
       </Link>
       <Link to="/">
-        <p className="text-center hover:underline my-2">Ban user</p>
+        <p className="text-center hover:underline my-2 truncate">Ban {nickname}</p>
       </Link>
     </div>
   );
@@ -27,10 +34,6 @@ function UserOptions() {
 interface UsersListItemProps {
   channelUser: User;
 }
-
-const iconCircle: IconProp = faCirclePlain as IconProp;
-const iconCircleOffline: IconProp = faCirclePlain as IconProp;
-const iconGame: IconProp = faGamepad as IconProp;
 
 function UsersListItem({ channelUser }: UsersListItemProps) {
   return (
@@ -46,14 +49,14 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
             {channelUser.status === 'ONLINE' && (
               <FontAwesomeIcon
                 className="text-green-600"
-                icon={iconCircle}
+                icon={faCircle}
               />
             )}
             {channelUser.status === 'OFFLINE' && (
-              <FontAwesomeIcon className="text-gray-500" icon={iconCircleOffline} />
+              <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
             )}
             {channelUser.status === 'PLAYING' && (
-              <FontAwesomeIcon icon={iconGame} />
+              <FontAwesomeIcon icon={faGamepad} />
             )}
           </div>
         </div>
@@ -63,7 +66,7 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
       </div>
       <div className="content-center mx-2 mt-1">
         <DropDownButton>
-            <UserOptions />
+            <UserOptions nickname={channelUser.nickname}/>
         </DropDownButton>
       </div>
     </div>
