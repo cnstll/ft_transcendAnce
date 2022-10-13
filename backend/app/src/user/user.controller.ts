@@ -41,12 +41,8 @@ export class UserController {
   @Put('update-nickname')
   @UseGuards(JwtAuthGuard)
   updateUserName(@Res() res: any, @Req() req: any, @Body() data: any) {
-    console.log(req.user);
-    if (data.old == req.user.nickName) {
-      this.userService.updateUserName(data.old, data.new);
-      return res.status(200).send();
-    }
-    return res.status(401).send();
+    this.userService.updateUserName(req.user.userId, data.newNickname);
+    return res.status(200).send();
   }
 
   @Delete('delete')

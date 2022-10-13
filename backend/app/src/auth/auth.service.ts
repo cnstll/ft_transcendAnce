@@ -19,6 +19,7 @@ export class AuthService {
   login(user) {
     const payload = {
       userId: user.id,
+      nickName: user.nickName,
     };
     return this.jwtService.sign(payload);
   }
@@ -48,7 +49,6 @@ export class AuthService {
     }
   }
 
-  // We will need a function like this later but it is not of use yet
   async retrieveProfileData(accessToken: string): Promise<any> {
     const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
       headers: { Authorization: `Bearer ${accessToken}` },

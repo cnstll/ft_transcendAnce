@@ -68,11 +68,10 @@ export class UserService {
   }
 
   async updateUserName(userId: string, newNickname: string) {
-    const updatee: User = await this.findOne(userId);
     try {
       await this.prismaService.user.update({
         where: {
-          id: updatee.id,
+          id: userId,
         },
         data: {
           nickName: newNickname,
