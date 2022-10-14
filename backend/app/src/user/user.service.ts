@@ -29,23 +29,17 @@ export class UserService {
     }
   }
 
-  async deleteUser(userNickname: string) {
+  async deleteUser(userId: string, res: Response) {
     try {
       await this.prismaService.user.delete({
         where: {
-          nickName: userNickname,
+          id: userId,
         },
       });
     } catch (error) {
       console.log(error);
     }
-  }
-
-  logInUser(): void {
-    return;
-  }
-  updateUser(): void {
-    return;
+    return res.send(204);
   }
 
   async requestFriend(
