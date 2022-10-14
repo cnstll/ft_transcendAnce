@@ -43,8 +43,6 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() data: FriendDto,
   ) {
-    console.log('this is userId', userId);
-    // console.log('this is userId', req.user.userId);
     return this.userService.updateFriendshipStatus(
       userId,
       data.target,
