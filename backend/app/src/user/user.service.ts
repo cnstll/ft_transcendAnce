@@ -48,7 +48,11 @@ export class UserService {
     return;
   }
 
-  async requestFriend(requesterId: string, futureFriendNickname: string) {
+  async requestFriend(
+    requesterId: string,
+    futureFriendNickname: string,
+    res: Response,
+  ) {
     const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
       await this.prismaService.user.update({
@@ -63,8 +67,9 @@ export class UserService {
       });
     } catch (error) {
       console.log(error);
+      return res.status(500).send();
     }
-    return;
+    return res.status(201).send();
   }
 
   async updateUserName(userId: string, newNickname: string, res: Response) {
@@ -83,13 +88,60 @@ export class UserService {
     }
   }
 
-  async acceptFriend(requesterNickname: string, addresseeId: string) {
+  async updateFriendshipStatus(
+    activeUserId: string,
+    AffectedUserId: string,
+    friends: boolean,
+    res: Response,
+  ) {
+    if (friends == true) {
+      this.addFriend(activeUserId, AffectedUserId, res);
+    } else {
+      this.deleteFriendship(activeUserId, AffectedUserId, res);
+    }
+  }
+
+  async deleteFriendship(activeUserId: string, target: string, res: Response) {
+    const user: User = await this.findOne(target);
+    try {
+      const result = await this.prismaService.friendship.findFirst({
+        where: {
+          OR: [
+            {
+              AND: [{ requesterId: activeUserId }, { addresseeId: user.id }],
+            },
+            {
+              AND: [{ addresseeId: activeUserId }, { requesterId: user.id }],
+            },
+          ],
+        },
+      });
+      await this.prismaService.friendship.delete({
+        where: {
+          friendshipId: {
+            addresseeId: result.addresseeId,
+            requesterId: result.requesterId,
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+    return res.status(200).send();
+  }
+
+  async addFriend(
+    activeUserId: string,
+    requesterNickname: string,
+    res: Response,
+  ) {
     const status: FriendshipStatus = 'ACCEPTED';
     const requester: User = await this.findOne(requesterNickname);
     try {
       await this.prismaService.user.update({
         where: {
-          id: addresseeId,
+          id: activeUserId,
         },
         data: {
           friendsAddressee: {
@@ -97,7 +149,7 @@ export class UserService {
               where: {
                 friendshipId: {
                   requesterId: requester.id,
-                  addresseeId: addresseeId,
+                  addresseeId: activeUserId,
                 },
               },
               data: {
@@ -109,8 +161,9 @@ export class UserService {
       });
     } catch (error) {
       console.log(error);
-      return;
+      return res.status(500).send();
     }
+    return res.status(200).send();
   }
 
   findOne(username: string): Promise<User | undefined> {

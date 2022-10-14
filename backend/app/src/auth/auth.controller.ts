@@ -25,8 +25,13 @@ export class AuthController {
   @Post('/create-user-dev')
   async create_user_dev(@Res() res, @Body() req) {
     const user = await this.authService.create_user_dev(req);
+    const payload = {
+      userId: user.id,
+      nickName: user.nickName,
+    };
+    const token = this.authService.login(payload);
     if (user) {
-      res.status(201).send();
+      res.status(201).send(token);
     } else {
       res.status(304).send();
     }
