@@ -35,16 +35,7 @@ export class AuthService {
   }
 
   public async create_user_dev(userData: UserDto) {
-    const user: User = await this.userService.findOne(userData.nickName);
-    if (!user) {
-      const data = {
-        nickName: userData.nickName,
-        passwordHash: userData.passwordHash,
-      };
-      return await this.userService.createUser(data);
-    } else {
-      return;
-    }
+    return await this.userService.createUser(userData);
   }
 
   // async retrieveProfileData(accessToken: string): Promise<any> {

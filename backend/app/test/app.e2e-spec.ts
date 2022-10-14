@@ -48,7 +48,7 @@ describe('AppController (e2e)', () => {
       })
   });
 
-  it('/ (create test users)', () => {
+  it('/ (create test users)', async () => {
     return request(app.getHttpServer())
       .post('/auth/create-user-dev')
       .send({
@@ -62,7 +62,7 @@ describe('AppController (e2e)', () => {
       })
   });
 
-  it('/ (create test users)', () => {
+  it('/ (create test users)', async () => {
     return request(app.getHttpServer())
       .post('/auth/create-user-dev')
       .send({
@@ -73,6 +73,16 @@ describe('AppController (e2e)', () => {
       .then((response) => {
         cookieD = response.text;
       })
+  });
+
+  it('/ (attempt to create duplicate user)', async () => {
+    return request(app.getHttpServer())
+      .post('/auth/create-user-dev')
+      .send({
+        nickName: 'd',
+        passwordHash: 'd'
+      })
+      .expect(403)
   });
 
   it('/ (user a requests user b as friend)', async () => {
@@ -98,6 +108,18 @@ describe('AppController (e2e)', () => {
         target: 'd'
       })
       .expect(201)
+  });
+
+  it('/ (user c requests non existant user as friend)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .post('/user/request-friend')
+      .set('Authorization', bearer)
+      .send({
+        target: 'e'
+      })
+      .expect(500)
   });
 
   it('/ (user b accepts a as friend)', async () => {
@@ -152,6 +174,19 @@ describe('AppController (e2e)', () => {
       .expect(200)
   });
 
+  it('/ (user a unfriends user b again)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieA;
+    return request(app.getHttpServer())
+      .put('/user/update-friendship')
+      .set('Authorization', bearer)
+      .send({
+        target: 'b',
+        friends: false
+      })
+      .expect(500)
+  });
+
   it('/ (user b accepts friend request that does not exist)', async () => {
     await new Promise(process.nextTick);
     let bearer = 'Bearer ' + cookieB;
@@ -165,41 +200,63 @@ describe('AppController (e2e)', () => {
       .expect(500)
   });
 
-  it('/ (delete test users)', () => {
+  it('/ (delete test users)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieA;
     return request(app.getHttpServer())
       .delete('/user/delete')
+      .set('Authorization', bearer)
       .send({
         nickName: 'a',
       })
       .expect(204)
   });
 
-  it('/ (delete test users)', () => {
+  it('/ (attempt to delete a user that does not exist)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieA;
     return request(app.getHttpServer())
       .delete('/user/delete')
+      .set('Authorization', bearer)
+      .send({
+        nickName: 'a',
+      })
+      .expect(204)
+  });
+
+  it('/ (delete test users)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieB;
+    return request(app.getHttpServer())
+      .delete('/user/delete')
+      .set('Authorization', bearer)
       .send({
         nickName: 'b',
       })
       .expect(204)
   });
 
-  it('/ (delete test users)', () => {
+  it('/ (delete test users)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
     return request(app.getHttpServer())
       .delete('/user/delete')
+      .set('Authorization', bearer)
       .send({
         nickName: 'c',
       })
       .expect(204)
   });
 
-  it('/ (delete test users)', () => {
+  it('/ (delete test users)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
     return request(app.getHttpServer())
       .delete('/user/delete')
+      .set('Authorization', bearer)
       .send({
         nickName: 'd',
       })
       .expect(204)
   });
-
-
 });

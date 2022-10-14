@@ -63,8 +63,8 @@ export class UserController {
   }
 
   @Delete('delete')
-  async deleteUser(@Res() res: Response, @Body() data: { nickName: string }) {
-    await this.userService.deleteUser(data.nickName);
-    res.status(204).send();
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return await this.userService.deleteUser(userId, res);
   }
 }
