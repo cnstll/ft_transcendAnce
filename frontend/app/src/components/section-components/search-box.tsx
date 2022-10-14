@@ -51,7 +51,6 @@ function SearchBox({height, width, placeholder, users, channels}: SearchBoxProps
     e.preventDefault();
     // Should instead send to Search API
     console.log(searchData);
-    setSearchData(defaultSearchData);
   }
 
   return <>
