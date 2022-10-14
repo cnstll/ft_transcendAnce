@@ -6,9 +6,11 @@ import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import UsersList from '../section-components/users-list';
-import { User } from './chat';
+import { User } from '../global-components/interface';
 import StatsBox from '../section-components/stats-box';
 import Avatar from '../section-components/avatar';
+import MatchHistory from '../section-components/match-history';
+import { MatchData } from './interface';
 
 const friendsData: User[] = [
   {
@@ -39,6 +41,11 @@ const friendsData: User[] = [
 ];
 
 const userName = 'Anonymous';
+const matchExamples: MatchData = {
+  numberOfWin: 10,
+  numberOfLoss: 2,
+  ranking: 1,
+};
 
 function Profile() {
   return (
@@ -69,23 +76,28 @@ function Profile() {
             </div>
           </SideBox>
           <CenterBox>
-            <div className="h-full overflow-auto">
+            <div className="h-full overflow-y-auto">
               <div className="flex">
                 <div className="flex-1">
-                  <h1 className="flex justify-center p-5 font-bold">
+                  <h2 className="flex justify-center p-5 font-bold">
                     MATCH HISTORY
-                  </h1>
+                  </h2>
+                  <MatchHistory />
                 </div>
               </div>
             </div>
-            <div className="py-10">
-              <StatsBox />
-            </div>
           </CenterBox>
           <SideBox>
-            <h1 className="flex justify-center font-bold break-all">FRIENDS</h1>
+            <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
             <UsersList channelUsers={friendsData} />
           </SideBox>
+        </div>
+        <div className="flex justify-center">
+          <StatsBox
+            numberOfWin={matchExamples.numberOfWin}
+            numberOfLoss={matchExamples.numberOfLoss}
+            ranking={matchExamples.ranking}
+          />
         </div>
       </Background>
     </div>

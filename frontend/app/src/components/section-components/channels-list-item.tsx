@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers as faChannel, faCommentDots as faMessage} from '@fortawesome/free-solid-svg-icons';
-import { Channel } from "../global-components/chat";
+import { Channel } from '../global-components/interface';
 import { useState } from 'react';
 
 interface ChannelsListProps {
