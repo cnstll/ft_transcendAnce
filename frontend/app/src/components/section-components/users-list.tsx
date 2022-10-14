@@ -1,5 +1,5 @@
 import UsersListItem from './users-list-item';
-import type { User } from '../global-components/chat';
+import type { User } from '../global-components/interface';
 
 interface UsersListProps {
   channelUsers: User[];
