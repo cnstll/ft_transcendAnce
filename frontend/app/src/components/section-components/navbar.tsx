@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { UseOutsideButtonClick } from '../customed-hooks/use-outside-click';
+import { UseOutsideClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 import SearchBox from './search-box';
 import { User } from '../global-components/interface';
@@ -43,7 +43,7 @@ interface BannerProps {
 function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
 
-  const showMore = () => {
+  const showInfo = () => {
     setIsShown((current) => !current);
   };
 
@@ -51,7 +51,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
     setIsShown(false);
   }
 
-  const ref = UseOutsideButtonClick(ClickOutsideHandler);
+  const ref = UseOutsideClick(ClickOutsideHandler);
 
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
@@ -66,14 +66,14 @@ function Navbar({ text, avatarImg }: BannerProps) {
         placeholder="player"
         users={usersData}
       />
-      <div className="relative">
+      <div className="relative" ref={ref}>
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
           <img
             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
             src={avatarImg}
             alt="Rounded avatar"
           />
-          <button ref={ref} onClick={showMore} className="text-white font-bold">
+          <button onClick={showInfo} className="text-white font-bold">
             <FontAwesomeIcon icon={faChevronDown} />
           </button>
         </div>
