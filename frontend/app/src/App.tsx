@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import './index.css';
 import SignIn from './components/global-components/sign-in';
 import Home from './components/global-components/home';
@@ -12,54 +12,56 @@ import { useState, useEffect } from 'react';
 import { UserData } from './components/global-components/interface';
 
 function App() {
-  // const [loggedIn, setLoggedin] = useState(false);
   const [data, setData] = useState<UserData | null>(null);
+  let navigate = useNavigate();
+
+  /**
+   * Function to get the user data from the authentification with 42 API
+   * If the data were not fetched the user is redirected to the sign in page
+   */
 
   useEffect(() => {
-    // setLoggedin(true);
     axios
       .get<UserData>('http://localhost:3000/user/fetch-user', {
         withCredentials: true,
       })
       .then((response) => {
         setData(response.data);
-        if (!data) <Navigate to="/sign-in" replace />;
       })
       .catch((error) => {
+        navigate('/sign-in');
         console.log(error);
-        // setLoggedin(false);
         setData(null);
       });
   }, []);
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={data && <Home avatarImg={data.avatarImg} />}
-          />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route
-            path="/profile/:id"
-            element={data && <Profile avatarImg={data.avatarImg} />}
-          />
-          <Route
-            path="/ranking"
-            element={data && <Ranking avatarImg={data.avatarImg} />}
-          />
-          <Route
-            path="/play"
-            element={data && <Play avatarImg={data.avatarImg} />}
-          />
-          <Route
-            path="/chat"
-            element={data && <Chat avatarImg={data.avatarImg} />}
-          />
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/" element={data && <Home avatarImg={data.avatarImg} />} />
+        <Route
+          path="/profile"
+          element={
+            data && (
+              <Profile avatarImg={data.avatarImg} nickName={data.nickName} />
+            )
+          }
+        />
+        <Route
+          path="/ranking"
+          element={data && <Ranking avatarImg={data.avatarImg} />}
+        />
+        <Route
+          path="/play"
+          element={data && <Play avatarImg={data.avatarImg} />}
+        />
+        <Route
+          path="/chat"
+          element={data && <Chat avatarImg={data.avatarImg} />}
+        />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
     </>
   );
 }

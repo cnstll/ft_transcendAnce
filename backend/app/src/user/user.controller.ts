@@ -54,6 +54,13 @@ export class UserController {
     return res.status(200).send();
   }
 
+  @Put('update-avatarImg')
+  @UseGuards(JwtAuthGuard)
+  updateAvatarImg(@Res() res: any, @Req() req: any, @Body() data: any) {
+    this.userService.updateAvatarImg(req.user.userId, data.newAvatarImg);
+    return res.status(200).send();
+  }
+
   @Delete('delete')
   async deleteUser(@Res() res: any, @Body() data: any) {
     await this.userService.deleteUser(data.nickName);

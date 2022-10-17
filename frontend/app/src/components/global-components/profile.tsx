@@ -9,6 +9,7 @@ import UsersList from '../section-components/users-list';
 import { User, MatchData, UserData } from '../global-components/interface';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
+import UploadPicture from '../section-components/upload-picture';
 
 const friendsData: User[] = [
   {
@@ -79,9 +80,7 @@ function Profile({ avatarImg, nickName }: UserData) {
           <SideBox>
             <UserInfo nickName={nickName} avatarImg={avatarImg} />
             <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
-              <div className="flex justify-start hover:underline cursor-pointer">
-                <p>Upload a picture</p>
-              </div>
+              <UploadPicture />
               <div className="flex justify-start hover:underline cursor-pointer break-all">
                 <p>Two factor identification</p>
               </div>

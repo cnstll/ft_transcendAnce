@@ -92,7 +92,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
 function UserInfo() {
   return (
     <div>
-      <Link to="/profile/ttravis">
+      <Link to="/profile">
         <p className="text-center hover:underline my-2">Profile</p>
       </Link>
       <Link to="/ranking">

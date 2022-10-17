@@ -83,6 +83,22 @@ export class UserService {
     return;
   }
 
+  async updateAvatarImg(userId: string, newAvatarImg: string) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          avatarImg: newAvatarImg,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return;
+  }
+
   async acceptFriend(requesterNickname: string, addresseeId: string) {
     const status: FriendshipStatus = 'ACCEPTED';
     const requester: User = await this.findOne(requesterNickname);
