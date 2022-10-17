@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react';
-import { UseOutsideInputClick } from "../customed-hooks/use-outside-click"
+import { UseOutsideClick } from "../customed-hooks/use-outside-click"
 import { User, Channel } from "../global-components/interface";
 import SearchItem from "./search-item";
 
@@ -30,7 +30,7 @@ function SearchBox({height, width, placeholder, users, channels}: SearchBoxProps
     setIsShown(false);
   }
 
-  const ref = UseOutsideInputClick(ClickOutsideHandler);
+  const ref = UseOutsideClick(ClickOutsideHandler);
 
   function FilterResults(channelItem: Channel) : boolean {
     if (channelItem.type !== 'DIRECTMESSAGE')
@@ -54,15 +54,15 @@ function SearchBox({height, width, placeholder, users, channels}: SearchBoxProps
   }
 
   return <>
-        <div className="relative text-black">
-          <form onSubmit={OnSubmit}>
-            <input className={height + width + " bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"}
-              type="text" name="search" id="keyword" value={keyword} onChange={OnChange}
-              onFocus={ShowInfo} ref={ref} autoComplete="off" placeholder={"Search " + placeholder}/>
-            <button type="submit" className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black">
-                <FontAwesomeIcon icon={faMagnifyingGlass}/>
-            </button>
-          </form>
+      <div className="relative text-black" ref={ref}>
+        <form onSubmit={OnSubmit}>
+          <input className={height + width + " bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"}
+            type="text" name="search" id="keyword" value={keyword} onChange={OnChange}
+            onFocus={ShowInfo} autoComplete="off" placeholder={"Search " + placeholder}/>
+          <button type="submit" className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black">
+              <FontAwesomeIcon icon={faMagnifyingGlass}/>
+          </button>
+        </form>
         <div className={"bg-white rounded-lg text-sm absolute " + width}>
         {isShown &&
         <ul>
