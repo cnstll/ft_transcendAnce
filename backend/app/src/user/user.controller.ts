@@ -51,6 +51,24 @@ export class UserController {
     );
   }
 
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
+  }
+
+  @Get('get-user-friends')
+  @UseGuards(JwtAuthGuard)
+  getFriendsInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserFriends(userId, res);
+  }
+
+  @Get('get-user-friend-requests')
+  @UseGuards(JwtAuthGuard)
+  getFriendRequests(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserFriendRequests(userId, res);
+  }
+
   @Put('update-nickname')
   @UseGuards(JwtAuthGuard)
   updateUserName(
