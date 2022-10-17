@@ -30,7 +30,7 @@ export class AuthController {
       return;
     }
     const payload = {
-      userId: user.id,
+      id: user.id,
       nickName: user.nickName,
     };
     const token = this.authService.login(payload);
