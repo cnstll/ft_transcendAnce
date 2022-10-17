@@ -161,6 +161,41 @@ export class UserService {
     return res.status(200).send();
   }
 
+  async getUserFriendRequests(userId: string, res: Response) {
+    const friends = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        friendsRequester: {
+          where: {
+            status: 'REQUESTED',
+          },
+          select: {
+            addresseeId: true,
+          }
+        },
+        friendsAddressee: {
+          where: {
+            status: 'REQUESTED',
+          },
+          select: {
+            requesterId: true,
+          }
+        },
+      }
+    });
+    let friendsList = [];
+
+    for (let i = 0; i < friends.friendsAddressee.length; i++) {
+      friendsList.push(await this.getInfo(friends.friendsAddressee[i].requesterId));
+    }
+    for (let i = 0; i < friends.friendsRequester.length; i++) {
+      friendsList.push(await this.getInfo(friends.friendsRequester[i].addresseeId));
+    }
+    return res.status(200).send(friendsList);
+  }
+
   async getUserFriends(userId: string, res: Response) {
     const friends = await this.prismaService.user.findUnique({
       where: {
