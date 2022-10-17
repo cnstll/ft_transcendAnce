@@ -9,10 +9,10 @@ import {
 import type { User } from '../global-components/interface';
 
 interface UserOptionsProps {
-  nickname : string,
+  nickname: string,
 }
 
-function UserOptions({nickname}: UserOptionsProps) {
+function UserOptions({ nickname }: UserOptionsProps) {
   return (
     <div>
       <Link to={NormUrl("/profile/", nickname)}>
@@ -41,7 +41,7 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
       <div className="flex items-center justify-center mr-2">
         <img
           className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
-          src={channelUser.image}
+          src={channelUser.avatarImg}
           alt="Rounded avatar"
         />
         <div className="relative">
@@ -66,7 +66,7 @@ function UsersListItem({ channelUser }: UsersListItemProps) {
       </div>
       <div className="content-center mx-2 mt-1">
         <DropDownButton>
-            <UserOptions nickname={channelUser.nickname}/>
+          <UserOptions nickname={channelUser.nickname} />
         </DropDownButton>
       </div>
     </div>
