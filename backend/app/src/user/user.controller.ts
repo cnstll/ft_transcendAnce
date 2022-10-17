@@ -9,6 +9,8 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
@@ -16,6 +18,24 @@ import { FriendDto } from './dto/friend.dto';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import path = require('path');
+import { Observable, of } from 'rxjs';
+
+export const storage = {
+  storage: diskStorage({
+    destination: './uploads/avatar',
+    filename: (req, file, cb) => {
+      const filename: string =
+        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+      const extension: string = path.parse(file.originalname).ext;
+
+      cb(null, `${filename}${extension}`);
+    },
+  }),
+};
 
 @Controller('user')
 export class UserController {
@@ -66,15 +86,13 @@ export class UserController {
     );
   }
 
-  @Put('update-avatarImg')
+  @Post('update-avatar')
   @UseGuards(JwtAuthGuard)
-  updateAvatarImg(
-    @Res() res: Response,
-    @GetCurrentUserId() userId: string,
-    @Body() data: { newAvatarImg: string },
-  ) {
-    this.userService.updateUserName(userId, data.newAvatarImg, res);
-    return res.status(200).send();
+  @UseInterceptors(FileInterceptor('file', storage))
+  uploadFile(@UploadedFile() file, @Req() req: any): Observable<unknown> {
+    const user: UserDto = req.user.user;
+    console.log(user);
+    return of({ imagePath: file.filename });
   }
 
   @Get('get-user-friends')
