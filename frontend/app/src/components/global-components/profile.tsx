@@ -11,6 +11,8 @@ import StatsBox from '../section-components/stats-box';
 import Avatar from '../section-components/avatar';
 import MatchHistory from '../section-components/match-history';
 import { MatchData } from './interface';
+// import { useEffect } from 'react';
+// import axios from 'axios';
 
 const friendsData: User[] = [
   {
@@ -41,11 +43,25 @@ const friendsData: User[] = [
 ];
 
 const userName = 'Anonymous';
+
 const matchExamples: MatchData = {
   numberOfWin: 10,
   numberOfLoss: 2,
   ranking: 1,
 };
+
+// useEffect(() => {
+//   axios
+//     .get('http://localhost:3000/user/get-user-info', {
+//       withCredentials: true,
+//     })
+//     .then((res) => {
+//       userName = res.data.userInfo.nickname;
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// });
 
 function Profile() {
   return (
