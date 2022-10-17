@@ -7,7 +7,7 @@ import { Response } from 'express';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) { }
+  constructor(private prismaService: PrismaService) {}
 
   async createUser(dto: UserDto) {
     try {
@@ -84,14 +84,14 @@ export class UserService {
 
   async updateFriendshipStatus(
     activeUserId: string,
-    AffectedUserId: string,
+    affectedUserId: string,
     friends: boolean,
     res: Response,
   ) {
     if (friends === true) {
-      this.addFriend(activeUserId, AffectedUserId, res);
+      this.addFriend(activeUserId, affectedUserId, res);
     } else {
-      this.deleteFriendship(activeUserId, AffectedUserId, res);
+      this.deleteFriendship(activeUserId, affectedUserId, res);
     }
   }
 
