@@ -23,7 +23,7 @@ import { UserModule } from '../user/user.module';
         return {
           secret: process.env.JWT_SECRET,
           signOptions: {
-            expiresIn: '3600s',
+            expiresIn: '3600m',
           },
         };
       },
@@ -33,6 +33,6 @@ import { UserModule } from '../user/user.module';
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('auth/signin');
+    consumer.apply(AuthMiddleware).forRoutes('auth/42');
   }
 }

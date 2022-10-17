@@ -24,8 +24,12 @@ module.exports = {
         format: ['camelCase'],
       },
       {
-        selector: ['function', 'interface', 'class'],
+        selector: ['interface', 'class'],
         format: ['PascalCase'],
+      },
+      {
+        selector: ['function'],
+        format: ['camelCase', 'PascalCase'],
       },
     ],
   },
