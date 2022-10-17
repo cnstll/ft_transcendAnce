@@ -68,7 +68,7 @@ export class UserService {
     return res.status(201).send();
   }
 
-  async updateUserName(userId: string, newNickname: string) {
+  async updateUserName(userId: string, newNickname: string, res: Response) {
     try {
       await this.prismaService.user.update({
         where: {
@@ -78,10 +78,10 @@ export class UserService {
           nickName: newNickname,
         },
       });
+      return res.status(201).send();
     } catch (error) {
-      console.log(error);
+      return res.status(200).send();
     }
-    return;
   }
 
   async updateAvatarImg(userId: string, newAvatarImg: string) {
@@ -176,6 +176,22 @@ export class UserService {
       return res.status(500).send();
     }
     return res.status(200).send();
+  }
+
+  async getUserInfo(userId: string, res: Response) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return res.status(200).send(userInfo);
   }
 
   findOne(username: string): Promise<User | undefined> {

@@ -8,6 +8,7 @@ import {
   Body,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
@@ -25,6 +26,12 @@ export class UserController {
     dto['name'] = name;
     res.status(201).send();
     return this.userService.createUser(dto);
+  }
+
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
   }
 
   @Get('fetch-user')
@@ -61,8 +68,12 @@ export class UserController {
 
   @Put('update-avatarImg')
   @UseGuards(JwtAuthGuard)
-  updateAvatarImg(@Res() res: any, @Req() req: any, @Body() data: any) {
-    this.userService.updateAvatarImg(req.user.userId, data.newAvatarImg);
+  updateAvatarImg(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+    @Body() data: { newAvatarImg: string },
+  ) {
+    this.userService.updateUserName(userId, data.newAvatarImg, res);
     return res.status(200).send();
   }
 
