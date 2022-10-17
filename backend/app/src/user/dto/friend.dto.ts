@@ -1,9 +1,17 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class FriendDto {
   @IsNotEmpty()
   @IsString()
   target: string;
 
-  friends: boolean;
+  @IsBoolean()
+  @IsOptional()
+  friends?: boolean;
 }

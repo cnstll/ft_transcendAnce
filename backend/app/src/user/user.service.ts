@@ -49,6 +49,7 @@ export class UserService {
   ) {
     const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
+      console.log(requesterId, futureFriendNickname, futureFriend);
       await this.prismaService.user.update({
         where: {
           id: requesterId,
@@ -88,7 +89,7 @@ export class UserService {
     friends: boolean,
     res: Response,
   ) {
-    if (friends == true) {
+    if (friends === true) {
       this.addFriend(activeUserId, AffectedUserId, res);
     } else {
       this.deleteFriendship(activeUserId, AffectedUserId, res);
