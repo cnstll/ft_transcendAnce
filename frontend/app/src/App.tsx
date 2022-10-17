@@ -13,7 +13,7 @@ import { UserData } from './components/global-components/interface';
 
 function App() {
   const [data, setData] = useState<UserData | null>(null);
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   /**
    * Function to get the user data from the authentification with 42 API
@@ -28,9 +28,8 @@ function App() {
       .then((response) => {
         setData(response.data);
       })
-      .catch((error) => {
+      .catch(() => {
         navigate('/sign-in');
-        console.log(error);
         setData(null);
       });
   }, []);

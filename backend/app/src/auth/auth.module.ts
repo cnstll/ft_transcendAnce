@@ -33,6 +33,6 @@ import { UserModule } from '../user/user.module';
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('auth/signin', 'user');
+    consumer.apply(AuthMiddleware).forRoutes('auth/42');
   }
 }
