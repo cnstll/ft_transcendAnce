@@ -18,7 +18,7 @@ import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorato
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {}
   @Get('create')
   createUser(@Query('name') name: string) {
     const dto = new UserDto();

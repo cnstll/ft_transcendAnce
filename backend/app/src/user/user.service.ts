@@ -7,7 +7,7 @@ import { Response } from 'express';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) { }
+  constructor(private prismaService: PrismaService) {}
 
   async createUser(dto: UserDto) {
     try {
@@ -173,7 +173,7 @@ export class UserService {
           },
           select: {
             addresseeId: true,
-          }
+          },
         },
         friendsAddressee: {
           where: {
@@ -181,17 +181,21 @@ export class UserService {
           },
           select: {
             requesterId: true,
-          }
+          },
         },
-      }
+      },
     });
-    let friendsList = [];
+    const friendsList = [];
 
     for (let i = 0; i < friends.friendsAddressee.length; i++) {
-      friendsList.push(await this.getInfo(friends.friendsAddressee[i].requesterId));
+      friendsList.push(
+        await this.getInfo(friends.friendsAddressee[i].requesterId),
+      );
     }
     for (let i = 0; i < friends.friendsRequester.length; i++) {
-      friendsList.push(await this.getInfo(friends.friendsRequester[i].addresseeId));
+      friendsList.push(
+        await this.getInfo(friends.friendsRequester[i].addresseeId),
+      );
     }
     return res.status(200).send(friendsList);
   }
@@ -208,7 +212,7 @@ export class UserService {
           },
           select: {
             addresseeId: true,
-          }
+          },
         },
         friendsAddressee: {
           where: {
@@ -216,17 +220,21 @@ export class UserService {
           },
           select: {
             requesterId: true,
-          }
+          },
         },
-      }
+      },
     });
-    let friendsList = [];
+    const friendsList = [];
 
     for (let i = 0; i < friends.friendsAddressee.length; i++) {
-      friendsList.push(await this.getInfo(friends.friendsAddressee[i].requesterId));
+      friendsList.push(
+        await this.getInfo(friends.friendsAddressee[i].requesterId),
+      );
     }
     for (let i = 0; i < friends.friendsRequester.length; i++) {
-      friendsList.push(await this.getInfo(friends.friendsRequester[i].addresseeId));
+      friendsList.push(
+        await this.getInfo(friends.friendsRequester[i].addresseeId),
+      );
     }
     // console.log(friendsList);
     return res.status(200).send(friendsList);
@@ -245,9 +253,8 @@ export class UserService {
       eloScore: user.eloScore,
       status: user.status,
     };
-    return (userInfo);
+    return userInfo;
   }
-
 
   async getUserInfo(userId: string, res: Response) {
     const user: User = await this.prismaService.user.findUnique({
