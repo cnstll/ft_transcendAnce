@@ -1,14 +1,15 @@
-import Banner from '../section-components/banner';
+import Navbar from '../section-components/navbar';
 import BackgroundGeneral from '../../img/disco2.png';
 import { Link } from 'react-router-dom';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
+import { UserData } from './interface';
 
-function Home() {
+function Home({ avatarImg }: UserData) {
   return (
     <div>
       <Background background={BackgroundGeneral}>
-        <Banner text="TRANSCENDANCE 🕺" />
+        <Navbar text="TRANSCENDANCE 🕺" avatarImg={avatarImg} />
         <div className="flex flex-col h-screen justify-center items-center gap-10">
           <Link to="/play">
             <Button>

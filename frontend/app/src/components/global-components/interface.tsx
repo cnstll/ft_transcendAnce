@@ -11,6 +11,13 @@ export interface User {
   status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
 }
 
+export interface UserData {
+  id?: string;
+  nickName?: string;
+  passwordHash?: string;
+  avatarImg: string;
+}
+
 export interface MatchData {
   numberOfWin: number;
   numberOfLoss: number;

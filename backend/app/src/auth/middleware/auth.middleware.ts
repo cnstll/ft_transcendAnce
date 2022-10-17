@@ -8,7 +8,7 @@ export class AuthMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: () => void) {
     try {
       this.jwtService.verify(req.cookies['jwtToken']);
-      return res.redirect('http://localhost:8080/');
+      next();
     } catch (error) {
       next();
     }

@@ -19,10 +19,18 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
   @Post('create')
-  createUser(@Query('name') name: string) {
+  createUser(@Query('name') name: string, @Res() res: any) {
     const dto = new UserDto();
     dto['name'] = name;
+    res.status(201).send();
     return this.userService.createUser(dto);
+  }
+
+  @Get('fetch-user')
+  @UseGuards(JwtAuthGuard)
+  async fetchUser(@Req() req: any, @Res() res: any) {
+    const user = await this.userService.findOne(req.user.nickName);
+    return res.status(200).json(user);
   }
 
   @Post('request-friend')

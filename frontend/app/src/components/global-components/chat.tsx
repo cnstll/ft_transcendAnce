@@ -1,20 +1,19 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
-import Banner from '../section-components/banner';
+import Navbar from '../section-components/navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
 import Message from '../section-components/message';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import DropDownMenu from '../section-components/drop-down-menu';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
-import { Channel, User } from "../global-components/interface"
+import { Channel, User, UserData } from '../global-components/interface';
 
-const channelsData : Channel[] = [
+const channelsData: Channel[] = [
   {
     id: '456e4567e89b1',
     name: 'Les démons de minuit',
@@ -88,13 +87,14 @@ function ChannelOptions() {
   );
 }
 
-function Chat() {
+function Chat({ avatarImg }: UserData) {
   return (
     <div className="h-full min-h-screen bg-black">
-      <Banner text={<FontAwesomeIcon icon={faHouse} />} />
+      <Navbar text={<FontAwesomeIcon icon={faHouse} />} avatarImg={avatarImg} />
       <div
         className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
-                gap-10 px-5 justify-center mt-6 text-white text-3xl">
+                gap-10 px-5 justify-center mt-6 text-white text-3xl"
+      >
         <SideBox>
           <ChannelHeader />
           <ChannelsList channels={channelsData} />
@@ -112,9 +112,7 @@ function Chat() {
               </div>
               <div className="p-5 flex justify-center">
                 <DropDownButton>
-                  <DropDownMenu>
-                    <ChannelOptions />
-                  </DropDownMenu>
+                  <ChannelOptions />
                 </DropDownButton>
               </div>
             </div>

@@ -1,5 +1,35 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSquarePlus, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faSquarePlus } from '@fortawesome/free-solid-svg-icons'
+import SearchBox from './search-box';
+import { Channel } from '../global-components/interface'
+
+const channelsData : Channel[] = [
+  {
+    id: '456e4567e89b1',
+    name: 'Les démons de minuit',
+    type: 'PUBLIC',
+  },
+  {
+    id: '456e4567e89b2',
+    name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
+    type: 'PRIVATE',
+  },
+  {
+    id: '456e4567e89b3',
+    name: 'You shall not pass',
+    type: 'PROTECTED',
+  },
+  {
+    id: '456e4567e89b4',
+    name: 'Daphné',
+    type: 'DIRECTMESSAGE',
+  },
+  {
+    id: '456e4567e89b5',
+    name: 'John',
+    type: 'DIRECTMESSAGE',
+  },
+];
 
 function ChannelHeader() {
   return (
@@ -10,14 +40,7 @@ function ChannelHeader() {
           <button className="mx-2"><FontAwesomeIcon icon={faSquarePlus} /></button>
         </div>
       </div>
-      <div className="relative basis-full">
-        <input className=" bg-white h-8 w-36 sm:w-36 sm:h-9 md:w-40 md:h-10 lg:w-56 lg:h-12 xl:w-56 xl:h-12
-          px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm  focus:outline-none relative text-black"
-          type="text" name="search" placeholder="Search channel"/>
-        <button type="submit" className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black">
-            <FontAwesomeIcon icon={faMagnifyingGlass}/>
-        </button>
-      </div>
+      <SearchBox height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 " width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="channel" channels={channelsData}/>
     </div>
   )
 
