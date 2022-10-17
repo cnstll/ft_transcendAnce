@@ -49,7 +49,6 @@ export class UserService {
   ) {
     const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
-      console.log(requesterId, futureFriendNickname, futureFriend);
       await this.prismaService.user.update({
         where: {
           id: requesterId,
@@ -85,14 +84,14 @@ export class UserService {
 
   async updateFriendshipStatus(
     activeUserId: string,
-    AffectedUserId: string,
+    affectedUserId: string,
     friends: boolean,
     res: Response,
   ) {
     if (friends === true) {
-      this.addFriend(activeUserId, AffectedUserId, res);
+      this.addFriend(activeUserId, affectedUserId, res);
     } else {
-      this.deleteFriendship(activeUserId, AffectedUserId, res);
+      this.deleteFriendship(activeUserId, affectedUserId, res);
     }
   }
 
@@ -159,6 +158,103 @@ export class UserService {
       return res.status(500).send();
     }
     return res.status(200).send();
+  }
+
+  async getUserFriendRequests(userId: string, res: Response) {
+    const friends = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        friendsAddressee: {
+          where: {
+            status: 'REQUESTED',
+          },
+          select: {
+            requesterId: true,
+          },
+        },
+      },
+    });
+    const friendsList = [];
+    for (let i = 0; i < friends.friendsAddressee.length; i++) {
+      friendsList.push(
+        await this.getInfo(friends.friendsAddressee[i].requesterId),
+      );
+    }
+    return res.status(200).send(friendsList);
+  }
+
+  async getUserFriends(userId: string, res: Response) {
+    const friends = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        friendsRequester: {
+          where: {
+            status: 'ACCEPTED',
+          },
+          select: {
+            addresseeId: true,
+          },
+        },
+        friendsAddressee: {
+          where: {
+            status: 'ACCEPTED',
+          },
+          select: {
+            requesterId: true,
+          },
+        },
+      },
+    });
+    const friendsList = [];
+
+    for (let i = 0; i < friends.friendsAddressee.length; i++) {
+      friendsList.push(
+        await this.getInfo(friends.friendsAddressee[i].requesterId),
+      );
+    }
+    for (let i = 0; i < friends.friendsRequester.length; i++) {
+      friendsList.push(
+        await this.getInfo(friends.friendsRequester[i].addresseeId),
+      );
+    }
+    // console.log(friendsList);
+    return res.status(200).send(friendsList);
+  }
+
+  async getInfo(userId: string) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId.toString(),
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return userInfo;
+  }
+
+  async getUserInfo(userId: string, res: Response) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return res.status(200).send(userInfo);
   }
 
   findOne(username: string): Promise<User | undefined> {
