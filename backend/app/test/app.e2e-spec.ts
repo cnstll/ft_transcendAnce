@@ -98,6 +98,19 @@ describe('AppController (e2e)', () => {
       .expect(201)
   });
 
+  it('/ (should return empty list)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
+    return request(app.getHttpServer())
+      .get('/user/get-user-friend-requests')
+      .set('Authorization', bearer)
+      .send()
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('[]');
+      })
+  });
+
   it('/ (user c requests user d as friend)', async () => {
     await new Promise(process.nextTick);
     let bearer = 'Bearer ' + cookieC;
@@ -109,6 +122,56 @@ describe('AppController (e2e)', () => {
       })
       .expect(201)
   });
+
+  it('/ (should return 401)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + 'some random string';
+    return request(app.getHttpServer())
+      .get('/user/get-user-info')
+      .set('Authorization', bearer)
+      .send()
+      .expect(401)
+  });
+
+  it('/ (should return info about user d)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
+    return request(app.getHttpServer())
+      .get('/user/get-user-info')
+      .set('Authorization', bearer)
+      .send()
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"nickname":"d"');
+      })
+  });
+
+  it('/ (should return info about user c)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
+    return request(app.getHttpServer())
+      .get('/user/get-user-friend-requests')
+      .set('Authorization', bearer)
+      .send()
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"nickname":"c"');
+      })
+  });
+
+  it('/ (should not return info about user c)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
+    return request(app.getHttpServer())
+      .get('/user/get-user-friends')
+      .set('Authorization', bearer)
+      .send()
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toEqual('[]');
+      })
+  });
+
 
   it('/ (user c requests non existant user as friend)', async () => {
     await new Promise(process.nextTick);
@@ -133,6 +196,19 @@ describe('AppController (e2e)', () => {
         friends: true
       })
       .expect(200)
+  });
+
+  it('/ (should return info about user a)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieB;
+    return request(app.getHttpServer())
+      .get('/user/get-user-friends')
+      .set('Authorization', bearer)
+      .send()
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"nickname":"a"');
+      })
   });
 
   it('/ (user b accepts friend request that does not exist)', async () => {
