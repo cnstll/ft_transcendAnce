@@ -4,22 +4,18 @@ import type { User } from '../global-components/interface';
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-interface UsersListProps {
-  channelUsers: User[];
-}
-
 function FriendsList() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [friendsInfo, setUserInfo] = useState<UsersListProps | null>(null);
+  const [friendsInfo, setUserInfo] = useState<User[] | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
     const fetchUserInfo =
       () => {
         axios
-          .get<UsersListProps>(
+          .get<User[]>(
             'http://localhost:3000/user/get-user-friends',
             { withCredentials: true }
           )
@@ -52,9 +48,18 @@ function FriendsList() {
       </section>
     )
   }
-  return (
-    <UsersList channelUsers={friendsInfo} />
-  );
+
+
+  if (friendsInfo != null) {
+    return (
+      <UsersList channelUsers={friendsInfo} />
+    );
+  }
+  else {
+    return (
+      <UsersList channelUsers={[]} />
+    );
+  }
 }
 
 export default FriendsList;
