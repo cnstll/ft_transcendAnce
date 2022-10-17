@@ -7,7 +7,7 @@ import { Response } from 'express';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
 
   async createUser(dto: UserDto) {
     try {
@@ -49,7 +49,6 @@ export class UserService {
   ) {
     const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
-      console.log(requesterId, futureFriendNickname, futureFriend);
       await this.prismaService.user.update({
         where: {
           id: requesterId,
