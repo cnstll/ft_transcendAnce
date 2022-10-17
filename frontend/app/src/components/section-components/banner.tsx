@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { UseOutsideButtonClick } from '../customed-hooks/use-outside-click';
+import { UseOutsideClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 import SearchBox from './search-box';
 import { User } from "../global-components/interface";
@@ -67,7 +67,7 @@ function Banner({ text }: BannerProps) {
     setIsShown(false);
   }
 
-  const ref = UseOutsideButtonClick(ClickOutsideHandler);
+  const ref = UseOutsideClick(ClickOutsideHandler);
 
   return (
     <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
@@ -77,14 +77,14 @@ function Banner({ text }: BannerProps) {
         </h2>
       </Link>
       <SearchBox height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 " width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 " placeholder="player" users={usersData}/>
-      <div className="relative">
-        <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
+      <div className="relative" ref={ref}>
+        <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2" >
           <img
             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
             src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
             alt="Rounded avatar"
           />
-          <button ref={ref} onClick={showInfo} className="text-white font-bold">
+          <button  onClick={showInfo} className="text-white font-bold">
             <FontAwesomeIcon icon={faChevronDown} />
           </button>
         </div>
