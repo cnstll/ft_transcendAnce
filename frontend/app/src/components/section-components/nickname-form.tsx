@@ -11,7 +11,7 @@ function NickNameForm(props: NicknameFormProps) {
   const [inputStatus, setInputStatus] = useState<string>('empty');
 
   function validateNameInput(input: string): boolean {
-    const regex = /^[a-zA-Z0-9]+$/;
+    const regex = /^[^\s][a-zA-Z0-9\s]+[^\s]$/;
     const ret = input.length !== 0 && input.length <= 15 && regex.test(input);
     return ret;
   }
@@ -45,7 +45,10 @@ function NickNameForm(props: NicknameFormProps) {
   return (
     <div className="absolute block p-6 rounded-lg shadow-lg max-w-sm bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
       <form onSubmit={onSubmitHandler}>
-        <div className="form-group mb-6 text-center text-white text-sm sm:text-sm md:text-lg font-bold">
+        <div
+          id="form-nickname"
+          className="form-group mb-6 text-center text-white text-sm sm:text-sm md:text-lg font-bold"
+        >
           <label htmlFor="editNickName">Enter your name</label>
           <input
             className={`form-control block w-full px-3 py-1.5 text-base font-normal bg-purple-light focus:bg-purple-light bg-clip-padding border-b-2 focus:outline-none ${
