@@ -29,26 +29,24 @@ export class UserService {
     }
   }
 
-  async deleteUser(userNickname: string) {
+  async deleteUser(userId: string, res: Response) {
     try {
       await this.prismaService.user.delete({
         where: {
-          nickName: userNickname,
+          id: userId,
         },
       });
     } catch (error) {
       console.log(error);
     }
+    return res.send(204);
   }
 
-  logInUser(): void {
-    return;
-  }
-  updateUser(): void {
-    return;
-  }
-
-  async requestFriend(requesterId: string, futureFriendNickname: string) {
+  async requestFriend(
+    requesterId: string,
+    futureFriendNickname: string,
+    res: Response,
+  ) {
     const futureFriend: User = await this.findOne(futureFriendNickname);
     try {
       await this.prismaService.user.update({
@@ -63,13 +61,14 @@ export class UserService {
       });
     } catch (error) {
       console.log(error);
+      return res.status(500).send();
     }
-    return;
+    return res.status(201).send();
   }
 
   async updateUserName(userId: string, newNickname: string, res: Response) {
     try {
-      const data = await this.prismaService.user.update({
+      await this.prismaService.user.update({
         where: {
           id: userId,
         },
@@ -77,19 +76,66 @@ export class UserService {
           nickName: newNickname,
         },
       });
-      return res.status(201).send('Update Success');
+      return res.status(201).send();
     } catch (error) {
-      return res.status(200).send('Update Failed');
+      return res.status(200).send();
     }
   }
 
-  async acceptFriend(requesterNickname: string, addresseeId: string) {
+  async updateFriendshipStatus(
+    activeUserId: string,
+    affectedUserId: string,
+    friends: boolean,
+    res: Response,
+  ) {
+    if (friends === true) {
+      this.addFriend(activeUserId, affectedUserId, res);
+    } else {
+      this.deleteFriendship(activeUserId, affectedUserId, res);
+    }
+  }
+
+  async deleteFriendship(activeUserId: string, target: string, res: Response) {
+    const user: User = await this.findOne(target);
+    try {
+      const result = await this.prismaService.friendship.findFirst({
+        where: {
+          OR: [
+            {
+              AND: [{ requesterId: activeUserId }, { addresseeId: user.id }],
+            },
+            {
+              AND: [{ addresseeId: activeUserId }, { requesterId: user.id }],
+            },
+          ],
+        },
+      });
+      await this.prismaService.friendship.delete({
+        where: {
+          friendshipId: {
+            addresseeId: result.addresseeId,
+            requesterId: result.requesterId,
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+    return res.status(200).send();
+  }
+
+  async addFriend(
+    activeUserId: string,
+    requesterNickname: string,
+    res: Response,
+  ) {
     const status: FriendshipStatus = 'ACCEPTED';
     const requester: User = await this.findOne(requesterNickname);
     try {
       await this.prismaService.user.update({
         where: {
-          id: addresseeId,
+          id: activeUserId,
         },
         data: {
           friendsAddressee: {
@@ -97,7 +143,7 @@ export class UserService {
               where: {
                 friendshipId: {
                   requesterId: requester.id,
-                  addresseeId: addresseeId,
+                  addresseeId: activeUserId,
                 },
               },
               data: {
@@ -109,8 +155,106 @@ export class UserService {
       });
     } catch (error) {
       console.log(error);
-      return;
+      return res.status(500).send();
     }
+    return res.status(200).send();
+  }
+
+  async getUserFriendRequests(userId: string, res: Response) {
+    const friends = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        friendsAddressee: {
+          where: {
+            status: 'REQUESTED',
+          },
+          select: {
+            requesterId: true,
+          },
+        },
+      },
+    });
+    const friendsList = [];
+    for (let i = 0; i < friends.friendsAddressee.length; i++) {
+      friendsList.push(
+        await this.getInfo(friends.friendsAddressee[i].requesterId),
+      );
+    }
+    return res.status(200).send(friendsList);
+  }
+
+  async getUserFriends(userId: string, res: Response) {
+    const friends = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        friendsRequester: {
+          where: {
+            status: 'ACCEPTED',
+          },
+          select: {
+            addresseeId: true,
+          },
+        },
+        friendsAddressee: {
+          where: {
+            status: 'ACCEPTED',
+          },
+          select: {
+            requesterId: true,
+          },
+        },
+      },
+    });
+    const friendsList = [];
+
+    for (let i = 0; i < friends.friendsAddressee.length; i++) {
+      friendsList.push(
+        await this.getInfo(friends.friendsAddressee[i].requesterId),
+      );
+    }
+    for (let i = 0; i < friends.friendsRequester.length; i++) {
+      friendsList.push(
+        await this.getInfo(friends.friendsRequester[i].addresseeId),
+      );
+    }
+    // console.log(friendsList);
+    return res.status(200).send(friendsList);
+  }
+
+  async getInfo(userId: string) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId.toString(),
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return userInfo;
+  }
+
+  async getUserInfo(userId: string, res: Response) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return res.status(200).send(userInfo);
   }
 
   findOne(username: string): Promise<User | undefined> {

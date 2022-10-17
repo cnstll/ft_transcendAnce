@@ -8,13 +8,12 @@ import {
   Body,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { FriendDto } from './dto/friend.dto';
-import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 
 @Controller('user')
 export class UserController {
@@ -22,31 +21,61 @@ export class UserController {
 
   @Post('request-friend')
   @UseGuards(JwtAuthGuard)
-  createFriendship(@Req() req: any, @Res() res: any, @Body() data: FriendDto) {
-    this.userService.requestFriend(req.user.userId, data.addressee),
-      res.status(201).send();
+  createFriendship(
+    @GetCurrentUserId() userId: string,
+    @Res() res: Response,
+    @Body() data: FriendDto,
+  ) {
+    return this.userService.requestFriend(userId, data.target, res);
   }
 
   @Put('update-friendship')
   @UseGuards(JwtAuthGuard)
-  acceptFriendship(@Res() res: any, @Req() req: any, @Body() data: FriendDto) {
-    this.userService.acceptFriend(data.requester, req.user.userId),
-      res.status(200).send();
-  }
-
-  @Put('update-nickname')
-  @UseGuards(JwtAuthGuard)
-  updateUserName(@Res() res: Response, @Req() req: any, @Body() data: any) {
-    return this.userService.updateUserName(
-      req.user.userId,
-      data.newNickname,
+  acceptFriendship(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+    @Body() data: FriendDto,
+  ) {
+    return this.userService.updateFriendshipStatus(
+      userId,
+      data.target,
+      data.friends,
       res,
     );
   }
 
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
+  }
+
+  @Get('get-user-friends')
+  @UseGuards(JwtAuthGuard)
+  getFriendsInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserFriends(userId, res);
+  }
+
+  @Get('get-user-friend-requests')
+  @UseGuards(JwtAuthGuard)
+  getFriendRequests(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserFriendRequests(userId, res);
+  }
+
+  @Put('update-nickname')
+  @UseGuards(JwtAuthGuard)
+  updateUserName(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+    @Body() data: { newNickname: string },
+  ) {
+    this.userService.updateUserName(userId, data.newNickname, res);
+    return res.status(200).send();
+  }
+
   @Delete('delete')
-  async deleteUser(@Res() res: any, @Body() data: any) {
-    await this.userService.deleteUser(data.nickName);
-    res.status(204).send();
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return await this.userService.deleteUser(userId, res);
   }
 }
