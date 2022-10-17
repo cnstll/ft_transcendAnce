@@ -167,14 +167,6 @@ export class UserService {
         id: userId,
       },
       select: {
-        friendsRequester: {
-          where: {
-            status: 'REQUESTED',
-          },
-          select: {
-            addresseeId: true,
-          },
-        },
         friendsAddressee: {
           where: {
             status: 'REQUESTED',
@@ -186,15 +178,9 @@ export class UserService {
       },
     });
     const friendsList = [];
-
     for (let i = 0; i < friends.friendsAddressee.length; i++) {
       friendsList.push(
         await this.getInfo(friends.friendsAddressee[i].requesterId),
-      );
-    }
-    for (let i = 0; i < friends.friendsRequester.length; i++) {
-      friendsList.push(
-        await this.getInfo(friends.friendsRequester[i].addresseeId),
       );
     }
     return res.status(200).send(friendsList);
