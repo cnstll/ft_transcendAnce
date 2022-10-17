@@ -18,7 +18,7 @@ import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorato
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
   @Get('create')
   createUser(@Query('name') name: string) {
     const dto = new UserDto();
@@ -49,6 +49,18 @@ export class UserController {
       data.friends,
       res,
     );
+  }
+
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
+  }
+
+  @Get('get-user-friends')
+  @UseGuards(JwtAuthGuard)
+  getFriendsInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserFriends(userId, res);
   }
 
   @Put('update-nickname')

@@ -7,7 +7,7 @@ import { Response } from 'express';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
 
   async createUser(dto: UserDto) {
     try {
@@ -159,6 +159,75 @@ export class UserService {
       return res.status(500).send();
     }
     return res.status(200).send();
+  }
+
+  async getUserFriends(userId: string, res: Response) {
+    const friends = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        friendsRequester: {
+          where: {
+            status: 'ACCEPTED',
+          },
+          select: {
+            addresseeId: true,
+          }
+        },
+        friendsAddressee: {
+          where: {
+            status: 'ACCEPTED',
+          },
+          select: {
+            requesterId: true,
+          }
+        },
+      }
+    });
+    let friendsList = [];
+
+    for (let i = 0; i < friends.friendsAddressee.length; i++) {
+      friendsList.push(await this.getInfo(friends.friendsAddressee[i].requesterId));
+    }
+    for (let i = 0; i < friends.friendsRequester.length; i++) {
+      friendsList.push(await this.getInfo(friends.friendsRequester[i].addresseeId));
+    }
+    // console.log(friendsList);
+    return res.status(200).send(friendsList);
+  }
+
+  async getInfo(userId: string) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId.toString(),
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return (userInfo);
+  }
+
+
+  async getUserInfo(userId: string, res: Response) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+    };
+    return res.status(200).send(userInfo);
   }
 
   findOne(username: string): Promise<User | undefined> {
