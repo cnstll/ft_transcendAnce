@@ -5,39 +5,43 @@ import { faHouse, faPencil } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
-import UsersList from '../section-components/users-list';
-import { User, MatchData, UserData } from '../global-components/interface';
+import { MatchData, UserData } from '../global-components/interface';
+import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
 import UploadPicture from '../section-components/upload-picture';
 
-const friendsData: User[] = [
-  {
-    id: '10',
-    nickname: 'Alexandre',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-    status: 'PLAYING',
-  },
-  {
-    id: '20',
-    nickname: 'Alexandrinedrinedrine',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
-    status: 'OFFLINE',
-  },
-  {
-    id: '30',
-    nickname: 'Alexandro',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
-    status: 'ONLINE',
-  },
+// const friendsData: User[] = [
+//   {
+//     id: '10',
+//     nickname: 'Alexandre',
+//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+//     status: 'PLAYING',
+//     eloScore: 12,
+//   },
+//   {
+//     id: '20',
+//     nickname: 'Alexandrinedrinedrine',
+//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+//     status: 'OFFLINE',
+//     eloScore: 12,
+//   },
+//   {
+//     id: '30',
+//     nickname: 'Alexandro',
+//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+//     status: 'ONLINE',
+//     eloScore: 12,
+//   },
 
-  {
-    id: '40',
-    nickname: 'Alexandra',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
-    status: 'ONLINE',
-  },
-];
+//   {
+//     id: '40',
+//     nickname: 'Alexandra',
+//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+//     status: 'ONLINE',
+//     eloScore: 12,
+//   },
+// ];
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -100,7 +104,7 @@ function Profile({ avatarImg, nickName }: UserData) {
           </CenterBox>
           <SideBox>
             <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
-            <UsersList channelUsers={friendsData} />
+            <FriendList />
           </SideBox>
         </div>
         <div className="flex justify-center">

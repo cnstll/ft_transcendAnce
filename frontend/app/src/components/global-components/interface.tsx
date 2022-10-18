@@ -6,8 +6,9 @@ export interface Channel {
 
 export interface User {
   id: string;
-  image: string;
+  avatarImg: string;
   nickname: string;
+  eloScore: number;
   status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
 }
 
