@@ -1,17 +1,19 @@
 import axios from 'axios';
-import { Dispatch, FormEvent, useRef, useState } from 'react';
+import { Dispatch, FormEvent, useContext, useRef, useState } from 'react';
+import ProfileDataCtx from '../store/user-context';
 
 interface NicknameFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
-  setNickName: Dispatch<React.SetStateAction<string>>;
 }
 
 function NickNameForm(props: NicknameFormProps) {
+  const ctx = useContext(ProfileDataCtx);
+
   const nickNameRef = useRef<HTMLInputElement>(null);
   const [inputStatus, setInputStatus] = useState<string>('empty');
 
   function validateNameInput(input: string): boolean {
-    const regex = /^[^\s][a-zA-Z0-9\s]+[^\s]$/;
+    const regex = /^[\w\d\s]+$/;
     const ret = input.length !== 0 && input.length <= 15 && regex.test(input);
     return ret;
   }
@@ -32,7 +34,7 @@ function NickNameForm(props: NicknameFormProps) {
       .then((res) => {
         if (res.status == 201) {
           setInputStatus('valid');
-          props.setNickName(input);
+          ctx.setUserNickname(input);
           props.setShowForm(false);
         } else if (res.status == 200) {
           setInputStatus('invalid');
