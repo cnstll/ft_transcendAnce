@@ -45,25 +45,25 @@ const chanUsersData: User[] = [
   {
     id: '123e4567e89b1',
     nickname: 'Alexandra',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
     status: 'OFFLINE',
   },
   {
     id: '123e4567e89b2',
     nickname: 'Alexandre',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
     status: 'ONLINE',
   },
   {
     id: '123e4567e89b3',
     nickname: 'Alexandrinedrinedrine',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
     status: 'PLAYING',
   },
   {
     id: '123e4567e89b4',
     nickname: 'Alexandro',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
     status: 'PLAYING',
   },
 ];

@@ -62,7 +62,8 @@
     "axios": "^1.1.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
-    "passport-oauth2": "^1.6.1"
+    "passport-oauth2": "^1.6.1",
+    "react-query": "^3.39.2"
   },
   "engines": {
     "yarn": "YARN NO LONGER USED - use npm instead."
