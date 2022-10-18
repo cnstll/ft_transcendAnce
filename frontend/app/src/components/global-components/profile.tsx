@@ -5,43 +5,15 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
-import UsersList from '../section-components/users-list';
-import { User } from '../global-components/interface';
+import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
 import Avatar from '../section-components/avatar';
 import MatchHistory from '../section-components/match-history';
-import { MatchData } from './interface';
+import { MatchData, User } from './interface';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import ProfileDataCtx from '../store/user-context';
-
-const friendsData: User[] = [
-  {
-    id: '10',
-    nickname: 'Alexandre',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-    status: 'PLAYING',
-  },
-  {
-    id: '20',
-    nickname: 'Alexandrinedrinedrine',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
-    status: 'OFFLINE',
-  },
-  {
-    id: '30',
-    nickname: 'Alexandro',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
-    status: 'ONLINE',
-  },
-
-  {
-    id: '40',
-    nickname: 'Alexandra',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
-    status: 'ONLINE',
-  },
-];
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -68,6 +40,7 @@ function Profile() {
     fetchUserName();
   }, []);
 
+  const queryClient = new QueryClient();
   return (
     <ProfileDataCtx.Provider value={{ userNickname, setUserNickname }}>
       <div>
@@ -112,7 +85,9 @@ function Profile() {
               <h2 className="flex justify-center font-bold break-all">
                 FRIENDS
               </h2>
-              <UsersList channelUsers={friendsData} />
+              <QueryClientProvider client={queryClient}>
+                <FriendList />
+              </QueryClientProvider>
             </SideBox>
           </div>
           <div className="flex justify-center">

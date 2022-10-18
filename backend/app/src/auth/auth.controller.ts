@@ -8,6 +8,7 @@ import {
   Body,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Payload } from './types';
 import { Api42OauthGuard } from './guard/api42.auth-guards';
 
 @Controller('auth')
@@ -20,6 +21,16 @@ export class AuthController {
     const url = new URL('http://localhost:8080/profile');
     const token = this.authService.login(req.user);
     res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
+  }
+
+  @Post('/login-user-dev')
+  async loginUserDev(@Res() res, @Body() req) {
+    const payload: Payload = {
+      userId: req.id,
+      nickName: req.nickname,
+    };
+    const token = this.authService.login(payload);
+    res.status(201).send(token);
   }
 
   @Post('/create-user-dev')
