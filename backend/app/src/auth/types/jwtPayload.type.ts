@@ -1,4 +1,4 @@
-export type Payload = {
+export type JwtPayload = {
   nickName: string;
   userId: string;
 };
