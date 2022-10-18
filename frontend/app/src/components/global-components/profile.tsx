@@ -10,38 +10,7 @@ import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
 import { MatchData } from './interface';
-
-// const friendsData: User[] = [
-//   {
-//     id: '10',
-//     nickname: 'Alexandre',
-//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-//     status: 'PLAYING',
-//     eloScore: 12,
-//   },
-//   {
-//     id: '20',
-//     nickname: 'Alexandrinedrinedrine',
-//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
-//     status: 'OFFLINE',
-//     eloScore: 12,
-//   },
-//   {
-//     id: '30',
-//     nickname: 'Alexandro',
-//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
-//     status: 'ONLINE',
-//     eloScore: 12,
-//   },
-
-//   {
-//     id: '40',
-//     nickname: 'Alexandra',
-//     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
-//     status: 'ONLINE',
-//     eloScore: 12,
-//   },
-// ];
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -50,6 +19,7 @@ const matchExamples: MatchData = {
 };
 
 function Profile() {
+  const queryClient = new QueryClient();
   return (
     <div>
       <Background background={BackgroundGeneral}>
@@ -95,7 +65,9 @@ function Profile() {
           </CenterBox>
           <SideBox>
             <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
-            <FriendList />
+            <QueryClientProvider client={queryClient}>
+              <FriendList />
+            </QueryClientProvider>
           </SideBox>
         </div>
         <div className="flex justify-center">
