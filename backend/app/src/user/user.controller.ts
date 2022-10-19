@@ -121,6 +121,12 @@ export class UserController {
     return res.status(200).send();
   }
 
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  logout(@Res() res: Response) {
+    return this.userService.logout(res);
+  }
+
   @Delete('delete')
   @UseGuards(JwtAuthGuard)
   async deleteUser(@Res() res: Response, @GetCurrentUserId() userId: string) {
