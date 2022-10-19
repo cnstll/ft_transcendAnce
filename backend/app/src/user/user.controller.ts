@@ -3,7 +3,6 @@ import {
   Post,
   Controller,
   Get,
-  Query,
   Res,
   Body,
   Delete,
@@ -56,6 +55,17 @@ export class UserController {
     return this.userService.getUserFriends(userId, res);
   }
 
+  @Post('get-target-info')
+  @UseGuards(JwtAuthGuard)
+  getOtherUserInfo(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+    @Body() target: { nickname: string },
+  ) {
+    console.log(target.nickname);
+    return this.userService.getTargetInfo(userId, target.nickname, res);
+  }
+
   @Get('get-user-friend-requests')
   @UseGuards(JwtAuthGuard)
   getFriendRequests(@Res() res: Response, @GetCurrentUserId() userId: string) {
@@ -69,13 +79,8 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() data: { newNickname: string },
   ) {
-    return this.userService.updateUserName(userId, data.newNickname, res);
-  }
-
-  @Get('logout')
-  @UseGuards(JwtAuthGuard)
-  logout(@Res() res: Response) {
-    return this.userService.logout(res);
+    this.userService.updateUserName(userId, data.newNickname, res);
+    return res.status(200).send();
   }
 
   @Delete('delete')

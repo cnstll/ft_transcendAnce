@@ -7,10 +7,11 @@ import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
-import Avatar from '../section-components/avatar';
 import MatchHistory from '../section-components/match-history';
 import { MatchData } from './interface';
-import getUserNickname from '../customed-hooks/queries/getUserNickname';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { useParams } from 'react-router-dom'
+import ProfileBox from '../section-components/profile-box';
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -19,63 +20,45 @@ const matchExamples: MatchData = {
 };
 
 function Profile() {
-  const userData = getUserNickname();
+  const queryClient = new QueryClient();
+  const { id } = useParams();
 
   return (
     <div>
-      <Background background={BackgroundGeneral}>
-        <Banner text={<FontAwesomeIcon icon={faHouse} />} />
-        <div
-          className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+      <QueryClientProvider client={queryClient}>
+        <Background background={BackgroundGeneral}>
+          <Banner text={<FontAwesomeIcon icon={faHouse} />} />
+          <div
+            className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
           gap-10 px-5 justify-center mt-6 text-white text-3xl"
-        >
-          <SideBox>
-            <div className="flex justify-center">
-              <img
-                className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-                src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                alt="Rounded avatar"
-              />
-            </div>
-            {userData.isSuccess && <Avatar userNickname={userData.data} />}
-            {(userData.isLoading || userData.isError) && (
-              <Avatar userNickname={''} />
-            )}
-
-            <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
-              <div className="flex justify-start hover:underline cursor-pointer">
-                <p>Upload a picture</p>
-              </div>
-              <div className="flex justify-start hover:underline cursor-pointer break-all">
-                <p>Two factor identification</p>
-              </div>
-            </div>
-          </SideBox>
-          <CenterBox>
-            <div className="h-full overflow-y-auto">
-              <div className="flex">
-                <div className="flex-1">
-                  <h2 className="flex justify-center p-5 font-bold">
-                    MATCH HISTORY
-                  </h2>
-                  <MatchHistory />
+          >
+            <ProfileBox nickname={id} />
+            <CenterBox>
+              <div className="h-full overflow-y-auto">
+                <div className="flex">
+                  <div className="flex-1">
+                    <h2 className="flex justify-center p-5 font-bold">
+                      MATCH HISTORY
+                    </h2>
+                    <MatchHistory />
+                  </div>
                 </div>
               </div>
-            </div>
-          </CenterBox>
-          <SideBox>
-            <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
-            <FriendList />
-          </SideBox>
-        </div>
-        <div className="flex justify-center">
-          <StatsBox
-            numberOfWin={matchExamples.numberOfWin}
-            numberOfLoss={matchExamples.numberOfLoss}
-            ranking={matchExamples.ranking}
-          />
-        </div>
-      </Background>
+            </CenterBox>
+            <SideBox>
+              <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
+              <FriendList />
+            </SideBox>
+          </div>
+          <div className="flex justify-center">
+            <StatsBox
+              numberOfWin={matchExamples.numberOfWin}
+              numberOfLoss={matchExamples.numberOfLoss}
+              ranking={matchExamples.ranking}
+            />
+          </div>
+        </Background>
+      </QueryClientProvider>
     </div>
   );
 }

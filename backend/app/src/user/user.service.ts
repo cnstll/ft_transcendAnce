@@ -76,10 +76,9 @@ export class UserService {
           nickName: newNickname,
         },
       });
-      return res.status(201).send('updated');
+      return res.status(201).send();
     } catch (error) {
-      console.log(error);
-      return res.status(200).send('failure');
+      return res.status(200).send();
     }
   }
 
@@ -155,6 +154,7 @@ export class UserService {
         },
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).send();
     }
     return res.status(200).send();
@@ -179,10 +179,64 @@ export class UserService {
     const friendsList = [];
     for (let i = 0; i < friends.friendsAddressee.length; i++) {
       friendsList.push(
-        await this.getInfo(friends.friendsAddressee[i].requesterId),
+        await this.getInfo(userId, friends.friendsAddressee[i].requesterId),
       );
     }
     return res.status(200).send(friendsList);
+  }
+
+  async getFriendStatus(userId1: string, userId2: string): Promise<string> {
+    try {
+      const friendStatus = await this.prismaService.friendship.findFirst({
+        where: {
+          OR: [
+            {
+              AND: [{ requesterId: userId1 }, { addresseeId: userId2 }],
+            },
+            {
+              AND: [{ addresseeId: userId1 }, { requesterId: userId2 }],
+            },
+          ],
+        },
+      });
+      if (friendStatus.status === 'ACCEPTED') {
+        return friendStatus.status;
+      }
+      if (friendStatus.requesterId === userId2) {
+        return 'PENDING';
+      }
+      return 'REQUESTED';
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async getTargetInfo(
+    activeUserId: string,
+    targetUserId: string,
+    res: Response,
+  ) {
+    const target: User = await this.findOne(targetUserId);
+    return res.status(200).send(await this.getInfo(activeUserId, target.id));
+  }
+
+  async getInfo(userId: string, userId1: string) {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId1,
+      },
+    });
+    const friendStatus = await this.getFriendStatus(userId, userId1);
+    const userInfo = {
+      id: user.id,
+      nickname: user.nickName,
+      avatarImg: user.avatarImg,
+      eloScore: user.eloScore,
+      status: user.status,
+      friendStatus: friendStatus,
+    };
+    return userInfo;
   }
 
   async getUserFriends(userId: string, res: Response) {
@@ -213,32 +267,15 @@ export class UserService {
 
     for (let i = 0; i < friends.friendsAddressee.length; i++) {
       friendsList.push(
-        await this.getInfo(friends.friendsAddressee[i].requesterId),
+        await this.getInfo(userId, friends.friendsAddressee[i].requesterId),
       );
     }
     for (let i = 0; i < friends.friendsRequester.length; i++) {
       friendsList.push(
-        await this.getInfo(friends.friendsRequester[i].addresseeId),
+        await this.getInfo(userId, friends.friendsRequester[i].addresseeId),
       );
     }
-    // console.log(friendsList);
     return res.status(200).send(friendsList);
-  }
-
-  async getInfo(userId: string) {
-    const user: User = await this.prismaService.user.findUnique({
-      where: {
-        id: userId.toString(),
-      },
-    });
-    const userInfo = {
-      id: user.id,
-      nickname: user.nickName,
-      avatarImg: user.avatarImg,
-      eloScore: user.eloScore,
-      status: user.status,
-    };
-    return userInfo;
   }
 
   async getUserInfo(userId: string, res: Response) {
@@ -263,11 +300,5 @@ export class UserService {
         nickName: username.toString(),
       },
     });
-  }
-
-  logout(res: Response) {
-    return res
-      .cookie('jwtToken', '', { httpOnly: true })
-      .redirect('http://localhost:8080');
   }
 }
