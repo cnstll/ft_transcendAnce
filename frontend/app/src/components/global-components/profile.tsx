@@ -2,15 +2,15 @@ import Banner from '../section-components/banner';
 import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
-import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
+import Avatar from '../section-components/avatar';
 import MatchHistory from '../section-components/match-history';
 import { MatchData } from './interface';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import getUserNickname from '../customed-hooks/queries/getUserNickname';
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -19,7 +19,8 @@ const matchExamples: MatchData = {
 };
 
 function Profile() {
-  const queryClient = new QueryClient();
+  const userData = getUserNickname();
+
   return (
     <div>
       <Background background={BackgroundGeneral}>
@@ -36,12 +37,11 @@ function Profile() {
                 alt="Rounded avatar"
               />
             </div>
-            <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
-              <p>Travis</p>
-              <button>
-                <FontAwesomeIcon icon={faPencil} />
-              </button>
-            </div>
+            {userData.isSuccess && <Avatar userNickname={userData.data} />}
+            {(userData.isLoading || userData.isError) && (
+              <Avatar userNickname={''} />
+            )}
+
             <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
               <div className="flex justify-start hover:underline cursor-pointer">
                 <p>Upload a picture</p>
@@ -65,9 +65,7 @@ function Profile() {
           </CenterBox>
           <SideBox>
             <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
-            <QueryClientProvider client={queryClient}>
-              <FriendList />
-            </QueryClientProvider>
+            <FriendList />
           </SideBox>
         </div>
         <div className="flex justify-center">

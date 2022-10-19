@@ -26,26 +26,25 @@ describe('AppController (e2e)', () => {
       .post('/auth/create-user-dev')
       .send({
         nickName: 'a',
-        passwordHash: 'b'
+        passwordHash: 'b',
       })
       .expect(201)
       .then((response) => {
         cookieA = response.text;
-      })
+      });
   });
-
 
   it('/ (create test users)', async () => {
     return request(app.getHttpServer())
       .post('/auth/create-user-dev')
       .send({
         nickName: 'b',
-        passwordHash: 'd'
+        passwordHash: 'd',
       })
       .expect(201)
       .then((response) => {
         cookieB = response.text;
-      })
+      });
   });
 
   it('/ (create test users)', async () => {
@@ -53,13 +52,12 @@ describe('AppController (e2e)', () => {
       .post('/auth/create-user-dev')
       .send({
         nickName: 'c',
-        passwordHash: 'd'
+        passwordHash: 'd',
       })
-      .expect(201)
       .expect(201)
       .then((response) => {
         cookieC = response.text;
-      })
+      });
   });
 
   it('/ (create test users)', async () => {
@@ -67,12 +65,12 @@ describe('AppController (e2e)', () => {
       .post('/auth/create-user-dev')
       .send({
         nickName: 'd',
-        passwordHash: 'd'
+        passwordHash: 'd',
       })
       .expect(201)
       .then((response) => {
         cookieD = response.text;
-      })
+      });
   });
 
   it('/ (attempt to create duplicate user)', async () => {
@@ -80,9 +78,9 @@ describe('AppController (e2e)', () => {
       .post('/auth/create-user-dev')
       .send({
         nickName: 'd',
-        passwordHash: 'd'
+        passwordHash: 'd',
       })
-      .expect(403)
+      .expect(403);
   });
 
   it('/ (user a requests user b as friend)', async () => {
@@ -93,9 +91,9 @@ describe('AppController (e2e)', () => {
       .post('/user/request-friend')
       .set('Authorization', bearer)
       .send({
-        target: 'b'
+        target: 'b',
       })
-      .expect(201)
+      .expect(201);
   });
 
   it('/ (should return empty list)', async () => {
@@ -108,7 +106,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         expect(response.text).toContain('[]');
-      })
+      });
   });
 
   it('/ (user c requests user d as friend)', async () => {
@@ -118,9 +116,9 @@ describe('AppController (e2e)', () => {
       .post('/user/request-friend')
       .set('Authorization', bearer)
       .send({
-        target: 'd'
+        target: 'd',
       })
-      .expect(201)
+      .expect(201);
   });
 
   it('/ (should return 401)', async () => {
@@ -130,7 +128,7 @@ describe('AppController (e2e)', () => {
       .get('/user/get-user-info')
       .set('Authorization', bearer)
       .send()
-      .expect(401)
+      .expect(401);
   });
 
   it('/ (should return info about user d)', async () => {
@@ -143,7 +141,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         expect(response.text).toContain('"nickname":"d"');
-      })
+      });
   });
 
   it('/ (should return info about user c)', async () => {
@@ -156,7 +154,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         expect(response.text).toContain('"nickname":"c"');
-      })
+      });
   });
 
   it('/ (should not return info about user c)', async () => {
@@ -169,9 +167,8 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         expect(response.text).toEqual('[]');
-      })
+      });
   });
-
 
   it('/ (user c requests non existant user as friend)', async () => {
     await new Promise(process.nextTick);
@@ -180,9 +177,9 @@ describe('AppController (e2e)', () => {
       .post('/user/request-friend')
       .set('Authorization', bearer)
       .send({
-        target: 'e'
+        target: 'e',
       })
-      .expect(500)
+      .expect(500);
   });
 
   it('/ (user b accepts a as friend)', async () => {
@@ -193,9 +190,9 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({
         target: 'a',
-        friends: true
+        friends: true,
       })
-      .expect(200)
+      .expect(200);
   });
 
   it('/ (should return info about user a)', async () => {
@@ -208,7 +205,7 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .then((response) => {
         expect(response.text).toContain('"nickname":"a"');
-      })
+      });
   });
 
   it('/ (user b accepts friend request that does not exist)', async () => {
@@ -219,9 +216,9 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({
         target: 'd',
-        friends: true
+        friends: true,
       })
-      .expect(500)
+      .expect(500);
   });
 
   it('/ (user b accepts a as friend again)', async () => {
@@ -232,9 +229,9 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({
         target: 'a',
-        friends: true
+        friends: true,
       })
-      .expect(200)
+      .expect(200);
   });
 
   it('/ (user a unfriends user b)', async () => {
@@ -245,9 +242,9 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({
         target: 'b',
-        friends: false
+        friends: false,
       })
-      .expect(200)
+      .expect(200);
   });
 
   it('/ (user a unfriends user b again)', async () => {
@@ -258,9 +255,9 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({
         target: 'b',
-        friends: false
+        friends: false,
       })
-      .expect(500)
+      .expect(500);
   });
 
   it('/ (user b accepts friend request that does not exist)', async () => {
@@ -271,11 +268,46 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({
         target: 'a',
-        friends: true
+        friends: true,
       })
-      .expect(500)
+      .expect(500);
   });
 
+  it('/ (user B update her nickName)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieB;
+    return request(app.getHttpServer())
+      .put('/user/update-nickName')
+      .set('Authorization', bearer)
+      .send({
+        newNickname: 'Georges',
+      })
+      .expect(201);
+  });
+
+  it('/ (user A update her nickName)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieA;
+    return request(app.getHttpServer())
+      .put('/user/update-nickName')
+      .set('Authorization', bearer)
+      .send({
+        newNickname: 'Alice',
+      })
+      .expect(201);
+  });
+
+  it('/ (user B update her nickName but nickname already exist)', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieB;
+    return request(app.getHttpServer())
+      .put('/user/update-nickName')
+      .set('Authorization', bearer)
+      .send({
+        newNickname: 'Alice',
+      })
+      .expect(200);
+  });
   it('/ (delete test users)', async () => {
     await new Promise(process.nextTick);
     let bearer = 'Bearer ' + cookieA;
@@ -285,7 +317,7 @@ describe('AppController (e2e)', () => {
       .send({
         nickName: 'a',
       })
-      .expect(204)
+      .expect(204);
   });
 
   it('/ (attempt to delete a user that does not exist)', async () => {
@@ -297,7 +329,7 @@ describe('AppController (e2e)', () => {
       .send({
         nickName: 'a',
       })
-      .expect(204)
+      .expect(204);
   });
 
   it('/ (delete test users)', async () => {
@@ -309,7 +341,7 @@ describe('AppController (e2e)', () => {
       .send({
         nickName: 'b',
       })
-      .expect(204)
+      .expect(204);
   });
 
   it('/ (delete test users)', async () => {
@@ -321,7 +353,7 @@ describe('AppController (e2e)', () => {
       .send({
         nickName: 'c',
       })
-      .expect(204)
+      .expect(204);
   });
 
   it('/ (delete test users)', async () => {
@@ -333,6 +365,6 @@ describe('AppController (e2e)', () => {
       .send({
         nickName: 'd',
       })
-      .expect(204)
+      .expect(204);
   });
 });

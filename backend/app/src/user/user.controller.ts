@@ -12,19 +12,12 @@ import {
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { FriendDto } from './dto/friend.dto';
-import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-  @Get('create')
-  createUser(@Query('name') name: string) {
-    const dto = new UserDto();
-    dto['name'] = name;
-    return this.userService.createUser(dto);
-  }
 
   @Post('request-friend')
   @UseGuards(JwtAuthGuard)
@@ -76,8 +69,13 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() data: { newNickname: string },
   ) {
-    this.userService.updateUserName(userId, data.newNickname, res);
-    return res.status(200).send();
+    return this.userService.updateUserName(userId, data.newNickname, res);
+  }
+
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  logout(@Res() res: Response) {
+    return this.userService.logout(res);
   }
 
   @Delete('delete')

@@ -11,9 +11,9 @@ import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
-import { Channel, User } from "../global-components/interface"
+import { Channel, User } from '../global-components/interface';
 
-const channelsData : Channel[] = [
+const channelsData: Channel[] = [
   {
     id: '456e4567e89b1',
     name: 'Les démons de minuit',
@@ -45,25 +45,25 @@ const chanUsersData: User[] = [
   {
     id: '123e4567e89b1',
     nickname: 'Alexandra',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
     status: 'OFFLINE',
   },
   {
     id: '123e4567e89b2',
     nickname: 'Alexandre',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
     status: 'ONLINE',
   },
   {
     id: '123e4567e89b3',
     nickname: 'Alexandrinedrinedrine',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
     status: 'PLAYING',
   },
   {
     id: '123e4567e89b4',
     nickname: 'Alexandro',
-    image: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
+    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
     status: 'PLAYING',
   },
 ];
@@ -93,7 +93,8 @@ function Chat() {
       <Banner text={<FontAwesomeIcon icon={faHouse} />} />
       <div
         className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
-                gap-10 px-5 justify-center mt-6 text-white text-3xl">
+                gap-10 px-5 justify-center mt-6 text-white text-3xl"
+      >
         <SideBox>
           <ChannelHeader />
           <ChannelsList channels={channelsData} />
@@ -111,7 +112,7 @@ function Chat() {
               </div>
               <div className="p-5 flex justify-center">
                 <DropDownButton>
-                    <ChannelOptions />
+                  <ChannelOptions />
                 </DropDownButton>
               </div>
             </div>

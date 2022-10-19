@@ -26,7 +26,7 @@ export class AuthController {
   @Post('/login-user-dev')
   async loginUserDev(@Res() res, @Body() req) {
     const payload: Payload = {
-      userId: req.id,
+      id: req.id,
       nickName: req.nickname,
     };
     const token = this.authService.login(payload);
@@ -41,7 +41,7 @@ export class AuthController {
       return;
     }
     const payload = {
-      userId: user.id,
+      id: user.id,
       nickName: user.nickName,
     };
     const token = this.authService.login(payload);
