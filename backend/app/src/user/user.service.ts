@@ -76,9 +76,10 @@ export class UserService {
           nickName: newNickname,
         },
       });
-      return res.status(201).send();
+      return res.status(201).send('updated');
     } catch (error) {
-      return res.status(200).send();
+      console.log(error);
+      return res.status(200).send('failure');
     }
   }
 
@@ -154,7 +155,6 @@ export class UserService {
         },
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).send();
     }
     return res.status(200).send();
