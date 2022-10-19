@@ -67,6 +67,13 @@ async function main() {
     create: {
       id: 'channel1',
       name: 'Les démons de minuit',
+      users: {
+        create: [
+          { userId: 'user1'},
+          { userId: 'user2'},
+          { userId: 'user3'}
+        ]
+      }
     },
   })
 
@@ -77,6 +84,12 @@ async function main() {
       id: 'channel2',
       name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
       type: 'PRIVATE',
+      users: {
+        create: [
+          { userId: 'user1'},
+          { userId: 'user2'},
+        ]
+      }
     },
   })
 
@@ -88,6 +101,12 @@ async function main() {
       name: 'You shall not pass',
       type: 'PROTECTED',
       passwordHash: 'security',
+      users: {
+        create: [
+          { userId: 'user1'},
+          { userId: 'user3'},
+        ]
+      }
     },
   })
 
@@ -98,6 +117,12 @@ async function main() {
       id: 'channel4',
       name: 'Daphné & You',
       type: 'DIRECTMESSAGE',
+      users: {
+        create: [
+          { userId: 'user1'},
+          { userId: 'user2'},
+        ]
+      }
     },
   })
 
@@ -108,6 +133,12 @@ async function main() {
       id: 'channel5',
       name: 'John & You',
       type: 'DIRECTMESSAGE',
+      users: {
+        create: [
+          { userId: 'user1'},
+          { userId: 'user3'},
+        ]
+      }
     },
   })
 

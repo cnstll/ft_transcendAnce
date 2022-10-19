@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
@@ -8,12 +8,17 @@ import { ChannelService } from './channel.service';
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
 
-  @Get('get-all-channels')
+  @Get()
   getChannels() {
     return this.channelService.getChannels();
   }
 
-  @Get('get-user-channels')
+  @Get('get-group-channels')
+  getGroupChannels() {
+    return this.channelService.getGroupChannels();
+  }
+
+  @Get('get-channels-by-user-id')
   getChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getChannelsByUserId(userId);
   }
@@ -23,24 +28,30 @@ export class ChannelController {
     return this.channelService.getChannelById(channelId);
   }
 
-  @Get('get-user-channel/:id')
+  //* Is this getter useful? */
+  @Get('get-user-channel')
   getChannelByUserId(@GetCurrentUserId() userId: string,
   @Param('id') channelId: string) {
     return this.channelService.getChannelByUserId(userId, channelId);
   }
 
-  // Create channel
-  @Post('create-channel')
-  createChannel(@Body() dto: any) {}
+  @Get('get-users-of-a-channel/:id')
+  getUsersOfAChannel(@Param('id') channelId: string) {
+    return this.channelService.getUsersOfAChannel(channelId);
+  }
 
-  // Update channel
-  @Patch(':id')
-  editChannelById() {}
+  // // Create channel
+  // @Post('create-channel')
+  // createChannel(@Body() dto: any) {}
 
-  // Delete channel
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete(':id')
-  deleteChannelById() {}
+  // // Update channel
+  // @Patch(':id')
+  // editChannelById() {}
+
+  // // Delete channel
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // @Delete(':id')
+  // deleteChannelById() {}
 }
 
 // replace status codes by:

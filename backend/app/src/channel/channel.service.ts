@@ -9,6 +9,14 @@ export class ChannelService {
     return this.prisma.channel.findMany();
   };
 
+  getGroupChannels() {
+    return this.prisma.channel.findMany({
+      where: {
+        OR: [{type: 'PUBLIC'}, {type: 'PRIVATE'}, {type: 'PROTECTED'}]
+      }
+    });
+  };
+
   getChannelsByUserId(userId: string) {
     return this.prisma.channelUser.findMany({
       where: {
@@ -21,21 +29,34 @@ export class ChannelService {
   };
 
   getChannelById(channelId: string) {
-    return this.prisma.channel.findUnique({
+    return this.prisma.channel.findFirst({
       where: {
         id: channelId,
-      }
+      },
     })
   };
 
   getChannelByUserId(userId: string, channelId: string) {
-    return this.prisma.channelUser.findMany({
+    return this.prisma.channelUser.findUnique({
       where: {
-        userId: userId,
-        channelId: channelId,
+        userId_channelId: {
+          userId: userId,
+          channelId: channelId
+        }
       },
       select: {
         channel: true,
+      }
+    })
+  };
+
+  getUsersOfAChannel(channelId: string) {
+    return this.prisma.channelUser.findMany({
+      where: {
+        channelId: channelId,
+      },
+      select: {
+        user: true,
       }
     })
   };
