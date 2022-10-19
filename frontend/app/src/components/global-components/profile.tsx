@@ -9,7 +9,6 @@ import { MatchData, UserData } from '../global-components/interface';
 import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import UploadPicture from '../section-components/upload-picture';
 
 const matchExamples: MatchData = {
@@ -39,7 +38,6 @@ function UserInfo({ avatarImg, nickName }: UserData) {
 }
 
 function Profile({ avatarImg, nickName }: UserData) {
-  const queryClient = new QueryClient();
   return (
     <div>
       <Background background={BackgroundGeneral}>
@@ -74,9 +72,7 @@ function Profile({ avatarImg, nickName }: UserData) {
           </CenterBox>
           <SideBox>
             <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
-            <QueryClientProvider client={queryClient}>
-              <FriendList />
-            </QueryClientProvider>
+            <FriendList />
           </SideBox>
         </div>
         <div className="flex justify-center">
