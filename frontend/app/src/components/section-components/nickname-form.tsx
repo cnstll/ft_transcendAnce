@@ -1,14 +1,15 @@
-import axios from 'axios';
-import { Dispatch, FormEvent, useContext, useRef, useState } from 'react';
-import ProfileDataCtx from '../store/user-context';
+// import axios from 'axios';
+import { Dispatch, FormEvent, useRef, useState } from 'react';
+import { useQueryClient } from 'react-query';
+import setUserNickname from '../customed-hooks/queries/setUserNickname';
 
 interface NicknameFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
 }
 
 function NickNameForm(props: NicknameFormProps) {
-  const ctx = useContext(ProfileDataCtx);
-
+  const queryClient = useQueryClient();
+  const nicknameMutation = setUserNickname();
   const nickNameRef = useRef<HTMLInputElement>(null);
   const [inputStatus, setInputStatus] = useState<string>('empty');
 
@@ -25,24 +26,17 @@ function NickNameForm(props: NicknameFormProps) {
       setInputStatus('invalid');
       return;
     }
-    axios
-      .put(
-        'http://localhost:3000/user/update-nickname',
-        { newNickname: input },
-        { withCredentials: true },
-      )
-      .then((res) => {
-        if (res.status == 201) {
+    nicknameMutation.mutate(input, {
+      onSuccess: ({ status }) => {
+        if (status == 201) {
           setInputStatus('valid');
-          ctx.setUserNickname(input);
           props.setShowForm(false);
-        } else if (res.status == 200) {
+          queryClient.setQueryData('nickname', input);
+        } else if (status == 200) {
           setInputStatus('invalid');
         }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+      },
+    });
   }
   return (
     <div className="absolute block p-6 rounded-lg shadow-lg max-w-sm bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">

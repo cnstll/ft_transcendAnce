@@ -9,7 +9,7 @@ const fetchUserFriends = () =>
     })
     .then((res) => res.data);
 
-function useUserFriends(): UseQueryResult {
+function useUserFriends(): UseQueryResult<User[]> {
   return useQuery('friendsList', fetchUserFriends);
 }
 
