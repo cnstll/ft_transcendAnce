@@ -7,7 +7,7 @@ import { Response } from 'express';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private prismaService: PrismaService) { }
 
   async createUser(dto: UserDto) {
     try {
@@ -15,6 +15,7 @@ export class UserService {
         data: {
           nickName: dto.nickName,
           passwordHash: dto.passwordHash,
+          avatarImg: dto.avatarImg,
         },
       });
       return user;
@@ -80,6 +81,22 @@ export class UserService {
     } catch (error) {
       return res.status(200).send();
     }
+  }
+
+  async updateAvatarImg(userId: string, newAvatarImg: string, res: Response) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          avatarImg: newAvatarImg,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return;
   }
 
   async updateFriendshipStatus(
@@ -300,5 +317,9 @@ export class UserService {
         nickName: username.toString(),
       },
     });
+  }
+
+  logout(res: Response) {
+    return res.cookie('jwtToken', '', { httpOnly: true });
   }
 }

@@ -7,16 +7,43 @@ import {
   Body,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Param,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { FriendDto } from './dto/friend.dto';
+import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import path = require('path');
+
+export const storage = {
+  storage: diskStorage({
+    destination: './avatar',
+    filename: (req, file, cb) => {
+      const filename: string =
+        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+      const extension: string = path.parse(file.originalname).ext;
+
+      cb(null, `${filename}${extension}`);
+    },
+  }),
+};
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
+
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
+  }
 
   @Post('request-friend')
   @UseGuards(JwtAuthGuard)
@@ -43,10 +70,22 @@ export class UserController {
     );
   }
 
-  @Get('get-user-info')
+  @Put('update-avatarImg')
   @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
+  @UseInterceptors(FileInterceptor('file', storage))
+  updateAvatar(
+    @UploadedFile() file,
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+  ) {
+    const filename = 'http://localhost:3000/user/' + file.path;
+    this.userService.updateAvatarImg(userId, filename, res);
+    return res.status(200).send();
+  }
+
+  @Get('avatar/:fileId')
+  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
+    res.sendFile(fileId, { root: 'avatar' });
   }
 
   @Get('get-user-friends')
@@ -79,7 +118,13 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() data: { newNickname: string },
   ) {
-    this.userService.updateUserName(userId, data.newNickname, res);
+    return this.userService.updateUserName(userId, data.newNickname, res);
+  }
+
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  logout(@Res() res: Response) {
+    this.userService.logout(res);
     return res.status(200).send();
   }
 
