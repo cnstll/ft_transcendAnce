@@ -5,7 +5,9 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import OneBox from '../section-components/one-box';
 import { NumericFormat } from 'react-number-format';
-import { UserData } from './interface';
+import useUser from '../customed-hooks/useUser';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export interface RankingData {
   id?: number;
@@ -81,46 +83,54 @@ function RankingList({ position, image, name, score }: RankingData) {
   );
 }
 
-function Ranking({ avatarImg }: UserData) {
-  return (
-    <div>
-      <Background background={BackgroundGeneral}>
-        <Navbar
-          text={<FontAwesomeIcon icon={faHouse} />}
-          avatarImg={avatarImg}
-        />
-        <div className="flex justify-center mt-6">
-          <OneBox>
-            <h2 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">
-              RANKING
-            </h2>
-            <table className="min-w-full border-collapse mt-10">
-              <thead>
-                <tr>
-                  <td className="w-10 sm:w-12 md:w-14 lg:w-20"></td>
-                  <td className="w-10 sm:w-12 md:w-14 lg:w-20"></td>
-                  <td className="w-1/6 sm:w-2/6 md:w-3/6 lg:w-4/6"></td>
-                  <td className="flex justify-center text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">
-                    SCORE
-                  </td>
-                </tr>
-              </thead>
-              <tbody>
-                {rankingExamples.map((rankingExample) => (
-                  <RankingList
-                    position={rankingExample.position}
-                    image={rankingExample.image}
-                    name={rankingExample.name}
-                    score={rankingExample.score}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </OneBox>
-        </div>
-      </Background>
-    </div>
-  );
+function Ranking() {
+  const user = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.isError) navigate('/sign-in');
+  });
+
+  if (user.isSuccess)
+    return (
+      <div>
+        <Background background={BackgroundGeneral}>
+          <Navbar
+            text={<FontAwesomeIcon icon={faHouse} />}
+            avatarImg={user.data.avatarImg}
+          />
+          <div className="flex justify-center mt-6">
+            <OneBox>
+              <h2 className="flex justify-center mt-6 text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                RANKING
+              </h2>
+              <table className="min-w-full border-collapse mt-10">
+                <thead>
+                  <tr>
+                    <td className="w-10 sm:w-12 md:w-14 lg:w-20"></td>
+                    <td className="w-10 sm:w-12 md:w-14 lg:w-20"></td>
+                    <td className="w-1/6 sm:w-2/6 md:w-3/6 lg:w-4/6"></td>
+                    <td className="flex justify-center text-xl sm:text-xl md:text-2xl lg:text-3xl font-bold">
+                      SCORE
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rankingExamples.map((rankingExample) => (
+                    <RankingList
+                      position={rankingExample.position}
+                      image={rankingExample.image}
+                      name={rankingExample.name}
+                      score={rankingExample.score}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </OneBox>
+          </div>
+        </Background>
+      </div>
+    );
 }
 
 export default Ranking;

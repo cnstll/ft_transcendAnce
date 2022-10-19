@@ -10,6 +10,9 @@ import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
 import MatchHistory from '../section-components/match-history';
 import UploadPicture from '../section-components/upload-picture';
+import { useNavigate } from 'react-router-dom';
+import useUser from '../customed-hooks/useUser';
+import { useEffect } from 'react';
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -37,54 +40,67 @@ function UserInfo({ avatarImg, nickName }: UserData) {
   );
 }
 
-function Profile({ avatarImg, nickName }: UserData) {
-  return (
-    <div>
-      <Background background={BackgroundGeneral}>
-        <Navbar
-          text={<FontAwesomeIcon icon={faHouse} />}
-          avatarImg={avatarImg}
-        />
-        <div
-          className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+function Profile() {
+  const user = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.isError) navigate('/sign-in');
+  });
+
+  if (user.isSuccess)
+    return (
+      <div>
+        <Background background={BackgroundGeneral}>
+          <Navbar
+            text={<FontAwesomeIcon icon={faHouse} />}
+            avatarImg={user.data.avatarImg}
+          />
+          <div
+            className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
           gap-10 px-5 justify-center mt-6 text-white text-3xl"
-        >
-          <SideBox>
-            <UserInfo nickName={nickName} avatarImg={avatarImg} />
-            <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
-              <UploadPicture />
-              <div className="flex justify-start hover:underline cursor-pointer break-all">
-                <p>Two factor identification</p>
-              </div>
-            </div>
-          </SideBox>
-          <CenterBox>
-            <div className="h-full overflow-y-auto">
-              <div className="flex">
-                <div className="flex-1">
-                  <h2 className="flex justify-center p-5 font-bold">
-                    MATCH HISTORY
-                  </h2>
-                  <MatchHistory imageCurrentPlayer={avatarImg} />
+          >
+            <SideBox>
+              <UserInfo
+                nickName={user.data.nickname}
+                avatarImg={user.data.avatarImg}
+              />
+              <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
+                <UploadPicture />
+                <div className="flex justify-start hover:underline cursor-pointer break-all">
+                  <p>Two factor identification</p>
                 </div>
               </div>
-            </div>
-          </CenterBox>
-          <SideBox>
-            <h2 className="flex justify-center font-bold break-all">FRIENDS</h2>
-            <FriendList />
-          </SideBox>
-        </div>
-        <div className="flex justify-center">
-          <StatsBox
-            numberOfWin={matchExamples.numberOfWin}
-            numberOfLoss={matchExamples.numberOfLoss}
-            ranking={matchExamples.ranking}
-          />
-        </div>
-      </Background>
-    </div>
-  );
+            </SideBox>
+            <CenterBox>
+              <div className="h-full overflow-y-auto">
+                <div className="flex">
+                  <div className="flex-1">
+                    <h2 className="flex justify-center p-5 font-bold">
+                      MATCH HISTORY
+                    </h2>
+                    <MatchHistory imageCurrentPlayer={user.data.avatarImg} />
+                  </div>
+                </div>
+              </div>
+            </CenterBox>
+            <SideBox>
+              <h2 className="flex justify-center font-bold break-all">
+                FRIENDS
+              </h2>
+              <FriendList />
+            </SideBox>
+          </div>
+          <div className="flex justify-center">
+            <StatsBox
+              numberOfWin={matchExamples.numberOfWin}
+              numberOfLoss={matchExamples.numberOfLoss}
+              ranking={matchExamples.ranking}
+            />
+          </div>
+        </Background>
+      </div>
+    );
 }
 
 export default Profile;
