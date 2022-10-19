@@ -96,7 +96,6 @@ function UserInfo() {
       .get('http://localhost:3000/user/logout', {
         withCredentials: true,
       })
-      .then((response) => response)
       .catch((error) => console.log(error));
   };
 

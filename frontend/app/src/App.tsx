@@ -11,6 +11,7 @@ import useUser from './components/customed-hooks/useUser';
 
 function App() {
   const user = useUser();
+
   return (
     <>
       <Routes>

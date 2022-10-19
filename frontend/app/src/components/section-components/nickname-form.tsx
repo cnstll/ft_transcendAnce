@@ -20,7 +20,7 @@ function NickNameForm() {
     try {
       const nickname = nicknameRef.current ? nicknameRef.current.value : null;
 
-      const res = axios
+      void axios
         .put('http://localhost:3000/user/update-nickname', {
           nickname,
         })
