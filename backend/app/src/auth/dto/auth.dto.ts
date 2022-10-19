@@ -4,4 +4,8 @@ export class AuthDto {
   @IsString()
   @IsNotEmpty()
   login: string;
+
+  @IsString()
+  @IsNotEmpty()
+  image_url: string;
 }
