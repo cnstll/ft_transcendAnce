@@ -37,7 +37,7 @@ export const storage = {
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {}
 
   @Get('get-user-info')
   @UseGuards(JwtAuthGuard)
