@@ -26,6 +26,8 @@ function Play() {
         </Background>
       </div>
     );
+
+  return <></>;
 }
 
 export default Play;

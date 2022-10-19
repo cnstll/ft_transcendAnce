@@ -131,6 +131,8 @@ function Ranking() {
         </Background>
       </div>
     );
+
+  return <></>;
 }
 
 export default Ranking;

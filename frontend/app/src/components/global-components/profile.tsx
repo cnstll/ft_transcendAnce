@@ -99,6 +99,8 @@ function Profile() {
         </Background>
       </div>
     );
+
+  return <></>;
 }
 
 export default Profile;

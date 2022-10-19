@@ -142,6 +142,8 @@ function Chat() {
         </div>
       </div>
     );
+
+  return <></>;
 }
 
 export default Chat;

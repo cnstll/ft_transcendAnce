@@ -40,6 +40,8 @@ function Home() {
         </Background>
       </div>
     );
+
+  return <></>;
 }
 
 export default Home;
