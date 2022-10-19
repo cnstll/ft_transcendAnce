@@ -283,8 +283,6 @@ export class UserService {
   }
 
   logout(res: Response) {
-    return res
-      .cookie('jwtToken', '', { httpOnly: true })
-      .redirect('http://localhost:8080');
+    return res.cookie('jwtToken', '', { httpOnly: true });
   }
 }

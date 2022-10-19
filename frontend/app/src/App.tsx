@@ -13,12 +13,8 @@ function App() {
   const user = useUser();
   return (
     <>
-      {console.log({ e: user.isError })}
-      {console.log({ e: user.isLoading })}
-      {console.log({ e: user })}
       <Routes>
-        {user.isLoading && <Route path="/sign-in" element={<SignIn />} />}
-        {user.isError && <Route path="/sign-in" element={<SignIn />} />}
+        <Route path="/sign-in" element={<SignIn />} />
         <Route
           path="/"
           element={user.isSuccess && <Home avatarImg={user.data.avatarImg} />}

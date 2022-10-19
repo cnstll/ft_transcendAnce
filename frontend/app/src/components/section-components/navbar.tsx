@@ -6,6 +6,7 @@ import { UseOutsideClick } from '../customed-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 import SearchBox from './search-box';
 import { User } from '../global-components/interface';
+import axios from 'axios';
 
 const usersData: User[] = [
   {
@@ -90,6 +91,15 @@ function Navbar({ text, avatarImg }: BannerProps) {
 }
 
 function UserInfo() {
+  const logout = () => {
+    axios
+      .get('http://localhost:3000/user/logout', {
+        withCredentials: true,
+      })
+      .then((response) => response)
+      .catch((error) => console.log(error));
+  };
+
   return (
     <div>
       <Link to="/profile">
@@ -99,7 +109,9 @@ function UserInfo() {
         <p className="text-center hover:underline my-2">Ranking</p>
       </Link>
       <Link to="/sign-in">
-        <p className="text-center hover:underline my-2">Log Out</p>
+        <p className="text-center hover:underline my-2" onClick={logout}>
+          Log out
+        </p>
       </Link>
     </div>
   );
