@@ -14,7 +14,7 @@ export interface User {
 
 export interface UserData {
   id?: string;
-  nickName?: string;
+  nickName: string;
   passwordHash?: string;
   avatarImg: string;
 }

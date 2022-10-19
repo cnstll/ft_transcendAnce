@@ -1,18 +1,20 @@
 import Navbar from '../section-components/navbar';
 import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse, faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import { MatchData, UserData } from '../global-components/interface';
 import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/stats-box';
+import Avatar from '../section-components/avatar';
 import MatchHistory from '../section-components/match-history';
-import UploadPicture from '../section-components/upload-picture';
 import { useNavigate } from 'react-router-dom';
-import useUser from '../customed-hooks/useUser';
+import useUser from '../customed-hooks/queries/useUser';
 import { useEffect } from 'react';
+import UploadPicture from '../section-components/upload-picture';
+import getUserNickname from '../customed-hooks/queries/getUserNickname';
 
 const matchExamples: MatchData = {
   numberOfWin: 10,
@@ -30,25 +32,21 @@ function UserInfo({ avatarImg, nickName }: UserData) {
           alt="Rounded avatar"
         />
       </div>
-      <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
-        <p>{nickName}</p>
-        <button>
-          <FontAwesomeIcon icon={faPencil} />
-        </button>
-      </div>
+      <Avatar userNickname={nickName} />
     </>
   );
 }
 
 function Profile() {
   const user = useUser();
+  const nickName = getUserNickname();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
   });
 
-  if (user.isSuccess)
+  if (user.isSuccess && nickName.isSuccess)
     return (
       <div>
         <Background background={BackgroundGeneral}>
@@ -62,7 +60,7 @@ function Profile() {
           >
             <SideBox>
               <UserInfo
-                nickName={user.data.nickname}
+                nickName={nickName.data}
                 avatarImg={user.data.avatarImg}
               />
               <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">

@@ -3,7 +3,7 @@ import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
-import useUser from '../customed-hooks/useUser';
+import useUser from '../customed-hooks/queries/useUser';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 

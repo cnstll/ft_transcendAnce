@@ -10,7 +10,6 @@ export class AuthMiddleware implements NestMiddleware {
       this.jwtService.verify(req.cookies['jwtToken']);
       next();
     } catch (error) {
-      console.log(error);
       next();
     }
   }

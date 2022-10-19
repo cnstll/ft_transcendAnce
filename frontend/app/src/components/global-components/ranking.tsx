@@ -5,7 +5,7 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import OneBox from '../section-components/one-box';
 import { NumericFormat } from 'react-number-format';
-import useUser from '../customed-hooks/useUser';
+import useUser from '../customed-hooks/queries/useUser';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 

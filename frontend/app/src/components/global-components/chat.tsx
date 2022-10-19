@@ -12,7 +12,7 @@ import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
 import { Channel, User } from '../global-components/interface';
-import useUser from '../customed-hooks/useUser';
+import useUser from '../customed-hooks/queries/useUser';
 import { useEffect } from 'react';
 
 const channelsData: Channel[] = [

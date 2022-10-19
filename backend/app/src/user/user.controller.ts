@@ -8,7 +8,6 @@ import {
   Body,
   Delete,
   UseGuards,
-  Req,
   UseInterceptors,
   UploadedFile,
   Param,
@@ -117,8 +116,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() data: { newNickname: string },
   ) {
-    this.userService.updateUserName(userId, data.newNickname, res);
-    return res.status(200).send();
+    return this.userService.updateUserName(userId, data.newNickname, res);
   }
 
   @Get('logout')
