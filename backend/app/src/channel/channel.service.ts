@@ -61,4 +61,18 @@ export class ChannelService {
     })
   };
 
+  getRoleOfUserChannel(userId: string, channelId: string) {
+    return this.prisma.channelUser.findUnique({
+      where: {
+        userId_channelId: {
+          userId: userId,
+          channelId: channelId
+        }
+      },
+      select: {
+        role: true,
+      }
+    })
+  };
+
 }

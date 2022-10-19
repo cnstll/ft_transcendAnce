@@ -69,9 +69,9 @@ async function main() {
       name: 'Les démons de minuit',
       users: {
         create: [
-          { userId: 'user1'},
-          { userId: 'user2'},
-          { userId: 'user3'}
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user2' },
+          { userId: 'user3' }
         ]
       }
     },
@@ -86,8 +86,8 @@ async function main() {
       type: 'PRIVATE',
       users: {
         create: [
-          { userId: 'user1'},
-          { userId: 'user2'},
+          { userId: 'user1' },
+          { userId: 'user2', role: 'ADMIN' },
         ]
       }
     },
@@ -103,8 +103,8 @@ async function main() {
       passwordHash: 'security',
       users: {
         create: [
-          { userId: 'user1'},
-          { userId: 'user3'},
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user3' },
         ]
       }
     },
@@ -115,12 +115,12 @@ async function main() {
     update: {},
     create: {
       id: 'channel4',
-      name: 'Daphné & You',
+      name: 'Constant & You',
       type: 'DIRECTMESSAGE',
       users: {
         create: [
-          { userId: 'user1'},
-          { userId: 'user2'},
+          { userId: 'user1' },
+          { userId: 'user2' },
         ]
       }
     },
@@ -131,12 +131,12 @@ async function main() {
     update: {},
     create: {
       id: 'channel5',
-      name: 'John & You',
+      name: 'Léa & You',
       type: 'DIRECTMESSAGE',
       users: {
         create: [
-          { userId: 'user1'},
-          { userId: 'user3'},
+          { userId: 'user1' },
+          { userId: 'user3' },
         ]
       }
     },

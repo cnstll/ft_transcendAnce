@@ -29,15 +29,21 @@ export class ChannelController {
   }
 
   //* Is this getter useful? */
-  @Get('get-user-channel')
+  @Get('get-user-channel/:id')
   getChannelByUserId(@GetCurrentUserId() userId: string,
   @Param('id') channelId: string) {
     return this.channelService.getChannelByUserId(userId, channelId);
   }
 
-  @Get('get-users-of-a-channel/:id')
-  getUsersOfAChannel(@Param('id') channelId: string) {
+  @Get('get-users-of-a-channel')
+  getUsersOfAChannel(channelId: string) {
     return this.channelService.getUsersOfAChannel(channelId);
+  }
+
+  @Get('get-role-user-channel/:id')
+  getRoleOfUserChannel(@GetCurrentUserId() userId: string,
+  @Param('id') channelId: string) {
+    return this.channelService.getRoleOfUserChannel(userId, channelId);
   }
 
   // // Create channel
