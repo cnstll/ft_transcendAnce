@@ -72,6 +72,12 @@ export class UserController {
     return this.userService.updateUserName(userId, data.newNickname, res);
   }
 
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  logout(@Res() res: Response) {
+    return this.userService.logout(res);
+  }
+
   @Delete('delete')
   @UseGuards(JwtAuthGuard)
   async deleteUser(@Res() res: Response, @GetCurrentUserId() userId: string) {
