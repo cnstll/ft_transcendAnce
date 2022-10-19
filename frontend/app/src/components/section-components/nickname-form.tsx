@@ -14,7 +14,7 @@ function NickNameForm(props: NicknameFormProps) {
   const [inputStatus, setInputStatus] = useState<string>('empty');
 
   function validateNameInput(input: string): boolean {
-    const regex = /^[\w\d\s]+$/;
+    const regex = /^[\w\d]+$/;
     const ret = input.length !== 0 && input.length <= 15 && regex.test(input);
     return ret;
   }
