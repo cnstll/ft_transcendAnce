@@ -10,12 +10,7 @@ const putUserNickname = (input: string) =>
     )
     .then((res) => res);
 
-function setUserNickname(): UseMutationResult<
-  AxiosResponse<any, any>,
-  unknown,
-  string,
-  unknown
-> {
+function setUserNickname(): UseMutationResult<AxiosResponse, unknown, string> {
   return useMutation(putUserNickname);
 }
 
