@@ -43,6 +43,21 @@ export class UserService {
     return res.send(204);
   }
 
+  async getAllUsers(res: Response) {
+    try {
+      const nicknames = await this.prismaService.user.findMany({
+        select: {
+          nickName: true,
+        },
+      });
+      return res.status(200).send(nicknames);
+    } catch (error) {
+      console.log(error);
+
+      return res.status(500).send();
+    }
+  }
+
   async requestFriend(
     requesterId: string,
     futureFriendNickname: string,

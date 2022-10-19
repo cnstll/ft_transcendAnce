@@ -45,6 +45,12 @@ export class UserController {
     return this.userService.getUserInfo(userId, res);
   }
 
+  @Get('get-all-users')
+  @UseGuards(JwtAuthGuard)
+  getAllUsers(@Res() res: Response) {
+    return this.userService.getAllUsers(res);
+  }
+
   @Post('request-friend')
   @UseGuards(JwtAuthGuard)
   createFriendship(
