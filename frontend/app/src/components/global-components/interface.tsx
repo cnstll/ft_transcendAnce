@@ -15,7 +15,6 @@ export interface User {
 export interface UserData {
   id?: string;
   nickName: string;
-  passwordHash?: string;
   avatarImg: string;
 }
 
@@ -23,4 +22,13 @@ export interface MatchData {
   numberOfWin: number;
   numberOfLoss: number;
   ranking: number;
+}
+
+export interface TargetInfo {
+  id: string;
+  nickname: string;
+  avatarImg: string;
+  eloScore: number;
+  status: string;
+  friendStatus: string;
 }

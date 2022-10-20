@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import type { User } from '../../global-components/interface';
+import type { User } from '../global-components/interface';
 
 const fetchUser = () =>
   axios
@@ -9,8 +9,8 @@ const fetchUser = () =>
     })
     .then((response) => response.data);
 
-function useUser(): UseQueryResult<User> {
+function useUserInfo(): UseQueryResult<User> {
   return useQuery('userData', fetchUser);
 }
 
-export default useUser;
+export default useUserInfo;

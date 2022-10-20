@@ -12,8 +12,8 @@ import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
 import { Channel, User } from '../global-components/interface';
-import useUser from '../customed-hooks/queries/useUser';
 import { useEffect } from 'react';
+import useUserInfo from '../query-hooks/useUserInfo';
 
 const channelsData: Channel[] = [
   {
@@ -90,7 +90,7 @@ function ChannelOptions() {
 }
 
 function Chat() {
-  const user = useUser();
+  const user = useUserInfo();
   const navigate = useNavigate();
 
   useEffect(() => {
