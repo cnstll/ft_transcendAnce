@@ -3,13 +3,11 @@ import {
   Post,
   Controller,
   Get,
+  Query,
   Res,
   Body,
   Delete,
   UseGuards,
-  UseInterceptors,
-  UploadedFile,
-  Param,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
@@ -17,32 +15,15 @@ import { FriendDto } from './dto/friend.dto';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import path = require('path');
-
-export const storage = {
-  storage: diskStorage({
-    destination: './avatar',
-    filename: (req, file, cb) => {
-      const filename: string =
-        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-      const extension: string = path.parse(file.originalname).ext;
-
-      cb(null, `${filename}${extension}`);
-    },
-  }),
-};
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-
-  @Get('get-user-info')
-  @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
+  @Get('create')
+  createUser(@Query('name') name: string) {
+    const dto = new UserDto();
+    dto['name'] = name;
+    return this.userService.createUser(dto);
   }
 
   @Get('get-all-users')
@@ -58,6 +39,7 @@ export class UserController {
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
+    console.log(data);
     return this.userService.requestFriend(userId, data.target, res);
   }
 
@@ -76,22 +58,10 @@ export class UserController {
     );
   }
 
-  @Put('update-avatarImg')
+  @Get('get-user-info')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file', storage))
-  updateAvatar(
-    @UploadedFile() file,
-    @Res() res: Response,
-    @GetCurrentUserId() userId: string,
-  ) {
-    const filename = 'http://localhost:3000/user/' + file.path;
-    this.userService.updateAvatarImg(userId, filename, res);
-    return res.status(200).send();
-  }
-
-  @Get('avatar/:fileId')
-  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
-    res.sendFile(fileId, { root: 'avatar' });
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
   }
 
   @Get('get-user-friends')
@@ -123,13 +93,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() data: { newNickname: string },
   ) {
-    return this.userService.updateUserName(userId, data.newNickname, res);
-  }
-
-  @Get('logout')
-  @UseGuards(JwtAuthGuard)
-  logout(@Res() res: Response) {
-    this.userService.logout(res);
+    this.userService.updateUserName(userId, data.newNickname, res);
     return res.status(200).send();
   }
 
