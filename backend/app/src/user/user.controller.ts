@@ -3,7 +3,6 @@ import {
   Post,
   Controller,
   Get,
-  Query,
   Res,
   Body,
   Delete,
@@ -22,7 +21,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
-// import { Observable, of } from 'rxjs';
 
 export const storage = {
   storage: diskStorage({
@@ -40,18 +38,17 @@ export const storage = {
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-  @Post('create')
-  createUser(@Query('name') name: string, @Res() res: any) {
-    const dto = new UserDto();
-    dto['name'] = name;
-    this.userService.createUser(dto);
-    return res.status(201).send();
-  }
 
   @Get('get-user-info')
   @UseGuards(JwtAuthGuard)
   getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
     return this.userService.getUserInfo(userId, res);
+  }
+
+  @Get('get-all-users')
+  @UseGuards(JwtAuthGuard)
+  getAllUsers(@Res() res: Response) {
+    return this.userService.getAllUsers(res);
   }
 
   @Post('request-friend')
@@ -101,6 +98,17 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   getFriendsInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
     return this.userService.getUserFriends(userId, res);
+  }
+
+  @Post('get-target-info')
+  @UseGuards(JwtAuthGuard)
+  getOtherUserInfo(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+    @Body() target: { nickname: string },
+  ) {
+    console.log(target.nickname);
+    return this.userService.getTargetInfo(userId, target.nickname, res);
   }
 
   @Get('get-user-friend-requests')
