@@ -47,12 +47,6 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
     }));
   }
 
-  function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    navigate('../profile/' + searchData.keyword);
-    navigate(0);
-  }
-
   const filterUsers = (users: User[] | undefined, query: string) => {
     if (!query) {
       return users;
@@ -66,6 +60,20 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
       return filterUsers.includes(query.toLowerCase());
     });
   };
+
+  function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const filteredResults: User[] | undefined = filterUsers(users, searchData.keyword);
+    if (filteredResults) {
+      if (filteredResults[0]) {
+        const firstResult = filteredResults[0].nickname;
+        if (firstResult) {
+          navigate('../profile/' + firstResult);
+        }
+      }
+    }
+  }
+
 
   return <>
     <div className="relative text-black" ref={ref}>

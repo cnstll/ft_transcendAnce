@@ -10,8 +10,6 @@ interface SearchItemProps {
 
 function SearchItem({ user, channel }: SearchItemProps) {
 
-
-
   const navigate = useNavigate();
   function OnClick(e: React.MouseEvent) {
     if (!user) {
@@ -19,7 +17,6 @@ function SearchItem({ user, channel }: SearchItemProps) {
     }
     e.preventDefault();
     navigate('../profile/' + user.nickname);
-    navigate(0);
   }
 
   return <>
