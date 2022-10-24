@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
-import Banner from '../section-components/banner';
+import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../section-components/navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat-box';
@@ -12,6 +12,8 @@ import UsersList from '../section-components/users-list';
 import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
 import { Channel, User } from '../global-components/interface';
+import { useEffect } from 'react';
+import useUserInfo from '../query-hooks/useUserInfo';
 
 const channelsData: Channel[] = [
   {
@@ -88,47 +90,60 @@ function ChannelOptions() {
 }
 
 function Chat() {
-  return (
-    <div className="h-full min-h-screen bg-black">
-      <Banner text={<FontAwesomeIcon icon={faHouse} />} />
-      <div
-        className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+  const user = useUserInfo();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user.isError) navigate('/sign-in');
+  });
+
+  if (user.isSuccess)
+    return (
+      <div className="h-full min-h-screen bg-black">
+        <Navbar
+          text={<FontAwesomeIcon icon={faHouse} />}
+          avatarImg={user.data.avatarImg}
+        />
+        <div
+          className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
-      >
-        <SideBox>
-          <ChannelHeader />
-          <ChannelsList channels={channelsData} />
-        </SideBox>
-        <CenterBox>
-          <div
-            className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
-            style={{ backgroundImage: `url(${BackgroundGeneral})` }}
-          >
-            <div className="flex">
-              <div className="flex-1">
-                <h2 className="flex justify-center p-5 font-bold">
-                  [Channel name]
-                </h2>
+        >
+          <SideBox>
+            <ChannelHeader />
+            <ChannelsList channels={channelsData} />
+          </SideBox>
+          <CenterBox>
+            <div
+              className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
+              style={{ backgroundImage: `url(${BackgroundGeneral})` }}
+            >
+              <div className="flex">
+                <div className="flex-1">
+                  <h2 className="flex justify-center p-5 font-bold">
+                    [Channel name]
+                  </h2>
+                </div>
+                <div className="p-5 flex justify-center">
+                  <DropDownButton>
+                    <ChannelOptions />
+                  </DropDownButton>
+                </div>
               </div>
-              <div className="p-5 flex justify-center">
-                <DropDownButton>
-                  <ChannelOptions />
-                </DropDownButton>
-              </div>
+              <Message />
             </div>
-            <Message />
-          </div>
-        </CenterBox>
-        <SideBox>
-          <h2 className="flex justify-center font-bold">MEMBERS</h2>
-          <UsersList channelUsers={chanUsersData} />
-        </SideBox>
+          </CenterBox>
+          <SideBox>
+            <h2 className="flex justify-center font-bold">MEMBERS</h2>
+            <UsersList channelUsers={chanUsersData} />
+          </SideBox>
+        </div>
+        <div className="flex justify-center">
+          <ChatBox />
+        </div>
       </div>
-      <div className="flex justify-center">
-        <ChatBox />
-      </div>
-    </div>
-  );
+    );
+
+  return <></>;
 }
 
 export default Chat;

@@ -1,5 +1,5 @@
+import useUserFriends from '../query-hooks/useUserFriends';
 import UsersList from './users-list';
-import useUserFriends from '../customed-hooks/queries/useUserFriends';
 
 function FriendsList() {
   const friends = useUserFriends();
