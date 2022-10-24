@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import type { User } from '../../global-components/interface';
+import type { User } from '../global-components/interface';
 
 const fetchUserFriends = () =>
   axios
