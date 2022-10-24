@@ -34,4 +34,15 @@ export class PrismaService
       await app.close();
     });
   }
+
+  cleanDb() {
+    return this.$transaction([
+      this.match.deleteMany(),
+      this.message.deleteMany(),
+      this.ban.deleteMany(),
+      this.channel.deleteMany(),
+      this.friendship.deleteMany(),
+      this.user.deleteMany(),
+    ])
+  }
 }

@@ -1,6 +1,6 @@
 import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import { Channel, ChannelRole, ChannelUser } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { ChannelDto } from './dto';
 import { Response } from 'express';
 
@@ -78,8 +78,27 @@ export class ChannelService {
     });
   };
 
+  wrongDtoArguments(dto: ChannelDto, res: Response) {
+    /* If a Group channel is created/updated, it must have a name */
+    if (dto.type !== 'DIRECTMESSAGE' && !dto.name && dto.name.length === 0) {
+      return ( { "statusCode": 400,
+            "message": "Group Channel must have a name."});
+    }
+    /* If a Protected channel is created/updated, it must have a password */
+    if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+      return ( { "statusCode": 400,
+            "message": "Group Channel must have a password."});
+    }
+    return ( { "statusCode": 200, "message": "OK" });
+  }
+
   async createChannel(userId: string, dto: ChannelDto, res: Response) {
-    // Try to create a new channel first
+    /* Filters incompatible DTO arguments */
+    const ret : { statusCode : number, message: string } =
+      this.wrongDtoArguments(dto, res);
+    if (ret.statusCode !== 200)
+      return res.status(HttpStatus.BAD_REQUEST).send(ret);
+    /* Try to create a new channel */
     try {
       const newChannel: Channel = await this.prisma.channel.create({
         data: {
@@ -106,27 +125,38 @@ export class ChannelService {
   }
 
   async editChannelById(userId: string, channelId: string, dto: ChannelDto, res: Response) {
-    // Find the user's role to check the rights to update
-    const admin: { role: ChannelRole } = await this.prisma.channelUser.findUnique({
-      where: {
-        userId_channelId: {
-          userId: userId,
-          channelId: channelId
+    /* Filters incompatible DTO arguments */
+    const ret : { statusCode : number, message: string } =
+      this.wrongDtoArguments(dto, res);
+    if (ret.statusCode !== 200)
+      return res.status(HttpStatus.BAD_REQUEST).send(ret);
+    /* Find the user's role to check the rights to update */
+    const admin: { role: ChannelRole } =
+      await this.prisma.channelUser.findUnique({
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: channelId
+          }
+        },
+        select: {
+          role: true,
         }
-      },
-      select: {
-        role: true,
-      }
     })
-    // If relation doesn't exist or User doesn't have Owner or Admin role
-    if (!admin || admin.role === 'USER') {
+    /* If relation doesn't exist or User doesn't have Owner or Admin role */
+    if (!admin) {
+      return res.status(HttpStatus.NOT_FOUND).send(
+        { "statusCode": 404,
+          "message": "Not found"});
+    }
+    else if (admin.role === 'USER') {
       return res.status(HttpStatus.BAD_REQUEST).send(
         { "statusCode": 400,
           "message": "Access to resources denied"});
     }
-    // Then, update informations
+    /* Then, update informations */
     try {
-      await this.prisma.channel.update({
+      const newChannel: Channel = await this.prisma.channel.update({
         where: {
           id: channelId,
         },
@@ -134,6 +164,7 @@ export class ChannelService {
           ...dto,
         }
       });
+      return res.status(HttpStatus.OK).send(newChannel);
     } catch (error) {
       if (error.code === 'P2002') {
         return res.status(HttpStatus.BAD_REQUEST).send(
@@ -144,25 +175,28 @@ export class ChannelService {
         throw new ForbiddenException(error);
       }
     }
-    return res.status(HttpStatus.OK).send();
   };
 
   async deleteChannelById(channelId: string, res: Response) {
-    // Check there is no user left in channel
-    const channelUsers: { users: ChannelUser[] } = await this.prisma.channel.findUnique({
-      where: {
-        id: channelId,
-      },
-      select: {
-        users: true,
-      }
-    })
-    if (channelUsers) {
-      return res.status(HttpStatus.BAD_REQUEST).send(
-        { "statusCode": 400,
-          "message": "Access to resources denied"});
-    }
-    // Then, delete channel
+
+    /* Check if there is no user left in channel before deletion
+    - implementing ChannelUser's deletion is required for testing the code below */
+    // const channelUsers: { users: ChannelUser[] } =
+    //   await this.prisma.channel.findUnique({
+    //     where: {
+    //       id: channelId,
+    //     },
+    //     select: {
+    //       users: true,
+    //     }
+    // })
+    // if (channelUsers) {
+    //   return res.status(HttpStatus.BAD_REQUEST).send(
+    //     { "statusCode": 400,
+    //       "message": "Access to resources denied"});
+    // }
+
+    /* Then, delete channel */
     try {
       await this.prisma.channel.delete({
         where: {
@@ -170,6 +204,11 @@ export class ChannelService {
         }
       });
     } catch (error) {
+        if (error.code === 'P2025') {
+          return res.status(HttpStatus.FORBIDDEN).send(
+            { "statusCode": 403,
+              "message": "Record to delete does not exist."});
+        }
         throw new ForbiddenException(error);
     }
     return res.status(HttpStatus.NO_CONTENT).send()

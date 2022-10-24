@@ -142,7 +142,40 @@ async function main() {
     },
   })
 
-  console.log({ Estelle, Constant, Lea, Colomban, channelPublic, channelPrivate, channelProtected, directMessage1, directMessage2 })
+  const channelPublic2 = await prisma.channel.upsert({
+    where: { id: 'channel4' },
+    update: {},
+    create: {
+      id: 'channel1',
+      name: 'Channel test 4',
+      users: {
+        create: [
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user2' },
+          { userId: 'user3' }
+        ]
+      }
+    },
+  })
+
+  const channelPrivate2 = await prisma.channel.upsert({
+    where: { id: 'channel5' },
+    update: {},
+    create: {
+      id: 'channel2',
+      name: 'Channel test 5',
+      type: 'PRIVATE',
+      users: {
+        create: [
+          { userId: 'user1' },
+          { userId: 'user2', role: 'ADMIN' },
+        ]
+      }
+    },
+  })
+
+  console.log({ Estelle, Constant, Lea, Colomban, channelPublic, channelPrivate,
+    channelProtected, directMessage1, directMessage2, channelPublic2, channelPrivate2 })
 }
 
 main()

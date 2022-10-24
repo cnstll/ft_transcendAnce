@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
-import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
+import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
 import { ChannelDto } from './dto';
 import { Response } from 'express';
@@ -20,12 +20,12 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-channels-by-user-id')
+  @Get('get-by-user-id')
   getChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getChannelsByUserId(userId);
   }
 
-  @Get('get-channel/:id')
+  @Get(':id')
   getChannelById(@Param('id') channelId: string) {
     return this.channelService.getChannelById(channelId);
   }
@@ -50,7 +50,7 @@ export class ChannelController {
   }
 
   // Create channel
-  @Post('create-channel')
+  @Post('create')
   createChannel(
     @GetCurrentUserId() userId: string,
     @Body() dto: ChannelDto,
