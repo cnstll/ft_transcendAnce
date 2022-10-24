@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class PayloadDto {
   @IsNotEmpty()
   @IsString()
-  nickName: string;
+  nickname: string;
 
   @IsNotEmpty()
   @IsString()

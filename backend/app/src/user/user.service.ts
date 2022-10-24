@@ -13,7 +13,7 @@ export class UserService {
     try {
       const user = await this.prismaService.user.create({
         data: {
-          nickName: dto.nickName,
+          nickname: dto.nickname,
           passwordHash: dto.passwordHash,
         },
       });
@@ -73,7 +73,7 @@ export class UserService {
           id: userId,
         },
         data: {
-          nickName: newNickname,
+          nickname: newNickname,
         },
       });
       return res.status(201).send('updated');
@@ -233,7 +233,7 @@ export class UserService {
     });
     const userInfo = {
       id: user.id,
-      nickname: user.nickName,
+      nickname: user.nickname,
       avatarImg: user.avatarImg,
       eloScore: user.eloScore,
       status: user.status,
@@ -249,7 +249,7 @@ export class UserService {
     });
     const userInfo = {
       id: user.id,
-      nickname: user.nickName,
+      nickname: user.nickname,
       avatarImg: user.avatarImg,
       eloScore: user.eloScore,
       status: user.status,
@@ -260,7 +260,7 @@ export class UserService {
   findOne(username: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({
       where: {
-        nickName: username.toString(),
+        nickname: username.toString(),
       },
     });
   }

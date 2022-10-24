@@ -17,7 +17,7 @@ export class AuthService {
   login(user: Payload) {
     const payload: Payload = {
       id: user.id,
-      nickName: user.nickName,
+      nickname: user.nickname,
     };
     return this.jwtService.sign(payload);
   }
@@ -26,7 +26,7 @@ export class AuthService {
     const user: User = await this.userService.findOne(userData.login);
     if (!user) {
       const data = {
-        nickName: userData.login,
+        nickname: userData.login,
         passwordHash: accessToken,
       };
       return this.userService.createUser(data);

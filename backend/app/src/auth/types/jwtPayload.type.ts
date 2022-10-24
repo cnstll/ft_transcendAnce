@@ -1,4 +1,4 @@
 export type Payload = {
-  nickName: string;
+  nickname: string;
   id: string;
 };
