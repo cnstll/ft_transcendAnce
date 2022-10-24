@@ -98,7 +98,7 @@ export class UserService {
     }
   }
 
-  async updateAvatarImg(userId: string, newAvatarImg: string, res: Response) {
+  async updateAvatarImg(userId: string, newAvatarImg: string) {
     try {
       await this.prismaService.user.update({
         where: {

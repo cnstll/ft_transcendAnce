@@ -3,11 +3,11 @@ import BackgroundGeneral from '../../img/disco2.png';
 import { Link, useNavigate } from 'react-router-dom';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
-import useUser from '../customed-hooks/queries/useUser';
 import { useEffect } from 'react';
+import useUserInfo from '../query-hooks/useUserInfo';
 
 function Home() {
-  const user = useUser();
+  const user = useUserInfo();
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -19,15 +19,16 @@ import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 
 export const storage = {
   storage: diskStorage({
     destination: './avatar',
     filename: (req, file, cb) => {
-      const filename: string =
-        path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
+      const filename: string = path
+        .parse(file.originalname)
+        .name.replace(/\s/g, '');
       const extension: string = path.parse(file.originalname).ext;
 
       cb(null, `${filename}${extension}`);
@@ -85,7 +86,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
   ) {
     const filename = 'http://localhost:3000/user/' + file.path;
-    this.userService.updateAvatarImg(userId, filename, res);
+    this.userService.updateAvatarImg(userId, filename);
     return res.status(200).send();
   }
 
@@ -107,7 +108,6 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() target: { nickname: string },
   ) {
-    console.log(target.nickname);
     return this.userService.getTargetInfo(userId, target.nickname, res);
   }
 
