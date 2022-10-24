@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { authenticator } from 'otplib';
-import { User } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
