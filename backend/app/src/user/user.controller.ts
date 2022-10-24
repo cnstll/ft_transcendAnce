@@ -86,7 +86,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
   ) {
     const filename = 'http://localhost:3000/user/' + file.path;
-    this.userService.updateAvatarImg(userId, filename);
+    this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
 

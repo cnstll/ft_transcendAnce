@@ -98,7 +98,7 @@ export class UserService {
     }
   }
 
-  async updateAvatarImg(userId: string, newAvatarImg: string) {
+  async updateAvatarImg(userId: string, newAvatarImg: string, res: Response) {
     try {
       await this.prismaService.user.update({
         where: {
@@ -108,8 +108,9 @@ export class UserService {
           avatarImg: newAvatarImg,
         },
       });
+      return res.status(201).send();
     } catch (error) {
-      console.log(error);
+      return res.status(200).send();
     }
     return;
   }
@@ -336,5 +337,26 @@ export class UserService {
 
   logout(res: Response) {
     return res.cookie('jwtToken', '', { httpOnly: true });
+  }
+
+  async setTwoFactorAuthenticationSecret(
+    secret: string,
+    userId: string,
+    res: Response,
+  ) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          twoFactorAuthenticationSecret: secret,
+        },
+      });
+      return res.status(201).send();
+    } catch (error) {
+      console.log(error);
+    }
+    return;
   }
 }
