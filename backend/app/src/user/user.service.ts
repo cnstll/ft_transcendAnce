@@ -349,7 +349,8 @@ export class UserService {
           id: userId,
         },
         data: {
-          twoFactorAuthenticationSecret: secret,
+          twoFactorAuthentificationSecret: secret,
+          twoFactorAuthentificationSet: true,
         },
       });
       return res.status(201).send();
