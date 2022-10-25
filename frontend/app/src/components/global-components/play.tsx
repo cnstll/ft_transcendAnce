@@ -6,8 +6,10 @@ import Background from '../section-components/background';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
+import Game from '../section-components/Canvas';
 
 function Play() {
+
   const user = useUserInfo();
   const navigate = useNavigate();
 
@@ -23,6 +25,7 @@ function Play() {
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
           />
+          <Game />
         </Background>
       </div>
     );
