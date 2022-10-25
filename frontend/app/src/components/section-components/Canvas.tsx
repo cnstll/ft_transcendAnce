@@ -23,12 +23,22 @@ const Game = (props: any) => {
     contextRef.current = context;
 
     // socket.on('createRoom');
-    socket.on('createRoom', text => {
-      console.log('this is a messge event', text);
+    socket.emit('join', {}, (response: any) => {
+      console.log('this is an emit on a join ', response);
+    });
+    // socket.on('message', text => {
+    //   console.log('this is a messge event as a room creation event ', text);
+    // })
+    // socket.on('createRoom', text => {
+    //   console.log('this is a messge event', text);
+    // })
+    socket.on('roomCreated', text => {
+      console.log('this is a messge event in room created ', text);
     })
-    socket.emit('createRoom', 'hi');
+    // socket.emit('createRoom', 'hi');
 
     socket.on('message', text => {
+      // console.log('hi');
       context.fillStyle = "black"
       contextRef.current.fillRect(0, 0, canvas.width, canvas.height)
       context.fillStyle = "white"
@@ -39,35 +49,10 @@ const Game = (props: any) => {
 
   const startDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
-    // contextRef.current.beginPath();
-    // contextRef.current.moveTo(offsetX, offsetY);
-    // setIsDrawing(true)
     socket.emit('createMessage', { x: 50, y: offsetY }, (response: any) => {
       // console.log('this is the response ', response);
     });
   }
-
-
-  // const stopDrawing = () => {
-  //   setIsDrawing(false)
-  //   contextRef.current.closePath();
-
-  // socket.emit('createMessage', { x: 100, y: 100 }, (response: any) => {
-  //   // console.log('this is the response ', response);
-  // });
-  // socket.emit('findAllMessages', {}, (response: any) => {
-  //   console.log('this is the response ', response);
-  // });
-  // }
-
-
-  // const draw = ({ nativeEvent }) => {
-  //   const { offsetX, offsetY } = nativeEvent;
-  //   if (isDrawing) {
-  //     contextRef.current.lineTo(offsetX, offsetY)
-  //     contextRef.current.stroke()
-  //   }
-  // }
 
   return (
     < canvas onMouseMove={startDrawing} ref={canvasRef} />

@@ -24,13 +24,14 @@ export class GameGateway {
     return message;
   }
 
-  @SubscribeMessage('createRoom')
-  createRoom(socket: Socket): WsResponse<unknown> {
-    // createRoom(socket: Socket): WsResponse<unknown> {
-    socket.join('aRoom');
-    socket.to('aRoom').emit('roomCreated', { room: 'aRoom' });
-    return { event: 'roomCreated', data: 'aroom' };
-  }
+  // @SubscribeMessage('createRoom')
+  // createRoom(socket: Socket): WsResponse<unknown> {
+  //   console.log("hi");
+  //   socket.join('aRoom');
+  //   socket.to('aRoom').emit('roomCreated', { room: 'aRoom' });
+  //   console.log("bi");
+  //   return { event: 'roomCreated', data: 'aroom' };
+  // }
 
   @SubscribeMessage('findAllMessages')
   connect() {
@@ -49,14 +50,10 @@ export class GameGateway {
 
   @SubscribeMessage('join')
   joinRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket) {
+    client.join('a');
+    // client.to('a').emit('message', { x: 0, y: 0 });
+    this.server.to('a').emit('roomCreated', "room created");
     return this.messagesService.identify(name, client.id);
-
-  }
-
-  @SubscribeMessage('typing')
-  async typing(@MessageBody('isTyping') isTyping: Boolean, @ConnectedSocket() client: Socket) {
-    const name = await this.messagesService.getClientName(client.id);
-    client.broadcast.emit('typing', { name, isTyping });
   }
 
 }
