@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { authenticator } from 'otplib';
 import { UserService } from 'src/user/user.service';
-import { User } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { toFileStream } from 'qrcode';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class TwoFactorAuthenticationService {
@@ -17,20 +17,23 @@ export class TwoFactorAuthenticationService {
     userId: string,
     res: Response,
   ) {
-    const secret = authenticator.generateSecret();
+    const user: User = await this.userService.getUserInfo(userId);
+
+    let secret: string;
+    if (user.twoFactorAuthentificationSecret) {
+      secret = authenticator.generateSecret();
+      await this.userService.setTwoFactorAuthenticationSecret(
+        secret,
+        userId,
+        res,
+      );
+    } else secret = user.twoFactorAuthentificationSecret;
 
     const otpauthUrl = authenticator.keyuri(
       userId,
       this.configService.get('TranscenDance'),
       secret,
     );
-
-    await this.userService.setTwoFactorAuthenticationSecret(
-      secret,
-      userId,
-      res,
-    );
-
     return {
       secret,
       otpauthUrl,
@@ -41,11 +44,11 @@ export class TwoFactorAuthenticationService {
     return toFileStream(stream, otpauthUrl);
   }
 
-  public async isTwoFactorAuthenticationCodeValid(
+  async isTwoFactorAuthenticationCodeValid(
     twoFactorAuthenticationCode: string,
     userId: string,
   ) {
-    const user: User = await this.userService.findOne(userId);
+    const user = await this.userService.getUserInfo(userId);
     return authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twoFactorAuthentificationSecret,

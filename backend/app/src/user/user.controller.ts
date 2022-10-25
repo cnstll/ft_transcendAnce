@@ -41,8 +41,8 @@ export class UserController {
 
   @Get('get-user-info')
   @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
+  getUserInfo(@GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId);
   }
 
   @Get('get-all-users')
@@ -90,7 +90,7 @@ export class UserController {
   }
 
   @Get('avatar/:fileId')
-  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
+  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
     res.sendFile(fileId, { root: 'avatar' });
   }
 

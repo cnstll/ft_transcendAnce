@@ -28,6 +28,7 @@ export class AuthController {
     const jwtPayload: JwtPayload = {
       id: req.id,
       nickname: req.nickname,
+      twoFactorAuthentication: false,
     };
     const token = this.authService.login(jwtPayload);
     res.status(201).send(token);

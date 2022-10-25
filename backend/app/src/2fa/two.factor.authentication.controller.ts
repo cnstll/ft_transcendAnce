@@ -11,49 +11,46 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 import { UserService } from 'src/user/user.service';
-import { TwoFactorAuthenticationDto } from './dto/two.factor.authentication.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('2fa')
 export class TwoFactorAuthenticationController {
   constructor(
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
     private readonly userService: UserService,
+    private readonly authService: AuthService,
   ) {}
 
-  // @Post('generate')
-  // @UseGuards(JwtAuthGuard)
-  // async register(@GetCurrentUserId() userId: string, @Res() res: Response) {
-  //   const { otpauthUrl } =
-  //     await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
-  //       userId,
-  //       res,
-  //     );
-
-  //   return this.twoFactorAuthenticationService.pipeQrCodeStream(
-  //     res.setHeader('content-type', 'image/png'),
-  //     otpauthUrl,
-  //   );
-  // }
-
-  @Post('turn-on')
+  @Post('generate')
   @UseGuards(JwtAuthGuard)
-  turnOnTwoFactorAuthentication(
+  async register(@GetCurrentUserId() userId: string, @Res() res: Response) {
+    const { otpauthUrl } =
+      await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
+        userId,
+        res,
+      );
+
+    return this.twoFactorAuthenticationService.pipeQrCodeStream(
+      res,
+      otpauthUrl,
+    );
+  }
+
+  @Post('authenticate')
+  @UseGuards(JwtAuthGuard)
+  async authenticate(
     @GetCurrentUserId() userId: string,
-    @Body() { twoFactorAuthenticationCode }: TwoFactorAuthenticationDto,
+    @Body() data: { twoFactorAuthenticationCode: string },
     @Res() res: Response,
   ) {
-    const isCodeValid =
-      this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
-        twoFactorAuthenticationCode,
+    const isCodeValid: boolean =
+      await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+        data.twoFactorAuthenticationCode,
         userId,
       );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
-      userId,
-      res,
-    );
     return res.status(200).send();
   }
 }

@@ -310,20 +310,13 @@ export class UserService {
     return res.status(200).send(friendsList);
   }
 
-  async getUserInfo(userId: string, res: Response) {
+  async getUserInfo(userId: string): Promise<User | undefined> {
     const user: User = await this.prismaService.user.findUnique({
       where: {
         id: userId,
       },
     });
-    const userInfo = {
-      id: user.id,
-      nickname: user.nickname,
-      avatarImg: user.avatarImg,
-      eloScore: user.eloScore,
-      status: user.status,
-    };
-    return res.status(200).send(userInfo);
+    return user;
   }
 
   findOne(username: string): Promise<User | undefined> {
@@ -338,6 +331,11 @@ export class UserService {
     return res.cookie('jwtToken', '', { httpOnly: true });
   }
 
+  /**
+   *
+   *  2FA functions
+   */
+
   async setTwoFactorAuthenticationSecret(
     secret: string,
     userId: string,
@@ -351,6 +349,24 @@ export class UserService {
         data: {
           twoFactorAuthentificationSecret: secret,
           twoFactorAuthentificationSet: true,
+        },
+      });
+      return res.status(201).send();
+    } catch (error) {
+      console.log(error);
+    }
+    return;
+  }
+
+  async changeTwoFactorAuthentication(userId: string, res: Response) {
+    const user: User = await this.getUserInfo(userId);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          twoFactorAuthentificationSet: !user.twoFactorAuthentificationSet,
         },
       });
       return res.status(201).send();
