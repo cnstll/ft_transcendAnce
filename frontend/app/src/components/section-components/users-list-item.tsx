@@ -1,5 +1,5 @@
 import DropDownButton from './drop-down-button';
-import NormUrl from "../customed-hooks/norm-url";
+import NormUrl from "../custom-hooks/norm-url";
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react';
-import { UseOutsideClick } from "../customed-hooks/use-outside-click"
+import { UseOutsideClick } from "../custom-hooks/use-outside-click"
 import { User, Channel } from "../global-components/interface";
 import SearchItem from "./search-item";
 

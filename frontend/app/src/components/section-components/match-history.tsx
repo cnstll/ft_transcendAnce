@@ -8,7 +8,7 @@ interface MatchData {
 
 interface PictureData {
   imageCurrentPlayer: string;
-  imageOponent: string;
+  imageOponent?: string;
 }
 
 interface StatusData {
@@ -73,7 +73,7 @@ function VersusComponent({ imageCurrentPlayer, imageOponent }: PictureData) {
   );
 }
 
-function StatusComponent({ matchWon, score}: StatusData) {
+function StatusComponent({ matchWon, score }: StatusData) {
   return (
     <div className="text-base sm:text-base md:text-2xl lg:text-2xl xl:text-3xl">
       {matchWon ? (
@@ -85,7 +85,7 @@ function StatusComponent({ matchWon, score}: StatusData) {
   );
 }
 
-function MatchHistory() {
+function MatchHistory({ imageCurrentPlayer }: PictureData) {
   return (
     <div className="flex flex-col gap-6 m-10">
       {matchExamples.map((matchExample) => (
@@ -94,7 +94,7 @@ function MatchHistory() {
           className="flex flex-row gap-32 items-center"
         >
           <VersusComponent
-            imageCurrentPlayer={matchExample.imageCurrentPlayer}
+            imageCurrentPlayer={imageCurrentPlayer}
             imageOponent={matchExample.imageOponent}
           />
           <StatusComponent

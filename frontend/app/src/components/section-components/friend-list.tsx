@@ -1,16 +1,16 @@
-import UsersList from './users-list'
-import useUserFriends from '../customed-hooks/useUserFriends'
-import { User } from '../global-components/interface';
+import useUserFriends from '../query-hooks/useUserFriends';
+import UsersList from './users-list';
 
 function FriendsList() {
-
   const friends = useUserFriends();
 
-  return <>
-    {friends.isLoading && <p>Loading users...</p>}
-    {friends.isError && <p>Could not fetch users...</p>}
-    {friends.isSuccess && <UsersList channelUsers={friends.data as User[]} />}
-  </>
+  return (
+    <>
+      {friends.isLoading && <p>Loading users...</p>}
+      {friends.isError && <p>Could not fetch users...</p>}
+      {friends.isSuccess && <UsersList channelUsers={friends.data} />}
+    </>
+  );
 }
 
 export default FriendsList;

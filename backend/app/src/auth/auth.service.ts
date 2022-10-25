@@ -5,7 +5,7 @@ import { UserService } from '../user/user.service';
 // import { HttpService } from '@nestjs/axios';
 import { AuthDto } from './dto';
 import { UserDto } from 'src/user/dto/user.dto';
-import { Payload } from './types/';
+import { JwtPayload, UserPayload } from './types/';
 
 @Injectable({})
 export class AuthService {
@@ -14,12 +14,12 @@ export class AuthService {
     private readonly userService: UserService, // private httpService: HttpService,
   ) {}
 
-  login(user: Payload) {
-    const payload: Payload = {
-      userId: user.userId,
+  login(user: UserPayload) {
+    const jwtPayload: JwtPayload = {
+      id: user.id,
       nickName: user.nickName,
     };
-    return this.jwtService.sign(payload);
+    return this.jwtService.sign(jwtPayload);
   }
 
   public async loginIntra(userData: AuthDto, accessToken: string) {
@@ -28,14 +28,25 @@ export class AuthService {
       const data = {
         nickName: userData.login,
         passwordHash: accessToken,
+        avatarImg: userData.image_url,
       };
-      return this.userService.createUser(data);
+      return await this.userService.createUser(data);
     }
     return user;
   }
 
   public async create_user_dev(userData: UserDto) {
-    return await this.userService.createUser(userData);
+    const user: User = await this.userService.findOne(userData.nickName);
+    if (!user) {
+      const data = {
+        nickName: userData.nickName,
+        passwordHash: userData.passwordHash,
+        avatarImg: userData.avatarImg,
+      };
+      return await this.userService.createUser(data);
+    } else {
+      return;
+    }
   }
 
   // async retrieveProfileData(accessToken: string): Promise<any> {

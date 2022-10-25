@@ -115,8 +115,8 @@ export class ChannelService {
       });
       return res.status(HttpStatus.CREATED).send(newChannel);
     } catch (error) {
-        throw new ForbiddenException(error);
-      }
+      throw new ForbiddenException(error);
+    }
   }
 
   async checkUpdateDto(dto: ChannelDto, userId: string, channelId: string) {
@@ -133,7 +133,7 @@ export class ChannelService {
     }
     /* Find the user's role to check the rights to update */
     const admin: { role: ChannelRole } =
-    await this.prisma.channelUser.findUnique({
+      await this.prisma.channelUser.findUnique({
         where: {
           userId_channelId: {
             userId: userId,
@@ -145,8 +145,7 @@ export class ChannelService {
         },
       });
     /* If relation doesn't exist or User doesn't have Owner or Admin role */
-    if (!admin)
-      return { statusCode: 404, message: 'Not found' };
+    if (!admin) return { statusCode: 404, message: 'Not found' };
     else if (admin.role === 'USER')
       return { statusCode: 400, message: 'Access to resources denied' };
     return { statusCode: 200, message: 'OK' };
@@ -160,8 +159,8 @@ export class ChannelService {
   ) {
     /* Filters incompatible DTO arguments (empty name for group channel
       or no password for protected chan) */
-    const ret: { statusCode: number; message: string } = await
-      this.checkUpdateDto(dto, userId, channelId);
+    const ret: { statusCode: number; message: string } =
+      await this.checkUpdateDto(dto, userId, channelId);
     if (ret.statusCode === 400)
       return res.status(HttpStatus.BAD_REQUEST).send(ret);
     else if (ret.statusCode === 404)
@@ -178,7 +177,7 @@ export class ChannelService {
       });
       return res.status(HttpStatus.OK).send(newChannel);
     } catch (error) {
-        throw new ForbiddenException(error);
+      throw new ForbiddenException(error);
     }
   }
 
