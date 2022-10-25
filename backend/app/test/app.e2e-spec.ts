@@ -22,14 +22,30 @@ describe('AppController (e2e)', () => {
     );
     await app.init();
 
-    // prisma = app.get(PrismaService);
-    // await prisma.cleanDb;
+    prisma = app.get(PrismaService);
   });
 
-  afterAll(() => {
+  afterAll(
+    async () => {
+      const deleteMatch = prisma.match.deleteMany()
+      const deleteMessage = prisma.message.deleteMany()
+      const deleteBan = prisma.ban.deleteMany()
+      const deleteChannel = prisma.channel.deleteMany()
+      const deleteFriendship = prisma.friendship.deleteMany()
+      const deleteUser = prisma.user.deleteMany()
+
+      await prisma.$transaction([
+        deleteMatch,
+        deleteMessage,
+        deleteBan,
+        deleteChannel,
+        deleteFriendship,
+        deleteUser,
+      ])
+
+    await prisma.$disconnect()
     app.close();
   });
-
 
   let cookieA: string;
   let cookieB: string;
@@ -106,237 +122,237 @@ describe('AppController (e2e)', () => {
   })
 
   /******************************************************************************/
-  /* FRIENDS TESTS */
+  /* FRIENDSHIP TESTS */
   /******************************************************************************/
 
-  // describe('Friends', () => {
-  //   it('/ (user a requests user b as friend)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieA;
+  describe('Friends', () => {
+    it('/ (user a requests user b as friend)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieA;
 
-  //       return request(app.getHttpServer())
-  //         .post('/user/request-friend')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'b'
-  //         })
-  //         .expect(201)
-  //     });
+        return request(app.getHttpServer())
+          .post('/user/request-friend')
+          .set('Authorization', bearer)
+          .send({
+            target: 'b'
+          })
+          .expect(201)
+      });
 
-  //     it('/ (should return empty list)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieD;
-  //       return request(app.getHttpServer())
-  //         .get('/user/get-user-friend-requests')
-  //         .set('Authorization', bearer)
-  //         .send()
-  //         .expect(200)
-  //         .then((response) => {
-  //           expect(response.text).toContain('[]');
-  //         })
-  //     });
+      it('/ (should return empty list)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieD;
+        return request(app.getHttpServer())
+          .get('/user/get-user-friend-requests')
+          .set('Authorization', bearer)
+          .send()
+          .expect(200)
+          .then((response) => {
+            expect(response.text).toContain('[]');
+          })
+      });
 
-  //     it('/ (user c requests user d as friend)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieC;
-  //       return request(app.getHttpServer())
-  //         .post('/user/request-friend')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'd'
-  //         })
-  //         .expect(201)
-  //     });
+      it('/ (user c requests user d as friend)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieC;
+        return request(app.getHttpServer())
+          .post('/user/request-friend')
+          .set('Authorization', bearer)
+          .send({
+            target: 'd'
+          })
+          .expect(201)
+      });
 
-  //     it('/ (should return 401)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + 'some random string';
-  //       return request(app.getHttpServer())
-  //         .get('/user/get-user-info')
-  //         .set('Authorization', bearer)
-  //         .send()
-  //         .expect(401)
-  //     });
+      it('/ (should return 401)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + 'some random string';
+        return request(app.getHttpServer())
+          .get('/user/get-user-info')
+          .set('Authorization', bearer)
+          .send()
+          .expect(401)
+      });
 
-  //     it('/ (should return info about user d)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieD;
-  //       return request(app.getHttpServer())
-  //         .get('/user/get-user-info')
-  //         .set('Authorization', bearer)
-  //         .send()
-  //         .expect(200)
-  //         .then((response) => {
-  //           expect(response.text).toContain('"nickname":"d"');
-  //         })
-  //     });
+      it('/ (should return info about user d)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieD;
+        return request(app.getHttpServer())
+          .get('/user/get-user-info')
+          .set('Authorization', bearer)
+          .send()
+          .expect(200)
+          .then((response) => {
+            expect(response.text).toContain('"nickname":"d"');
+          })
+      });
 
-  //     it('/ (should return info about user c)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieD;
-  //       return request(app.getHttpServer())
-  //         .get('/user/get-user-friend-requests')
-  //         .set('Authorization', bearer)
-  //         .send()
-  //         .expect(200)
-  //         .then((response) => {
-  //           expect(response.text).toContain('"nickname":"c"');
-  //         })
-  //     });
+      it('/ (should return info about user c)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieD;
+        return request(app.getHttpServer())
+          .get('/user/get-user-friend-requests')
+          .set('Authorization', bearer)
+          .send()
+          .expect(200)
+          .then((response) => {
+            expect(response.text).toContain('"nickname":"c"');
+          })
+      });
 
-  //     it('/ (should not return info about user c)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieD;
-  //       return request(app.getHttpServer())
-  //         .get('/user/get-user-friends')
-  //         .set('Authorization', bearer)
-  //         .send()
-  //         .expect(200)
-  //         .then((response) => {
-  //           expect(response.text).toEqual('[]');
-  //         })
-  //     });
+      it('/ (should not return info about user c)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieD;
+        return request(app.getHttpServer())
+          .get('/user/get-user-friends')
+          .set('Authorization', bearer)
+          .send()
+          .expect(200)
+          .then((response) => {
+            expect(response.text).toEqual('[]');
+          })
+      });
 
 
-  //     it('/ (user c requests non existant user as friend)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieC;
-  //       return request(app.getHttpServer())
-  //         .post('/user/request-friend')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'e'
-  //         })
-  //         .expect(500)
-  //     });
+      it('/ (user c requests non existant user as friend)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieC;
+        return request(app.getHttpServer())
+          .post('/user/request-friend')
+          .set('Authorization', bearer)
+          .send({
+            target: 'e'
+          })
+          .expect(500)
+      });
 
-  //     it('/ (user b accepts a as friend)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieB;
-  //       return request(app.getHttpServer())
-  //         .put('/user/update-friendship')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'a',
-  //           friends: true
-  //         })
-  //         .expect(200)
-  //     });
+      it('/ (user b accepts a as friend)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieB;
+        return request(app.getHttpServer())
+          .put('/user/update-friendship')
+          .set('Authorization', bearer)
+          .send({
+            target: 'a',
+            friends: true
+          })
+          .expect(200)
+      });
 
-  //     it('/ (should return info about user a)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieB;
-  //       return request(app.getHttpServer())
-  //         .get('/user/get-user-friends')
-  //         .set('Authorization', bearer)
-  //         .send()
-  //         .expect(200)
-  //         .then((response) => {
-  //           expect(response.text).toContain('"nickname":"a"');
-  //         })
-  //     });
+      it('/ (should return info about user a)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieB;
+        return request(app.getHttpServer())
+          .get('/user/get-user-friends')
+          .set('Authorization', bearer)
+          .send()
+          .expect(200)
+          .then((response) => {
+            expect(response.text).toContain('"nickname":"a"');
+          })
+      });
 
-  //     it('/ (user b accepts friend request that does not exist)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieB;
-  //       return request(app.getHttpServer())
-  //         .put('/user/update-friendship')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'd',
-  //           friends: true
-  //         })
-  //         .expect(500)
-  //     });
+      it('/ (user b accepts friend request that does not exist)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieB;
+        return request(app.getHttpServer())
+          .put('/user/update-friendship')
+          .set('Authorization', bearer)
+          .send({
+            target: 'd',
+            friends: true
+          })
+          .expect(500)
+      });
 
-  //     it('/ (user b accepts a as friend again)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieB;
-  //       return request(app.getHttpServer())
-  //         .put('/user/update-friendship')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'a',
-  //           friends: true
-  //         })
-  //         .expect(200)
-  //     });
+      it('/ (user b accepts a as friend again)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieB;
+        return request(app.getHttpServer())
+          .put('/user/update-friendship')
+          .set('Authorization', bearer)
+          .send({
+            target: 'a',
+            friends: true
+          })
+          .expect(200)
+      });
 
-  //     it('/ (user a unfriends user b)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieA;
-  //       return request(app.getHttpServer())
-  //         .put('/user/update-friendship')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'b',
-  //           friends: false
-  //         })
-  //         .expect(200)
-  //     });
+      it('/ (user a unfriends user b)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieA;
+        return request(app.getHttpServer())
+          .put('/user/update-friendship')
+          .set('Authorization', bearer)
+          .send({
+            target: 'b',
+            friends: false
+          })
+          .expect(200)
+      });
 
-  //     it('/ (user a unfriends user b again)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieA;
-  //       return request(app.getHttpServer())
-  //         .put('/user/update-friendship')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'b',
-  //           friends: false
-  //         })
-  //         .expect(500)
-  //     });
+      it('/ (user a unfriends user b again)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieA;
+        return request(app.getHttpServer())
+          .put('/user/update-friendship')
+          .set('Authorization', bearer)
+          .send({
+            target: 'b',
+            friends: false
+          })
+          .expect(500)
+      });
 
-  //     it('/ (user b accepts friend request that does not exist)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieB;
-  //       return request(app.getHttpServer())
-  //         .put('/user/update-friendship')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           target: 'a',
-  //           friends: true
-  //         })
-  //         .expect(500)
-  //     });
+      it('/ (user b accepts friend request that does not exist)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieB;
+        return request(app.getHttpServer())
+          .put('/user/update-friendship')
+          .set('Authorization', bearer)
+          .send({
+            target: 'a',
+            friends: true
+          })
+          .expect(500)
+      });
 
-  //     it('/ (delete test users)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieA;
-  //       return request(app.getHttpServer())
-  //         .delete('/user/delete')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           nickName: 'a',
-  //         })
-  //         .expect(204)
-  //     });
+      it('/ (delete test users)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieA;
+        return request(app.getHttpServer())
+          .delete('/user/delete')
+          .set('Authorization', bearer)
+          .send({
+            nickName: 'a',
+          })
+          .expect(204)
+      });
 
-  //     it('/ (attempt to delete a user that does not exist)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieA;
-  //       return request(app.getHttpServer())
-  //         .delete('/user/delete')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           nickName: 'a',
-  //         })
-  //         .expect(204)
-  //     });
+      it('/ (attempt to delete a user that does not exist)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieA;
+        return request(app.getHttpServer())
+          .delete('/user/delete')
+          .set('Authorization', bearer)
+          .send({
+            nickName: 'a',
+          })
+          .expect(204)
+      });
 
-  //     it('/ (delete test users)', async () => {
-  //       await new Promise(process.nextTick);
-  //       let bearer = 'Bearer ' + cookieB;
-  //       return request(app.getHttpServer())
-  //         .delete('/user/delete')
-  //         .set('Authorization', bearer)
-  //         .send({
-  //           nickName: 'b',
-  //         })
-  //         .expect(204)
-  //     });
-  // })
+      it('/ (delete test users)', async () => {
+        await new Promise(process.nextTick);
+        let bearer = 'Bearer ' + cookieB;
+        return request(app.getHttpServer())
+          .delete('/user/delete')
+          .set('Authorization', bearer)
+          .send({
+            nickName: 'b',
+          })
+          .expect(204)
+      });
+  })
 
   /******************************************************************************/
   /* CHANNELS TESTS */
@@ -448,6 +464,9 @@ describe('AppController (e2e)', () => {
       .set('Authorization', bearer)
       .send({})
       .expect(400)
+      .then((response) => {
+        expect(response.text).toContain('"statusCode":400,"message":"Group channel must have a name."');
+      })
   });
 
   it('/ [ERROR] user C creates a channel with an existing name', async () => {
@@ -473,6 +492,9 @@ describe('AppController (e2e)', () => {
         "passwordHash":"secret"
       })
       .expect(400)
+      .then((response) => {
+        expect(response.text).toContain('"statusCode":400,"message":"Group channel must have a name."');
+      })
   });
 
   it('/ [ERROR] user C creates a protected channel with only a name', async () => {
@@ -486,158 +508,161 @@ describe('AppController (e2e)', () => {
         "type":"PROTECTED",
       })
       .expect(400)
+      .then((response) => {
+        expect(response.text).toContain('"statusCode":400,"message":"Group channel must have a password."');
+      })
   });
 
   /***********************/
   /* GET */
   /***********************/
 
-  // it('/ user C gets all channels', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels')
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).toContain('"name":"Channel test 1"');
-  //       expect(response.text).toContain('"name":"Channel test 2"');
-  //       expect(response.text).toContain('"name":"Channel test 3"');
-  //       expect(response.text).toContain('"name":"Channel test 4"');
-  //       expect(response.text).toContain('"name":"Channel test 5"');
-  //     })
-  // });
+  it('/ user C gets all channels', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels')
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"name":"Channel test 1"');
+        expect(response.text).toContain('"name":"Channel test 2"');
+        expect(response.text).toContain('"name":"Channel test 3"');
+        expect(response.text).toContain('"name":"Channel test 4"');
+        expect(response.text).toContain('"name":"Channel test 5"');
+      })
+  });
 
-  // it('/ user C gets all group channels - no direct message', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/get-group-channels')
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).toContain('"name":"Channel test 1"');
-  //       expect(response.text).toContain('"name":"Channel test 2"');
-  //       expect(response.text).toContain('"name":"Channel test 3"');
-  //       expect(response.text).toContain('"name":"Channel test 4"');
-  //       expect(response.text).not.toContain('"name":"Channel test 5"');
-  //     })
-  // });
+  it('/ user C gets all group channels - no direct message', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/get-group-channels')
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"name":"Channel test 1"');
+        expect(response.text).toContain('"name":"Channel test 2"');
+        expect(response.text).toContain('"name":"Channel test 3"');
+        expect(response.text).toContain('"name":"Channel test 4"');
+        expect(response.text).not.toContain('"name":"Channel test 5"');
+      })
+  });
 
-  // it('/ user C gets all channels she joined', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/get-by-user-id')
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).toContain('"name":"Channel test 1"');
-  //       expect(response.text).toContain('"name":"Channel test 2"');
-  //       expect(response.text).toContain('"name":"Channel test 3"');
-  //       expect(response.text).not.toContain('"name":"Channel test 4"');
-  //       expect(response.text).toContain('"name":"Channel test 5"');
-  //     })
-  // });
+  it('/ user C gets all channels she joined', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/get-by-user-id')
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"name":"Channel test 1"');
+        expect(response.text).toContain('"name":"Channel test 2"');
+        expect(response.text).toContain('"name":"Channel test 3"');
+        expect(response.text).not.toContain('"name":"Channel test 4"');
+        expect(response.text).toContain('"name":"Channel test 5"');
+      })
+  });
 
-  // it('/ getting the public channel \'Channel test 1\'', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/' + publicChan)
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).toContain('"name":"Channel test 1"');
-  //       expect(response.text).toContain('"type":"PUBLIC"');
-  //       expect(response.text).not.toContain('"name":"Channel test 2"');
-  //       expect(response.text).not.toContain('"name":"Channel test 3"');
-  //       expect(response.text).not.toContain('"name":"Channel test 4"');
-  //       expect(response.text).not.toContain('"name":"Channel test 5"');
-  //     })
-  // });
+  it('/ getting the public channel \'Channel test 1\'', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/' + publicChan)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"name":"Channel test 1"');
+        expect(response.text).toContain('"type":"PUBLIC"');
+        expect(response.text).not.toContain('"name":"Channel test 2"');
+        expect(response.text).not.toContain('"name":"Channel test 3"');
+        expect(response.text).not.toContain('"name":"Channel test 4"');
+        expect(response.text).not.toContain('"name":"Channel test 5"');
+      })
+  });
 
-  // it('/ getting the Direct Message \'Channel test 5\'', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/' + directMessage)
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).not.toContain('"name":"Channel test 1"');
-  //       expect(response.text).not.toContain('"name":"Channel test 2"');
-  //       expect(response.text).not.toContain('"name":"Channel test 3"');
-  //       expect(response.text).not.toContain('"name":"Channel test 4"');
-  //       expect(response.text).toContain('"name":"Channel test 5"');
-  //       expect(response.text).toContain('"type":"DIRECTMESSAGE"');
-  //     })
-  // });
+  it('/ getting the Direct Message \'Channel test 5\'', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/' + directMessage)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).not.toContain('"name":"Channel test 1"');
+        expect(response.text).not.toContain('"name":"Channel test 2"');
+        expect(response.text).not.toContain('"name":"Channel test 3"');
+        expect(response.text).not.toContain('"name":"Channel test 4"');
+        expect(response.text).toContain('"name":"Channel test 5"');
+        expect(response.text).toContain('"type":"DIRECTMESSAGE"');
+      })
+  });
 
-  // it('/ getting the private channel \'Channel test 3\'', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/get-user-channel/' + privateChan)
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).not.toContain('"name":"Channel test 1"');
-  //       expect(response.text).not.toContain('"name":"Channel test 2"');
-  //       expect(response.text).toContain('"name":"Channel test 3"');
-  //       expect(response.text).toContain('"type":"PRIVATE"');
-  //       expect(response.text).not.toContain('"name":"Channel test 4"');
-  //       expect(response.text).not.toContain('"name":"Channel test 5"');
-  //     })
-  // });
+  it('/ getting the private channel \'Channel test 3\'', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/get-user-channel/' + privateChan)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).not.toContain('"name":"Channel test 1"');
+        expect(response.text).not.toContain('"name":"Channel test 2"');
+        expect(response.text).toContain('"name":"Channel test 3"');
+        expect(response.text).toContain('"type":"PRIVATE"');
+        expect(response.text).not.toContain('"name":"Channel test 4"');
+        expect(response.text).not.toContain('"name":"Channel test 5"');
+      })
+  });
 
-  // it('/ getting the protected channel \'Channel test 4\'', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/get-user-channel/' + protectedChan)
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).not.toContain('"name":"Channel test 4"');
-  //       expect(response.text).not.toContain('"type":"PROTECTED"');
-  //     })
-  // });
+  it('/ getting the protected channel \'Channel test 4\'', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/get-user-channel/' + protectedChan)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).not.toContain('"name":"Channel test 4"');
+        expect(response.text).not.toContain('"type":"PROTECTED"');
+      })
+  });
 
-  // // To be completed with more users when we have a join channel
-  // it('/ getting all the users of \'Channel test 1\'', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/get-users-of-a-channel/' + publicChan)
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).toContain('"nickName":"c"');
-  //     })
-  // });
+  // To be completed with more users when we have a join channel
+  it('/ getting all the users of \'Channel test 1\'', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/get-users-of-a-channel/' + publicChan)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"nickName":"c"');
+      })
+  });
 
-  // // To be completed with more users when we have a join channel
-  // it('/ getting all the users of \'Channel test 1\'', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .get('/channels/get-role-user-channel/' + publicChan)
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  //     .then((response) => {
-  //       expect(response.text).toContain('"role":"OWNER"');
-  //     })
-  // });
+  // To be completed with more users when we have a join channel
+  it('/ getting all the users of \'Channel test 1\'', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .get('/channels/get-role-user-channel/' + publicChan)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.text).toContain('"role":"OWNER"');
+      })
+  });
 
   /***********************/
   /* UPDATE */
@@ -654,7 +679,8 @@ describe('AppController (e2e)', () => {
       })
       .expect(200)
       .then((response) => {
-        expect(response.text).toContain('"name":"Les démons de minuit"');
+        expect(response.text).toContain(
+          '"name":"Les démons de minuit","type":"PUBLIC","passwordHash":null');
       })
   });
 
@@ -669,11 +695,13 @@ describe('AppController (e2e)', () => {
       })
       .expect(200)
       .then((response) => {
-        expect(response.text).toContain('"type":"PRIVATE"');
+        expect(response.text).toContain(
+          '"name":"Les démons de minuit","type":"PRIVATE","passwordHash":null');
       })
   });
 
-  it('/ user C updates an existing private channel to protected type with a password', async () => {
+  it('/ user C updates an existing private channel to protected type\
+      with a password', async () => {
     await new Promise(process.nextTick);
     let bearer = 'Bearer ' + cookieC;
     return request(app.getHttpServer())
@@ -685,8 +713,8 @@ describe('AppController (e2e)', () => {
       })
       .expect(200)
       .then((response) => {
-        expect(response.text).toContain('"type":"PROTECTED"');
-        expect(response.text).toContain('"passwordHash":"secret"');
+        expect(response.text).toContain(
+          '"name":"Channel test 3","type":"PROTECTED","passwordHash":"secret"');
       })
   });
 
@@ -701,7 +729,8 @@ describe('AppController (e2e)', () => {
       })
       .expect(400)
       .then((response) => {
-        console.log(response);
+        expect(response.text).toContain(
+          '"statusCode":400,"message":"Group channel must have a name."');
       })
   });
 
@@ -715,6 +744,9 @@ describe('AppController (e2e)', () => {
         "name":"Les démons de minuit",
       })
       .expect(400)
+      .then((response) => {
+        console.log(response.text);
+      })
   });
 
   it('/ [ERROR] user C updates an existing channel to no type', async () => {
@@ -727,6 +759,9 @@ describe('AppController (e2e)', () => {
         "type":"",
       })
       .expect(403)
+      .then((response) => {
+        console.log(response.text);
+      })
   });
 
   it('/ [ERROR] user C updates an existing private channel to protected\
@@ -740,6 +775,9 @@ describe('AppController (e2e)', () => {
           "type":"PROTECTED",
         })
         .expect(400)
+        .then((response) => {
+          console.log(response.text);
+        })
   });
 
   it('/ [ERROR] user C updates a non existing channel', async () => {
@@ -752,88 +790,105 @@ describe('AppController (e2e)', () => {
         "name":"A channel that doesn't exist",
       })
       .expect(404)
+      .then((response) => {
+        console.log(response.text);
+      })
   });
 
-  // it('/ ([ERROR] user D updates a channel\'s name where he is not owner)', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieD;
-  //   return request(app.getHttpServer())
-  //     .put('/channels/channel1')
-  //     .set('Authorization', bearer)
-  //     .send({
-  //       "name":"A channel for which I am not the owner",
-  //     })
-  //     .expect(400)
-  // });
+  it('/ [ERROR] user D updates a channel\'s name where he is not owner', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
+    return request(app.getHttpServer())
+      .patch('/channels/' + privateChan)
+      .set('Authorization', bearer)
+      .send({
+        "name":"A channel for which I am not the owner",
+      })
+      .expect(404)
+      .then((response) => {
+        console.log(response.text);
+      })
+  });
 
-  // it('/ ([ERROR] user D updates a channel\'s type where he is not owner)', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieD;
-  //   return request(app.getHttpServer())
-  //     .put('/channels/channel1')
-  //     .set('Authorization', bearer)
-  //     .send({
-  //       "type":"PRIVATE",
-  //     })
-  //     .expect(400)
-  // });
+  it('/ [ERROR] user D updates a channel\'s type where he is not owner', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieD;
+    return request(app.getHttpServer())
+      .patch('/channels/' + privateChan)
+      .set('Authorization', bearer)
+      .send({
+        "type":"PRIVATE",
+      })
+      .expect(404)
+      .then((response) => {
+        console.log(response.text);
+      })
+  });
 
-  //   /* DELETE */
+  /***********************/
+  /* DELETE */
+  /***********************/
 
-  // it('/ (Deletion of a public channel)', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .delete('/channels/channel4')
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(204)
-  // });
+  it('/ Deletion of a public channel', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .delete('/channels/' + publicChan )
+      .set('Authorization', bearer)
+      .send({})
+      .expect(204)
+      .then((response) => {
+        console.log(response.text);
+      })
+  });
 
-  // it('/ (Deletion of a private channel)', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieC;
-  //   return request(app.getHttpServer())
-  //     .delete('/channels/channel5')
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(204)
-  // });
+  it('/ Deletion of a direct message channel', async () => {
+    await new Promise(process.nextTick);
+    let bearer = 'Bearer ' + cookieC;
+    return request(app.getHttpServer())
+      .delete('/channels/' + directMessage)
+      .set('Authorization', bearer)
+      .send({})
+      .expect(204)
+      .then((response) => {
+        console.log(response.text);
+      })
+  });
 
   /* Shouldn't be unquoted until we make deletion for ChannelUser (a User leaves a channel) */
-  //   it('/ (Deletion of a public channel)', async () => {
-  //   await new Promise(process.nextTick);
-  //   let bearer = 'Bearer ' + cookieA;
-  //   return request(app.getHttpServer())
-  //     .delete('/channels/channel3')
-  //     .set('Authorization', bearer)
-  //     .send({})
-  //     .expect(200)
-  // });
+  //   it('/ [ERROR] Deletion of a channel where there are still users', async () => {
+  //     await new Promise(process.nextTick);
+  //     let bearer = 'Bearer ' + cookieC;
+  //     return request(app.getHttpServer())
+  //       .delete('/channels/' + privateChan)
+  //       .set('Authorization', bearer)
+  //       .send({})
+  //       .expect(204)
+  //   });
+
   })
 
+    it('/ (delete test users)', async () => {
+      await new Promise(process.nextTick);
+      let bearer = 'Bearer ' + cookieC;
+      return request(app.getHttpServer())
+        .delete('/user/delete')
+        .set('Authorization', bearer)
+        .send({
+          nickName: 'c',
+        })
+        .expect(204)
+    });
 
-    // it('/ (delete test users)', async () => {
-    //   await new Promise(process.nextTick);
-    //   let bearer = 'Bearer ' + cookieC;
-    //   return request(app.getHttpServer())
-    //     .delete('/user/delete')
-    //     .set('Authorization', bearer)
-    //     .send({
-    //       nickName: 'c',
-    //     })
-    //     .expect(204)
-    // });
-
-    // it('/ (delete test users)', async () => {
-    //   await new Promise(process.nextTick);
-    //   let bearer = 'Bearer ' + cookieD;
-    //   return request(app.getHttpServer())
-    //     .delete('/user/delete')
-    //     .set('Authorization', bearer)
-    //     .send({
-    //       nickName: 'd',
-    //     })
-    //     .expect(204)
-    // });
+    it('/ (delete test users)', async () => {
+      await new Promise(process.nextTick);
+      let bearer = 'Bearer ' + cookieD;
+      return request(app.getHttpServer())
+        .delete('/user/delete')
+        .set('Authorization', bearer)
+        .send({
+          nickName: 'd',
+        })
+        .expect(204)
+    });
 });
