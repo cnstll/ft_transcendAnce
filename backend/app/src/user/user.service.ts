@@ -358,15 +358,14 @@ export class UserService {
     return;
   }
 
-  async changeTwoFactorAuthentication(userId: string, res: Response) {
-    const user: User = await this.getUserInfo(userId);
+  async disableTwoFactorAuthentication(userId: string, res: Response) {
     try {
       await this.prismaService.user.update({
         where: {
           id: userId,
         },
         data: {
-          twoFactorAuthentificationSet: !user.twoFactorAuthentificationSet,
+          twoFactorAuthentificationSet: false,
         },
       });
       return res.status(201).send();

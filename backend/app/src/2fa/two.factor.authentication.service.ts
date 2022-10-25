@@ -20,7 +20,7 @@ export class TwoFactorAuthenticationService {
     const user: User = await this.userService.getUserInfo(userId);
 
     let secret: string;
-    if (user.twoFactorAuthentificationSecret) {
+    if (!user.twoFactorAuthentificationSecret) {
       secret = authenticator.generateSecret();
       await this.userService.setTwoFactorAuthenticationSecret(
         secret,

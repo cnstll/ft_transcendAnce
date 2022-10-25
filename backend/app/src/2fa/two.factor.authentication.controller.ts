@@ -36,6 +36,12 @@ export class TwoFactorAuthenticationController {
     );
   }
 
+  @Post('disable')
+  @UseGuards(JwtAuthGuard)
+  disable(@GetCurrentUserId() userId: string, @Res() res: Response) {
+    this.userService.disableTwoFactorAuthentication(userId, res);
+  }
+
   @Post('authenticate')
   @UseGuards(JwtAuthGuard)
   async authenticate(
