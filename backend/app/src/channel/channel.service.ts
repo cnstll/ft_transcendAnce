@@ -1,5 +1,5 @@
 import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
-import { Channel, ChannelRole, ChannelUser } from '@prisma/client';
+import { Channel, ChannelRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChannelDto } from './dto';
 import { Response } from 'express';
@@ -10,15 +10,15 @@ export class ChannelService {
 
   getChannels() {
     return this.prisma.channel.findMany();
-  };
+  }
 
   getGroupChannels() {
     return this.prisma.channel.findMany({
       where: {
-        OR: [{type: 'PUBLIC'}, {type: 'PRIVATE'}, {type: 'PROTECTED'}]
-      }
+        OR: [{ type: 'PUBLIC' }, { type: 'PRIVATE' }, { type: 'PROTECTED' }],
+      },
     });
-  };
+  }
 
   getChannelsByUserId(userId: string) {
     return this.prisma.channelUser.findMany({
@@ -27,31 +27,31 @@ export class ChannelService {
       },
       select: {
         channel: true,
-      }
-    })
-  };
+      },
+    });
+  }
 
   getChannelById(channelId: string) {
     return this.prisma.channel.findFirst({
       where: {
         id: channelId,
-      }
-    })
-  };
+      },
+    });
+  }
 
   getChannelByUserId(userId: string, channelId: string) {
     return this.prisma.channelUser.findUnique({
       where: {
         userId_channelId: {
           userId: userId,
-          channelId: channelId
-        }
+          channelId: channelId,
+        },
       },
       select: {
         channel: true,
-      }
+      },
     });
-  };
+  }
 
   getUsersOfAChannel(channelId: string) {
     return this.prisma.channelUser.findMany({
@@ -60,43 +60,44 @@ export class ChannelService {
       },
       select: {
         user: true,
-      }
+      },
     });
-  };
+  }
 
   getRoleOfUserChannel(userId: string, channelId: string) {
     return this.prisma.channelUser.findUnique({
       where: {
         userId_channelId: {
           userId: userId,
-          channelId: channelId
-        }
+          channelId: channelId,
+        },
       },
       select: {
         role: true,
-      }
+      },
     });
-  };
+  }
 
-  checkCreationDto(dto: ChannelDto, res: Response) {
+  checkCreationDto(dto: ChannelDto) {
     /* If a Group channel is created/updated, it must have a name */
     if (dto.type !== 'DIRECTMESSAGE' && (!dto.name || dto.name?.length == 0)) {
-      return ( { "statusCode": 400,
-            "message": "Group channel must have a name."});
+      return { statusCode: 400, message: 'Group channel must have a name.' };
     }
     /* If a Protected channel is created/updated, it must have a password */
     if (dto.type === 'PROTECTED' && !dto.passwordHash) {
-      return ( { "statusCode": 400,
-            "message": "Group channel must have a password."});
+      return {
+        statusCode: 400,
+        message: 'Group channel must have a password.',
+      };
     }
-    return ( { "statusCode": 200, "message": "OK" });
+    return { statusCode: 200, message: 'OK' };
   }
 
   async createChannel(userId: string, dto: ChannelDto, res: Response) {
     /* Filters incompatible DTO arguments (no name for group channel
       or no password for protected chan) */
-    const ret : { statusCode : number, message: string } =
-      this.checkCreationDto(dto, res);
+    const ret: { statusCode: number; message: string } =
+      this.checkCreationDto(dto);
     if (ret.statusCode !== 200)
       return res.status(HttpStatus.BAD_REQUEST).send(ret);
     /* Try to create a new channel */
@@ -108,66 +109,72 @@ export class ChannelService {
             create: {
               userId: userId,
               role: 'OWNER',
-            }
-          }
-        }
+            },
+          },
+        },
       });
       return res.status(HttpStatus.CREATED).send(newChannel);
     } catch (error) {
       if (error.code === 'P2002') {
-        return res.status(HttpStatus.BAD_REQUEST).send(
-            { "statusCode": 400,
-              "message": "Unique constraint: Name is already used"});
-      }
-      else {
+        return res.status(HttpStatus.BAD_REQUEST).send({
+          statusCode: 400,
+          message: 'Unique constraint: Name is already used',
+        });
+      } else {
         throw new ForbiddenException(error);
       }
     }
   }
 
-  checkUpdateDto(dto: ChannelDto, res: Response, userId: string, channelId:string) {
+  checkUpdateDto(dto: ChannelDto) {
     /* If a Group channel is created/updated, it must have a name */
     if (dto.type !== 'DIRECTMESSAGE' && dto.name?.length == 0) {
-      return ( { "statusCode": 400,
-      "message": "Group channel must have a name."});
+      return { statusCode: 400, message: 'Group channel must have a name.' };
     }
     /* If a Protected channel is created/updated, it must have a password */
     if (dto.type === 'PROTECTED' && !dto.passwordHash) {
-    return ( { "statusCode": 400,
-          "message": "Group channel must have a password."});
+      return {
+        statusCode: 400,
+        message: 'Group channel must have a password.',
+      };
     }
-    return ( { "statusCode": 200, "message": "OK" });
+    return { statusCode: 200, message: 'OK' };
   }
 
-  async editChannelById(userId: string, channelId: string, dto: ChannelDto, res: Response) {
-    /* Filters incompatible DTO arguments */
-    const ret : { statusCode : number, message: string } =
-    this.checkUpdateDto(dto, res, userId, channelId);
+  async editChannelById(
+    userId: string,
+    channelId: string,
+    dto: ChannelDto,
+    res: Response,
+  ) {
+    /* Filters incompatible DTO arguments (empty name for group channel
+      or no password for protected chan) */
+    const ret: { statusCode: number; message: string } =
+      this.checkUpdateDto(dto);
     if (ret.statusCode === 400)
       return res.status(HttpStatus.BAD_REQUEST).send(ret);
-   /* Find the user's role to check the rights to update */
+    /* Find the user's role to check the rights to update */
     const admin: { role: ChannelRole } =
-    await this.prisma.channelUser.findUnique({
-      where: {
-        userId_channelId: {
-          userId: userId,
-          channelId: channelId
-        }
-      },
-      select: {
-        role: true,
-      }
-    })
+      await this.prisma.channelUser.findUnique({
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: channelId,
+          },
+        },
+        select: {
+          role: true,
+        },
+      });
     /* If relation doesn't exist or User doesn't have Owner or Admin role */
     if (!admin) {
-      return res.status(HttpStatus.NOT_FOUND).send(
-        { "statusCode": 404,
-          "message": "Not found"});
-    }
-    else if (admin.role === 'USER') {
-      return res.status(HttpStatus.BAD_REQUEST).send(
-        { "statusCode": 400,
-          "message": "Access to resources denied"});
+      return res
+        .status(HttpStatus.NOT_FOUND)
+        .send({ statusCode: 404, message: 'Not found' });
+    } else if (admin.role === 'USER') {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send({ statusCode: 400, message: 'Access to resources denied' });
     }
     /* Then, update informations */
     try {
@@ -177,23 +184,22 @@ export class ChannelService {
         },
         data: {
           ...dto,
-        }
+        },
       });
       return res.status(HttpStatus.OK).send(newChannel);
     } catch (error) {
       if (error.code === 'P2002') {
-        return res.status(HttpStatus.BAD_REQUEST).send(
-          { "statusCode": 400,
-            "message": "Unique constraint: Name is already used"});
-      }
-      else {
+        return res.status(HttpStatus.BAD_REQUEST).send({
+          statusCode: 400,
+          message: 'Unique constraint: Name is already used',
+        });
+      } else {
         throw new ForbiddenException(error);
       }
     }
-  };
+  }
 
   async deleteChannelById(channelId: string, res: Response) {
-
     /* Check if there is no user left in channel before deletion
     - implementing ChannelUser's deletion is required for testing the code below */
     // const channelUsers: { users: ChannelUser[] } =
@@ -216,16 +222,17 @@ export class ChannelService {
       await this.prisma.channel.delete({
         where: {
           id: channelId,
-        }
+        },
       });
     } catch (error) {
-        if (error.code === 'P2025') {
-          return res.status(HttpStatus.FORBIDDEN).send(
-            { "statusCode": 403,
-              "message": "Record to delete does not exist."});
-        }
-        throw new ForbiddenException(error);
+      if (error.code === 'P2025') {
+        return res.status(HttpStatus.FORBIDDEN).send({
+          statusCode: 403,
+          message: 'Record to delete does not exist.',
+        });
+      }
+      throw new ForbiddenException(error);
     }
-    return res.status(HttpStatus.NO_CONTENT).send()
+    return res.status(HttpStatus.NO_CONTENT).send();
   }
 }

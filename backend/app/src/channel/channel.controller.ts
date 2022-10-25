@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
@@ -32,8 +42,10 @@ export class ChannelController {
 
   /* Is this getter useful? */
   @Get('get-user-channel/:id')
-  getChannelByUserId(@GetCurrentUserId() userId: string,
-  @Param('id') channelId: string) {
+  getChannelByUserId(
+    @GetCurrentUserId() userId: string,
+    @Param('id') channelId: string,
+  ) {
     return this.channelService.getChannelByUserId(userId, channelId);
   }
 
@@ -42,10 +54,12 @@ export class ChannelController {
     return this.channelService.getUsersOfAChannel(channelId);
   }
 
-    /* Is it possible without routing on id? */
+  /* Is it possible without routing on id? */
   @Get('get-role-user-channel/:id')
-  getRoleOfUserChannel(@GetCurrentUserId() userId: string,
-  @Param('id') channelId: string) {
+  getRoleOfUserChannel(
+    @GetCurrentUserId() userId: string,
+    @Param('id') channelId: string,
+  ) {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
   }
 
@@ -54,9 +68,10 @@ export class ChannelController {
   createChannel(
     @GetCurrentUserId() userId: string,
     @Body() dto: ChannelDto,
-    @Res() res: Response) {
-      return this.channelService.createChannel(userId, dto, res);
-    }
+    @Res() res: Response,
+  ) {
+    return this.channelService.createChannel(userId, dto, res);
+  }
 
   // Update channel
   @Patch(':id')
@@ -64,17 +79,16 @@ export class ChannelController {
     @GetCurrentUserId() userId: string,
     @Param('id') channelId: string,
     @Body() dto: ChannelDto,
-    @Res() res: Response)  {
-      return this.channelService.editChannelById(userId, channelId, dto, res);
+    @Res() res: Response,
+  ) {
+    return this.channelService.editChannelById(userId, channelId, dto, res);
   }
 
   // Delete channel
   @Delete(':id')
-  deleteChannelById(
-    @Param('id') channelId: string,
-    @Res() res: Response) {
-      return this.channelService.deleteChannelById(channelId, res);
-    }
+  deleteChannelById(@Param('id') channelId: string, @Res() res: Response) {
+    return this.channelService.deleteChannelById(channelId, res);
+  }
 }
 
 // replace status codes by:

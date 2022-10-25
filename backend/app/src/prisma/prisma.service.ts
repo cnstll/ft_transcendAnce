@@ -34,5 +34,4 @@ export class PrismaService
       await app.close();
     });
   }
-
 }
