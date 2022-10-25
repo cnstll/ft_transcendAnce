@@ -8,7 +8,7 @@ function FriendsList() {
     <>
       {friends.isLoading && <p>Loading users...</p>}
       {friends.isError && <p>Could not fetch users...</p>}
-      {friends.isSuccess && <UsersList channelUsers={friends.data} />}
+      {friends.isSuccess && <UsersList users={friends.data} />}
     </>
   );
 }
