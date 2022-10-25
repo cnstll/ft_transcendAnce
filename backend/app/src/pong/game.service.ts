@@ -8,7 +8,7 @@ export class GameService {
   clientToUser = {};
   create(createMessageDto: PositionDto) {
     const message = { ...createMessageDto };
-    this.messages.push(createMessageDto);
+    // this.messages.push(createMessageDto);
     return message;
   }
 

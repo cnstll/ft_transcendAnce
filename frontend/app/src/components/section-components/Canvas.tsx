@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react"
-import { io } from 'socket.io-client';
+import { socket } from "./socket";
 
 const Game = (props: any) => {
-  const socket = io('http://localhost:3000');
 
 
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const xPos = 50;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,32 +21,49 @@ const Game = (props: any) => {
     context.strokeStyle = "white"
     context.fillStyle = "white"
     contextRef.current = context;
-    console.log('thisis the id of this game', props.gameId);
-    // socket.emit('join', {}, (response: any) => {
-    //   console.log('this is an emit on a join ', response);
-    // });
-    socket.emit('createRoom', { name: props.gameId }, (response: any) => {
+    socket.emit('join', { name: 'id' }, (response: any) => {
       console.log('this is an emit on a join ', response);
     });
-    socket.on('roomCreated', text => {
-      console.log('this is a messge event in room created ', text);
-    })
 
-    socket.on('message', text => {
-      context.fillStyle = "black"
-      contextRef.current.fillRect(0, 0, canvas.width, canvas.height)
+    const messageListener = (text) => {
+      console.log('you ve got mail', text);
+      context.fillStyle = "red"
+      context.fillStyle = "red"
+      // contextRef.current.fillRect(200 / 2, 0, (canvas.width), canvas.height)
+      console.log("this is width ", window.innerWidth);
+      console.log("this is width ", canvas.width);
+      contextRef.current.fillRect((canvas.width / 4), 0, (canvas.width), canvas.height)
       context.fillStyle = "white"
-      contextRef.current.fillRect(text.x, text.y, 10, 10);
-    })
-  }, [])
+      console.log(canvas.width);
+      // contextRef.current.fillRect(canvas.width - 50, text.y, 10, 10);
+      contextRef.current.fillRect((canvas.width / 2 - 50), text.y, 10, 10);
+    };
+
+    socket.on('message', messageListener)
+
+    return () => {
+      socket.off('message', messageListener);
+      socket.off('join');
+    };
+  }, [window.innerWidth])
 
   const startDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
-    socket.emit('createMessage', { x: 50, y: offsetY, room: props.gameId }, (_: any) => {
+    contextRef.current.fillStyle = "black"
+    console.log('this is width', canvasRef.current.width / 2);
+    contextRef.current.fillRect(0, 0, canvasRef.current.width / 4, canvasRef.current.height)
+    contextRef.current.fillStyle = "white"
+    contextRef.current.fillRect(xPos, offsetY, 10, 10);
+
+    console.log('this is my client id to as i send this message ', socket.id);
+    console.log('this is xpos ', xPos);
+    socket.emit('createMessage', { x: xPos, y: offsetY, room: props.gameId }, (_: any) => {
     });
   }
 
+
   return (
+    // < canvas onMouseMove={startDrawing} ref={canvasRef} />
     < canvas onMouseMove={startDrawing} ref={canvasRef} />
   )
 }

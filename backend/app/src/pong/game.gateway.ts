@@ -1,9 +1,7 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { WsResponse } from '@nestjs/websockets';
 import { PositionDto } from './dto/position.dto';
 import { GameService } from './game.service';
-
 
 @WebSocketGateway({
   cors: {
@@ -18,10 +16,13 @@ export class GameGateway {
 
   constructor(private readonly messagesService: GameService) { }
   @SubscribeMessage('createMessage')
-  async create(@MessageBody() createMessageDto: PositionDto) {
+  async create(@MessageBody() createMessageDto: PositionDto, @ConnectedSocket() client: Socket) {
     const message = this.messagesService.create(createMessageDto);
-    this.server.to(createMessageDto.room).emit('message', message);
-    // this.server.to('thisisnotaroomandshouldnotwor').emit('message', message);
+    client.to(createMessageDto.room).emit('message', message);
+    // client.emit('message', message);
+    // client.broadcast.emit('message', message);
+    // this.server.to(createMessageDto.room).emit('message', message);
+    // client.to('id').emit('message', client.id);
     return message;
   }
 
@@ -51,7 +52,11 @@ export class GameGateway {
   joinRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket) {
     client.join(name);
     this.server.to(name).emit('roomJoined', name);
-    return this.messagesService.identify(name, client.id);
+    console.log('hiya');
+    var clients = this.server.sockets.adapter.rooms.get(name);
+    console.log(clients.size);
+    return clients.size;
+    // return this.messagesService.identify(name, client.id);
   }
 
 }
