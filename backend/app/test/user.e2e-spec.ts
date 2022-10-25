@@ -28,20 +28,10 @@ describe('User Controller (e2e)', () => {
 
   afterAll(
     async () => {
-      const deleteMatch = prisma.match.deleteMany()
-      const deleteMessage = prisma.message.deleteMany()
-      const deleteBan = prisma.ban.deleteMany()
-      const deleteChannel = prisma.channel.deleteMany()
       const deleteFriendship = prisma.friendship.deleteMany()
-      const deleteUser = prisma.user.deleteMany()
 
       await prisma.$transaction([
-        deleteMatch,
-        deleteMessage,
-        deleteBan,
-        deleteChannel,
         deleteFriendship,
-        deleteUser,
       ])
 
     await prisma.$disconnect()
