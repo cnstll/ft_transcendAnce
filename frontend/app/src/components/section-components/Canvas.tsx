@@ -21,36 +21,28 @@ const Game = (props: any) => {
     context.strokeStyle = "white"
     context.fillStyle = "white"
     contextRef.current = context;
-
-    // socket.on('createRoom');
-    socket.emit('join', {}, (response: any) => {
+    console.log('thisis the id of this game', props.gameId);
+    // socket.emit('join', {}, (response: any) => {
+    //   console.log('this is an emit on a join ', response);
+    // });
+    socket.emit('createRoom', { name: props.gameId }, (response: any) => {
       console.log('this is an emit on a join ', response);
     });
-    // socket.on('message', text => {
-    //   console.log('this is a messge event as a room creation event ', text);
-    // })
-    // socket.on('createRoom', text => {
-    //   console.log('this is a messge event', text);
-    // })
     socket.on('roomCreated', text => {
       console.log('this is a messge event in room created ', text);
     })
-    // socket.emit('createRoom', 'hi');
 
     socket.on('message', text => {
-      // console.log('hi');
       context.fillStyle = "black"
       contextRef.current.fillRect(0, 0, canvas.width, canvas.height)
       context.fillStyle = "white"
       contextRef.current.fillRect(text.x, text.y, 10, 10);
-      // console.log('this is a messge event', text);
     })
   }, [])
 
   const startDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
-    socket.emit('createMessage', { x: 50, y: offsetY }, (response: any) => {
-      // console.log('this is the response ', response);
+    socket.emit('createMessage', { x: 50, y: offsetY, room: props.gameId }, (_: any) => {
     });
   }
 

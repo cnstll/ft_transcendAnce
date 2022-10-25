@@ -20,18 +20,17 @@ export class GameGateway {
   @SubscribeMessage('createMessage')
   async create(@MessageBody() createMessageDto: PositionDto) {
     const message = this.messagesService.create(createMessageDto);
-    this.server.emit('message', message);
+    this.server.to(createMessageDto.room).emit('message', message);
+    // this.server.to('thisisnotaroomandshouldnotwor').emit('message', message);
     return message;
   }
 
-  // @SubscribeMessage('createRoom')
-  // createRoom(socket: Socket): WsResponse<unknown> {
-  //   console.log("hi");
-  //   socket.join('aRoom');
-  //   socket.to('aRoom').emit('roomCreated', { room: 'aRoom' });
-  //   console.log("bi");
-  //   return { event: 'roomCreated', data: 'aroom' };
-  // }
+  @SubscribeMessage('createRoom')
+  createRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket) {
+    client.join(name);
+    client.to(name).emit('roomCreated', { room: name });
+    return { event: 'roomCreated', data: 'atest' };
+  }
 
   @SubscribeMessage('findAllMessages')
   connect() {
@@ -50,9 +49,8 @@ export class GameGateway {
 
   @SubscribeMessage('join')
   joinRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket) {
-    client.join('a');
-    // client.to('a').emit('message', { x: 0, y: 0 });
-    this.server.to('a').emit('roomCreated', "room created");
+    client.join(name);
+    this.server.to(name).emit('roomJoined', name);
     return this.messagesService.identify(name, client.id);
   }
 
