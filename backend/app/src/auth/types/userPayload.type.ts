@@ -1,4 +1,4 @@
 export type UserPayload = {
-  nickName: string;
+  nickname: string;
   id: string;
 };

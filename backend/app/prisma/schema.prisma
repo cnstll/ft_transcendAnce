@@ -11,14 +11,17 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  nickName     String     @unique()
-  passwordHash String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  status       UserStatus @default(OFFLINE)
-  avatarImg    String?
-  eloScore     Int        @default(0)
+  id                            String     @id @default(cuid())
+  immutableId                   String     @unique()
+  nickname                      String     @unique()
+  passwordHash                  String
+  createdAt                     DateTime   @default(now())
+  updatedAt                     DateTime   @updatedAt
+  status                        UserStatus @default(OFFLINE)
+  avatarImg                     String?
+  eloScore                      Int        @default(0)
+  twoFactorAuthenticationSet    Boolean    @default(false)
+  twoFactorAuthenticationSecret String     @default("")
 
   friendsRequester Friendship[]      @relation("requester")
   friendsAddressee Friendship[]      @relation("addressee")
@@ -53,7 +56,6 @@ model Match {
   updatedAt DateTime @updatedAt
 
   match UserMatch[] @relation("match")
-  score Json        @default("{\"player1\" : 0, \"player2\" : 0}")
 
   @@map("matches")
 }
@@ -63,6 +65,7 @@ model UserMatch {
   player   User   @relation("player", fields: [playerId], references: [id], onDelete: Cascade)
   matchId  String
   match    Match  @relation("match", fields: [matchId], references: [id], onDelete: Cascade)
+  score    Json   @default("{\"myself\" : 0, \"opponent\" : 0}")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -160,7 +163,6 @@ model Ban {
 enum FriendshipStatus {
   REQUESTED
   ACCEPTED
-  REFUSED
 }
 
 enum ChannelType {

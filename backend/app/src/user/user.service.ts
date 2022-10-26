@@ -13,7 +13,8 @@ export class UserService {
     try {
       const user = await this.prismaService.user.create({
         data: {
-          nickName: dto.nickName,
+          nickname: dto.nickname,
+          immutableId: dto.immutableId.toString(),
           passwordHash: dto.passwordHash,
           avatarImg: dto.avatarImg,
         },
@@ -47,7 +48,7 @@ export class UserService {
     try {
       const nicknames = await this.prismaService.user.findMany({
         select: {
-          nickName: true,
+          nickname: true,
         },
       });
       return res.status(200).send(nicknames);
@@ -89,7 +90,7 @@ export class UserService {
           id: userId,
         },
         data: {
-          nickName: newNickname,
+          nickname: newNickname,
         },
       });
       return res.status(201).send();
@@ -262,7 +263,7 @@ export class UserService {
     const friendStatus = await this.getFriendStatus(userId, userId1);
     const userInfo = {
       id: user.id,
-      nickname: user.nickName,
+      nickname: user.nickname,
       avatarImg: user.avatarImg,
       eloScore: user.eloScore,
       status: user.status,
@@ -318,7 +319,7 @@ export class UserService {
     });
     const userInfo = {
       id: user.id,
-      nickname: user.nickName,
+      nickname: user.nickname,
       avatarImg: user.avatarImg,
       eloScore: user.eloScore,
       status: user.status,
@@ -329,7 +330,7 @@ export class UserService {
   findOne(username: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({
       where: {
-        nickName: username.toString(),
+        nickname: username.toString(),
       },
     });
   }

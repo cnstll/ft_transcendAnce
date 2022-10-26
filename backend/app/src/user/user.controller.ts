@@ -90,7 +90,7 @@ export class UserController {
   }
 
   @Get('avatar/:fileId')
-  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
+  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
     res.sendFile(fileId, { root: 'avatar' });
   }
 

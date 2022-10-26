@@ -17,7 +17,7 @@ export class AuthService {
   login(user: UserPayload) {
     const jwtPayload: JwtPayload = {
       id: user.id,
-      nickName: user.nickName,
+      nickname: user.nickname,
     };
     return this.jwtService.sign(jwtPayload);
   }
@@ -26,7 +26,8 @@ export class AuthService {
     const user: User = await this.userService.findOne(userData.login);
     if (!user) {
       const data = {
-        nickName: userData.login,
+        nickname: userData.login,
+        immutableId: userData.id.toString(),
         passwordHash: accessToken,
         avatarImg: userData.image_url,
       };
@@ -36,10 +37,11 @@ export class AuthService {
   }
 
   public async create_user_dev(userData: UserDto) {
-    const user: User = await this.userService.findOne(userData.nickName);
+    const user: User = await this.userService.findOne(userData.nickname);
     if (!user) {
       const data = {
-        nickName: userData.nickName,
+        nickname: userData.nickname,
+        immutableId: userData.immutableId,
         passwordHash: userData.passwordHash,
         avatarImg: userData.avatarImg,
       };
