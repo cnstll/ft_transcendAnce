@@ -17,13 +17,14 @@ export class AuthService {
   login(user: UserPayload) {
     const jwtPayload: JwtPayload = {
       id: user.id,
+      immutableId: user.immutableId,
       nickname: user.nickname,
     };
     return this.jwtService.sign(jwtPayload);
   }
 
   public async loginIntra(userData: AuthDto, accessToken: string) {
-    const user: User = await this.userService.findOne(userData.login);
+    const user: User = await this.userService.findOne(userData.id.toString());
     if (!user) {
       const data = {
         nickname: userData.login,

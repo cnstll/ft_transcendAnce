@@ -320,10 +320,10 @@ export class UserService {
     return user;
   }
 
-  findOne(username: string): Promise<User | undefined> {
+  findOne(immutableId: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({
       where: {
-        nickname: username.toString(),
+        immutableId: immutableId,
       },
     });
   }
