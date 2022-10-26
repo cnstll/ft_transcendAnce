@@ -27,7 +27,7 @@ export class AuthController {
   async loginUserDev(@Res() res, @Body() req) {
     const jwtPayload: JwtPayload = {
       id: req.id,
-      nickName: req.nickname,
+      nickname: req.nickname,
     };
     const token = this.authService.login(jwtPayload);
     res.status(201).send(token);
@@ -42,7 +42,7 @@ export class AuthController {
   //   }
   //   const jwtPayload = {
   //     userId: user.id,
-  //     nickName: user.nickName,
+  //     nickname: user.nickname,
   //   };
   //   const token = this.authService.login(jwtPayload);
   //   res.status(201).send(token);
