@@ -3,7 +3,6 @@ import { Channel, ChannelRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChannelDto } from './dto';
 import { Response } from 'express';
-import { userInfo } from 'os';
 
 @Injectable()
 export class ChannelService {
