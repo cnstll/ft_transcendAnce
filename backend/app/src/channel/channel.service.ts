@@ -3,6 +3,7 @@ import { Channel, ChannelRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChannelDto } from './dto';
 import { Response } from 'express';
+import { userInfo } from 'os';
 
 @Injectable()
 export class ChannelService {
@@ -21,12 +22,13 @@ export class ChannelService {
   }
 
   getChannelsByUserId(userId: string) {
-    return this.prisma.channelUser.findMany({
+    return this.prisma.channel.findMany({
       where: {
-        userId: userId,
-      },
-      select: {
-        channel: true,
+        users: {
+          some: {
+            userId: userId,
+          },
+        },
       },
     });
   }
@@ -50,7 +52,7 @@ export class ChannelService {
       select: {
         channel: true,
       },
-    });
+    }).channel;
   }
 
   getUsersOfAChannel(channelId: string) {
