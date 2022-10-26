@@ -37,10 +37,27 @@ export class TwoFactorAuthenticationController {
     );
   }
 
-  @Post('disable')
+  @Post('validate')
   @UseGuards(JwtAuthGuard)
-  disable(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    this.userService.disableTwoFactorAuthentication(userId, res);
+  async validate(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { twoFactorAuthenticationCode: string },
+    @Res() res: Response,
+  ) {
+    /* Check that the user has a valid 2fa secret */
+    const user: User = await this.userService.getUserInfo(userId);
+    if (!user.twoFactorAuthenticationSecret)
+      throw new UnauthorizedException('The user does not have a 2fa secret');
+
+    const isCodeValid: boolean =
+      await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
+        data.twoFactorAuthenticationCode,
+        userId,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    res.status(201).send();
   }
 
   @Post('authenticate')
@@ -63,6 +80,13 @@ export class TwoFactorAuthenticationController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
+    this.authService.loginWith2fa(user);
     res.status(201).send();
+  }
+
+  @Post('disable')
+  @UseGuards(JwtAuthGuard)
+  disable(@GetCurrentUserId() userId: string, @Res() res: Response) {
+    this.userService.disableTwoFactorAuthentication(userId, res);
   }
 }

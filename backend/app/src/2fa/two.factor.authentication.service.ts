@@ -27,7 +27,10 @@ export class TwoFactorAuthenticationService {
         userId,
         res,
       );
-    } else secret = user.twoFactorAuthenticationSecret;
+    } else {
+      await this.userService.enableTwoFactorAuthentication(userId, res);
+      secret = user.twoFactorAuthenticationSecret;
+    }
 
     const otpauthUrl = authenticator.keyuri(
       userId,

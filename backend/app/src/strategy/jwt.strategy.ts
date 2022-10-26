@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(jwtPayload: JwtPayload): Promise<JwtPayload> {
-    return jwtPayload;
+    if (!jwtPayload.isTwoFactorSet) return jwtPayload;
   }
 
   private static extractJWT(req: Request): string | null {

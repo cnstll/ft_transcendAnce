@@ -29,6 +29,7 @@ export class AuthController {
       id: req.id,
       immutableId: req.immutableId,
       nickname: req.nickname,
+      isTwoFactorSet: false,
     };
     const token = this.authService.login(jwtPayload);
     res.status(201).send(token);

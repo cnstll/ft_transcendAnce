@@ -19,6 +19,17 @@ export class AuthService {
       id: user.id,
       immutableId: user.immutableId,
       nickname: user.nickname,
+      isTwoFactorSet: false,
+    };
+    return this.jwtService.sign(jwtPayload);
+  }
+
+  loginWith2fa(user: User) {
+    const jwtPayload: JwtPayload = {
+      id: user.id,
+      immutableId: user.immutableId,
+      nickname: user.nickname,
+      isTwoFactorSet: true,
     };
     return this.jwtService.sign(jwtPayload);
   }
