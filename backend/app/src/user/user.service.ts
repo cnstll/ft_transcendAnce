@@ -99,7 +99,7 @@ export class UserService {
     }
   }
 
-  async updateAvatarImg(userId: string, newAvatarImg: string) {
+  async updateAvatarImg(userId: string, newAvatarImg: string, res: Response) {
     try {
       await this.prismaService.user.update({
         where: {
@@ -109,10 +109,10 @@ export class UserService {
           avatarImg: newAvatarImg,
         },
       });
+      return res.status(201).send();
     } catch (error) {
-      console.log(error);
+      return res.status(200).send();
     }
-    return;
   }
 
   async updateFriendshipStatus(
@@ -311,20 +311,13 @@ export class UserService {
     return res.status(200).send(friendsList);
   }
 
-  async getUserInfo(userId: string, res: Response) {
+  async getUserInfo(userId: string): Promise<User | undefined> {
     const user: User = await this.prismaService.user.findUnique({
       where: {
         id: userId,
       },
     });
-    const userInfo = {
-      id: user.id,
-      nickname: user.nickname,
-      avatarImg: user.avatarImg,
-      eloScore: user.eloScore,
-      status: user.status,
-    };
-    return res.status(200).send(userInfo);
+    return user;
   }
 
   findOne(username: string): Promise<User | undefined> {
@@ -337,5 +330,49 @@ export class UserService {
 
   logout(res: Response) {
     return res.cookie('jwtToken', '', { httpOnly: true });
+  }
+
+  /**
+   *
+   *  2FA functions
+   */
+
+  async setTwoFactorAuthenticationSecret(
+    secret: string,
+    userId: string,
+    res: Response,
+  ) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          twoFactorAuthenticationSecret: secret,
+          twoFactorAuthenticationSet: true,
+        },
+      });
+      return res.status(201).send();
+    } catch (error) {
+      console.log(error);
+    }
+    return;
+  }
+
+  async disableTwoFactorAuthentication(userId: string, res: Response) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          twoFactorAuthenticationSet: false,
+        },
+      });
+      return res.status(201).send();
+    } catch (error) {
+      console.log(error);
+    }
+    return;
   }
 }

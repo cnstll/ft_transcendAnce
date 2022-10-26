@@ -41,8 +41,8 @@ export class UserController {
 
   @Get('get-user-info')
   @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
+  getUserInfo(@GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId);
   }
 
   @Get('get-all-users')
@@ -85,7 +85,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
   ) {
     const filename = 'http://localhost:3000/user/' + file.path;
-    this.userService.updateAvatarImg(userId, filename);
+    this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
 
