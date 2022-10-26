@@ -60,7 +60,8 @@ describe('AppController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'a',
+          nickname: 'a',
+          immutableId: 'i',
           passwordHash: 'b'
         })
         .expect(201)
@@ -73,7 +74,8 @@ describe('AppController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'b',
+          nickname: 'b',
+          immutableId: 'j',
           passwordHash: 'd'
         })
         .expect(201)

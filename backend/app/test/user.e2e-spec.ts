@@ -52,7 +52,8 @@ describe('User Controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'a',
+          nickname: 'a',
+          immutableId: 'i',
           passwordHash: 'b'
         })
         .expect(201)
@@ -65,7 +66,8 @@ describe('User Controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'b',
+          nickname: 'b',
+          immutableId: 'j',
           passwordHash: 'd'
         })
         .expect(201)
@@ -78,7 +80,8 @@ describe('User Controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'c',
+          nickname: 'c',
+          immutableId: 'k',
           passwordHash: 'd'
         })
         .expect(201)
@@ -92,7 +95,8 @@ describe('User Controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'd',
+          nickname: 'd',
+          immutableId: 'l',
           passwordHash: 'd'
         })
         .expect(201)
@@ -105,10 +109,11 @@ describe('User Controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'd',
+          nickname: 'd',
+          immutableId: 'l',
           passwordHash: 'd'
         })
-        .expect(403)
+        .expect(304)
     });
   })
 
@@ -315,7 +320,7 @@ describe('User Controller (e2e)', () => {
           .delete('/user/delete')
           .set('Authorization', bearer)
           .send({
-            nickName: 'a',
+            nickname: 'a',
           })
           .expect(204)
       });
@@ -329,7 +334,7 @@ describe('User Controller (e2e)', () => {
           .delete('/user/delete')
           .set('Authorization', bearer)
           .send({
-            nickName: 'a',
+            nickname: 'a',
           })
           .expect(204)
       });
@@ -341,7 +346,7 @@ describe('User Controller (e2e)', () => {
           .delete('/user/delete')
           .set('Authorization', bearer)
           .send({
-            nickName: 'b',
+            nickname: 'b',
           })
           .expect(204)
       });
@@ -353,7 +358,7 @@ describe('User Controller (e2e)', () => {
         .delete('/user/delete')
         .set('Authorization', bearer)
         .send({
-          nickName: 'c',
+          nickname: 'c',
         })
         .expect(204)
       });
@@ -365,7 +370,7 @@ describe('User Controller (e2e)', () => {
         .delete('/user/delete')
         .set('Authorization', bearer)
         .send({
-          nickName: 'd',
+          nickname: 'd',
         })
         .expect(204)
       });

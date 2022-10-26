@@ -50,7 +50,8 @@ describe('Channel controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'test a',
+          nickname: 'test a',
+          immutableId: 'testi',
           passwordHash: 'b'
         })
         .expect(201)
@@ -63,7 +64,8 @@ describe('Channel controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickName: 'test b',
+          nickname: 'test b',
+          immutableId: 'testj',
           passwordHash: 'd'
         })
         .expect(201)
@@ -184,7 +186,7 @@ describe('Channel controller (e2e)', () => {
         .send({})
         .expect(400)
         .then((response) => {
-          expect(response.text).toContain('"statusCode":400,"message":"Group channel must have a name."');
+          expect(response.text).toContain('"message":"Group channel must have a name."');
         })
     });
 
@@ -212,7 +214,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(400)
         .then((response) => {
-          expect(response.text).toContain('"statusCode":400,"message":"Group channel must have a name."');
+          expect(response.text).toContain('"message":"Group channel must have a name."');
         })
     });
 
@@ -228,7 +230,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(400)
         .then((response) => {
-          expect(response.text).toContain('"statusCode":400,"message":"Group channel must have a password."');
+          expect(response.text).toContain('"message":"Group channel must have a password."');
         })
     });
   })
@@ -366,7 +368,7 @@ describe('Channel controller (e2e)', () => {
         .send({})
         .expect(200)
         .then((response) => {
-          expect(response.text).toContain('"nickName":"test a"');
+          expect(response.text).toContain('"nickname":"test a"');
         })
     });
 
@@ -450,7 +452,7 @@ describe('Channel controller (e2e)', () => {
         .expect(400)
         .then((response) => {
           expect(response.text).toContain(
-            '"statusCode":400,"message":"Group channel must have a name."');
+            '"message":"Group channel must have a name."');
         })
     });
 
