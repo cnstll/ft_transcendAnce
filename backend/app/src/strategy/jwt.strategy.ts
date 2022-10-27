@@ -8,6 +8,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         JwtStrategy.extractJWT,
+        JwtStrategy.extractJWTfromHandshake,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
@@ -17,6 +18,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(jwtPayload: JwtPayload): Promise<JwtPayload> {
     return jwtPayload;
+  }
+
+  private static extractJWTfromHandshake(req: any): string | null {
+    if (
+      req.handshake.headers.cookie &&
+      req.handshake.headers.cookie.length > 0
+    ) {
+      const jwtToken = req.handshake.headers.cookie.split('=').pop();
+      return jwtToken;
+    } else {
+      return null;
+    }
   }
 
   private static extractJWT(req: Request): string | null {

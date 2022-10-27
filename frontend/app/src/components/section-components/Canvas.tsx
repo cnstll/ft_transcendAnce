@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react"
 import { socket } from "./socket";
 
+let xPos = 50;
+let player1: number = 1;
+let paddleHeight = 50;
+
 const Game = (props: any) => {
 
 
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const xPos = 50;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,22 +24,49 @@ const Game = (props: any) => {
     context.strokeStyle = "white"
     context.fillStyle = "white"
     contextRef.current = context;
+    paddleHeight = canvas.height / 20;
     socket.emit('join', { name: 'id' }, (response: any) => {
       console.log('this is an emit on a join ', response);
+      if (response > 1) {
+        player1 = 2;
+        xPos = canvas.width / 2 - 50;
+      }
     });
 
     const messageListener = (text) => {
-      console.log('you ve got mail', text);
-      context.fillStyle = "red"
-      context.fillStyle = "red"
-      // contextRef.current.fillRect(200 / 2, 0, (canvas.width), canvas.height)
-      console.log("this is width ", window.innerWidth);
-      console.log("this is width ", canvas.width);
-      contextRef.current.fillRect((canvas.width / 4), 0, (canvas.width), canvas.height)
+      // console.log('you ve got mail', text);
+      context.fillStyle = "black"
+      contextRef.current.fillRect(0, 0, (canvas.width / 2), canvas.height)
       context.fillStyle = "white"
-      console.log(canvas.width);
-      // contextRef.current.fillRect(canvas.width - 50, text.y, 10, 10);
-      contextRef.current.fillRect((canvas.width / 2 - 50), text.y, 10, 10);
+      let posy = (canvas.height / 2) * (text.p1y / 100);
+      let posx = (canvas.width / 2) * (text.p1x / 100);
+
+      contextRef.current.fillRect(text.p1x, posy, 10, paddleHeight);
+      posy = (canvas.height / 2) * (text.p2y / 100);
+      // posx = (canvas.width / 2) * (text.p2x / 100);
+      contextRef.current.fillRect(text.p2x, posy, 10, paddleHeight);
+      contextRef.current.font = "30px Arial";
+
+      if (player1 == 1) {
+        contextRef.current.font = "30px Arial";
+        context.fillStyle = "green"
+        contextRef.current.fillText(text.p1s, canvas.width / 4 - 100, 50);
+        contextRef.current.font = "30px Arial";
+        context.fillStyle = "red"
+        contextRef.current.fillText(text.p2s, canvas.width / 4 + 100, 50);
+      } else {
+        contextRef.current.font = "30px Arial";
+        context.fillStyle = "red"
+        contextRef.current.fillText(text.p1s, canvas.width / 4 - 100, 50);
+        contextRef.current.font = "30px Arial";
+        context.fillStyle = "green"
+        contextRef.current.fillText(text.p2s, canvas.width / 4 + 100, 50);
+      }
+      context.fillStyle = "yellow"
+      posy = (canvas.height / 2) * (text.by / 100);
+      posx = (canvas.width / 2) * (text.bx / 100);
+      contextRef.current.fillRect(posx, posy, 10, 10);
+
     };
 
     socket.on('message', messageListener)
@@ -45,20 +75,13 @@ const Game = (props: any) => {
       socket.off('message', messageListener);
       socket.off('join');
     };
-  }, [window.innerWidth])
+  }, [window.innerWidth, window.innerHeight])
 
   const startDrawing = ({ nativeEvent }) => {
     const { offsetX, offsetY } = nativeEvent;
-    contextRef.current.fillStyle = "black"
-    console.log('this is width', canvasRef.current.width / 2);
-    contextRef.current.fillRect(0, 0, canvasRef.current.width / 4, canvasRef.current.height)
-    contextRef.current.fillStyle = "white"
-    contextRef.current.fillRect(xPos, offsetY, 10, 10);
 
-    console.log('this is my client id to as i send this message ', socket.id);
-    console.log('this is xpos ', xPos);
-    socket.emit('createMessage', { x: xPos, y: offsetY, room: props.gameId }, (_: any) => {
-    });
+    let posy = (offsetY / (canvasRef.current.height / 2)) * 100;
+    socket.emit('createMessage', { x: xPos, y: posy, room: props.gameId, player: player1 }, (_: any) => { });
   }
 
 
