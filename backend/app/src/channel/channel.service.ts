@@ -61,8 +61,7 @@ export class ChannelService {
     });
   }
 
-
-  async getUsersOfAChannel(channelId: string) {
+  getUsersOfAChannel(channelId: string) {
     return this.prisma.channelUser.findMany({
       where: {
         channelId: channelId,
@@ -73,18 +72,18 @@ export class ChannelService {
     });
   }
 
-  async getRoleOfUserChannel(userId: string, channelId: string) {
-      return this.prisma.channelUser.findUnique({
-        where: {
-          userId_channelId: {
-            userId: userId,
-            channelId: channelId,
-          },
+  getRoleOfUserChannel(userId: string, channelId: string) {
+    return this.prisma.channelUser.findUnique({
+      where: {
+        userId_channelId: {
+          userId: userId,
+          channelId: channelId,
         },
-        select: {
-          role: true,
-        },
-      });
+      },
+      select: {
+        role: true,
+      },
+    });
   }
 
   checkDto(dto: CreateChannelDto | EditChannelDto) {
@@ -100,9 +99,9 @@ export class ChannelService {
   async createChannel(userId: string, dto: CreateChannelDto, res: Response) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-        this.checkDto(dto);
-        /* Then try to create a new channel */
-        const newChannel: Channel = await this.prisma.channel.create({
+      this.checkDto(dto);
+      /* Then try to create a new channel */
+      const newChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
           users: {
@@ -115,13 +114,10 @@ export class ChannelService {
       });
       return res.status(HttpStatus.CREATED).send(newChannel);
     } catch (error) {
-      if (error.code === 400)
-        throw new BadRequestException(error);
-      else
-        throw new ForbiddenException(error);
+      if (error.code === 400) throw new BadRequestException(error);
+      else throw new ForbiddenException(error);
     }
   }
-
 
   async checkChannelUser(userId: string, channelId: string) {
     /* Find the user's role to check the rights to update */
@@ -139,7 +135,7 @@ export class ChannelService {
       });
     /* If relation doesn't exist or User doesn't have Owner or Admin role */
     if (!admin) {
-      throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     } else if (admin.role === 'USER') {
       throw new HttpException(
         'Access to resources denied',
@@ -154,7 +150,6 @@ export class ChannelService {
     dto: EditChannelDto,
     res: Response,
   ) {
-
     try {
       /* Check the password is provided in the DTO for protected chan) */
       this.checkDto(dto);
