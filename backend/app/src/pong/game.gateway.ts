@@ -6,7 +6,7 @@ import { SchedulerRegistry } from "@nestjs/schedule";
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { UseGuards } from '@nestjs/common';
 // import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
-import { Players } from './entities/position.entity';
+import { Players, roomMapType } from './entities/position.entity';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 
 @WebSocketGateway({
@@ -26,12 +26,14 @@ export class GameGateway {
   @WebSocketServer()
   server: Server;
 
+  roomMaps = new Map();
+
   players: Players = {
     p1: null,
     p2: null,
   };
-  // private schedulerRegistry: SchedulerRegistry;
-  // job = this.schedulerRegistry.getInterval('start');
+  test: roomMapType = {};
+  map = new Map<string, Players>();
 
   constructor(private readonly messagesService: GameService,
     private schedulerRegistry: SchedulerRegistry
@@ -43,9 +45,10 @@ export class GameGateway {
     const message = this.messagesService.create(createMessageDto);
     this.server.to(createMessageDto.room).emit('message', message);
     if (message.p2s >= 10 || message.p1s >= 10) {
-      this.deleteInterval('start');
+      this.deleteInterval(createMessageDto.room);
+      this.messagesService.deleteGame(createMessageDto.room);
+      this.map.delete(createMessageDto.room);
     }
-
     return message;
   }
 
@@ -74,7 +77,7 @@ export class GameGateway {
 
   addInterval(name: string, milliseconds: number) {
     const callback = () => {
-      const message = this.messagesService.moveBall();
+      const message = this.messagesService.moveBall(name);
       this.server.emit('message', message);
     };
 
@@ -83,33 +86,48 @@ export class GameGateway {
   }
   deleteInterval(name: string) {
     this.schedulerRegistry.deleteInterval(name);
-    // this.logger.warn(`Interval ${name} deleted!`);
   }
 
 
-  getIntervals() {
-    const intervals = this.schedulerRegistry.getInterval('start');
-    console.log(intervals);
+  getInterval(name: string) {
+    const interval = this.schedulerRegistry.getInterval(name);
+    return interval;
   }
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('join')
   joinRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
-    // console.log(req);
+    if (name == null) {
+      for (let [key, value] of this.map) {
+        if (value.p2 == null) {
+          name = key;
+        }
+        console.log('this is p2 val ', value.p2);
+        console.log('this is key val ', key);
+      }
+    }
     client.join(name);
     this.server.to(name).emit('roomJoined', name);
     if (this.players.p1 == null || this.players.p1 == id) {
+      let players: Players = {
+        p1: null,
+        p2: null,
+      }
       this.players.p1 = id;
-      return 1;
+      this.map.set(name, players);
+      this.map.get(name)['p1'] = id;
+      return { gameId: name, pNumber: 1 }
     }
     else {
       try {
-        this.getIntervals();
+        this.getInterval(name);
       } catch (e) {
-        this.addInterval('start', 10);
+        this.addInterval(name, 10);
       }
+      this.map.get(name)['p2'] = id;
       this.players.p2 = id;
-      return 2
+      this.messagesService.createGame(name);
+      return { gameId: name, pNumber: 2 }
     }
   }
 }

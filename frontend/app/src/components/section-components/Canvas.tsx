@@ -4,6 +4,7 @@ import { socket } from "./socket";
 let xPos = 50;
 let player1: number = 1;
 let paddleHeight = 50;
+let gameId = null;
 
 const Game = (props: any) => {
 
@@ -25,12 +26,12 @@ const Game = (props: any) => {
     context.fillStyle = "white"
     contextRef.current = context;
     paddleHeight = canvas.height / 20;
-    socket.emit('join', { name: 'id' }, (response: any) => {
-      console.log('this is an emit on a join ', response);
-      if (response > 1) {
+    socket.emit('join', { name: props.gameId }, (response: any) => {
+      if (response.pNumber > 1) {
         player1 = 2;
         xPos = canvas.width / 2 - 50;
       }
+      gameId = response.gameId;
     });
 
     const messageListener = (text) => {
