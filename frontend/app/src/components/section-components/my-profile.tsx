@@ -7,6 +7,7 @@ import { UseOutsideDivClick } from '../customed-hooks/use-outside-click';
 import { useState } from 'react';
 import NickNameForm from './nickname-form';
 import useUserInfo from '../query-hooks/useUserInfo';
+import TwoFactorAuthentication from './two-factor-authentication';
 
 function MyProfile() {
   const user = useUserInfo();
@@ -48,9 +49,7 @@ function MyProfile() {
             </div>
             <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
               <UploadPicture />
-              <div className="flex justify-start hover:underline cursor-pointer break-all">
-                <p>Two factor identification</p>
-              </div>
+              <TwoFactorAuthentication user={user.data} />
             </div>
           </SideBox>
           <MyMatchHistory user={user.data} />

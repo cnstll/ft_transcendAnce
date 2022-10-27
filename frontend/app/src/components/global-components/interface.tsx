@@ -10,6 +10,8 @@ export interface User {
   nickname: string;
   eloScore?: number;
   status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+  twoFactorAuthenticationSet?: boolean;
+  twoFactorAuthenticationSecret?: string;
 }
 
 export interface UserData {
