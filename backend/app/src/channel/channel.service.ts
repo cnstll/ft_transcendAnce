@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Channel, ChannelRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { ChannelDto } from './dto';
+import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
 
 @Injectable()
@@ -61,7 +61,8 @@ export class ChannelService {
     });
   }
 
-  getUsersOfAChannel(channelId: string) {
+
+  async getUsersOfAChannel(channelId: string) {
     return this.prisma.channelUser.findMany({
       where: {
         channelId: channelId,
@@ -72,48 +73,36 @@ export class ChannelService {
     });
   }
 
-  getRoleOfUserChannel(userId: string, channelId: string) {
-    return this.prisma.channelUser.findUnique({
-      where: {
-        userId_channelId: {
-          userId: userId,
-          channelId: channelId,
+  async getRoleOfUserChannel(userId: string, channelId: string) {
+      return this.prisma.channelUser.findUnique({
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: channelId,
+          },
         },
-      },
-      select: {
-        role: true,
-      },
-    });
+        select: {
+          role: true,
+        },
+      });
   }
 
-  checkCreationDto(dto: ChannelDto) {
-    /* If a Group channel is created/updated, it must have a name */
-    if (dto.type !== 'DIRECTMESSAGE' && (!dto.name || dto.name?.length == 0)) {
-      throw new HttpException(
-        'Group channel must have a name.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  checkDto(dto: CreateChannelDto | EditChannelDto) {
     /* If a Protected channel is created/updated, it must have a password */
     if (dto.type === 'PROTECTED' && !dto.passwordHash) {
       throw new HttpException(
-        'Group channel must have a password.',
+        'Protected channel must have a password.',
         HttpStatus.BAD_REQUEST,
       );
     }
   }
 
-  async createChannel(userId: string, dto: ChannelDto, res: Response) {
-    /* Filters incompatible DTO arguments (no name for group channel
-      or no password for protected chan) */
+  async createChannel(userId: string, dto: CreateChannelDto, res: Response) {
     try {
-      this.checkCreationDto(dto);
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-    /* Try to create a new channel */
-    try {
-      const newChannel: Channel = await this.prisma.channel.create({
+      /* Check the password is provided in the DTO for protected chan) */
+        this.checkDto(dto);
+        /* Then try to create a new channel */
+        const newChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
           users: {
@@ -126,25 +115,15 @@ export class ChannelService {
       });
       return res.status(HttpStatus.CREATED).send(newChannel);
     } catch (error) {
-      throw new ForbiddenException(error);
+      if (error.code === 400)
+        throw new BadRequestException(error);
+      else
+        throw new ForbiddenException(error);
     }
   }
 
-  async checkUpdateDto(dto: ChannelDto, userId: string, channelId: string) {
-    /* If a Group channel is created/updated, it must have a name */
-    if (dto.type !== 'DIRECTMESSAGE' && dto.name?.length == 0) {
-      throw new HttpException(
-        'Group channel must have a name.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    /* If a Protected channel is created/updated, it must have a password */
-    if (dto.type === 'PROTECTED' && !dto.passwordHash) {
-      throw new HttpException(
-        'Group channel must have a password.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+
+  async checkChannelUser(userId: string, channelId: string) {
     /* Find the user's role to check the rights to update */
     const admin: { role: ChannelRole } =
       await this.prisma.channelUser.findUnique({
@@ -160,7 +139,7 @@ export class ChannelService {
       });
     /* If relation doesn't exist or User doesn't have Owner or Admin role */
     if (!admin) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
     } else if (admin.role === 'USER') {
       throw new HttpException(
         'Access to resources denied',
@@ -172,31 +151,32 @@ export class ChannelService {
   async editChannelById(
     userId: string,
     channelId: string,
-    dto: ChannelDto,
+    dto: EditChannelDto,
     res: Response,
   ) {
-    /* Filters incompatible DTO arguments (empty name for group channel
-      or no password for protected chan) */
+
     try {
-      await this.checkUpdateDto(dto, userId, channelId);
-    } catch (error) {
-      if (error.status === 400) throw new BadRequestException(error);
-      else if (error.status === 404) throw new NotFoundException(error);
-      else throw new ForbiddenException(error);
-    }
-    /* Then, update channel's information */
-    try {
+      /* Check the password is provided in the DTO for protected chan) */
+      this.checkDto(dto);
+      /* Check the channel exists */
+      /* Check that the user is owner or admin for update rights */
+      await this.checkChannelUser(userId, channelId);
+      /* Then, update channel's information */
       const newChannel: Channel = await this.prisma.channel.update({
         where: {
           id: channelId,
         },
         data: {
-          ...dto,
+          name: dto.name != null ? dto.name : undefined,
+          type: dto.type,
+          passwordHash: dto.passwordHash,
         },
       });
       return res.status(HttpStatus.OK).send(newChannel);
     } catch (error) {
-      throw new ForbiddenException(error);
+      if (error.status === 400) throw new BadRequestException(error);
+      else if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
     }
   }
 

@@ -100,7 +100,7 @@ model UserAchievement {
 
 model Channel {
   id           String      @id @default(cuid())
-  name         String?     @unique
+  name         String      @unique
   type         ChannelType @default(PUBLIC)
   passwordHash String?
 

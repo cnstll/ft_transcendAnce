@@ -12,7 +12,7 @@ import {
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
-import { ChannelDto } from './dto';
+import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
 
 @UseGuards(JwtAuthGuard)
@@ -67,7 +67,7 @@ export class ChannelController {
   @Post('create')
   createChannel(
     @GetCurrentUserId() userId: string,
-    @Body() dto: ChannelDto,
+    @Body() dto: CreateChannelDto,
     @Res() res: Response,
   ) {
     return this.channelService.createChannel(userId, dto, res);
@@ -78,7 +78,7 @@ export class ChannelController {
   editChannelById(
     @GetCurrentUserId() userId: string,
     @Param('id') channelId: string,
-    @Body() dto: ChannelDto,
+    @Body() dto: EditChannelDto,
     @Res() res: Response,
   ) {
     return this.channelService.editChannelById(userId, channelId, dto, res);

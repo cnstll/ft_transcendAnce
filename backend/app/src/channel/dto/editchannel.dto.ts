@@ -1,9 +1,10 @@
 import { ChannelType } from '@prisma/client';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class ChannelDto {
+export class EditChannelDto {
   @IsString()
   @IsOptional()
+  @IsNotEmpty()
   name?: string;
 
   @IsString()

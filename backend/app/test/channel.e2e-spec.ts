@@ -186,7 +186,7 @@ describe('Channel controller (e2e)', () => {
         .send({})
         .expect(400)
         .then((response) => {
-          expect(response.text).toContain('"message":"Group channel must have a name."');
+          expect(response.text).toContain('name should not be empty');
         })
     });
 
@@ -214,7 +214,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(400)
         .then((response) => {
-          expect(response.text).toContain('"message":"Group channel must have a name."');
+          expect(response.text).toContain('name should not be empty');
         })
     });
 
@@ -228,9 +228,9 @@ describe('Channel controller (e2e)', () => {
           "name":"My Protected Channel",
           "type":"PROTECTED",
         })
-        .expect(400)
+        .expect(403)
         .then((response) => {
-          expect(response.text).toContain('"message":"Group channel must have a password."');
+          expect(response.text).toContain('Protected channel must have a password.');
         })
     });
   })
@@ -372,6 +372,16 @@ describe('Channel controller (e2e)', () => {
         })
     });
 
+    it('/ getting all the users of a non existing channel', async () => {
+      await new Promise(process.nextTick);
+      let bearer = 'Bearer ' + cookieTestA;
+      return request(app.getHttpServer())
+        .get('/channels/get-users-of-a-channel/' + publicChan)
+        .set('Authorization', bearer)
+        .send({})
+        .expect(404)
+    });
+
     // To be completed with more users when we have a join channel
     it('/ getting all the users of \'Channel test 1\'', async () => {
       await new Promise(process.nextTick);
@@ -384,6 +394,16 @@ describe('Channel controller (e2e)', () => {
         .then((response) => {
           expect(response.text).toContain('"role":"OWNER"');
         })
+    });
+
+    it('/ getting all the users of a non existing channel', async () => {
+      await new Promise(process.nextTick);
+      let bearer = 'Bearer ' + cookieTestA;
+      return request(app.getHttpServer())
+        .get('/channels/get-role-user-channel/channel8')
+        .set('Authorization', bearer)
+        .send({})
+        .expect(404)
     });
   })
   /***********************/
@@ -451,8 +471,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(400)
         .then((response) => {
-          expect(response.text).toContain(
-            '"message":"Group channel must have a name."');
+          console.log(response.text);
         })
     });
 
