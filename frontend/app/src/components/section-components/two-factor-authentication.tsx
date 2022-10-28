@@ -5,9 +5,13 @@ import { User } from '../global-components/interface';
 function ToggleOn() {
   const disable2fa = () => {
     axios
-      .post('http://localhost:3000/2fa/disable', {
-        withCredentials: true,
-      })
+      .post(
+        'http://localhost:3000/2fa/disable',
+        {},
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => res)
       .catch((error) => console.log(error));
   };
@@ -26,9 +30,13 @@ function ToggleOn() {
 function ToggleOff() {
   const enable2fa = () => {
     axios
-      .post('http://localhost:3000/2fa/generate', {
-        withCredentials: true,
-      })
+      .post(
+        'http://localhost:3000/2fa/generate',
+        {},
+        {
+          withCredentials: true,
+        },
+      )
       .then((res) => res)
       .catch((error) => console.log(error));
   };
