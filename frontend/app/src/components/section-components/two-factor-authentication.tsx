@@ -13,7 +13,7 @@ function Generate2fa() {
   const generate2faMutation = generate2fa();
 
   function on2faActivation() {
-    const qrCode = generate2faMutation.mutate(
+    generate2faMutation.mutate(
       {},
       {
         onSuccess: ({ status }) => {
@@ -28,7 +28,6 @@ function Generate2fa() {
         },
       },
     );
-    console.log(qrCode);
   }
   return (
     <div
