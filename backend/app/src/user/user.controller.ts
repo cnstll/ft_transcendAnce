@@ -39,12 +39,6 @@ export const storage = {
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-  @Get('create')
-  createUser(@Query('name') name: string) {
-    const dto = new UserDto();
-    dto['name'] = name;
-    return this.userService.createUser(dto);
-  }
 
   @Get('get-all-users')
   @UseGuards(JwtAuthGuard)
@@ -56,12 +50,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
     return this.userService.getUserInfo(userId, res);
-  }
-
-  @Get('get-all-users')
-  @UseGuards(JwtAuthGuard)
-  getAllUsers(@Res() res: Response) {
-    return this.userService.getAllUsers(res);
   }
 
   @Post('request-friend')

@@ -5,11 +5,9 @@ export class AuthDto {
   @IsNotEmpty()
   login: string;
 
-
   @IsNumber()
   @IsNotEmpty()
   id: number;
-
 
   @IsString()
   @IsNotEmpty()
