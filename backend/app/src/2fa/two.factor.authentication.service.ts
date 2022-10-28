@@ -4,7 +4,6 @@ import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { toFileStream } from 'qrcode';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class TwoFactorAuthenticationService {
@@ -17,20 +16,12 @@ export class TwoFactorAuthenticationService {
     userId: string,
     res: Response,
   ) {
-    const user: User = await this.userService.getUserInfo(userId);
-
-    let secret: string;
-    if (!user.twoFactorAuthenticationSecret) {
-      secret = authenticator.generateSecret();
-      await this.userService.setTwoFactorAuthenticationSecret(
-        secret,
-        userId,
-        res,
-      );
-    } else {
-      await this.userService.enableTwoFactorAuthentication(userId, res);
-      secret = user.twoFactorAuthenticationSecret;
-    }
+    const secret: string = authenticator.generateSecret();
+    await this.userService.setTwoFactorAuthenticationSecret(
+      secret,
+      userId,
+      res,
+    );
 
     const otpauthUrl = authenticator.keyuri(
       userId,

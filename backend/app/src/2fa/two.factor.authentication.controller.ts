@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Put,
   Res,
   UnauthorizedException,
   UseGuards,
@@ -84,9 +85,17 @@ export class TwoFactorAuthenticationController {
     res.status(201).send();
   }
 
-  @Post('disable')
+  @Put('toggle')
   @UseGuards(JwtAuthGuard)
-  disable(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    this.userService.disableTwoFactorAuthentication(userId, res);
+  toggle(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { toggleState: boolean },
+    @Res() res: Response,
+  ) {
+    this.userService.toggleTwoFactorAuthentication(
+      userId,
+      data.toggleState,
+      res,
+    );
   }
 }

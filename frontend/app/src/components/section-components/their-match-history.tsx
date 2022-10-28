@@ -1,12 +1,8 @@
-import { User } from '../global-components/interface';
+import { TargetInfo } from '../global-components/interface';
 import CenterBox from './center-box';
 import MatchHistory from './match-history';
 
-interface MatchHistoryOptionsProps {
-  user: User;
-}
-
-function TheirMatchHistory(props: MatchHistoryOptionsProps) {
+function TheirMatchHistory({ user }: { user: TargetInfo }) {
   return (
     <>
       <CenterBox>
@@ -16,7 +12,7 @@ function TheirMatchHistory(props: MatchHistoryOptionsProps) {
               <h2 className="flex justify-center p-5 font-bold">
                 MATCH HISTORY
               </h2>
-              <MatchHistory imageCurrentPlayer={props.user.avatarImg} />
+              <MatchHistory imageCurrentPlayer={user.avatarImg} />
             </div>
           </div>
         </div>
