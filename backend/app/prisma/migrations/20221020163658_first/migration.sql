@@ -13,7 +13,7 @@ CREATE TYPE "ChannelRole" AS ENUM ('USER', 'ADMIN', 'OWNER');
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
-    "nickName" TEXT NOT NULL,
+    "nickname" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE "channel_users" (
 CREATE TABLE "bans" (
     "bannedUserId" TEXT NOT NULL,
     "banChannelId" TEXT NOT NULL,
-    "banRequesterId" TEXT NOT NULL,
+    "banRequesterId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -121,7 +121,7 @@ CREATE TABLE "bans" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_nickName_key" ON "users"("nickName");
+CREATE UNIQUE INDEX "users_nickname_key" ON "users"("nickname");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "friendships_requesterId_addresseeId_key" ON "friendships"("requesterId", "addresseeId");
@@ -131,6 +131,9 @@ CREATE UNIQUE INDEX "user_matches_playerId_matchId_key" ON "user_matches"("playe
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_achievements_userId_achievementId_key" ON "user_achievements"("userId", "achievementId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "channels_name_key" ON "channels"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "bans_bannedUserId_banChannelId_key" ON "bans"("bannedUserId", "banChannelId");

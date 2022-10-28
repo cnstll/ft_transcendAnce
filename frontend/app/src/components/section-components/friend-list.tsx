@@ -1,5 +1,5 @@
+import useUserFriends from '../query-hooks/useUserFriends';
 import UsersList from './users-list';
-import useUserFriends from '../customed-hooks/queries/useUserFriends';
 
 function FriendsList() {
   const friends = useUserFriends();
@@ -8,7 +8,7 @@ function FriendsList() {
     <>
       {friends.isLoading && <p>Loading users...</p>}
       {friends.isError && <p>Could not fetch users...</p>}
-      {friends.isSuccess && <UsersList channelUsers={friends.data} />}
+      {friends.isSuccess && <UsersList users={friends.data} />}
     </>
   );
 }

@@ -1,5 +1,8 @@
 {
   "engines": {
     "yarn": "YARN NO LONGER USED - use npm instead."
+  },
+  "dependencies": {
+    "axios": "^1.1.2"
   }
 }

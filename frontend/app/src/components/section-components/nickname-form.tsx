@@ -1,7 +1,8 @@
 // import axios from 'axios';
 import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { useQueryClient } from 'react-query';
-import setUserNickname from '../customed-hooks/queries/setUserNickname';
+import { User } from '../global-components/interface';
+import setUserNickname from '../query-hooks/setUserNickname';
 
 interface NicknameFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
@@ -10,6 +11,7 @@ interface NicknameFormProps {
 function NickNameForm(props: NicknameFormProps) {
   const queryClient = useQueryClient();
   const nicknameMutation = setUserNickname();
+
   const nickNameRef = useRef<HTMLInputElement>(null);
   const [inputStatus, setInputStatus] = useState<string>('empty');
 
@@ -18,7 +20,9 @@ function NickNameForm(props: NicknameFormProps) {
     const ret = input.length !== 0 && input.length <= 15 && regex.test(input);
     return ret;
   }
-
+  // When pressing enter the new nickname is submitted
+  // The new nickname is checked against a regex and
+  // Then sent to the backend for deduplication check
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const input = nickNameRef.current ? nickNameRef.current.value : '';
@@ -28,18 +32,24 @@ function NickNameForm(props: NicknameFormProps) {
     }
     nicknameMutation.mutate(input, {
       onSuccess: ({ status }) => {
-        if (status == 201) {
+        if (status === 201) {
           setInputStatus('valid');
           props.setShowForm(false);
-          queryClient.setQueryData('nickname', input);
+          queryClient.setQueryData<User>('userData', (oldData): User => {
+            return {
+              ...oldData!,
+              nickname: input,
+            };
+          });
         } else if (status == 200) {
           setInputStatus('invalid');
         }
       },
     });
   }
+
   return (
-    <div className="absolute block p-6 rounded-lg shadow-lg max-w-sm bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
+    <div className="absolute block p-6 mr-6 rounded-lg shadow-lg max-w-20 bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
       <form onSubmit={onSubmitHandler}>
         <div
           id="form-nickname"

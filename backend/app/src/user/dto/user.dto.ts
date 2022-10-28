@@ -3,9 +3,17 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class UserDto {
   @IsNotEmpty()
   @IsString()
-  nickName: string;
+  nickname: string;
+
+  @IsNotEmpty()
+  @IsString()
+  immutableId: string;
 
   @IsNotEmpty()
   @IsString()
   passwordHash: string;
+
+  @IsNotEmpty()
+  @IsString()
+  avatarImg: string;
 }
