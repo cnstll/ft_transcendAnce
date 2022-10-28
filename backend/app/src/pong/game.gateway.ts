@@ -1,12 +1,17 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, ConnectedSocket } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
+  WebSocketServer,
+  ConnectedSocket,
+} from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { PositionDto } from './dto/position.dto';
 import { GameService } from './game.service';
-import { SchedulerRegistry } from "@nestjs/schedule";
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { UseGuards } from '@nestjs/common';
-// import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
-import { Players, roomMapType } from './entities/position.entity';
+import { Players } from './entities/position.entity';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 
 @WebSocketGateway({
@@ -20,34 +25,37 @@ import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorat
     credentials: true,
   },
 })
-
 export class GameGateway {
-
   @WebSocketServer()
   server: Server;
 
   roomMap = new Map<string, Players>();
 
-  constructor(private readonly messagesService: GameService,
-    private schedulerRegistry: SchedulerRegistry
-  ) {
-  }
+  constructor(
+    private readonly messagesService: GameService,
+    private schedulerRegistry: SchedulerRegistry,
+  ) {}
 
   @SubscribeMessage('createMessage')
-  async create(@MessageBody() createMessageDto: PositionDto, @ConnectedSocket() client: Socket) {
+  async create(@MessageBody() createMessageDto: PositionDto) {
     const message = this.messagesService.create(createMessageDto);
     this.server.to(createMessageDto.room).emit('message', message);
     if (message.p2s >= 10 || message.p1s >= 10) {
       this.deleteInterval(createMessageDto.room);
       this.messagesService.deleteGame(createMessageDto.room);
-      this.server.to(createMessageDto.room).emit('roomJoined', { ready: false })
+      this.server
+        .to(createMessageDto.room)
+        .emit('roomJoined', { ready: false });
       this.roomMap.delete(createMessageDto.room);
     }
     return message;
   }
 
   @SubscribeMessage('createRoom')
-  createRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket) {
+  createRoom(
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+  ) {
     client.join(name);
     client.to(name).emit('roomCreated', { room: name });
     // this.server.to(name).emit('roomCreated', { room: name });
@@ -82,7 +90,6 @@ export class GameGateway {
     this.schedulerRegistry.deleteInterval(name);
   }
 
-
   getInterval(name: string) {
     const interval = this.schedulerRegistry.getInterval(name);
     return interval;
@@ -90,13 +97,16 @@ export class GameGateway {
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('join')
-  joinRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
+  joinRoom(
+    @MessageBody('name') name: string,
+    @ConnectedSocket() client: Socket,
+    @GetCurrentUserId() id: string,
+  ) {
     if (name == null) {
       if (this.roomMap.size == 0) {
-        name = this.messagesService.makeid(5)
-      }
-      else {
-        for (let [key, value] of this.roomMap) {
+        name = this.messagesService.makeid(5);
+      } else {
+        for (const [key, value] of this.roomMap) {
           if (value.p2 == null) {
             name = key;
           }
@@ -106,20 +116,16 @@ export class GameGateway {
     client.join(name);
     // if (this.players.p1 == null || this.players.p1 == id) {
     this.server.to(name).emit('roomJoined', { ready: false });
-    console.log('this is name: ', name);
-    console.log('this is get: ', this.roomMap.get(name));
 
     if (this.roomMap.get(name) == null || this.roomMap.get(name)['p1'] == id) {
-      let players: Players = {
+      const players: Players = {
         p1: null,
         p2: null,
-      }
+      };
       this.roomMap.set(name, players);
       this.roomMap.get(name)['p1'] = id;
-      return { gameId: name, pNumber: 1 }
-    }
-    else {
-      console.log('here i am');
+      return { gameId: name, pNumber: 1 };
+    } else {
       try {
         this.getInterval(name);
       } catch (e) {
@@ -128,7 +134,7 @@ export class GameGateway {
       this.roomMap.get(name)['p2'] = id;
       this.messagesService.createGame(name);
       this.server.to(name).emit('roomJoined', { ready: true });
-      return { gameId: name, pNumber: 2 }
+      return { gameId: name, pNumber: 2 };
     }
   }
 }

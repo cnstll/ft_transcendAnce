@@ -1,5 +1,3 @@
-import { channel } from "diagnostics_channel";
-
 export class Position {
   x: number;
   y: number;
@@ -32,4 +30,4 @@ export class gameRoom extends Players {
 }
 export type roomMapType = {
   [id: string]: Players;
-}
+};

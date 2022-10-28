@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PositionDto } from './dto/position.dto';
-import { Position, GameCoords, Players } from './entities/position.entity';
+import { GameCoords } from './entities/position.entity';
 
 @Injectable()
 export class GameService {
@@ -18,8 +18,7 @@ export class GameService {
     if (createMessageDto.player == 1) {
       // game['p1x'] = createMessageDto.x;
       game['p1y'] = createMessageDto.y;
-    }
-    else {
+    } else {
       // game['p2x'] = createMessageDto.x;
       game['p2y'] = createMessageDto.y;
     }
@@ -39,26 +38,25 @@ export class GameService {
       if (game['by'] >= game['p1y'] && game['by'] <= game['p1y'] + 10) {
         if (game.dirx > 0) {
           game.dirx = 5;
-        }
-        else {
+        } else {
           game.dirx = game.dirx * -1 + 0.05;
         }
-        game.diry = ((game['by'] - game['p1y']) - 5) / 10;
+        game.diry = (game['by'] - game['p1y'] - 5) / 10;
       }
     }
     if (game['bx'] >= 93 && game['bx'] <= 97) {
       if (game['by'] >= game['p2y'] && game['by'] <= game['p2y'] + 10) {
         game.dirx = game.dirx * -1 - 0.05;
-        game.diry = ((game['by'] - game['p2y']) - 5) / 10;
+        game.diry = (game['by'] - game['p2y'] - 5) / 10;
       }
     }
     if (game['bx'] < 0) {
       game['p2s'] += 1;
-      game.dirx = 0.5
+      game.dirx = 0.5;
     }
     if (game['bx'] > 100) {
       game['p1s'] += 1;
-      game.dirx = -0.5
+      game.dirx = -0.5;
     }
     game['bx'] += game.dirx;
     game['by'] += game.diry;
@@ -66,7 +64,7 @@ export class GameService {
   }
 
   createGame(roomName: string) {
-    let game: GameCoords = {
+    const game: GameCoords = {
       gameRoom: null,
       dirx: 0.5,
       diry: 0.0,
@@ -79,15 +77,16 @@ export class GameService {
       p1s: 0,
       p2s: 0,
       paddleSize: 10,
-    }
+    };
     this.GameMap.set(roomName, game);
   }
 
   makeid(length: number) {
-    var result = '';
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for (var i = 0; i < length; i++) {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;

@@ -17,8 +17,8 @@ import { UserModule } from './user/user.module';
     PrismaModule,
     UserModule,
     GameModule,
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
