@@ -46,11 +46,7 @@ export class UserService {
 
   async getAllUsers(res: Response) {
     try {
-      const nicknames = await this.prismaService.user.findMany({
-        select: {
-          nickname: true,
-        },
-      });
+      const nicknames = await this.prismaService.user.findMany({});
       return res.status(200).send(nicknames);
     } catch (error) {
       console.log(error);
@@ -330,7 +326,7 @@ export class UserService {
   findOne(username: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({
       where: {
-        nickname: username.toString(),
+        nickname: username,
       },
     });
   }

@@ -14,6 +14,7 @@ import {
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { FriendDto } from './dto/friend.dto';
+import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -39,16 +40,16 @@ export const storage = {
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('get-user-info')
-  @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
-  }
-
   @Get('get-all-users')
   @UseGuards(JwtAuthGuard)
   getAllUsers(@Res() res: Response) {
     return this.userService.getAllUsers(res);
+  }
+
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
   }
 
   @Post('request-friend')
@@ -58,6 +59,7 @@ export class UserController {
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
+    console.log(data);
     return this.userService.requestFriend(userId, data.target, res);
   }
 

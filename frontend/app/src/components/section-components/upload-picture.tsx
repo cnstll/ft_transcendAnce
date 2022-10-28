@@ -56,6 +56,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
   );
 }
 
+
 function UploadPicture() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [selectedFile] = useState<File | undefined>();
