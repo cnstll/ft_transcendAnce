@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, MouseEvent } from "react"
 import { socket } from "./socket";
 
-// let xPos = 50;
-let player1 = 1;
+let player = 1;
 let paddleHeight = 50;
 
 interface GameCoords {
@@ -23,16 +22,20 @@ interface GameProps {
   gameId: undefined | string;
 }
 
+
 function Game(props: GameProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [gameId, setGameId] = useState<null | string>(null);
+  // const [gameId, setGameId] = useState<null | string>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (gameId == null && props.gameId != null) {
+      setGameId(props.gameId);
+    }
     if (canvas != null) {
       canvas.width = window.innerWidth * 2;
       canvas.height = window.innerHeight * 2;
@@ -46,9 +49,9 @@ function Game(props: GameProps) {
         context.strokeStyle = "white"
         context.fillStyle = "white"
         contextRef.current = context;
-        socket.emit('join', { name: props.gameId }, (response: { gameId: string, pNumber: number }) => {
+        socket.emit('join', { name: gameId }, (response: { gameId: string, pNumber: number }) => {
           if (response.pNumber > 1) {
-            player1 = 2;
+            player = 2;
             setIsReady(true);
           }
           setGameId(response.gameId);
@@ -78,7 +81,7 @@ function Game(props: GameProps) {
           // contextRef!.current!.font = "30px Arial";
           context.font = "30px Arial";
 
-          if (player1 == 1) {
+          if (player == 1) {
             context.font = "30px Arial";
             // contextRef!.current!.font = "30px Arial";
             context.fillStyle = "green"
@@ -122,12 +125,12 @@ function Game(props: GameProps) {
   }, [canvasRef, window.innerWidth, window.innerHeight])
 
 
-  function startDrawing(event: MouseEvent<HTMLCanvasElement>) {
+  function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
     const clientY = event.clientY;
     if (isReady && canvasRef.current != null) {
       const rect = canvasRef.current.getBoundingClientRect();
       const posy = ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
-      socket.emit('createMessage', { x: 59, y: posy, room: gameId, player: player1 }, (res: GameCoords) => {
+      socket.emit('createMessage', { x: 50, y: posy, room: gameId, player: player }, (res: GameCoords) => {
         void (res);
       });
       //TODO remove x 
@@ -137,7 +140,7 @@ function Game(props: GameProps) {
 
   return (
     <>
-      < canvas onMouseMove={startDrawing} ref={canvasRef} />
+      < canvas onMouseMove={movePaddle} ref={canvasRef} />
     </>
   )
 }
