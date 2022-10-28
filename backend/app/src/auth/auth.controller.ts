@@ -44,7 +44,6 @@ export class AuthController {
     }
     const jwtPayload = {
       id: user.id,
-      immutableId: user.immutableId,
       nickname: user.nickname,
     };
     const token = this.authService.login(jwtPayload);
