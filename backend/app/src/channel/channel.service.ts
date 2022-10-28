@@ -62,12 +62,11 @@ export class ChannelService {
   }
 
   async checkChannel(channelId: string) {
-    const channel: Channel =
-      await this.prisma.channel.findUnique({
-        where: {
-            id: channelId,
-        },
-      });
+    const channel: Channel = await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+    });
     if (channel === null) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
@@ -85,8 +84,7 @@ export class ChannelService {
         },
       });
       return users;
-    }
-    catch (error) {
+    } catch (error) {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
     }
@@ -107,8 +105,7 @@ export class ChannelService {
         },
       });
       return role;
-    }
-    catch (error) {
+    } catch (error) {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
     }
