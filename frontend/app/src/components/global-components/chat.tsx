@@ -9,39 +9,11 @@ import Message from '../section-components/message';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
-import ChannelsList from '../section-components/channels-list';
 import ChannelHeader from '../section-components/channel-header';
-import { Channel, User } from '../global-components/interface';
+import { User } from '../global-components/interface';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-
-const channelsData: Channel[] = [
-  {
-    id: '456e4567e89b1',
-    name: 'Les démons de minuit',
-    type: 'PUBLIC',
-  },
-  {
-    id: '456e4567e89b2',
-    name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
-    type: 'PRIVATE',
-  },
-  {
-    id: '456e4567e89b3',
-    name: 'You shall not pass',
-    type: 'PROTECTED',
-  },
-  {
-    id: '456e4567e89b4',
-    name: 'Daphné',
-    type: 'DIRECTMESSAGE',
-  },
-  {
-    id: '456e4567e89b5',
-    name: 'John',
-    type: 'DIRECTMESSAGE',
-  },
-];
+import AllChannelsList from '../section-components/all-channels-list';
 
 const chanUsersData: User[] = [
   {
@@ -49,24 +21,28 @@ const chanUsersData: User[] = [
     nickname: 'Alexandra',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
     status: 'OFFLINE',
+    eloScore: 1000,
   },
   {
     id: '123e4567e89b2',
     nickname: 'Alexandre',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
     status: 'ONLINE',
+    eloScore: 1500,
   },
   {
     id: '123e4567e89b3',
     nickname: 'Alexandrinedrinedrine',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
     status: 'PLAYING',
+    eloScore: 1000,
   },
   {
     id: '123e4567e89b4',
     nickname: 'Alexandro',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
     status: 'PLAYING',
+    eloScore: 1500,
   },
 ];
 
@@ -110,7 +86,7 @@ function Chat() {
         >
           <SideBox>
             <ChannelHeader />
-            <ChannelsList channels={channelsData} />
+            <AllChannelsList />
           </SideBox>
           <CenterBox>
             <div
@@ -134,7 +110,7 @@ function Chat() {
           </CenterBox>
           <SideBox>
             <h2 className="flex justify-center font-bold">MEMBERS</h2>
-            <UsersList channelUsers={chanUsersData} />
+            <UsersList users={chanUsersData} />
           </SideBox>
         </div>
         <div className="flex justify-center">

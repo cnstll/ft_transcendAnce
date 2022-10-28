@@ -3,7 +3,7 @@ import UploadPicture from './upload-picture';
 import MyMatchHistory from './my-match-history';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
-import { UseOutsideDivClick } from '../customed-hooks/use-outside-click';
+import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
 import { useState } from 'react';
 import NickNameForm from './nickname-form';
 import useUserInfo from '../query-hooks/useUserInfo';

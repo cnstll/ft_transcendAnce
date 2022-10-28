@@ -71,8 +71,123 @@ async function main() {
         ],
       },
     },
-  });
-  console.log({ Estelle, Constant, Lea, Colomban });
+  })
+
+  const channelPublic = await prisma.channel.upsert({
+    where: { id: 'channel1' },
+    update: {},
+    create: {
+      id: 'channel1',
+      name: 'Les démons de minuit',
+      users: {
+        create: [
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user2' },
+          { userId: 'user3' }
+        ]
+      }
+    },
+  })
+
+  const channelPrivate = await prisma.channel.upsert({
+    where: { id: 'channel2' },
+    update: {},
+    create: {
+      id: 'channel2',
+      name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
+      type: 'PRIVATE',
+      users: {
+        create: [
+          { userId: 'user1' },
+          { userId: 'user2', role: 'ADMIN' },
+        ]
+      }
+    },
+  })
+
+  const channelProtected = await prisma.channel.upsert({
+    where: { id: 'channel3' },
+    update: {},
+    create: {
+      id: 'channel3',
+      name: 'You shall not pass',
+      type: 'PROTECTED',
+      passwordHash: 'security',
+      users: {
+        create: [
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user3' },
+        ]
+      }
+    },
+  })
+
+  const directMessage1 = await prisma.channel.upsert({
+    where: { id: 'channel4' },
+    update: {},
+    create: {
+      id: 'channel4',
+      name: 'Constant & You',
+      type: 'DIRECTMESSAGE',
+      users: {
+        create: [
+          { userId: 'user1' },
+          { userId: 'user2' },
+        ]
+      }
+    },
+  })
+
+  const directMessage2 = await prisma.channel.upsert({
+    where: { id: 'channel5' },
+    update: {},
+    create: {
+      id: 'channel5',
+      name: 'Léa & You',
+      type: 'DIRECTMESSAGE',
+      users: {
+        create: [
+          { userId: 'user1' },
+          { userId: 'user3' },
+        ]
+      }
+    },
+  })
+
+  const channelPublic2 = await prisma.channel.upsert({
+    where: { id: 'channel4' },
+    update: {},
+    create: {
+      id: 'channel1',
+      name: 'Channel test 4',
+      users: {
+        create: [
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user2' },
+          { userId: 'user3' }
+        ]
+      }
+    },
+  })
+
+  const channelPrivate2 = await prisma.channel.upsert({
+    where: { id: 'channel5' },
+    update: {},
+    create: {
+      id: 'channel2',
+      name: 'Channel test 5',
+      type: 'PRIVATE',
+      users: {
+        create: [
+          { userId: 'user1' },
+          { userId: 'user2', role: 'ADMIN' },
+        ]
+      }
+    },
+  })
+
+  console.log({ Estelle, Constant, Lea, Colomban, channelPublic, channelPrivate,
+    channelProtected, directMessage1, directMessage2, channelPublic2, channelPrivate2 })
 }
 
 main()
