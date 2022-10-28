@@ -61,29 +61,57 @@ export class ChannelService {
     });
   }
 
-  getUsersOfAChannel(channelId: string) {
-    return this.prisma.channelUser.findMany({
-      where: {
-        channelId: channelId,
-      },
-      select: {
-        user: true,
-      },
-    });
+  async checkChannel(channelId: string) {
+    const channel: Channel =
+      await this.prisma.channel.findUnique({
+        where: {
+            id: channelId,
+        },
+      });
+    if (channel === null) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
   }
 
-  getRoleOfUserChannel(userId: string, channelId: string) {
-    return this.prisma.channelUser.findUnique({
-      where: {
-        userId_channelId: {
-          userId: userId,
+  async getUsersOfAChannel(channelId: string) {
+    try {
+      await this.checkChannel(channelId);
+      const users = await this.prisma.channelUser.findMany({
+        where: {
           channelId: channelId,
         },
-      },
-      select: {
-        role: true,
-      },
-    });
+        select: {
+          user: true,
+        },
+      });
+      return users;
+    }
+    catch (error) {
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
+  }
+
+  async getRoleOfUserChannel(userId: string, channelId: string) {
+    try {
+      await this.checkChannel(channelId);
+      const role = this.prisma.channelUser.findUnique({
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: channelId,
+          },
+        },
+        select: {
+          role: true,
+        },
+      });
+      return role;
+    }
+    catch (error) {
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
   }
 
   checkDto(dto: CreateChannelDto | EditChannelDto) {
@@ -114,7 +142,7 @@ export class ChannelService {
       });
       return res.status(HttpStatus.CREATED).send(newChannel);
     } catch (error) {
-      if (error.code === 400) throw new BadRequestException(error);
+      if (error.status === 400) throw new BadRequestException(error);
       else throw new ForbiddenException(error);
     }
   }
@@ -153,7 +181,6 @@ export class ChannelService {
     try {
       /* Check the password is provided in the DTO for protected chan) */
       this.checkDto(dto);
-      /* Check the channel exists */
       /* Check that the user is owner or admin for update rights */
       await this.checkChannelUser(userId, channelId);
       /* Then, update channel's information */
@@ -201,7 +228,7 @@ export class ChannelService {
         },
       });
     } catch (error) {
-      if (error.code === 404) throw new NotFoundException(error);
+      if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
     }
     return res.status(HttpStatus.NO_CONTENT).send();

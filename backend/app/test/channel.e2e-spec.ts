@@ -50,8 +50,8 @@ describe('Channel controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickname: 'test a',
-          immutableId: 'testi',
+          nickname: 'testchannel1',
+          immutableId: 'testchannel1',
           passwordHash: 'b'
         })
         .expect(201)
@@ -64,8 +64,8 @@ describe('Channel controller (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/create-user-dev')
         .send({
-          nickname: 'test b',
-          immutableId: 'testj',
+          nickname: 'testchannel2',
+          immutableId: 'testchannel2',
           passwordHash: 'd'
         })
         .expect(201)
@@ -200,6 +200,9 @@ describe('Channel controller (e2e)', () => {
           "name":"Channel test 1",
         })
         .expect(403)
+        .then((response) => {
+          expect(response.text).toContain('"code":"P2002"');
+        })
     });
 
     it('/ [ERROR] user C creates a protected channel with only a password', async () => {
@@ -228,7 +231,7 @@ describe('Channel controller (e2e)', () => {
           "name":"My Protected Channel",
           "type":"PROTECTED",
         })
-        .expect(403)
+        .expect(400)
         .then((response) => {
           expect(response.text).toContain('Protected channel must have a password.');
         })
@@ -368,7 +371,7 @@ describe('Channel controller (e2e)', () => {
         .send({})
         .expect(200)
         .then((response) => {
-          expect(response.text).toContain('"nickname":"test a"');
+          expect(response.text).toContain('"nickname":"testchannel1"');
         })
     });
 
@@ -376,14 +379,17 @@ describe('Channel controller (e2e)', () => {
       await new Promise(process.nextTick);
       let bearer = 'Bearer ' + cookieTestA;
       return request(app.getHttpServer())
-        .get('/channels/get-users-of-a-channel/' + publicChan)
+        .get('/channels/get-users-of-a-channel/channel8')
         .set('Authorization', bearer)
         .send({})
         .expect(404)
+        .then((response) => {
+          console.log(response.text);
+        })
     });
 
-    // To be completed with more users when we have a join channel
-    it('/ getting all the users of \'Channel test 1\'', async () => {
+    // To be completed with more users with other roles when we have a join channel
+    it('/ getting the role of the owner of \'Channel test 1\'', async () => {
       await new Promise(process.nextTick);
       let bearer = 'Bearer ' + cookieTestA;
       return request(app.getHttpServer())
@@ -396,7 +402,7 @@ describe('Channel controller (e2e)', () => {
         })
     });
 
-    it('/ getting all the users of a non existing channel', async () => {
+    it('/ getting the role of the owner of a non existing channel', async () => {
       await new Promise(process.nextTick);
       let bearer = 'Bearer ' + cookieTestA;
       return request(app.getHttpServer())
@@ -404,8 +410,12 @@ describe('Channel controller (e2e)', () => {
         .set('Authorization', bearer)
         .send({})
         .expect(404)
+        .then((response) => {
+          expect(response.text).toContain('Not found');
+        })
     });
   })
+
   /***********************/
   /* UPDATE */
   /***********************/
@@ -471,7 +481,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(400)
         .then((response) => {
-          console.log(response.text);
+          expect(response.text).toContain('name should not be empty');
         })
     });
 
@@ -486,7 +496,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(403)
         .then((response) => {
-          console.log(response.text);
+          expect(response.text).toContain('"code":"P2002"');
         })
     });
 
@@ -500,9 +510,6 @@ describe('Channel controller (e2e)', () => {
           "type":"",
         })
         .expect(403)
-        .then((response) => {
-          console.log(response.text);
-        })
     });
 
     it('/ [ERROR] user C updates an existing private channel to protected\
@@ -517,7 +524,7 @@ describe('Channel controller (e2e)', () => {
           })
           .expect(400)
           .then((response) => {
-            console.log(response.text);
+            expect(response.text).toContain('Protected channel must have a password');
           })
     });
 
@@ -532,7 +539,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(404)
         .then((response) => {
-          console.log(response.text);
+          expect(response.text).toContain('Not found');
         })
     });
 
@@ -547,7 +554,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(404)
         .then((response) => {
-          console.log(response.text);
+          expect(response.text).toContain('Not found');
         })
     });
 
@@ -562,7 +569,7 @@ describe('Channel controller (e2e)', () => {
         })
         .expect(404)
         .then((response) => {
-          console.log(response.text);
+          expect(response.text).toContain('Not found');
         })
     });
   })
@@ -579,9 +586,6 @@ describe('Channel controller (e2e)', () => {
         .set('Authorization', bearer)
         .send({})
         .expect(204)
-        .then((response) => {
-          console.log(response.text);
-        })
     });
 
     it('/ Deletion of a direct message channel', async () => {
@@ -592,9 +596,6 @@ describe('Channel controller (e2e)', () => {
         .set('Authorization', bearer)
         .send({})
         .expect(204)
-        .then((response) => {
-          console.log(response.text);
-        })
     });
 
     it('/ Deletion of a non existing channel', async () => {
@@ -606,7 +607,7 @@ describe('Channel controller (e2e)', () => {
         .send({})
         .expect(403)
         .then((response) => {
-          console.log(response.text);
+          expect(response.text).toContain('Record to delete does not exist');
         })
     });
 

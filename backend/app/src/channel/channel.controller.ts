@@ -90,9 +90,3 @@ export class ChannelController {
     return this.channelService.deleteChannelById(channelId, res);
   }
 }
-
-// replace status codes by:
-// 200 HttpStatus.OK
-// 201 HttpStatus.CREATED
-// 204 HttpStatus.NO_CONTENT
-// 500 HttpStatus.INTERNAL_SERVER_ERROR
