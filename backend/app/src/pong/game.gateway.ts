@@ -26,14 +26,7 @@ export class GameGateway {
   @WebSocketServer()
   server: Server;
 
-  roomMaps = new Map();
-
-  players: Players = {
-    p1: null,
-    p2: null,
-  };
-  test: roomMapType = {};
-  map = new Map<string, Players>();
+  roomMap = new Map<string, Players>();
 
   constructor(private readonly messagesService: GameService,
     private schedulerRegistry: SchedulerRegistry
@@ -47,7 +40,8 @@ export class GameGateway {
     if (message.p2s >= 10 || message.p1s >= 10) {
       this.deleteInterval(createMessageDto.room);
       this.messagesService.deleteGame(createMessageDto.room);
-      this.map.delete(createMessageDto.room);
+      this.server.to(createMessageDto.room).emit('roomJoined', { ready: false })
+      this.roomMap.delete(createMessageDto.room);
     }
     return message;
   }
@@ -98,35 +92,42 @@ export class GameGateway {
   @SubscribeMessage('join')
   joinRoom(@MessageBody('name') name: string, @ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
     if (name == null) {
-      for (let [key, value] of this.map) {
-        if (value.p2 == null) {
-          name = key;
+      if (this.roomMap.size == 0) {
+        name = this.messagesService.makeid(5)
+      }
+      else {
+        for (let [key, value] of this.roomMap) {
+          if (value.p2 == null) {
+            name = key;
+          }
         }
-        console.log('this is p2 val ', value.p2);
-        console.log('this is key val ', key);
       }
     }
     client.join(name);
-    this.server.to(name).emit('roomJoined', name);
-    if (this.players.p1 == null || this.players.p1 == id) {
+    // if (this.players.p1 == null || this.players.p1 == id) {
+    this.server.to(name).emit('roomJoined', { ready: false });
+    console.log('this is name: ', name);
+    console.log('this is get: ', this.roomMap.get(name));
+
+    if (this.roomMap.get(name) == null || this.roomMap.get(name)['p1'] == id) {
       let players: Players = {
         p1: null,
         p2: null,
       }
-      this.players.p1 = id;
-      this.map.set(name, players);
-      this.map.get(name)['p1'] = id;
+      this.roomMap.set(name, players);
+      this.roomMap.get(name)['p1'] = id;
       return { gameId: name, pNumber: 1 }
     }
     else {
+      console.log('here i am');
       try {
         this.getInterval(name);
       } catch (e) {
         this.addInterval(name, 10);
       }
-      this.map.get(name)['p2'] = id;
-      this.players.p2 = id;
+      this.roomMap.get(name)['p2'] = id;
       this.messagesService.createGame(name);
+      this.server.to(name).emit('roomJoined', { ready: true });
       return { gameId: name, pNumber: 2 }
     }
   }
