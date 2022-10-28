@@ -18,7 +18,6 @@ import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-// import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 
 export const storage = {
@@ -58,6 +57,7 @@ export class UserController {
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
+    console.log(data);
     return this.userService.requestFriend(userId, data.target, res);
   }
 

@@ -11,6 +11,7 @@ datasource db {
 }
 
 model User {
+
   id                            String     @id @default(cuid())
   immutableId                   String     @unique()
   nickname                      String     @unique()
@@ -22,7 +23,6 @@ model User {
   eloScore                      Int        @default(0)
   twoFactorAuthenticationSet    Boolean    @default(false)
   twoFactorAuthenticationSecret String     @default("")
-
   friendsRequester Friendship[]      @relation("requester")
   friendsAddressee Friendship[]      @relation("addressee")
   playerOnMatches  UserMatch[]       @relation("player")
