@@ -12,6 +12,7 @@ export enum friendshipStatus {
   ADD
 }
 
+
 function ProfileBox(userProps: UserOptionsProps) {
 
   return <>

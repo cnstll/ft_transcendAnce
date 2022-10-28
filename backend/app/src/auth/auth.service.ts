@@ -27,6 +27,7 @@ export class AuthService {
     if (!user) {
       const data = {
         nickname: userData.login,
+        immutableId: userData.id.toString(),
         passwordHash: accessToken,
         avatarImg: userData.image_url,
       };
@@ -40,6 +41,7 @@ export class AuthService {
     if (!user) {
       const data = {
         nickname: userData.nickname,
+        immutableId: userData.immutableId,
         passwordHash: userData.passwordHash,
         avatarImg: userData.avatarImg,
       };

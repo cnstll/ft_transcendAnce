@@ -7,6 +7,7 @@ import { TargetInfo, User } from '../global-components/interface';
 import { useEffect } from 'react';
 
 
+
 interface UserOptionsProps {
   nickname: string;
 }
@@ -26,6 +27,7 @@ function ProfileBox(userProps: UserOptionsProps) {
   useEffect(() => {
     void user.refetch();
   }, [userProps.nickname]);
+
 
   return (
     <>

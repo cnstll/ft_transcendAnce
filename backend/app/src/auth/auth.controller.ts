@@ -42,7 +42,7 @@ export class AuthController {
   //   }
   //   const jwtPayload = {
   //     userId: user.id,
-  //     nickName: user.nickName,
+  //     nickname: user.nickname,
   //   };
   //   const token = this.authService.login(jwtPayload);
   //   res.status(201).send(token);

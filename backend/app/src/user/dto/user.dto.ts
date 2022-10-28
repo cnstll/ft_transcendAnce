@@ -7,6 +7,10 @@ export class UserDto {
 
   @IsNotEmpty()
   @IsString()
+  immutableId: string;
+
+  @IsNotEmpty()
+  @IsString()
   passwordHash: string;
 
   @IsNotEmpty()

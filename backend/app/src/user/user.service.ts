@@ -14,7 +14,9 @@ export class UserService {
       const user = await this.prismaService.user.create({
         data: {
           nickname: dto.nickname,
+          immutableId: dto.immutableId.toString(),
           passwordHash: dto.passwordHash,
+          avatarImg: dto.avatarImg,
         },
       });
       return user;
@@ -91,6 +93,22 @@ export class UserService {
     } catch (error) {
       return res.status(200).send();
     }
+  }
+
+  async updateAvatarImg(userId: string, newAvatarImg: string) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          avatarImg: newAvatarImg,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    return;
   }
 
   async updateFriendshipStatus(
@@ -311,5 +329,9 @@ export class UserService {
         nickname: username,
       },
     });
+  }
+
+  logout(res: Response) {
+    return res.cookie('jwtToken', '', { httpOnly: true });
   }
 }
