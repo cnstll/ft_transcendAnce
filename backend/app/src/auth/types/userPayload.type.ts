@@ -1,5 +1,5 @@
 export type UserPayload = {
-  nickname: string;
   id: string;
   immutableId: string;
+  nickname: string;
 };
