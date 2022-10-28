@@ -512,6 +512,18 @@ describe('Channel controller (e2e)', () => {
         .expect(403)
     });
 
+    it('/ [ERROR] user C updates an existing channel to a non existing type', async () => {
+      await new Promise(process.nextTick);
+      let bearer = 'Bearer ' + cookieTestA;
+      return request(app.getHttpServer())
+        .patch('/channels/' + privateChan)
+        .set('Authorization', bearer)
+        .send({
+          "type":"NOTATYPE",
+        })
+        .expect(403)
+    });
+
     it('/ [ERROR] user C updates an existing private channel to protected\
       type without a password', async () => {
         await new Promise(process.nextTick);

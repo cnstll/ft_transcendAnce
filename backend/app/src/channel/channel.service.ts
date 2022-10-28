@@ -186,9 +186,7 @@ export class ChannelService {
           id: channelId,
         },
         data: {
-          name: dto.name != null ? dto.name : undefined,
-          type: dto.type,
-          passwordHash: dto.passwordHash,
+          ...dto,
         },
       });
       return res.status(HttpStatus.OK).send(newChannel);
