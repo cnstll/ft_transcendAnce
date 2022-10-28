@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "FriendshipStatus" AS ENUM ('REQUESTED', 'ACCEPTED', 'REFUSED');
+CREATE TYPE "FriendshipStatus" AS ENUM ('REQUESTED', 'ACCEPTED');
 
 -- CreateEnum
 CREATE TYPE "ChannelType" AS ENUM ('PUBLIC', 'PRIVATE', 'PROTECTED', 'DIRECTMESSAGE');
@@ -13,13 +13,16 @@ CREATE TYPE "ChannelRole" AS ENUM ('USER', 'ADMIN', 'OWNER');
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
-    "nickName" TEXT NOT NULL,
+    "immutableId" TEXT NOT NULL,
+    "nickname" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "status" "UserStatus" NOT NULL DEFAULT 'OFFLINE',
     "avatarImg" TEXT,
     "eloScore" INTEGER NOT NULL DEFAULT 0,
+    "twoFactorAuthenticationSet" BOOLEAN NOT NULL DEFAULT false,
+    "twoFactorAuthenticationSecret" TEXT NOT NULL DEFAULT '',
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -40,7 +43,6 @@ CREATE TABLE "matches" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "score" JSONB NOT NULL DEFAULT '{"player1" : 0, "player2" : 0}',
 
     CONSTRAINT "matches_pkey" PRIMARY KEY ("id")
 );
@@ -49,6 +51,7 @@ CREATE TABLE "matches" (
 CREATE TABLE "user_matches" (
     "playerId" TEXT NOT NULL,
     "matchId" TEXT NOT NULL,
+    "score" JSONB NOT NULL DEFAULT '{"myself" : 0, "opponent" : 0}',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -77,9 +80,9 @@ CREATE TABLE "user_achievements" (
 -- CreateTable
 CREATE TABLE "channels" (
     "id" TEXT NOT NULL,
-    "name" TEXT,
+    "name" TEXT NOT NULL,
     "type" "ChannelType" NOT NULL DEFAULT 'PUBLIC',
-    "passwordHash" TEXT NOT NULL,
+    "passwordHash" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -113,7 +116,7 @@ CREATE TABLE "channel_users" (
 CREATE TABLE "bans" (
     "bannedUserId" TEXT NOT NULL,
     "banChannelId" TEXT NOT NULL,
-    "banRequesterId" TEXT NOT NULL,
+    "banRequesterId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -121,7 +124,10 @@ CREATE TABLE "bans" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_nickName_key" ON "users"("nickName");
+CREATE UNIQUE INDEX "users_immutableId_key" ON "users"("immutableId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_nickname_key" ON "users"("nickname");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "friendships_requesterId_addresseeId_key" ON "friendships"("requesterId", "addresseeId");
@@ -131,6 +137,9 @@ CREATE UNIQUE INDEX "user_matches_playerId_matchId_key" ON "user_matches"("playe
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_achievements_userId_achievementId_key" ON "user_achievements"("userId", "achievementId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "channels_name_key" ON "channels"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "bans_bannedUserId_banChannelId_key" ON "bans"("bannedUserId", "banChannelId");

@@ -19,7 +19,7 @@ function ChannelsListItem({ channelItem }: ChannelsListProps) {
       <div className={isActive ? "bg-purple-light flex items-center justify-start" : "flex items-center justify-start"}>
         <div className="flex items-center justify-start mx-2">
           {channelItem.type === "DIRECTMESSAGE"
-            && <FontAwesomeIcon className="text-2xl" icon={faMessage} />}
+            && <FontAwesomeIcon className="text-2xl mx-1" icon={faMessage} />}
           {(!(channelItem.type === "DIRECTMESSAGE"))
             && <FontAwesomeIcon className="text-2xl" icon={faChannel} />}
         </div>

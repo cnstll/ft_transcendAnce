@@ -114,7 +114,6 @@ export class GameGateway {
       }
     }
     client.join(name);
-    // if (this.players.p1 == null || this.players.p1 == id) {
     this.server.to(name).emit('roomJoined', { ready: false });
 
     if (this.roomMap.get(name) == null || this.roomMap.get(name)['p1'] == id) {

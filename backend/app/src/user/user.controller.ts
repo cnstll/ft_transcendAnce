@@ -40,16 +40,16 @@ export const storage = {
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('get-user-info')
-  @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
-  }
-
   @Get('get-all-users')
   @UseGuards(JwtAuthGuard)
   getAllUsers(@Res() res: Response) {
     return this.userService.getAllUsers(res);
+  }
+
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId, res);
   }
 
   @Post('request-friend')
@@ -59,6 +59,7 @@ export class UserController {
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
+    console.log(data);
     return this.userService.requestFriend(userId, data.target, res);
   }
 
@@ -91,7 +92,7 @@ export class UserController {
   }
 
   @Get('avatar/:fileId')
-  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<any> {
+  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
     res.sendFile(fileId, { root: 'avatar' });
   }
 

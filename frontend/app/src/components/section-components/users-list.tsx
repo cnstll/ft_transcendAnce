@@ -2,14 +2,14 @@ import UsersListItem from './users-list-item';
 import type { User } from '../global-components/interface';
 
 interface UsersListProps {
-  channelUsers: User[];
+  users: User[];
 }
 
-function UsersList({ channelUsers }: UsersListProps) {
+function UsersList({ users }: UsersListProps) {
   return (
     <div className="flex flex-col text-base my-4 gap-4">
-      {channelUsers.map((user: User) => (
-        <UsersListItem key={user.id} channelUser={user} />
+      {users.map((user: User) => (
+        <UsersListItem key={user.id} user={user} />
       ))}
     </div>
   );

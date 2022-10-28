@@ -27,24 +27,24 @@ export class AuthController {
   async loginUserDev(@Res() res, @Body() req) {
     const jwtPayload: JwtPayload = {
       id: req.id,
-      nickName: req.nickname,
+      nickname: req.nickname,
     };
     const token = this.authService.login(jwtPayload);
     res.status(201).send(token);
   }
 
-  // @Post('/create-user-dev')
-  // async create_user_dev(@Res() res, @Body() req) {
-  //   const user = await this.authService.create_user_dev(req);
-  //   if (!user) {
-  //     res.status(304).send();
-  //     return;
-  //   }
-  //   const jwtPayload = {
-  //     userId: user.id,
-  //     nickName: user.nickName,
-  //   };
-  //   const token = this.authService.login(jwtPayload);
-  //   res.status(201).send(token);
-  // }
+  @Post('/create-user-dev')
+  async create_user_dev(@Res() res, @Body() req) {
+    const user = await this.authService.create_user_dev(req);
+    if (!user) {
+      res.status(304).send();
+      return;
+    }
+    const jwtPayload = {
+      id: user.id,
+      nickname: user.nickname,
+    };
+    const token = this.authService.login(jwtPayload);
+    res.status(201).send(token);
+  }
 }

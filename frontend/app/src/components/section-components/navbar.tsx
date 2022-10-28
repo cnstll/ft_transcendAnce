@@ -2,38 +2,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { UseOutsideClick } from '../customed-hooks/use-outside-click';
+import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 import SearchBox from './search-box';
 import { User } from '../global-components/interface';
 import axios from 'axios';
-
-const usersData: User[] = [
-  {
-    id: '123e4567e89b1',
-    nickname: 'Alexandra',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
-    status: 'OFFLINE',
-  },
-  {
-    id: '123e4567e89b2',
-    nickname: 'Alexandre',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-    status: 'ONLINE',
-  },
-  {
-    id: '123e4567e89b3',
-    nickname: 'Alexandrinedrinedrine',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
-    status: 'PLAYING',
-  },
-  {
-    id: '123e4567e89b4',
-    nickname: 'Alexandro',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
-    status: 'PLAYING',
-  },
-];
+import { UseQueryResult } from 'react-query';
+import useGetAllUsers from '../query-hooks/useGetAllUsers';
 
 interface BannerProps {
   children?: React.ReactNode;
@@ -43,6 +18,8 @@ interface BannerProps {
 
 function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
+  const usersData: UseQueryResult<User[]> = useGetAllUsers();
+
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -65,7 +42,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
         height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
         width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
         placeholder="player"
-        users={usersData}
+        users={usersData.data}
+
       />
       <div className="relative" ref={ref}>
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">

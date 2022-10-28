@@ -1,7 +1,7 @@
 import React, { ChangeEvent, Dispatch, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import setAvatarImg from '../query-hooks/setAvatarImg';
-import { UseOutsideDivClick } from '../customed-hooks/use-outside-click';
+import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
 import { User } from '../global-components/interface';
 
 interface AvatarImgFormProps {
@@ -55,6 +55,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
     </div>
   );
 }
+
 
 function UploadPicture() {
   const [showForm, setShowForm] = useState<boolean>(false);
