@@ -10,6 +10,9 @@ import { Channel, ChannelRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
+import { CreateRoomDto, JoinRoomDto } from './dto/createRoom.dto';
+import { Socket } from 'socket.io';
+import { Room, User } from './channel.interface';
 
 @Injectable()
 export class ChannelService {
@@ -227,5 +230,55 @@ export class ChannelService {
       else throw new ForbiddenException(error);
     }
     return res.status(HttpStatus.NO_CONTENT).send();
+  }
+  //   CHAT WEBSOCKETS SERVICES //
+  rooms = new Map<string, Room>();
+  getRoomById(roomId: string) {
+    return this.rooms.get(roomId);
+  }
+
+  createRoom(createRoomDto: CreateRoomDto, socket: Socket) {
+    //How should we handle errors here ?
+    try {
+      socket.join(createRoomDto.roomId);
+      const admin: User = {
+        //To be changed for user id
+        id: createRoomDto.creatorName,
+        socketId: socket.id,
+        nickname: createRoomDto.creatorName,
+        role: 'admin',
+        isMuted: false,
+      };
+      const createdRoom: Room = {
+        name: createRoomDto.roomName,
+        users: [admin],
+        messages: [],
+      };
+      this.rooms.set(createRoomDto.roomId, createdRoom);
+      return createdRoom;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  joinRoom(joinRoomDto: JoinRoomDto, socket: Socket) {
+    try {
+      socket.join(joinRoomDto.roomId);
+      const newUser: User = {
+        //To be changed for user id
+        id: joinRoomDto.userName,
+        socketId: socket.id,
+        nickname: joinRoomDto.userName,
+        role: 'peon',
+        isMuted: false,
+      };
+      const joinedRoom = this.rooms.get(joinRoomDto.roomId);
+      joinedRoom.users.push(newUser);
+      return joinedRoom;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

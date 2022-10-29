@@ -59,11 +59,14 @@
   "dependencies": {
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/passport": "^9.0.0",
+    "@nestjs/platform-socket.io": "^9.1.6",
+    "@nestjs/websockets": "^9.1.6",
     "axios": "^1.1.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "passport-oauth2": "^1.6.1",
-    "react-query": "^3.39.2"
+    "react-query": "^3.39.2",
+    "socket.io": "^4.5.3"
   },
   "engines": {
     "yarn": "YARN NO LONGER USED - use npm instead."
