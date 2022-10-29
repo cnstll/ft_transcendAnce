@@ -4,22 +4,15 @@ import { GameCoords } from './entities/position.entity';
 
 @Injectable()
 export class GameService {
-  // messages: Position[] = [{ x: 100, y: 100 }];
-
   GameMap = new Map<string, GameCoords>();
-
-  // dirx: number = 0.5;
-  // diry: number = 0.0;
 
   clientToUser = {};
 
   create(createMessageDto: PositionDto) {
     const game: GameCoords = this.GameMap.get(createMessageDto.room);
     if (createMessageDto.player == 1) {
-      // game['p1x'] = createMessageDto.x;
       game['p1y'] = createMessageDto.y;
     } else {
-      // game['p2x'] = createMessageDto.x;
       game['p2y'] = createMessageDto.y;
     }
     return game;
@@ -65,7 +58,7 @@ export class GameService {
 
   createGame(roomName: string) {
     const game: GameCoords = {
-      gameRoom: null,
+      gameRoom: roomName,
       dirx: 0.5,
       diry: 0.0,
       p1x: 5,

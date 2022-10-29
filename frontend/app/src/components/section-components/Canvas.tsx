@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState, MouseEvent } from "react"
+import { useNavigate } from "react-router-dom";
 import { socket } from "./socket";
 
 let player = 1;
 let paddleHeight = 50;
 
+enum GameStatus {
+  PLAYING = 'PLAYING',
+  DONE = "DONE",
+  PENDING = "PENDING"
+}
 interface GameCoords {
   gameRoom: string;
   dirx: number;
@@ -18,29 +24,63 @@ interface GameCoords {
   p2s: number;
   paddleSize: number;
 }
-interface GameProps {
-  gameId: undefined | string;
-}
 
+function Game() {
 
-function Game(props: GameProps) {
-
+  // const [gameId, setGameId] = useState<string>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
   const [gameId, setGameId] = useState<null | string>(null);
-  // const [gameId, setGameId] = useState<null | string>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const gameId: string | null = "";
+    if (localStorage.getItem('gameId') != null && localStorage.getItem('gameId') != "") {
+      setGameId(localStorage.getItem('gameId'));
+      return;
+      // gameId = localStorage.getItem('gameId');
+      // setGameId(gameId);
+    }
+
+    socket.emit('join', { name: gameId }, (response: { gameId: string, pNumber: number }) => {
+      if (response.pNumber > 1) {
+        player = 2;
+      }
+      localStorage.setItem('gameId', response.gameId);
+      setGameId(gameId);
+    });
+
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (gameId == null && props.gameId != null) {
-      setGameId(props.gameId);
+    if (localStorage.getItem('gameId') != null && localStorage.getItem('gameId') != "") {
+      // gameId = localStorage.getItem('gameId');
+      setGameId(localStorage.getItem('gameId'));
     }
+    const joinListener = (text: { gameId: string, status: string, winner: string }) => {
+      setGameId(gameId)
+      if (text.status == 'PENDING') {
+        setGameStatus(GameStatus.PENDING);
+      }
+      else if (text.status == 'DONE') {
+        setGameStatus(GameStatus.DONE);
+        localStorage.clear();
+        navigate('/');
+      }
+      else if (text.status == 'PLAYING') {
+        setGameStatus(GameStatus.PLAYING);
+      }
+    }
+
+    socket.on('gameStatus', joinListener);
+
     if (canvas != null) {
       canvas.width = window.innerWidth * 2;
-      canvas.height = window.innerHeight * 2;
+      canvas.height = window.innerHeight;
       canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
+      canvas.style.height = `${window.innerHeight / 2}px`;
       paddleHeight = canvas.height / 20;
       const context: CanvasRenderingContext2D | null = canvas.getContext("2d");
       if (context != null) {
@@ -49,85 +89,56 @@ function Game(props: GameProps) {
         context.strokeStyle = "white"
         context.fillStyle = "white"
         contextRef.current = context;
-        socket.emit('join', { name: gameId }, (response: { gameId: string, pNumber: number }) => {
-          if (response.pNumber > 1) {
-            player = 2;
-            setIsReady(true);
-          }
-          setGameId(response.gameId);
-        });
-        const joinListener = (text: { ready: boolean }) => {
-          if (text.ready) {
-            setIsReady(true);
-          }
-          else {
-            setIsReady(false);
-          }
-        }
+
         const messageListener = (text: GameCoords) => {
           context.fillStyle = "black"
-          // contextRef?.current?.fillRect(0, 0, (canvas.width / 2), canvas.height)
           context.fillRect(0, 0, (canvas.width / 2), canvas.height)
           context.fillStyle = "white"
           let posy = (canvas.height / 2) * (text.p1y / 100);
           let posx = (canvas.width / 2) * (text.p1x / 100);
 
           context.fillRect(posx, posy, 10, paddleHeight);
-          // contextRef?.current?.fillRect(posx, posy, 10, paddleHeight);
           posy = (canvas.height / 2) * (text.p2y / 100);
           posx = (canvas.width / 2) * (text.p2x / 100);
-          // contextRef?.current?.fillRect(posx, posy, 10, paddleHeight);
           context.fillRect(posx, posy, 10, paddleHeight);
-          // contextRef!.current!.font = "30px Arial";
           context.font = "30px Arial";
 
           if (player == 1) {
             context.font = "30px Arial";
-            // contextRef!.current!.font = "30px Arial";
             context.fillStyle = "green"
             context.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
-            // contextRef.current?.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
-            // contextRef!.current!.font = "30px Arial";
             context.font = "30px Arial";
             context.fillStyle = "red"
-            // contextRef.current.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
             context.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
           } else {
-            // contextRef.current.font = "30px Arial";
             context.font = "30px Arial";
             context.fillStyle = "red"
-            // contextRef.current?.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
             context.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
-            // contextRef!.current!.font = "30px Arial";
             context.font = "30px Arial";
             context.fillStyle = "green"
             context.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
-            // contextRef.current?.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
           }
           context.fillStyle = "yellow"
           posy = (canvas.height / 2) * (text.by / 100);
           posx = (canvas.width / 2) * (text.bx / 100);
-          // contextRef.current?.fillRect(posx, posy, 10, 10);
           context.fillRect(posx, posy, 10, 10);
-
         };
 
+
         socket.on('message', messageListener);
-        socket.on('roomJoined', joinListener);
 
         return () => {
           socket.off('message', messageListener);
-          socket.off('join');
         };
       }
     }
     return;
-  }, [canvasRef, window.innerWidth, window.innerHeight])
+  }, [window.innerWidth, window.innerHeight, gameStatus, gameId])
 
 
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
     const clientY = event.clientY;
-    if (isReady && canvasRef.current != null) {
+    if (gameStatus == GameStatus.PLAYING && canvasRef.current != null) {
       const rect = canvasRef.current.getBoundingClientRect();
       const posy = ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
       socket.emit('createMessage', { x: 50, y: posy, room: gameId, player: player }, (res: GameCoords) => {
@@ -137,10 +148,16 @@ function Game(props: GameProps) {
     }
   }
 
-
   return (
     <>
-      < canvas onMouseMove={movePaddle} ref={canvasRef} />
+      {/* {isReady == false && <p> Waiting for a dance partner </p>} */}
+      {/* {isReady  && < canvas onMouseMove={movePaddle} ref={canvasRef} />} */}
+      {/* {isReady == true && < canvas onMouseMove={movePaddle} ref={canvasRef} />} */}
+      {/* {< canvas onMouseMove={movePaddle} ref={canvasRef} />} */}
+      {gameStatus == GameStatus.PLAYING && < canvas onMouseMove={movePaddle} ref={canvasRef} />}
+      {gameStatus == GameStatus.DONE && <p> done, you probably lost  </p>}
+      {gameStatus == GameStatus.PENDING && <p> Waiting for a dance partner  {gameStatus}</p>}
+      {/* {<button onClick={clickHandle}> thisis </button>} */}
     </>
   )
 }

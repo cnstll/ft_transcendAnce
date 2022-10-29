@@ -16,6 +16,12 @@ function Play() {
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
+    if (id) {
+      localStorage.setItem('gameId', id);
+    }
+    // else if (!localStorage.getItem('gameId')) {
+    //   localStorage.setItem('gameId', "");
+    // }
   });
 
   if (user.isSuccess)
@@ -26,7 +32,7 @@ function Play() {
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
           />
-          <Game gameId={id} />
+          <Game />
         </Background>
       </div>
     );

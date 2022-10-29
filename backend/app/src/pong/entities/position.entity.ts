@@ -23,10 +23,16 @@ export class Players {
   p2: string;
 }
 
-export class gameRoom extends Players {
+export enum Status {
+  PLAYING = 'PLAYING',
+  DONE = 'DONE',
+  PENDING = 'PENDING',
+}
+export class Game extends Players {
   p1: string;
   p2: string;
   roomName: string;
+  status: Status;
 }
 export type roomMapType = {
   [id: string]: Players;
