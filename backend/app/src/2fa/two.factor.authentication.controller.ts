@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Res,
+  Get,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -25,17 +26,17 @@ export class TwoFactorAuthenticationController {
 
   @Post('generate')
   @UseGuards(JwtAuthGuard)
-  async register(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    const { otpauthUrl } =
-      await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
-        userId,
-        res,
-      );
-
-    return this.twoFactorAuthenticationService.pipeQrCodeStream(
+  register(@GetCurrentUserId() userId: string, @Res() res: Response) {
+    this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
+      userId,
       res,
-      otpauthUrl,
     );
+  }
+
+  @Get('generate-qr-code')
+  @UseGuards(JwtAuthGuard)
+  generateQRCode(@GetCurrentUserId() userId: string) {
+    return this.twoFactorAuthenticationService.generateQRCode(userId);
   }
 
   @Post('validate')
