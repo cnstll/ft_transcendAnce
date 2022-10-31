@@ -3,6 +3,7 @@ import { authenticator } from 'otplib';
 import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+import * as QRCode from 'qrcode';
 
 @Injectable()
 export class TwoFactorAuthenticationService {
@@ -25,12 +26,13 @@ export class TwoFactorAuthenticationService {
 
   public async generateQRCode(userId: string) {
     const user = await this.userService.getUserInfo(userId);
-    const otpauthUrl = authenticator.keyuri(
+    const otpauthURL = authenticator.keyuri(
       userId,
       this.configService.get('TranscenDance'),
       user.twoFactorAuthenticationSecret,
     );
-    return otpauthUrl;
+    const qrCode = await QRCode.toDataURL(otpauthURL);
+    return qrCode;
   }
 
   async isTwoFactorAuthenticationCodeValid(

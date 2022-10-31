@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import SideBox from './side-box';
 import UploadPicture from './upload-picture';
 import MyMatchHistory from './my-match-history';

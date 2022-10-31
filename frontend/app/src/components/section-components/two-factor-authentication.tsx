@@ -2,9 +2,9 @@
 import { useQueryClient } from 'react-query';
 import { User } from '../global-components/interface';
 import { generate2fa, toggle2fa } from '../query-hooks/set2fa';
-import QRCode from 'qrcode';
+// import QRCode from 'qrcode';
 import useQRCode from '../query-hooks/useQRCode';
-import { useState } from 'react';
+// import { useState } from 'react';
 
 interface TwofaProps {
   twoFactorAuthenticationIsSet: boolean;
@@ -96,15 +96,11 @@ function Toggle2fa({
   );
 }
 
-function TwoFaModal({ qrCode }: { qrCode: string }) {
+function TwoFaModal() {
   /* Get QR Code otpauthURL */
 
   const getQRCode = useQRCode();
-  const otpauthURL = getQRCode.data;
-
-  QRCode.toDataURL(otpauthURL, function (err, url) {
-    qrCode = url;
-  });
+  const qrCode = getQRCode.data;
 
   return (
     <>
@@ -148,12 +144,12 @@ function TwoFactorAuthentication({ user }: { user: User }) {
     twoFactorAuthenticationIsSet: user.twoFactorAuthenticationSet,
     twoFactorAuthenticationSecret: user.twoFactorAuthenticationSecret,
   };
-  const [qrCode] = useState('');
+  // const [qrCode] = useState('');
   return (
     <div className="flex flex-row gap-4">
       <p>Two factor identification</p>
       <Toggle twoFa={twoFa} />
-      {user.twoFactorAuthenticationSet && <TwoFaModal qrCode={qrCode} />}
+      {user.twoFactorAuthenticationSet && <TwoFaModal />}
     </div>
   );
 }

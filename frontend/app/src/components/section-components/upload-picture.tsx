@@ -41,7 +41,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
   }
 
   return (
-    <div className="absolute block p-3 mr-6 rounded-lg shadow-lg bg-purple-light w-72">
+    <div className="absolute block p-3 mr-6 rounded-lg shadow-lg bg-purple-light w-72 z-20">
       <form>
         <input
           className="form-control w-full py-1.5 bg-clip-padding
@@ -55,7 +55,6 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
     </div>
   );
 }
-
 
 function UploadPicture() {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -75,7 +74,9 @@ function UploadPicture() {
     <>
       <div ref={ref}>
         <div className="flex justify-start hover:underline cursor-pointer">
-          <p onClick={showUploadPictureForm}>Upload a picture</p>
+          <p className="static" onClick={showUploadPictureForm}>
+            Upload a picture
+          </p>
         </div>
         <div>
           {showForm && (
