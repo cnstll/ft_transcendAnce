@@ -1,5 +1,6 @@
-export interface Message {
+export interface UserMessage {
   sender: string;
+  toRoomId: string;
   content: string;
 }
 
@@ -14,5 +15,12 @@ export interface User {
 export interface Room {
   name?: string;
   users: User[];
-  messages?: Message[];
+  messages?: UserMessage[];
+}
+
+export interface RoomData {
+  roomId: string;
+  roomName?: string;
+  clientName?: string;
+  clientId: string;
 }

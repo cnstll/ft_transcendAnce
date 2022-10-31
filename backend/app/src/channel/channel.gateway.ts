@@ -7,11 +7,15 @@ import {
 import { ChannelService } from './channel.service';
 import { Server, Socket } from 'socket.io';
 import { WebSocketServer } from '@nestjs/websockets';
-import { CreateRoomDto, JoinRoomDto } from './dto/createRoom.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
+import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
+import { RoomData, UserMessage } from './channel.interface';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: 'http://localhost',
+    credentials: true,
   },
 })
 export class ChannelGateway {
@@ -25,40 +29,81 @@ export class ChannelGateway {
     @ConnectedSocket() clientSocket: Socket,
   ) {
     const fetchedRoom = this.channelService.getRoomById(roomId);
-    clientSocket.emit('getRoomById', fetchedRoom);
+    this.server.to(clientSocket.id).emit('getRoomById', fetchedRoom);
   }
-  //   When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
+  //When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createRoom')
   createRoom(
+    @GetCurrentUserId() userId: string,
     @MessageBody('userName') userName: string,
     @MessageBody('roomName') roomName: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
     // console.log('createRoom: ', userName, roomName);
     const roomId = new Date().getTime() + Math.random().toString(10).slice(12);
-    const createRoomDto: CreateRoomDto = {
+    const createRoomData: RoomData = {
       roomId: roomId,
       roomName: roomName,
-      creatorName: userName,
-      creatorId: userName,
+      clientId: userId,
+      clientName: userName,
     };
-    console.log(createRoomDto);
-    this.channelService.createRoom(createRoomDto, clientSocket) == null
-      ? this.server.emit('createRoomFailed', roomId)
+    this.channelService.createRoom(createRoomData, clientSocket) == null
+      ? this.server.to(clientSocket.id).emit('createRoomFailed')
       : this.server.emit('roomCreated', roomId);
   }
   // When a user join a channel, her ids are added to the users in the corresponding room
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
   joinRoom(
-    @MessageBody() joinRoomDto: JoinRoomDto,
+    @GetCurrentUserId() userId: string,
+    @MessageBody('userName') userName: string,
+    @MessageBody('roomId') roomId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log(joinRoomDto);
-    const joinedRoom = this.channelService.joinRoom(joinRoomDto, clientSocket);
+    const joinRoomData: RoomData = {
+      roomId: roomId,
+      clientId: userId,
+      clientName: userName,
+    };
+    const joinedRoom = this.channelService.joinRoom(joinRoomData, clientSocket);
     joinedRoom == null
-      ? this.server.emit('joinRoomFailed', joinRoomDto)
+      ? this.server.to(clientSocket.id).emit('joinRoomFailed')
       : this.server.emit('roomJoined', joinedRoom);
   }
-  // When a user send a message in a channel, all the users within the room receive the message
+  //   When a user send a message in a channel, all the users within the room receive the message
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('messageRoom')
+  handleMessage(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('message') message: UserMessage,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const messageSaved = this.channelService.storeMessage(message, userId);
+    messageSaved == null
+      ? this.server.to(clientSocket.id).emit('messageRoomFailed')
+      : clientSocket.to(message.toRoomId).emit('incomingMessage', message);
+  }
   // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room
+  @SubscribeMessage('typing')
+  someoneIsTyping(
+    @MessageBody('roomId') roomId: string,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    return clientSocket.to(roomId).emit('typing');
+  }
+
+  //Delete channel
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('deleteRoom')
+  deleteRoom(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('roomId') roomId: string,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const roomDeleted = this.channelService.deleteRoom(userId, roomId);
+    roomDeleted == null
+      ? this.server.to(clientSocket.id).emit('deleteRoomFailed')
+      : this.server.to(roomId).emit('roomDeleted', roomId);
+  }
 }
