@@ -34,3 +34,20 @@ export function toggle2fa(): UseMutationResult<
 > {
   return useMutation(set2fa);
 }
+
+const putValidationCode = (input: string) =>
+  axios
+    .post(
+      'http://localhost:3000/2fa/validate',
+      { twoFactorAuthenticationCode: input },
+      { withCredentials: true },
+    )
+    .then((res) => res);
+
+export function validate2faCode(): UseMutationResult<
+  AxiosResponse,
+  unknown,
+  string
+> {
+  return useMutation(putValidationCode);
+}
