@@ -6,12 +6,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Channel, ChannelRole } from '@prisma/client';
+import { Channel, ChannelRole, ChannelUser } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
 import { Socket } from 'socket.io';
 import { Room, RoomData, User, UserMessage } from './channel.interface';
+import { JoinChannelDto } from './dto/joinChannel.dto';
+import { UserMessageDto } from './dto/userMessage.dto';
 
 @Injectable()
 export class ChannelService {
@@ -230,81 +232,123 @@ export class ChannelService {
     }
     return res.status(HttpStatus.NO_CONTENT).send();
   }
-  //   CHAT WEBSOCKETS SERVICES //
-  rooms = new Map<string, Room>();
-  getRoomById(roomId: string) {
-    return this.rooms.get(roomId);
-  }
 
-  createRoom(createRoomData: RoomData, socket: Socket) {
-    //How should we handle errors here ?
+  //******   CHAT WEBSOCKETS SERVICES *******//
+
+  async createChannelTest(
+    dto: CreateChannelDto,
+    userId: string,
+    clientSocket: Socket,
+  ) {
     try {
-      socket.join(createRoomData.roomId);
-      const owner: User = {
-        //To be changed for user id
-        id: createRoomData.clientId,
-        socketId: socket.id,
-        nickname: createRoomData.clientId,
-        role: 'owner',
-        isMuted: false,
-      };
-      const createdRoom: Room = {
-        name: createRoomData.roomName,
-        users: [owner],
-        messages: [],
-      };
-      this.rooms.set(createRoomData.roomId, createdRoom);
-      return createdRoom;
+      /* Check the password is provided in the DTO for protected chan) */
+      //   this.checkDto(dto);
+      /* Then try to create a new channel */
+      const newChannel: Channel = await this.prisma.channel.create({
+        data: {
+          ...dto,
+          users: {
+            create: {
+              userId: userId,
+              role: 'OWNER',
+            },
+          },
+        },
+      });
+      /* Join socket.io room instance */
+      clientSocket.join(dto.id);
+      return newChannel;
     } catch (error) {
       console.log(error);
       return null;
     }
   }
 
-  joinRoom(joinRoomData: RoomData, socket: Socket) {
+  async joinChannelTest(
+    dto: JoinChannelDto,
+    userId: string,
+    clientSocket: Socket,
+  ) {
     try {
-      socket.join(joinRoomData.roomId);
-      const newUser: User = {
-        //To be changed for user id
-        id: joinRoomData.clientId,
-        socketId: socket.id,
-        nickname: joinRoomData.clientName,
-        role: 'user',
-        isMuted: false,
-      };
-      const joinedRoom = this.rooms.get(joinRoomData.roomId);
-      joinedRoom.users.push(newUser);
-      return joinedRoom;
+      /* Check the password is provided in the DTO for protected chan) */
+      //   this.checkDto(dto);
+      /* Then, update channel's information */
+      console.log(dto, userId);
+      const joinedChannel: Channel = await this.prisma.channel.update({
+        where: {
+          id: dto.id,
+        },
+        data: {
+          users: {
+            create: {
+              userId: userId,
+              role: 'USER',
+            },
+          },
+        },
+      });
+      /* Join socket.io room instance */
+      clientSocket.join(dto.id);
+      return joinedChannel;
+    } catch (error) {
+      //TODO Improve error handling
+      console.log(error);
+      return null;
+    }
+  }
+
+  async storeMessage(dto: UserMessageDto, channelId: string) {
+    try {
+      //TODO Check if user is muted/banned
+      const channel: Channel = await this.prisma.channel.update({
+        where: {
+          id: channelId,
+        },
+        data: {
+          messages: {
+            create: {
+              senderId: dto.senderId,
+              content: dto.content,
+            },
+          },
+        },
+      });
+      return channel;
     } catch (error) {
       console.log(error);
       return null;
     }
   }
 
-  storeMessage(message: UserMessage) {
+  async deleteChannelTest(userId: string, channelId: string) {
+    //TODO Check role is ADMIN | OWNER
+    //TODO ADMIN | OWNER user could delete a channel, if only she is the only one in the channel
+    //
+    /* Check if there is no user left in channel before deletion
+    - implementing ChannelUser's deletion is required for testing the code below */
     try {
-      const currentRoom = this.rooms.get(message.toRoomId);
-      currentRoom.messages.push(message);
-      return message;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }
-  deleteRoom(userId: string, roomId: string) {
-    try {
-      const roomToDelete = this.rooms.get(roomId);
-      const userCanDelete = roomToDelete.users.some(
-        (user) =>
-          user.id == userId && (user.role == 'owner' || user.role == 'admin'),
-      );
-      if (userCanDelete) {
-        this.rooms.delete(roomId);
-        //Should delete in DB too
-        return roomId;
-      } else {
+      const channelUsers: { users: ChannelUser[] } =
+        await this.prisma.channel.findUnique({
+          where: {
+            id: channelId,
+          },
+          select: {
+            users: true,
+          },
+        });
+      if (channelUsers) {
+        console.log(channelUsers);
         return null;
       }
-    } catch (error) {}
+      /* Then, delete channel */
+      await this.prisma.channel.delete({
+        where: {
+          id: channelId,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }
