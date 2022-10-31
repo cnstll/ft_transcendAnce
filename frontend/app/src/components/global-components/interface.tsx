@@ -1,7 +1,15 @@
 export interface Channel {
   id: string;
   name: string;
+  password?: string,
   type: 'PUBLIC' | 'PRIVATE' | 'PROTECTED' | 'DIRECTMESSAGE';
+}
+
+export enum friendshipStatus {
+  REQUSTED,
+  ACCEPTED,
+  PENDING,
+  ADD
 }
 
 export interface User {

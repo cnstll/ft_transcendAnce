@@ -34,12 +34,6 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
 
   const ref = UseOutsideClick(ClickOutsideHandler);
 
-  function FilterResults(channelItem: Channel): boolean {
-    if (channelItem.type !== 'DIRECTMESSAGE')
-      return true;
-    return false;
-  }
-
   function OnChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchData((prevState) => ({
       ...prevState,
@@ -61,6 +55,20 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
     });
   };
 
+  const filterChannels = (channels: Channel[] | undefined, query: string) => {
+    if (!query) {
+      return channels;
+    }
+    if (!channels) {
+      return [];
+    }
+    console.log(channels);
+    return channels.filter((channel) => {
+      const filterChannels = channel.name.toLowerCase();
+      return filterChannels.includes(query.toLowerCase());
+    });
+  };
+
   function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const filteredResults: User[] | undefined = filterUsers(users, searchData.keyword);
@@ -72,8 +80,16 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
         }
       }
     }
+    const filteredChannels: Channel[] | undefined = filterChannels(channels, searchData.keyword);
+    if (filteredChannels) {
+      if (filteredChannels[0]) {
+        const firstResult = filteredChannels[0].name;
+        if (firstResult) {
+          navigate('../chat/' + firstResult);
+        }
+      }
+    }
   }
-
 
   return <>
     <div className="relative text-black" ref={ref}>
@@ -88,11 +104,10 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
       <div className={"bg-white rounded-lg text-sm absolute " + width}>
         {isShown &&
           <ul>
-            {filterUsers(users, searchData.keyword)?.map((userItem) => (
+            {filterUsers(users, searchData.keyword)?.slice(0, 5).map((userItem) => (
               <SearchItem key={userItem.id} user={userItem} />
             ))}
-            {channels?.map((channelItem) => (
-              FilterResults(channelItem) &&
+            {filterChannels(channels, searchData.keyword)?.slice(0, 5).map((channelItem) => (
               <SearchItem key={channelItem.id} channel={channelItem} />
             ))}
           </ul>}

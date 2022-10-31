@@ -1,4 +1,3 @@
-// import axios from 'axios';
 import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { User } from '../global-components/interface';

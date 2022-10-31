@@ -14,7 +14,6 @@ import {
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { FriendDto } from './dto/friend.dto';
-import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -59,7 +58,6 @@ export class UserController {
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
-    console.log(data);
     return this.userService.requestFriend(userId, data.target, res);
   }
 

@@ -16,7 +16,12 @@ function SearchItem({ user, channel }: SearchItemProps) {
       return;
     }
     e.preventDefault();
-    navigate('../profile/' + user.nickname);
+    if (user) {
+      navigate('../profile/' + user.nickname);
+    }
+    else if (channel) {
+      navigate('../chat/' + channel.name);
+    }
   }
 
   return <>

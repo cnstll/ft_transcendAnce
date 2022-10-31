@@ -5,14 +5,6 @@ interface UserOptionsProps {
   nickname: string | undefined,
 }
 
-export enum friendshipStatus {
-  REQUSTED,
-  ACCEPTED,
-  PENDING,
-  ADD
-}
-
-
 function ProfileBox(userProps: UserOptionsProps) {
 
   return <>
