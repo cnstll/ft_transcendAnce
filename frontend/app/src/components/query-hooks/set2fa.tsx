@@ -16,23 +16,15 @@ export function generate2fa(): UseMutationResult<AxiosResponse> {
   return useMutation(generate);
 }
 
-const set2fa = (input: boolean) =>
+const disable = () =>
   axios
-    .put(
-      'http://localhost:3000/2fa/toggle',
-      { toggleState: input },
-      {
-        withCredentials: true,
-      },
-    )
+    .delete('http://localhost:3000/2fa/disable', {
+      withCredentials: true,
+    })
     .then((res) => res);
 
-export function toggle2fa(): UseMutationResult<
-  AxiosResponse,
-  unknown,
-  boolean
-> {
-  return useMutation(set2fa);
+export function disable2fa(): UseMutationResult<AxiosResponse> {
+  return useMutation(disable);
 }
 
 const putValidationCode = (input: string) =>

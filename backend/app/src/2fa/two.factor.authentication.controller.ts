@@ -7,6 +7,7 @@ import {
   Get,
   UnauthorizedException,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { TwoFactorAuthenticationService } from './two.factor.authentication.service';
 import { Response } from 'express';
@@ -86,17 +87,9 @@ export class TwoFactorAuthenticationController {
     res.status(201).send();
   }
 
-  @Put('toggle')
+  @Delete('disable')
   @UseGuards(JwtAuthGuard)
-  toggle(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { toggleState: boolean },
-    @Res() res: Response,
-  ) {
-    this.userService.toggleTwoFactorAuthentication(
-      userId,
-      data.toggleState,
-      res,
-    );
+  toggle(@GetCurrentUserId() userId: string, @Res() res: Response) {
+    this.userService.disableTwoFactorAuthentication(userId, res);
   }
 }

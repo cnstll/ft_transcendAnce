@@ -1,110 +1,21 @@
-// import axios from 'axios';
-import { FormEvent, useRef, useState } from 'react';
+import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { User } from '../global-components/interface';
-import { generate2fa, toggle2fa, validate2faCode } from '../query-hooks/set2fa';
+import {
+  generate2fa,
+  disable2fa,
+  validate2faCode,
+} from '../query-hooks/set2fa';
 import useQRCode from '../query-hooks/useQRCode';
 
-interface TwofaProps {
+interface ToggleProps {
   twoFactorAuthenticationIsSet: boolean;
-  twoFactorAuthenticationSecret: string;
+  setShowModal: Dispatch<React.SetStateAction<boolean>>;
 }
 
-/**
- *
- * This function generates the 2FA Secret and displays the toggle button if 2fa is set or not
- *
- */
-
-function Generate2fa({
-  twoAuthenticationIsSet,
-}: {
-  twoAuthenticationIsSet: boolean;
-}) {
-  const queryClient = useQueryClient();
-  const generate2faMutation = generate2fa();
-
-  /* Generate 2FA Secret */
-
-  function on2faActivation() {
-    generate2faMutation.mutate(
-      {},
-      {
-        onSuccess: ({ status }) => {
-          if (status === 201 || status === 200) {
-            queryClient.setQueryData<User>('userData', (oldData): User => {
-              return {
-                ...oldData!,
-                twoFactorAuthenticationSet: true,
-              };
-            });
-          }
-        },
-      },
-    );
-  }
-
-  return (
-    <div>
-      <div
-        onClick={on2faActivation}
-        className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full
-        peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
-        after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
-      >
-        {twoAuthenticationIsSet ? (
-          <span className="ml-1 font-bold text-[9px]">ON</span>
-        ) : (
-          <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/**
- *
- * This function displays the toggle button if 2fa is set or not
- *
- */
-
-function Toggle2fa({
-  twoAuthenticationIsSet,
-}: {
-  twoAuthenticationIsSet: boolean;
-}) {
-  const queryClient = useQueryClient();
-  const toggle2faMutation = toggle2fa();
-
-  function on2faChange() {
-    toggle2faMutation.mutate(!twoAuthenticationIsSet, {
-      onSuccess: ({ status }) => {
-        if (status === 201 || status === 200) {
-          queryClient.setQueryData<User>('userData', (oldData): User => {
-            return {
-              ...oldData!,
-              twoFactorAuthenticationSet: !twoAuthenticationIsSet,
-            };
-          });
-        }
-      },
-    });
-  }
-
-  return (
-    <div
-      onClick={on2faChange}
-      className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full
-          peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
-          after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
-    >
-      {twoAuthenticationIsSet ? (
-        <span className="ml-1 font-bold text-[9px]">ON</span>
-      ) : (
-        <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
-      )}
-    </div>
-  );
+interface TwoFaModalProps {
+  showModal: boolean;
+  setShowModal: Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**
@@ -113,33 +24,31 @@ function Toggle2fa({
  *
  */
 
-function TwoFaModal({
-  twoAuthenticationIsSet,
-}: {
-  twoAuthenticationIsSet: boolean;
-}) {
+function TwoFaModal({ showModal, setShowModal }: TwoFaModalProps) {
   const getQRCode = useQRCode();
   const qrCode = getQRCode.data;
-  const toggle2faMutation = toggle2fa();
+  const disable2faMutation = disable2fa();
   const validate2faMutation = validate2faCode();
   const queryClient = useQueryClient();
   const verficationCodeRef = useRef<HTMLInputElement>(null);
   const [validCode, setValidCode] = useState<boolean>(true);
-  const [showModal, setShowModal] = useState<boolean>(twoAuthenticationIsSet);
 
   function closeModal() {
-    toggle2faMutation.mutate(!twoAuthenticationIsSet, {
-      onSuccess: ({ status }) => {
-        if (status === 201 || status === 200) {
-          queryClient.setQueryData<User>('userData', (oldData): User => {
-            return {
-              ...oldData!,
-              twoFactorAuthenticationSet: !twoAuthenticationIsSet,
-            };
-          });
-        }
+    disable2faMutation.mutate(
+      {},
+      {
+        onSuccess: ({ status }) => {
+          if (status === 201 || status === 200) {
+            queryClient.setQueryData<User>('userData', (oldData): User => {
+              return {
+                ...oldData!,
+                twoFactorAuthenticationSet: false,
+              };
+            });
+          }
+        },
       },
-    });
+    );
   }
 
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -160,7 +69,7 @@ function TwoFaModal({
 
   return (
     <>
-      {getQRCode.isSuccess && showModal && (
+      {showModal && getQRCode.isSuccess && (
         <div className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal h-full bg-[#222] bg-opacity-50">
           <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
             <div className="relative bg-white rounded-lg shadow text-black p-6">
@@ -238,11 +147,111 @@ function TwoFaModal({
 
 /**
  *
+ * This function generates the 2FA Secret and displays the toggle button if 2fa is set or not
+ *
+ */
+
+function Generate2fa({
+  twoFactorAuthenticationIsSet,
+  setShowModal,
+}: ToggleProps) {
+  const queryClient = useQueryClient();
+  const generate2faMutation = generate2fa();
+
+  /* Generate 2FA Secret */
+
+  function on2faActivation() {
+    generate2faMutation.mutate(
+      {},
+      {
+        onSuccess: ({ status }) => {
+          if (status === 201) {
+            setShowModal(true);
+            queryClient.setQueryData<User>('userData', (oldData): User => {
+              return {
+                ...oldData!,
+                twoFactorAuthenticationSet: true,
+              };
+            });
+          }
+        },
+      },
+    );
+  }
+
+  return (
+    <div>
+      <div
+        onClick={on2faActivation}
+        className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full
+        peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
+        after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
+      >
+        {twoFactorAuthenticationIsSet ? (
+          <span className="ml-1 font-bold text-[9px]">ON</span>
+        ) : (
+          <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ *
+ * This function displays the toggle button if 2fa is set or not
+ *
+ */
+
+function Disable2fa({
+  twoFactorAuthenticationIsSet,
+}: {
+  twoFactorAuthenticationIsSet: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const disable2faMutation = disable2fa();
+
+  function on2faDelete() {
+    disable2faMutation.mutate(
+      {},
+      {
+        onSuccess: ({ status }) => {
+          if (status === 201) {
+            queryClient.setQueryData<User>('userData', (oldData): User => {
+              return {
+                ...oldData!,
+                twoFactorAuthenticationSet: false,
+              };
+            });
+          }
+        },
+      },
+    );
+  }
+
+  return (
+    <div
+      onClick={on2faDelete}
+      className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full
+          peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
+          after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
+    >
+      {twoFactorAuthenticationIsSet ? (
+        <span className="ml-1 font-bold text-[9px]">ON</span>
+      ) : (
+        <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
+      )}
+    </div>
+  );
+}
+
+/**
+ *
  * This function is used to display the toggle button and call the generate or toggle2fa function depending if the user's 2fa secret is generated
  *
  */
 
-function Toggle({ twoFa }: { twoFa: TwofaProps }) {
+function Toggle({ twoFactorAuthenticationIsSet, setShowModal }: ToggleProps) {
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden w-20">
       <div className="flex">
@@ -250,16 +259,17 @@ function Toggle({ twoFa }: { twoFa: TwofaProps }) {
           <input
             type="checkbox"
             className="sr-only peer"
-            checked={twoFa.twoFactorAuthenticationIsSet}
+            checked={twoFactorAuthenticationIsSet}
             readOnly
           />
-          {!twoFa.twoFactorAuthenticationSecret ? (
-            <Generate2fa
-              twoAuthenticationIsSet={twoFa.twoFactorAuthenticationIsSet}
+          {twoFactorAuthenticationIsSet ? (
+            <Disable2fa
+              twoFactorAuthenticationIsSet={twoFactorAuthenticationIsSet}
             />
           ) : (
-            <Toggle2fa
-              twoAuthenticationIsSet={twoFa.twoFactorAuthenticationIsSet}
+            <Generate2fa
+              twoFactorAuthenticationIsSet={twoFactorAuthenticationIsSet}
+              setShowModal={setShowModal}
             />
           )}
         </label>
@@ -269,17 +279,17 @@ function Toggle({ twoFa }: { twoFa: TwofaProps }) {
 }
 
 function TwoFactorAuthentication({ user }: { user: User }) {
-  const twoFa: TwofaProps = {
-    twoFactorAuthenticationIsSet: user.twoFactorAuthenticationSet,
-    twoFactorAuthenticationSecret: user.twoFactorAuthenticationSecret,
-  };
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   return (
     <div className="flex flex-row gap-4">
       <p>Two factor identification</p>
-      <Toggle twoFa={twoFa} />
+      <Toggle
+        twoFactorAuthenticationIsSet={user.twoFactorAuthenticationSet}
+        setShowModal={setShowModal}
+      />
       {user.twoFactorAuthenticationSet && (
-        <TwoFaModal twoAuthenticationIsSet={user.twoFactorAuthenticationSet} />
+        <TwoFaModal showModal={showModal} setShowModal={setShowModal} />
       )}
     </div>
   );
