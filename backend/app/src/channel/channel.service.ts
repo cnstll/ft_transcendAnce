@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Channel, ChannelRole, Message } from '@prisma/client';
+import { Channel, ChannelRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
@@ -281,7 +281,7 @@ export class ChannelService {
     }
   }
 
-  storeMessage(message: UserMessage, userId: string) {
+  storeMessage(message: UserMessage) {
     try {
       const currentRoom = this.rooms.get(message.toRoomId);
       currentRoom.messages.push(message);

@@ -72,14 +72,12 @@ export class ChannelGateway {
       : this.server.emit('roomJoined', joinedRoom);
   }
   //   When a user send a message in a channel, all the users within the room receive the message
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messageRoom')
   handleMessage(
-    @GetCurrentUserId() userId: string,
     @MessageBody('message') message: UserMessage,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const messageSaved = this.channelService.storeMessage(message, userId);
+    const messageSaved = this.channelService.storeMessage(message);
     messageSaved == null
       ? this.server.to(clientSocket.id).emit('messageRoomFailed')
       : clientSocket.to(message.toRoomId).emit('incomingMessage', message);
