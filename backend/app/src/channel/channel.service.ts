@@ -11,7 +11,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
 import { Socket } from 'socket.io';
-import { Room, RoomData, User, UserMessage } from './channel.interface';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 

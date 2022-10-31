@@ -1,5 +1,4 @@
-import { ChannelType } from '@prisma/client';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class JoinChannelDto {
   @IsString()

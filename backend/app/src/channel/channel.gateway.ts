@@ -10,10 +10,8 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
-import { RoomData, UserMessage } from './channel.interface';
 import { CreateChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
-import { JoinRoomDto } from './dto/room.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 
 @WebSocketGateway({
