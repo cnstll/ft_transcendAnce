@@ -28,26 +28,32 @@ export class ChannelGateway {
   //When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createRoom')
-  createChannel(
+  async createChannel(
     @GetCurrentUserId() userId: string,
     @MessageBody('userName') userName: string,
-    @MessageBody('roomName') roomName: string,
+    @MessageBody('channelName') channelName: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    // console.log('createRoom: ', userName, roomName);
-    const roomId = new Date().getTime() + Math.random().toString(10).slice(12);
+    // console.log('createRoom: ', userName, channelName);
+    const channelId =
+      new Date().getTime() + Math.random().toString(10).slice(12);
     const dto: CreateChannelDto = {
-      id: roomId,
-      name: roomName,
+      id: channelId,
+      name: channelName,
     };
-    this.channelService.createChannelTest(dto, userId, clientSocket) == null
+    const channel = await this.channelService.createChannelTest(
+      dto,
+      userId,
+      clientSocket,
+    );
+    channel === null
       ? this.server.to(clientSocket.id).emit('createRoomFailed')
-      : this.server.emit('roomCreated', roomId);
+      : this.server.emit('roomCreated', channelId);
   }
   // When a user join a channel, her ids are added to the users in the corresponding room
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
-  joinChannel(
+  async joinChannel(
     @GetCurrentUserId() userId: string,
     @MessageBody('channelId') channelId: string,
     @ConnectedSocket() clientSocket: Socket,
@@ -55,7 +61,7 @@ export class ChannelGateway {
     const dto: JoinChannelDto = {
       id: channelId,
     };
-    const joinedRoom = this.channelService.joinChannelTest(
+    const joinedRoom = await this.channelService.joinChannelTest(
       dto,
       userId,
       clientSocket,
@@ -67,7 +73,7 @@ export class ChannelGateway {
   //   When a user send a message in a channel, all the users within the room receive the message
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messageRoom')
-  sendMessage(
+  async sendMessage(
     @GetCurrentUserId() senderId: string,
     @MessageBody('channelId') channelId: string,
     @MessageBody('content') content: string,
@@ -77,7 +83,10 @@ export class ChannelGateway {
       content: content,
       senderId: senderId,
     };
-    const messageSaved = this.channelService.storeMessage(message, channelId);
+    const messageSaved = await this.channelService.storeMessage(
+      message,
+      channelId,
+    );
     messageSaved == null
       ? this.server.to(clientSocket.id).emit('messageRoomFailed')
       : clientSocket.to(channelId).emit('incomingMessage', message);
@@ -94,12 +103,12 @@ export class ChannelGateway {
   //Delete channel
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('deleteRoom')
-  deleteRoom(
+  async deleteRoom(
     @GetCurrentUserId() userId: string,
     @MessageBody('channelId') channelId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const roomDeleted = this.channelService.deleteChannelTest(
+    const roomDeleted = await this.channelService.deleteChannelTest(
       userId,
       channelId,
     );
