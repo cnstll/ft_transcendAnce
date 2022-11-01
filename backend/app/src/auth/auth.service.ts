@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Redirect } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UserService } from '../user/user.service';
-// import { HttpService } from '@nestjs/axios';
 import { AuthDto } from './dto';
 import { UserDto } from 'src/user/dto/user.dto';
 import { JwtPayload, UserPayload } from './types/';
@@ -24,16 +23,6 @@ export class AuthService {
     return this.jwtService.sign(jwtPayload);
   }
 
-  loginWith2fa(user: User) {
-    const jwtPayload: JwtPayload = {
-      id: user.id,
-      immutableId: user.immutableId,
-      nickname: user.nickname,
-      isTwoFactorSet: true,
-    };
-    return this.jwtService.sign(jwtPayload);
-  }
-
   public async loginIntra(userData: AuthDto, accessToken: string) {
     const user: User = await this.userService.findOne(userData.id.toString());
     if (!user) {
@@ -44,6 +33,9 @@ export class AuthService {
         avatarImg: userData.image_url,
       };
       return await this.userService.createUser(data);
+    }
+    if (user.twoFactorAuthenticationSet) {
+      Redirect('http://localhost:8080/');
     }
     return user;
   }
