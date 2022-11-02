@@ -2,10 +2,10 @@ import Background from '../section-components/background';
 import BackgroundSignin from '../../img/disco.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { FormEvent, useRef, useState } from 'react';
-import { validate2faCode } from '../query-hooks/set2fa';
+import { authenticate } from '../query-hooks/set2fa';
 
 function SignIn2FA() {
-  const validate2faMutation = validate2faCode();
+  const authenticate2faMutation = authenticate();
   const [validCode, setValidCode] = useState<boolean>(true);
   const verficationCodeRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function SignIn2FA() {
     const input = verficationCodeRef.current
       ? verficationCodeRef.current.value
       : '';
-    validate2faMutation.mutate(input, {
+    authenticate2faMutation.mutate(input, {
       onSuccess: () => {
         setValidCode(true);
         navigate('/');

@@ -325,7 +325,7 @@ export class UserService {
   }
 
   logout(res: Response) {
-    return res.cookie('jwtToken', '', { httpOnly: true });
+    return res.clearCookie('jwtToken', { httpOnly: true });
   }
 
   /**

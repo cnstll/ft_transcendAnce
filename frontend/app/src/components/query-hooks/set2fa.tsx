@@ -43,3 +43,20 @@ export function validate2faCode(): UseMutationResult<
 > {
   return useMutation(putValidationCode);
 }
+
+const postAuthenticate = (input: string) =>
+  axios
+    .post(
+      'http://localhost:3000/2fa/authenticate',
+      { twoFactorAuthenticationCode: input },
+      { withCredentials: true },
+    )
+    .then((res) => res);
+
+export function authenticate(): UseMutationResult<
+  AxiosResponse,
+  unknown,
+  string
+> {
+  return useMutation(postAuthenticate);
+}
