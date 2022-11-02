@@ -27,7 +27,6 @@ interface GameCoords {
 
 function Game() {
 
-  // const [gameId, setGameId] = useState<string>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
@@ -35,22 +34,25 @@ function Game() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let test: string | null;
+    test = '';
     const gameId: string | null = "";
     if (localStorage.getItem('gameId') != null && localStorage.getItem('gameId') != "") {
+      console.log('i should only be here when there is something in storage');
+      test = localStorage.getItem('gameId')
       setGameId(localStorage.getItem('gameId'));
-      return;
-      // gameId = localStorage.getItem('gameId');
-      // setGameId(gameId);
+      // return;
     }
 
-    socket.emit('join', { name: gameId }, (response: { gameId: string, pNumber: number }) => {
-      if (response.pNumber > 1) {
+    socket.emit('join', { name: test }, (response: { gameId: string, playerNumber: number }) => {
+      if (response.playerNumber > 1) {
         player = 2;
+      } else {
+        player = 1;
       }
       localStorage.setItem('gameId', response.gameId);
       setGameId(gameId);
     });
-
   }, [])
 
   useEffect(() => {
@@ -60,6 +62,7 @@ function Game() {
       setGameId(localStorage.getItem('gameId'));
     }
     const joinListener = (text: { gameId: string, status: string, winner: string }) => {
+      console.log('this is text: ', text);
       setGameId(gameId)
       if (text.status == 'PENDING') {
         setGameStatus(GameStatus.PENDING);
@@ -150,14 +153,9 @@ function Game() {
 
   return (
     <>
-      {/* {isReady == false && <p> Waiting for a dance partner </p>} */}
-      {/* {isReady  && < canvas onMouseMove={movePaddle} ref={canvasRef} />} */}
-      {/* {isReady == true && < canvas onMouseMove={movePaddle} ref={canvasRef} />} */}
-      {/* {< canvas onMouseMove={movePaddle} ref={canvasRef} />} */}
       {gameStatus == GameStatus.PLAYING && < canvas onMouseMove={movePaddle} ref={canvasRef} />}
       {gameStatus == GameStatus.DONE && <p> done, you probably lost  </p>}
       {gameStatus == GameStatus.PENDING && <p> Waiting for a dance partner  {gameStatus}</p>}
-      {/* {<button onClick={clickHandle}> thisis </button>} */}
     </>
   )
 }

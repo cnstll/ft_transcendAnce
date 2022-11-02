@@ -1,92 +1,144 @@
 import { Injectable } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { Server } from 'socket.io';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Socket } from 'socket.io';
 import { PositionDto } from './dto/position.dto';
-import { GameCoords } from './entities/position.entity';
+import { Status, Game } from './entities/position.entity';
 
 @Injectable()
 export class GameService {
-  GameMap = new Map<string, GameCoords>();
+  GameMap = new Map<string, Game>();
 
+  constructor(
+    private prismaService: PrismaService,
+    private schedulerRegistry: SchedulerRegistry,
+  ) {}
   clientToUser = {};
 
-  create(createMessageDto: PositionDto) {
-    const game: GameCoords = this.GameMap.get(createMessageDto.room);
-    if (createMessageDto.player == 1) {
-      game['p1y'] = createMessageDto.y;
+  join(name: string, client: Socket, id: string, server: Server) {
+    if (name == '') {
+      return this.joinRandom(client, id, server);
     } else {
-      game['p2y'] = createMessageDto.y;
+      return this.joinSpecific(name, client, id, server);
     }
+  }
+
+  joinSpecific(name: string, client: Socket, id: string, server: Server) {
+    const game: Game = this.GameMap.get(name);
+
+    if (game.p1id == id) {
+      client.join(name);
+      server.to(name).emit('gameStatus', {
+        gameId: name,
+        status: game.status,
+        winner: '',
+      });
+      if (game.status == Status.PLAYING) {
+        this.addInterval(game.gameRoomId, 5, server);
+      }
+      return { gameId: game.gameRoomId, playerNumber: 1 };
+    } else if (game.p2id == id) {
+      client.join(name);
+      server.to(name).emit('gameStatus', {
+        gameId: name,
+        status: game.status,
+        winner: '',
+      });
+      if (game.status == Status.PLAYING) {
+        this.addInterval(game.gameRoomId, 5, server);
+      }
+      return { gameId: game.gameRoomId, playerNumber: 2 };
+    }
+  }
+
+  joinRandom(client: Socket, id: string, server: Server) {
+    let game: Game;
+
+    if (this.GameMap.size == 0) {
+      game = this.createGame(id, null);
+      console.log('I should be here first');
+      client.join(game.gameRoomId);
+      server.to(game.gameRoomId).emit('gameStatus', {
+        gameId: game.gameRoomId,
+        status: game.status,
+        winner: '',
+      });
+      return { gameId: game.gameRoomId, playerNumber: 1 };
+    } else {
+      for (const [gameRoomId, game] of this.GameMap) {
+        if (game.p2id == null) {
+          game.p2id = id;
+          game.status = Status.PLAYING;
+          client.join(gameRoomId);
+          server.to(gameRoomId).emit('gameStatus', {
+            gameId: gameRoomId,
+            status: game.status,
+            winner: '',
+          });
+          this.addInterval(gameRoomId, 5, server);
+          return { gameId: gameRoomId, playerNumber: 2 };
+        }
+      }
+      game = this.createGame(id, null);
+      return { gameId: game.gameRoomId, playerNumber: 1 };
+    }
+  }
+
+  pause(id: string) {
+    for (const [gameRoomId, game] of this.GameMap) {
+      if (game.p1id == id || game.p2id == id) {
+        this.deleteInterval(gameRoomId);
+      }
+    }
+  }
+  create(positionDto: PositionDto) {
+    const game: Game = this.GameMap.get(positionDto.room);
+    game.movePaddle(positionDto.player, positionDto.y);
     return game;
   }
 
   moveBall(roomName: string) {
-    const game: GameCoords = this.GameMap.get(roomName);
+    const game: Game = this.GameMap.get(roomName);
+    game.moveBall();
+    return game.returnGameInfo();
+  }
 
-    if (game['by'] >= 100) {
-      game.diry = game.diry * -1;
-    }
-    if (game['by'] <= 0) {
-      game.diry = game.diry * -1;
-    }
-    if (game['bx'] <= 7 && game['bx'] >= 3) {
-      if (game['by'] >= game['p1y'] && game['by'] <= game['p1y'] + 10) {
-        if (game.dirx > 0) {
-          game.dirx = 5;
-        } else {
-          game.dirx = game.dirx * -1 + 0.05;
-        }
-        game.diry = (game['by'] - game['p1y'] - 5) / 10;
-      }
-    }
-    if (game['bx'] >= 93 && game['bx'] <= 97) {
-      if (game['by'] >= game['p2y'] && game['by'] <= game['p2y'] + 10) {
-        game.dirx = game.dirx * -1 - 0.05;
-        game.diry = (game['by'] - game['p2y'] - 5) / 10;
-      }
-    }
-    if (game['bx'] < 0) {
-      game['p2s'] += 1;
-      game.dirx = 0.5;
-    }
-    if (game['bx'] > 100) {
-      game['p1s'] += 1;
-      game.dirx = -0.5;
-    }
-    game['bx'] += game.dirx;
-    game['by'] += game.diry;
+  createGame(p1: string, p2: string | null) {
+    const game = new Game();
+    this.GameMap.set(game.gameRoomId, game);
+    game.p1id = p1;
+    game.p2id = p2;
     return game;
   }
 
-  createGame(roomName: string) {
-    const game: GameCoords = {
-      gameRoom: roomName,
-      dirx: 0.5,
-      diry: 0.0,
-      p1x: 5,
-      p1y: 50,
-      p2x: 95,
-      p2y: 50,
-      bx: 50,
-      by: 55,
-      p1s: 0,
-      p2s: 0,
-      paddleSize: 10,
+  addInterval(name: string, milliseconds: number, server: Server) {
+    const callback = () => {
+      const message = this.moveBall(name);
+      if (message.p2s >= 10 || message.p1s >= 10) {
+        const game = this.GameMap.get(message.gameRoomId);
+        game.status = Status.DONE;
+        this.deleteInterval(message.gameRoomId);
+        server
+          .to(message.gameRoomId)
+          .emit('gameStatus', { gameId: name, status: 'DONE', winner: '' });
+        game.saveGame(this.prismaService);
+        this.GameMap.delete(message.gameRoomId);
+      }
+      server.to(message.gameRoomId).emit('message', message);
     };
-    this.GameMap.set(roomName, game);
+
+    const interval = setInterval(callback, milliseconds);
+    this.schedulerRegistry.addInterval(name, interval);
   }
 
-  makeid(length: number) {
-    let result = '';
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
+  deleteInterval(name: string) {
+    this.schedulerRegistry.deleteInterval(name);
   }
 
-  deleteGame(roomName: string) {
-    this.GameMap.delete(roomName);
+  getInterval(name: string) {
+    const interval = this.schedulerRegistry.getInterval(name);
+    return interval;
   }
 
   identify(name: string, clientId: string) {
@@ -96,17 +148,5 @@ export class GameService {
 
   getClientName(clientId: string) {
     return this.clientToUser[clientId];
-  }
-
-  findAll() {
-    // return this.messages;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} message`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} message`;
   }
 }
