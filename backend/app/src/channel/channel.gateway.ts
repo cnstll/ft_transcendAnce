@@ -10,9 +10,10 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
-import { CreateChannelDto } from './dto';
+import { CreateChannelDto, EditChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
+import { DeleteChannelDto } from './dto/deleteChannel.dto';
 
 @WebSocketGateway({
   cors: {
@@ -24,24 +25,40 @@ export class ChannelGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly channelService: ChannelService) {}
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('connectToRoom')
+  async connectToChannel(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('channelId') channelId: string,
+    @MessageBody('channelPassword') channelPassword: string,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const channel = await this.channelService.connectToChannel(
+      userId,
+      channelId,
+      channelPassword,
+      clientSocket,
+    );
+    channel === null
+      ? this.server.to(clientSocket.id).emit('connectionFailed')
+      : this.server.emit('connectedToRoom', channelId);
+  }
 
   //When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createRoom')
   async createChannel(
     @GetCurrentUserId() userId: string,
-    @MessageBody('userName') userName: string,
-    @MessageBody('channelName') channelName: string,
+    @MessageBody('createInfo') dto: CreateChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    // console.log('createRoom: ', userName, channelName);
     const channelId =
       new Date().getTime() + Math.random().toString(10).slice(12);
-    const dto: CreateChannelDto = {
+    dto = {
       id: channelId,
-      name: channelName,
+      ...dto,
     };
-    const channel = await this.channelService.createChannelTest(
+    const channel = await this.channelService.createChannelWS(
       dto,
       userId,
       clientSocket,
@@ -55,20 +72,17 @@ export class ChannelGateway {
   @SubscribeMessage('joinRoom')
   async joinChannel(
     @GetCurrentUserId() userId: string,
-    @MessageBody('channelId') channelId: string,
+    @MessageBody('joinInfo') dto: JoinChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const dto: JoinChannelDto = {
-      id: channelId,
-    };
-    const joinedRoom = await this.channelService.joinChannelTest(
+    const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,
       clientSocket,
     );
     joinedRoom == null
       ? this.server.to(clientSocket.id).emit('joinRoomFailed')
-      : this.server.emit('roomJoined', joinedRoom);
+      : this.server.to(dto.id).emit('roomJoined', joinedRoom);
   }
   //   When a user send a message in a channel, all the users within the room receive the message
   @UseGuards(JwtAuthGuard)
@@ -100,20 +114,39 @@ export class ChannelGateway {
     return clientSocket.to(roomId).emit('typing');
   }
 
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('editRoom')
+  async editRoom(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('channelId') channelId: string,
+    @MessageBody('editInfo') editChannelDto: EditChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const roomEdited = await this.channelService.editChannelByIdWS(
+      userId,
+      channelId,
+      editChannelDto,
+    );
+    roomEdited == null
+      ? this.server.to(clientSocket.id).emit('editRoomFailed')
+      : this.server.to(channelId).emit('roomEdited', channelId);
+  }
+
   //Delete channel
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('deleteRoom')
   async deleteRoom(
     @GetCurrentUserId() userId: string,
-    @MessageBody('channelId') channelId: string,
+    @MessageBody('deleteInfo') deleteChannelDto: DeleteChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const roomDeleted = await this.channelService.deleteChannelTest(
+    console.log(clientSocket.rooms, deleteChannelDto, clientSocket.id);
+    const roomDeleted = await this.channelService.deleteChannelWS(
       userId,
-      channelId,
+      deleteChannelDto,
     );
     roomDeleted == null
       ? this.server.to(clientSocket.id).emit('deleteRoomFailed')
-      : this.server.to(channelId).emit('roomDeleted', channelId);
+      : this.server.emit('roomDeleted', roomDeleted);
   }
 }

@@ -13,6 +13,7 @@ import { Response } from 'express';
 import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
+import { DeleteChannelDto } from './dto/deleteChannel.dto';
 
 @Injectable()
 export class ChannelService {
@@ -70,9 +71,10 @@ export class ChannelService {
         id: channelId,
       },
     });
-    if (channel === null) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    }
+    return channel;
+    // if (channel === null) {
+    //   throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    // }
   }
 
   async getUsersOfAChannel(channelId: string) {
@@ -234,15 +236,56 @@ export class ChannelService {
 
   //******   CHAT WEBSOCKETS SERVICES *******//
 
-  async createChannelTest(
+  async hasAdminRights(userId: string, channelId: string) {
+    /* Find the user's role to check the rights to update */
+    const admin: { role: ChannelRole } =
+      await this.prisma.channelUser.findUnique({
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: channelId,
+          },
+        },
+        select: {
+          role: true,
+        },
+      });
+    /* If relation doesn't exist or User doesn't have Owner or Admin role */
+    if (!admin || admin.role === 'USER') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  async connectToChannel(
+    userId: string,
+    channelId: string,
+    channelPassword: string,
+    clientSocket: Socket,
+  ) {
+    const channel = await this.checkChannel(channelId);
+    if (channel != null) {
+      if (channel.type == 'PUBLIC') {
+        await clientSocket.join(channelId);
+      } else {
+        //TODO If channel is protected check channelPassword
+      }
+    }
+    return channel;
+  }
+  async createChannelWS(
     dto: CreateChannelDto,
     userId: string,
     clientSocket: Socket,
   ) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-      //   this.checkDto(dto);
+      if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+        return null;
+      }
       /* Then try to create a new channel */
+      //* What if channel name already exists ?
       const newChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
@@ -254,25 +297,23 @@ export class ChannelService {
           },
         },
       });
-      /* Join socket.io room instance */
+      /* create and join room instance */
       clientSocket.join(dto.id);
       return newChannel;
     } catch (error) {
-      console.log(error);
       return null;
     }
   }
 
-  async joinChannelTest(
+  async joinChannelWS(
     dto: JoinChannelDto,
     userId: string,
     clientSocket: Socket,
   ) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-      //   this.checkDto(dto);
-      /* Then, update channel's information */
-      console.log(dto, userId);
+
+      /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
           id: dto.id,
@@ -291,7 +332,6 @@ export class ChannelService {
       return joinedChannel;
     } catch (error) {
       //TODO Improve error handling
-      console.log(error);
       return null;
     }
   }
@@ -314,13 +354,47 @@ export class ChannelService {
       });
       return channel;
     } catch (error) {
-      console.log(error);
       return null;
     }
   }
 
-  async deleteChannelTest(userId: string, channelId: string) {
+  async editChannelByIdWS(
+    userId: string,
+    channelId: string,
+    dto: EditChannelDto,
+  ) {
+    try {
+      /* Check the password is provided in the DTO for protected chan) */
+      if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+        return null;
+      }
+      /* Check that the user is owner or admin for update rights */
+      const canEdit = await this.hasAdminRights(userId, channelId);
+      if (!canEdit) {
+        return null;
+      }
+      /* Then, update channel's information */
+      const editedChannel: Channel = await this.prisma.channel.update({
+        where: {
+          id: channelId,
+        },
+        data: {
+          ...dto,
+        },
+      });
+      return editedChannel;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async deleteChannelWS(userId: string, dto: DeleteChannelDto) {
     //TODO Check role is ADMIN | OWNER
+    const canEdit = await this.hasAdminRights(userId, dto.id);
+    if (!canEdit) {
+      //   console.log('user: ', userId, ' cannot delete');
+      return null;
+    }
     //TODO ADMIN | OWNER user could delete a channel, if only she is the only one in the channel
     //
     /* Check if there is no user left in channel before deletion
@@ -329,24 +403,27 @@ export class ChannelService {
       const channelUsers: { users: ChannelUser[] } =
         await this.prisma.channel.findUnique({
           where: {
-            id: channelId,
+            id: dto.id,
           },
           select: {
             users: true,
           },
         });
-      if (channelUsers) {
-        console.log(channelUsers);
+      /* Verify if user asking for channel deletion is alone in channel */
+      if (
+        channelUsers.users &&
+        channelUsers.users.some((user) => user.userId != userId)
+      ) {
         return null;
       }
       /* Then, delete channel */
-      await this.prisma.channel.delete({
+      const channel = await this.prisma.channel.delete({
         where: {
-          id: channelId,
+          id: dto.id,
         },
       });
+      return channel;
     } catch (error) {
-      console.log(error);
       return null;
     }
   }
