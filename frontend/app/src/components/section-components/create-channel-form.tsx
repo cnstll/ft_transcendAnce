@@ -30,7 +30,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
     console.log(formData.type);
   }
 
-  async function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
       const res = createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password });
@@ -42,7 +42,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
     setFormData(defaultFormData);
   }
 
-  return <>
+  return (
     <div className="absolute block p-4 rounded-lg shadow-lg w-80 bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
       <h2 className="text-center text-purple text-sm sm:text-sm md:text-lg font-bold my-3">Create a new channel</h2>
       <div className="grid gap-y-6">
@@ -94,7 +94,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
         </form>
       </div>
     </div>
-</>
+    );
 }
 
 export default CreateChannelForm;
