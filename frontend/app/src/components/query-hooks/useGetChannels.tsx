@@ -20,7 +20,7 @@ const fetchAllGroupChannels = () =>
   }).then((res) => res.data);
 
 export function useGroupChannelsList(): UseQueryResult<Channel[]> {
-  return useQuery('groupChannelsList', fetchAllGroupChannels);
+  return useQuery(['groupChannelsList'], fetchAllGroupChannels);
 }
 
 const fetchAllChannelsByUserId = () =>

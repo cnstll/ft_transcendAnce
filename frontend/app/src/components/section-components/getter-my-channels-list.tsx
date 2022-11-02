@@ -1,8 +1,13 @@
 import ChannelsList from "./channels-list";
 import { useChannelsByUserList } from "../query-hooks/useGetChannels";
+import { useEffect } from "react";
 
 function MyChannelsList() {
   const channels = useChannelsByUserList();
+
+  useEffect(() => {
+    void channels.refetch();
+  }, [channels]);
 
   return (
     <>

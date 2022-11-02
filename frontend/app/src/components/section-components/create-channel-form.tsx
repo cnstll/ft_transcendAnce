@@ -34,8 +34,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
-      const res = createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password });
-      console.log(res);
+      createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password });
+
       props.setShowForm(false);
     } catch (error) {
       console.log(error);
@@ -71,15 +71,21 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 </p>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange} onClick={() => setPasswordRequired(false)}/>
-                  <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">Public - everyone can access freely</label>
+                  <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
+                    Public - everyone can access freely
+                  </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Private} onChange={onChange} onClick={() => setPasswordRequired(false)}/>
-                  <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">Private - only invited members can join</label>
+                  <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
+                    Private - only invited members can join
+                  </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Protected} onChange={onChange} onClick={() => setPasswordRequired(true)}/>
-                  <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">Protected - a password is required to join</label>
+                  <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
+                    Protected - a password is required to join
+                  </label>
                 </div>
               </div>
               {passwordRequired &&
