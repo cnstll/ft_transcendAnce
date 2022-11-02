@@ -1,8 +1,16 @@
+export enum channelType {
+  Public = 'PUBLIC',
+  Private = 'PRIVATE',
+  Protected = 'PROTECTED',
+  DirectMessage = 'DIRECTMESSAGE'
+}
+
+
 export interface Channel {
   id: string;
   name: string;
   password?: string,
-  type: 'PUBLIC' | 'PRIVATE' | 'PROTECTED' | 'DIRECTMESSAGE';
+  type: channelType;
 }
 
 export enum friendshipStatus {
