@@ -3,22 +3,21 @@ import { useQueryClient, useMutation } from 'react-query'
 import { Channel } from "../global-components/interface";
 
 const postChannelRequest =
-  (name: string, type? : 'PUBLIC' | 'PRIVATE' | 'PROTECTED' | 'DIRECTMESSAGE', password?: string) =>
+  (channel: {name: string, type? : 'PUBLIC' | 'PRIVATE' | 'PROTECTED' | 'DIRECTMESSAGE', passwordHash?: string}) =>
   axios
     .post<Channel>(
       'http://localhost:3000/channels/create',
-      {
-        name,
-        type,
-        password,
-      },
+      channel,
       { withCredentials: true },
       )
       .then((res) => res.data);
 
 export default function useCreateChannel() {
   const queryClient = useQueryClient();
-  return useMutation((name: string, type? : 'PUBLIC' | 'PRIVATE' | 'PROTECTED' | 'DIRECTMESSAGE', password?: string) => postChannelRequest(name, type, password), {
-    onSuccess: () => queryClient.refetchQueries(['groupChannelsList']),
-  });
+  return useMutation((channel: {name: string, type? : 'PUBLIC' | 'PRIVATE' | 'PROTECTED' | 'DIRECTMESSAGE', passwordHash?: string}) =>
+    postChannelRequest(channel),
+    {
+      onSuccess: () => queryClient.refetchQueries(['groupChannelsList']),
+    }
+  );
 }
