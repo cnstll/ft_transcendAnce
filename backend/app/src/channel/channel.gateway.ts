@@ -13,7 +13,8 @@ import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorato
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
-import { DeleteChannelDto } from './dto/deleteChannel.dto';
+import { LeaveChannelDto } from './dto/leaveChannel.dto';
+import { Channel } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
@@ -52,10 +53,7 @@ export class ChannelGateway {
     @MessageBody('createInfo') dto: CreateChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const channelId =
-      new Date().getTime() + Math.random().toString(10).slice(12);
     dto = {
-      id: channelId,
       ...dto,
     };
     const channel = await this.channelService.createChannelWS(
@@ -65,7 +63,7 @@ export class ChannelGateway {
     );
     channel === null
       ? this.server.to(clientSocket.id).emit('createRoomFailed')
-      : this.server.emit('roomCreated', channelId);
+      : this.server.emit('roomCreated', channel.id);
   }
   // When a user join a channel, her ids are added to the users in the corresponding room
   @UseGuards(JwtAuthGuard)
@@ -75,6 +73,7 @@ export class ChannelGateway {
     @MessageBody('joinInfo') dto: JoinChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    console.log('JOINING: ', userId);
     const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,
@@ -134,19 +133,26 @@ export class ChannelGateway {
 
   //Delete channel
   @UseGuards(JwtAuthGuard)
-  @SubscribeMessage('deleteRoom')
+  @SubscribeMessage('leaveRoom')
   async deleteRoom(
     @GetCurrentUserId() userId: string,
-    @MessageBody('deleteInfo') deleteChannelDto: DeleteChannelDto,
+    @MessageBody('leaveInfo') leaveChannelDto: LeaveChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log(clientSocket.rooms, deleteChannelDto, clientSocket.id);
-    const roomDeleted = await this.channelService.deleteChannelWS(
+    console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
+    const roomDeleted = await this.channelService.leaveChannelWS(
       userId,
-      deleteChannelDto,
+      leaveChannelDto,
     );
-    roomDeleted == null
-      ? this.server.to(clientSocket.id).emit('deleteRoomFailed')
-      : this.server.emit('roomDeleted', roomDeleted);
+    function isChannel(obj): obj is Channel {
+      return obj.id !== undefined;
+    }
+    if (roomDeleted == null) {
+      this.server.to(clientSocket.id).emit('leaveRoomFailed');
+    } else if (isChannel(roomDeleted)) {
+      this.server.emit('roomDeleted', roomDeleted);
+    } else {
+      this.server.emit('roomLeft', roomDeleted);
+    }
   }
 }

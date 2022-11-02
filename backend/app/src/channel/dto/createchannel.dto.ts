@@ -3,10 +3,6 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateChannelDto {
   @IsString()
-  @IsOptional()
-  id?: string;
-
-  @IsString()
   @IsNotEmpty()
   name: string;
 

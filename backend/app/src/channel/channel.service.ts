@@ -13,7 +13,7 @@ import { Response } from 'express';
 import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
-import { DeleteChannelDto } from './dto/deleteChannel.dto';
+import { LeaveChannelDto } from './dto/leaveChannel.dto';
 
 @Injectable()
 export class ChannelService {
@@ -71,10 +71,9 @@ export class ChannelService {
         id: channelId,
       },
     });
-    return channel;
-    // if (channel === null) {
-    //   throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    // }
+    if (channel === null) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   async getUsersOfAChannel(channelId: string) {
@@ -264,7 +263,11 @@ export class ChannelService {
     channelPassword: string,
     clientSocket: Socket,
   ) {
-    const channel = await this.checkChannel(channelId);
+    const channel: Channel = await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+    });
     if (channel != null) {
       if (channel.type == 'PUBLIC') {
         await clientSocket.join(channelId);
@@ -298,7 +301,7 @@ export class ChannelService {
         },
       });
       /* create and join room instance */
-      clientSocket.join(dto.id);
+      clientSocket.join(newChannel.id);
       return newChannel;
     } catch (error) {
       return null;
@@ -388,18 +391,18 @@ export class ChannelService {
     }
   }
 
-  async deleteChannelWS(userId: string, dto: DeleteChannelDto) {
-    //TODO Check role is ADMIN | OWNER
-    const canEdit = await this.hasAdminRights(userId, dto.id);
-    if (!canEdit) {
-      //   console.log('user: ', userId, ' cannot delete');
-      return null;
-    }
-    //TODO ADMIN | OWNER user could delete a channel, if only she is the only one in the channel
-    //
-    /* Check if there is no user left in channel before deletion
-    - implementing ChannelUser's deletion is required for testing the code below */
+  async leaveChannelWS(userId: string, dto: LeaveChannelDto) {
     try {
+      // Remove user from channel users ('user leave room')
+      const leavingUser = await this.prisma.channelUser.delete({
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: dto.id,
+          },
+        },
+      });
+      /* Verify if user asking for channel deletion is alone in channel */
       const channelUsers: { users: ChannelUser[] } =
         await this.prisma.channel.findUnique({
           where: {
@@ -409,20 +412,17 @@ export class ChannelService {
             users: true,
           },
         });
-      /* Verify if user asking for channel deletion is alone in channel */
-      if (
-        channelUsers.users &&
-        channelUsers.users.some((user) => user.userId != userId)
-      ) {
-        return null;
-      }
       /* Then, delete channel */
-      const channel = await this.prisma.channel.delete({
-        where: {
-          id: dto.id,
-        },
-      });
-      return channel;
+      // If user is the last one delete the channel
+      if (channelUsers.users.length == 0) {
+        const channel = await this.prisma.channel.delete({
+          where: {
+            id: dto.id,
+          },
+        });
+        return channel;
+      }
+      return leavingUser;
     } catch (error) {
       return null;
     }
