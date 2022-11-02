@@ -1,8 +1,13 @@
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Request } from 'express';
 
 export interface Position {
   x: number;
   y: number;
+}
+
+export interface HandshakeRequest extends Request {
+  handshake?: { headers: { cookie: string } };
 }
 
 export class Game {
@@ -97,7 +102,7 @@ export class Game {
       gameRoomId: this.gameRoomId,
     };
   }
-  async saveGame(prismaService: PrismaService) {
+  async saveGameResults(prismaService: PrismaService) {
     await prismaService.match.create({
       data: {
         id: this.gameRoomId,

@@ -14,11 +14,7 @@ import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorat
 
 @WebSocketGateway({
   cors: {
-    origin: [
-      'http://localhost',
-      'http://localhost:8080',
-      'http://localhost:3000',
-    ],
+    origin: 'http://localhost:8080',
     credentials: true,
   },
 })
@@ -29,19 +25,15 @@ export class GameGateway {
 
   constructor(private readonly messagesService: GameService) {}
 
-  @SubscribeMessage('createMessage')
+  @SubscribeMessage('updatePaddlePos')
   async create(@MessageBody() createMessageDto: PositionDto) {
     const message = this.messagesService.create(createMessageDto);
-    this.server.to(createMessageDto.room).emit('message', message);
+    if (message) {
+      this.server.to(createMessageDto.room).emit('updatedGameInfo', message);
+    }
     return message;
   }
 
-  @SubscribeMessage('connection')
-  test() {
-    console.log('hi');
-  }
-
-  // Please I need this to figure stuff out later
   @SubscribeMessage('disconnect')
   @UseGuards(JwtAuthGuard)
   handleDisconnect(@ConnectedSocket() client: Socket) {
@@ -49,14 +41,13 @@ export class GameGateway {
   }
 
   @UseGuards(JwtAuthGuard)
-  @SubscribeMessage('join')
+  @SubscribeMessage('joinGame')
   joinRoom(
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
     @GetCurrentUserId() id: string,
   ) {
     this.socketToId.set(client.id, id);
-    console.log(id);
     return this.messagesService.join(name, client, id, this.server);
   }
 }

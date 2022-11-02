@@ -1,29 +1,11 @@
 import { useEffect, useRef, useState, MouseEvent } from "react"
 import { useNavigate } from "react-router-dom";
 import { socket } from "./socket";
+import { GameCoords, GameStatus } from '../global-components/interface'
 
 let player = 1;
 let paddleHeight = 50;
 
-enum GameStatus {
-  PLAYING = 'PLAYING',
-  DONE = "DONE",
-  PENDING = "PENDING"
-}
-interface GameCoords {
-  gameRoom: string;
-  dirx: number;
-  diry: number;
-  p1x: number;
-  p1y: number;
-  p2x: number;
-  p2y: number;
-  bx: number;
-  by: number;
-  p1s: number;
-  p2s: number;
-  paddleSize: number;
-}
 
 function Game() {
 
@@ -38,13 +20,12 @@ function Game() {
     test = '';
     const gameId: string | null = "";
     if (localStorage.getItem('gameId') != null && localStorage.getItem('gameId') != "") {
-      console.log('i should only be here when there is something in storage');
       test = localStorage.getItem('gameId')
       setGameId(localStorage.getItem('gameId'));
       // return;
     }
 
-    socket.emit('join', { name: test }, (response: { gameId: string, playerNumber: number }) => {
+    socket.emit('joinGame', { name: test }, (response: { gameId: string, playerNumber: number }) => {
       if (response.playerNumber > 1) {
         player = 2;
       } else {
@@ -62,7 +43,6 @@ function Game() {
       setGameId(localStorage.getItem('gameId'));
     }
     const joinListener = (text: { gameId: string, status: string, winner: string }) => {
-      console.log('this is text: ', text);
       setGameId(gameId)
       if (text.status == 'PENDING') {
         setGameStatus(GameStatus.PENDING);
@@ -128,10 +108,10 @@ function Game() {
         };
 
 
-        socket.on('message', messageListener);
+        socket.on('updatedGameInfo', messageListener);
 
         return () => {
-          socket.off('message', messageListener);
+          socket.off('updatedGameInfo', messageListener);
         };
       }
     }
@@ -144,7 +124,7 @@ function Game() {
     if (gameStatus == GameStatus.PLAYING && canvasRef.current != null) {
       const rect = canvasRef.current.getBoundingClientRect();
       const posy = ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
-      socket.emit('createMessage', { x: 50, y: posy, room: gameId, player: player }, (res: GameCoords) => {
+      socket.emit('updatePaddlePos', { x: 50, y: posy, room: gameId, player: player }, (res: GameCoords) => {
         void (res);
       });
       //TODO remove x 
