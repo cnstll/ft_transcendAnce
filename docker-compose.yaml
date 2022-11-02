@@ -12,6 +12,8 @@ services:
     entrypoint: /home/entrypoint_scripts/start.sh
     networks:
       - frontend
+    environment: 
+      - WDS_SOCKET_PORT=0
 
   backend:
     build: ./backend/
