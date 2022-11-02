@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { PositionDto } from './dto/position.dto';
-import { Status, Game } from './entities/position.entity';
+import { Status, Game } from './entities/game.entities';
 
 @Injectable()
 export class GameService {
@@ -14,7 +14,6 @@ export class GameService {
     private prismaService: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
   ) {}
-  clientToUser = {};
 
   join(name: string, client: Socket, id: string, server: Server) {
     if (name == '') {
@@ -57,7 +56,6 @@ export class GameService {
 
     if (this.GameMap.size == 0) {
       game = this.createGame(id, null);
-      console.log('I should be here first');
       client.join(game.gameRoomId);
       server.to(game.gameRoomId).emit('gameStatus', {
         gameId: game.gameRoomId,
@@ -94,8 +92,11 @@ export class GameService {
   }
   create(positionDto: PositionDto) {
     const game: Game = this.GameMap.get(positionDto.room);
-    game.movePaddle(positionDto.player, positionDto.y);
-    return game;
+    if (game != undefined) {
+      game.movePaddle(positionDto.player, positionDto.y);
+      return game;
+    }
+    return null;
   }
 
   moveBall(roomName: string) {
@@ -122,10 +123,10 @@ export class GameService {
         server
           .to(message.gameRoomId)
           .emit('gameStatus', { gameId: name, status: 'DONE', winner: '' });
-        game.saveGame(this.prismaService);
+        game.saveGameResults(this.prismaService);
         this.GameMap.delete(message.gameRoomId);
       }
-      server.to(message.gameRoomId).emit('message', message);
+      server.to(message.gameRoomId).emit('updatedGameInfo', message);
     };
 
     const interval = setInterval(callback, milliseconds);
@@ -139,14 +140,5 @@ export class GameService {
   getInterval(name: string) {
     const interval = this.schedulerRegistry.getInterval(name);
     return interval;
-  }
-
-  identify(name: string, clientId: string) {
-    this.clientToUser[clientId] = name;
-    return Object.values(this.clientToUser);
-  }
-
-  getClientName(clientId: string) {
-    return this.clientToUser[clientId];
   }
 }
