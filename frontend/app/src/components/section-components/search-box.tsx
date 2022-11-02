@@ -48,7 +48,6 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
     if (!users) {
       return [];
     }
-    console.log(users);
     return users.filter((user) => {
       const filterUsers = user.nickname.toLowerCase();
       return filterUsers.includes(query.toLowerCase());
@@ -62,7 +61,6 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
     if (!channels) {
       return [];
     }
-    console.log(channels);
     return channels.filter((channel) => {
       const filterChannels = channel.name.toLowerCase();
       return filterChannels.includes(query.toLowerCase());
