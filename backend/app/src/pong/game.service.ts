@@ -16,7 +16,7 @@ export class GameService {
   ) {}
 
   join(name: string, client: Socket, id: string, server: Server) {
-    if (name == '') {
+    if (name === '') {
       return this.joinRandom(client, id, server);
     } else {
       return this.joinSpecific(name, client, id, server);
@@ -26,25 +26,25 @@ export class GameService {
   joinSpecific(name: string, client: Socket, id: string, server: Server) {
     const game: Game = this.GameMap.get(name);
 
-    if (game.p1id == id) {
+    if (game.p1id === id) {
       client.join(name);
       server.to(name).emit('gameStatus', {
         gameId: name,
         status: game.status,
         winner: '',
       });
-      if (game.status == Status.PLAYING) {
+      if (game.status === Status.PLAYING) {
         this.addInterval(game.gameRoomId, 5, server);
       }
       return { gameId: game.gameRoomId, playerNumber: 1 };
-    } else if (game.p2id == id) {
+    } else if (game.p2id === id) {
       client.join(name);
       server.to(name).emit('gameStatus', {
         gameId: name,
         status: game.status,
         winner: '',
       });
-      if (game.status == Status.PLAYING) {
+      if (game.status === Status.PLAYING) {
         this.addInterval(game.gameRoomId, 5, server);
       }
       return { gameId: game.gameRoomId, playerNumber: 2 };
@@ -54,7 +54,7 @@ export class GameService {
   joinRandom(client: Socket, id: string, server: Server) {
     let game: Game;
 
-    if (this.GameMap.size == 0) {
+    if (this.GameMap.size === 0) {
       game = this.createGame(id, null);
       client.join(game.gameRoomId);
       server.to(game.gameRoomId).emit('gameStatus', {
@@ -65,7 +65,7 @@ export class GameService {
       return { gameId: game.gameRoomId, playerNumber: 1 };
     } else {
       for (const [gameRoomId, game] of this.GameMap) {
-        if (game.p2id == null) {
+        if (game.p2id === null) {
           game.p2id = id;
           game.status = Status.PLAYING;
           client.join(gameRoomId);
@@ -85,14 +85,14 @@ export class GameService {
 
   pause(id: string) {
     for (const [gameRoomId, game] of this.GameMap) {
-      if (game.p1id == id || game.p2id == id) {
+      if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(gameRoomId);
       }
     }
   }
   create(positionDto: PositionDto) {
     const game: Game = this.GameMap.get(positionDto.room);
-    if (game != undefined) {
+    if (game !== undefined) {
       game.movePaddle(positionDto.player, positionDto.y);
       return game;
     }
