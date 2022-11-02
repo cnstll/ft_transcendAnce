@@ -1,29 +1,11 @@
 import { useEffect, useRef, useState, MouseEvent } from "react"
 import { useNavigate } from "react-router-dom";
 import { socket } from "./socket";
+import { GameCoords, GameStatus } from '../global-components/interface'
 
 let player = 1;
 let paddleHeight = 50;
 
-enum GameStatus {
-  PLAYING = 'PLAYING',
-  DONE = "DONE",
-  PENDING = "PENDING"
-}
-interface GameCoords {
-  gameRoom: string;
-  dirx: number;
-  diry: number;
-  p1x: number;
-  p1y: number;
-  p2x: number;
-  p2y: number;
-  bx: number;
-  by: number;
-  p1s: number;
-  p2s: number;
-  paddleSize: number;
-}
 
 function Game() {
 

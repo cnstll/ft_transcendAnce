@@ -97,7 +97,7 @@ export class Game {
       gameRoomId: this.gameRoomId,
     };
   }
-  async saveGame(prismaService: PrismaService) {
+  async saveGameResults(prismaService: PrismaService) {
     await prismaService.match.create({
       data: {
         id: this.gameRoomId,
