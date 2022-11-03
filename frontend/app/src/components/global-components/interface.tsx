@@ -36,7 +36,8 @@ export interface TargetInfo {
 export enum GameStatus {
   PLAYING = 'PLAYING',
   DONE = "DONE",
-  PENDING = "PENDING"
+  PENDING = "PENDING",
+  PAUSED = "PAUSED"
 }
 
 export interface GameCoords {

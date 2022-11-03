@@ -23,28 +23,32 @@ export class GameService {
     }
   }
 
+  mutateGameStatus(game: Game, status: Status, server: Server) {
+    game.status = status;
+    server.to(game.gameRoomId).emit('gameStatus', {
+      gameId: game.gameRoomId,
+      status: game.status,
+      winner: '',
+    });
+  }
   joinSpecific(name: string, client: Socket, id: string, server: Server) {
     const game: Game = this.GameMap.get(name);
 
     if (game.p1id == id) {
       client.join(name);
-      server.to(name).emit('gameStatus', {
-        gameId: name,
-        status: game.status,
-        winner: '',
-      });
-      if (game.status == Status.PLAYING) {
+      this.mutateGameStatus(game, game.status, server);
+      if (game.status == Status.PAUSED) {
+        this.deleteTimeout(game.gameRoomId);
+        this.mutateGameStatus(game, Status.PLAYING, server);
         this.addInterval(game.gameRoomId, 5, server);
       }
       return { gameId: game.gameRoomId, playerNumber: 1 };
     } else if (game.p2id == id) {
       client.join(name);
-      server.to(name).emit('gameStatus', {
-        gameId: name,
-        status: game.status,
-        winner: '',
-      });
-      if (game.status == Status.PLAYING) {
+      this.mutateGameStatus(game, game.status, server);
+      if (game.status == Status.PAUSED) {
+        this.deleteTimeout(game.gameRoomId);
+        this.mutateGameStatus(game, Status.PLAYING, server);
         this.addInterval(game.gameRoomId, 5, server);
       }
       return { gameId: game.gameRoomId, playerNumber: 2 };
@@ -57,23 +61,14 @@ export class GameService {
     if (this.GameMap.size == 0) {
       game = this.createGame(id, null);
       client.join(game.gameRoomId);
-      server.to(game.gameRoomId).emit('gameStatus', {
-        gameId: game.gameRoomId,
-        status: game.status,
-        winner: '',
-      });
+      this.mutateGameStatus(game, game.status, server);
       return { gameId: game.gameRoomId, playerNumber: 1 };
     } else {
       for (const [gameRoomId, game] of this.GameMap) {
         if (game.p2id == null) {
           game.p2id = id;
-          game.status = Status.PLAYING;
           client.join(gameRoomId);
-          server.to(gameRoomId).emit('gameStatus', {
-            gameId: gameRoomId,
-            status: game.status,
-            winner: '',
-          });
+          this.mutateGameStatus(game, Status.PLAYING, server);
           this.addInterval(gameRoomId, 5, server);
           return { gameId: gameRoomId, playerNumber: 2 };
         }
@@ -83,13 +78,38 @@ export class GameService {
     }
   }
 
-  pause(id: string) {
+  deleteTimeout(name: string) {
+    this.schedulerRegistry.deleteTimeout(name);
+  }
+
+  addTimeout(
+    name: string,
+    milliseconds: number,
+    server: Server,
+    winnerId: string,
+  ) {
+    const callback = () => {
+      console.log('timeout started, deleting game in 5 seconds');
+      const game = this.GameMap.get(name);
+      this.mutateGameStatus(game, Status.DONE, server);
+      game.claimVictory(winnerId, this.prismaService);
+      this.GameMap.delete(name);
+    };
+
+    const timeout = setTimeout(callback, milliseconds);
+    this.schedulerRegistry.addTimeout(name, timeout);
+  }
+
+  pause(id: string, server: Server) {
     for (const [gameRoomId, game] of this.GameMap) {
       if (game.p1id == id || game.p2id == id) {
         this.deleteInterval(gameRoomId);
+        this.mutateGameStatus(game, Status.PAUSED, server);
+        this.addTimeout(gameRoomId, 5000, server, id);
       }
     }
   }
+
   create(positionDto: PositionDto) {
     const game: Game = this.GameMap.get(positionDto.room);
     if (game != undefined) {
@@ -118,11 +138,8 @@ export class GameService {
       const message = this.moveBall(name);
       if (message.p2s >= 10 || message.p1s >= 10) {
         const game = this.GameMap.get(message.gameRoomId);
-        game.status = Status.DONE;
         this.deleteInterval(message.gameRoomId);
-        server
-          .to(message.gameRoomId)
-          .emit('gameStatus', { gameId: name, status: 'DONE', winner: '' });
+        this.mutateGameStatus(game, Status.DONE, server);
         game.saveGameResults(this.prismaService);
         this.GameMap.delete(message.gameRoomId);
       }

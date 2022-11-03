@@ -37,7 +37,7 @@ export class GameGateway {
   @SubscribeMessage('disconnect')
   @UseGuards(JwtAuthGuard)
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.messagesService.pause(this.socketToId.get(client.id));
+    this.messagesService.pause(this.socketToId.get(client.id), this.server);
   }
 
   @UseGuards(JwtAuthGuard)

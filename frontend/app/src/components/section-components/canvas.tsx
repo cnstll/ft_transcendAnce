@@ -19,9 +19,9 @@ function Game() {
     let test: string | null;
     test = '';
     const gameId: string | null = "";
-    if (localStorage.getItem('gameId') != null && localStorage.getItem('gameId') != "") {
-      test = localStorage.getItem('gameId')
-      setGameId(localStorage.getItem('gameId'));
+    if (sessionStorage.getItem('gameId') != null && sessionStorage.getItem('gameId') != "") {
+      test = sessionStorage.getItem('gameId')
+      setGameId(sessionStorage.getItem('gameId'));
       // return;
     }
 
@@ -31,16 +31,16 @@ function Game() {
       } else {
         player = 1;
       }
-      localStorage.setItem('gameId', response.gameId);
+      sessionStorage.setItem('gameId', response.gameId);
       setGameId(gameId);
     });
   }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (localStorage.getItem('gameId') != null && localStorage.getItem('gameId') != "") {
-      // gameId = localStorage.getItem('gameId');
-      setGameId(localStorage.getItem('gameId'));
+    if (sessionStorage.getItem('gameId') != null && sessionStorage.getItem('gameId') != "") {
+      // gameId = sessionStorage.getItem('gameId');
+      setGameId(sessionStorage.getItem('gameId'));
     }
     const joinListener = (text: { gameId: string, status: string, winner: string }) => {
       setGameId(gameId)
@@ -49,12 +49,16 @@ function Game() {
       }
       else if (text.status == 'DONE') {
         setGameStatus(GameStatus.DONE);
-        localStorage.clear();
+        sessionStorage.clear();
         navigate('/');
       }
       else if (text.status == 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
       }
+      else if (text.status == 'PAUSED') {
+        setGameStatus(GameStatus.PAUSED);
+      }
+      // console.log('i am here');
     }
 
     socket.on('gameStatus', joinListener);
@@ -136,6 +140,7 @@ function Game() {
       {gameStatus == GameStatus.PLAYING && < canvas onMouseMove={movePaddle} ref={canvasRef} />}
       {gameStatus == GameStatus.DONE && <p> done, you probably lost  </p>}
       {gameStatus == GameStatus.PENDING && <p> Waiting for a dance partner  {gameStatus}</p>}
+      {gameStatus == GameStatus.PAUSED && <p> your partner has disconnected, vixtory will be yours if he doens't reconnect withing 5 seconds </p>}
     </>
   )
 }
