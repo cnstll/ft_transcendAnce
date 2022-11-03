@@ -1,4 +1,3 @@
-
 import { Dispatch, useState } from "react";
 import { channelType } from "../global-components/interface";
 import useCreateChannel from "../query-hooks/useCreateChannel";
@@ -21,6 +20,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   //const createChannelRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(defaultFormData);
   const [passwordRequired, setPasswordRequired] = useState(false);
+  const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, password } = formData;
   //const [inputStatus, setInputStatus] = useState<string>('empty');
 
@@ -33,14 +33,13 @@ function CreateChannelForm(props: CreateChannelFormProps) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    try {
-      createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password });
-
+    createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password });
+    if (createChannelMutation.isSuccess) {
       props.setShowForm(false);
-    } catch (error) {
-      console.log(error);
+      setFormData(defaultFormData);
+    } else {
+      setInputStatus('invalid');
     }
-    setFormData(defaultFormData);
   }
 
   return (
@@ -54,9 +53,12 @@ function CreateChannelForm(props: CreateChannelFormProps) {
               <form onSubmit={onSubmit}>
               <div id="form-channel-creation-name"
                 className="form-group my-3">
-                <label htmlFor="ChannelName" className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-3 font-bold">Enter a name:</label>
+                <label htmlFor="ChannelName" className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-3 font-bold">
+                  Enter a name:
+                </label>
                 <input
-                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500`}
+                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                    inputStatus == 'invalid'? 'border-red-500' : ''}`}
                   type="text"
                   name="name"
                   id="name"
@@ -95,7 +97,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   Enter a password:
                 </label>
                 <input
-                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500`}
+                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                    inputStatus == 'invalid'? 'border-red-500' : ''}`}
                   name="password"
                   id="password"
                   value={password}

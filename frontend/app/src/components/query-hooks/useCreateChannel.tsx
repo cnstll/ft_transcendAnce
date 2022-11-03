@@ -18,6 +18,6 @@ export default function useCreateChannel() {
     postChannelRequest(channel),
     {
       onSuccess: () => queryClient.refetchQueries(['groupChannelsList']),
-    },
+    }
   );
 }

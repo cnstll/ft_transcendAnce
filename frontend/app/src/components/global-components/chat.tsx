@@ -13,7 +13,7 @@ import ChannelHeader from '../section-components/channel-header';
 import { User } from '../global-components/interface';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import MyChannelsList from '../section-components/getter-my-channels-list';
+import MyChannelsList from '../section-components/my-channels-list';
 
 const chanUsersData: User[] = [
   {

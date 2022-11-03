@@ -125,7 +125,6 @@ export class ChannelService {
     try {
       /* Check the password is provided in the DTO for protected chan) */
       this.checkDto(dto);
-      console.log(dto);
       /* Then try to create a new channel */
       const newChannel: Channel = await this.prisma.channel.create({
         data: {
