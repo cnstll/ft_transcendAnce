@@ -7,6 +7,7 @@ import { GameModule } from './pong/game.module';
 import { ChannelModule } from './channel/channel.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
+import { TwoFactorAuthenticationModule } from './2fa/two.factor.authentication.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UserModule } from './user/user.module';
     }),
     PrismaModule,
     UserModule,
+    TwoFactorAuthenticationModule,
     GameModule,
     ScheduleModule.forRoot(),
   ],
