@@ -9,7 +9,7 @@ import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
 import CreateChannelForm from './create-channel-form';
 
 function ChannelHeader() {
-  const channelsData: UseQueryResult<Channel[]> = useGroupChannelsList();
+  const channelsData: UseQueryResult<Channel[] | undefined> = useGroupChannelsList();
   const [showForm, setShowForm] = useState<boolean>(false);
 
   function showCreateChannelForm() {
@@ -35,9 +35,10 @@ function ChannelHeader() {
           </div>
         </div>
       </div>
+      {!channelsData}
       {channelsData.isLoading && <p className="m-4 text-base">Loading channels...</p>}
       {channelsData.isError && <p className="m-4 text-base">Could not fetch channel search</p>}
-      {channelsData.isSuccess && <SearchBox height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 "
+      {channelsData.data && channelsData.isSuccess && <SearchBox height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 "
         width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
         placeholder="channel" channels={channelsData.data}/>}
     </div>

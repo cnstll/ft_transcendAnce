@@ -19,7 +19,7 @@ const fetchAllGroupChannels = () =>
       withCredentials: true,
   }).then((res) => res.data);
 
-export function useGroupChannelsList(): UseQueryResult<Channel[]> {
+export function useGroupChannelsList(): UseQueryResult<Channel[] | undefined> {
   return useQuery(['groupChannelsList'], fetchAllGroupChannels);
 }
 
@@ -29,6 +29,6 @@ const fetchAllChannelsByUserId = () =>
       withCredentials: true,
   }).then((res) => res.data);
 
-export function useChannelsByUserList(): UseQueryResult<Channel[] | null > {
+export function useChannelsByUserList(): UseQueryResult<Channel[] | undefined> {
   return useQuery('channelsByUserList', fetchAllChannelsByUserId, );
 }
