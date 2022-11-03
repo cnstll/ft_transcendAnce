@@ -28,10 +28,6 @@ function Profile() {
     if (user.isError) navigate('/sign-in');
   });
 
-
-  useEffect(() => {
-    if (user.isError) navigate('/sign-in');
-  });
   return (
     <>
       {user.isLoading && <p>isLoading...</p>}

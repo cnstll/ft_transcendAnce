@@ -57,7 +57,6 @@ export class UserController {
     @Res() res: Response,
     @Body() data: FriendDto,
   ) {
-    console.log(data);
     return this.userService.requestFriend(userId, data.target, res);
   }
 

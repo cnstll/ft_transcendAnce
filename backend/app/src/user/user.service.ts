@@ -1,5 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { User, FriendshipStatus } from '@prisma/client';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { User, FriendshipStatus, UserStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -228,6 +232,7 @@ export class UserService {
           ],
         },
       });
+      if (!friendStatus) return null;
       if (friendStatus.status === 'ACCEPTED') {
         return friendStatus.status;
       }
@@ -246,26 +251,42 @@ export class UserService {
     targetUserId: string,
     res: Response,
   ) {
-    const target: User = await this.findOne(targetUserId);
-    return res.status(200).send(await this.getInfo(activeUserId, target.id));
+    try {
+      const target: User = await this.findOne(targetUserId);
+      const info: {
+        id: string;
+        nickname: string;
+        avatarImg: string;
+        eloScore: number;
+        status: UserStatus;
+        friendStatus: string;
+      } = await this.getInfo(activeUserId, target.id);
+      return res.status(200).send(info);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   async getInfo(userId: string, userId1: string) {
-    const user: User = await this.prismaService.user.findUnique({
-      where: {
-        id: userId1,
-      },
-    });
-    const friendStatus = await this.getFriendStatus(userId, userId1);
-    const userInfo = {
-      id: user.id,
-      nickname: user.nickname,
-      avatarImg: user.avatarImg,
-      eloScore: user.eloScore,
-      status: user.status,
-      friendStatus: friendStatus,
-    };
-    return userInfo;
+    try {
+      const user: User = await this.prismaService.user.findUnique({
+        where: {
+          id: userId1,
+        },
+      });
+      const friendStatus = await this.getFriendStatus(userId, userId1);
+      const userInfo = {
+        id: user.id,
+        nickname: user.nickname,
+        avatarImg: user.avatarImg,
+        eloScore: user.eloScore,
+        status: user.status,
+        friendStatus: friendStatus,
+      };
+      return userInfo;
+    } catch (error) {
+      return null;
+    }
   }
 
   async getUserFriends(userId: string, res: Response) {
