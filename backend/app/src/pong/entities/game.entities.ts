@@ -111,16 +111,39 @@ export class Game {
       gameRoomId: this.gameRoomId,
     };
   }
-  async saveGameResults(prismaService: PrismaService) {
-    await prismaService.match.create({
-      data: {
-        id: this.gameRoomId,
-      },
-    });
 
+  computeElo(RA: number, RB: number) {
+    const exponent = (RB - RA) / 400;
+    const intermediary = Math.pow(10, exponent);
+    const newElo: number = 1 / (1 + intermediary);
+    return newElo;
+  }
+
+  async getUserElo(userId: string, prismaService: PrismaService) {
+    try {
+      const user = await prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          eloScore: true,
+        },
+      });
+      return user.eloScore;
+    } catch (error) {
+      console.log(error);
+      //TODO should this error be handled? should be excedingly rare
+    }
+  }
+
+  async updateUserElo(
+    userId: string,
+    newElo: number,
+    prismaService: PrismaService,
+  ) {
     await prismaService.user.update({
       where: {
-        id: this.p1id,
+        id: userId,
       },
       data: {
         playerOnMatches: {
@@ -131,24 +154,64 @@ export class Game {
             },
           ],
         },
+        eloScore: newElo,
+      },
+    });
+  }
+
+  computeExpectedElos(eloPlayer1: number, eloPlayer2: number) {
+    const expectedElo1 = this.computeElo(eloPlayer1, eloPlayer2);
+    const expectedElo2 = this.computeElo(eloPlayer2, eloPlayer1);
+    return {
+      expectedEloPlayer1: expectedElo1,
+      expectedEloPlayer2: expectedElo2,
+    };
+  }
+  // Winner is a boolean set to 1 if player 1 won, and zero if he lost
+  async getNewElos(prismaService: PrismaService, winner: boolean) {
+    const newElos: { eloPlayer1: number; eloPlayer2: number } = {
+      eloPlayer1: 0,
+      eloPlayer2: 0,
+    };
+    const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
+    const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
+
+    const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
+
+    if (winner) {
+      newElos.eloPlayer1 = Math.ceil(
+        eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
+      );
+      newElos.eloPlayer2 = Math.ceil(
+        eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
+      );
+    } else {
+      newElos.eloPlayer1 = Math.ceil(
+        eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
+      );
+      newElos.eloPlayer2 = Math.ceil(
+        eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
+      );
+    }
+    if (newElos.eloPlayer2 < 100) {
+      newElos.eloPlayer2 = 100;
+    }
+    if (newElos.eloPlayer1 < 100) {
+      newElos.eloPlayer2 = 100;
+    }
+    return newElos;
+  }
+
+  async saveGameResults(prismaService: PrismaService) {
+    await prismaService.match.create({
+      data: {
+        id: this.gameRoomId,
       },
     });
 
-    await prismaService.user.update({
-      where: {
-        id: this.p2id,
-      },
-      data: {
-        playerOnMatches: {
-          create: [
-            {
-              matchId: this.gameRoomId,
-              score: { myself: this.p2s, opponent: this.p1s },
-            },
-          ],
-        },
-      },
-    });
+    const newElos = await this.getNewElos(prismaService, this.p1s >= 10);
+    this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
+    this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
   }
 }
 

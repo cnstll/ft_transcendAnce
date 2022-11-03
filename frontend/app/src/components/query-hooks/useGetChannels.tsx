@@ -2,15 +2,16 @@ import axios from "axios";
 import { useQuery, UseQueryResult } from "react-query";
 import { Channel } from "../global-components/interface";
 
-const fetchAllChannels = () =>
-  axios
-    .get<Channel[]>('http://localhost:3000/channels/', {
-      withCredentials: true,
-  }).then((res) => res.data);
+/* NOT USED ATM */
+// const fetchAllChannels = () =>
+//   axios
+//     .get<Channel[]>('http://localhost:3000/channels/', {
+//       withCredentials: true,
+//   }).then((res) => res.data);
 
-export function useChannelsList(): UseQueryResult<Channel[]> {
-  return useQuery('channelsList', fetchAllChannels);
-}
+// export function useChannelsList(): UseQueryResult<Channel[]> {
+//   return useQuery('channelsList', fetchAllChannels);
+// }
 
 const fetchAllGroupChannels = () =>
   axios
@@ -18,10 +19,9 @@ const fetchAllGroupChannels = () =>
       withCredentials: true,
   }).then((res) => res.data);
 
-export function useGroupChannelsList(): UseQueryResult<Channel[]> {
-  return useQuery('groupChannelsList', fetchAllGroupChannels);
+export function useGroupChannelsList(): UseQueryResult<Channel[] | undefined> {
+  return useQuery(['groupChannelsList'], fetchAllGroupChannels);
 }
-
 
 const fetchAllChannelsByUserId = () =>
   axios
@@ -29,6 +29,6 @@ const fetchAllChannelsByUserId = () =>
       withCredentials: true,
   }).then((res) => res.data);
 
-export function useChannelsByUserList(): UseQueryResult<Channel[]> {
+export function useChannelsByUserList(): UseQueryResult<Channel[] | undefined> {
   return useQuery('channelsByUserList', fetchAllChannelsByUserId, );
 }
