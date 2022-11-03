@@ -22,9 +22,10 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, password } = formData;
-  //const [inputStatus, setInputStatus] = useState<string>('empty');
+
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputStatus('editing');
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
@@ -52,7 +53,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
               </h3>
               <form onSubmit={onSubmit}>
               <div id="form-channel-creation-name"
-                className="form-group my-3">
+                className="form-group my-3 ">
                 <label htmlFor="ChannelName" className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-3 font-bold">
                   Enter a name:
                 </label>
@@ -67,12 +68,13 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   autoComplete="off"
                   placeholder="The name of your channel" />
               </div>
-              <div className="form-group my-3">
-                <p className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-3 font-bold">
+              <div id="form-channel-creation-type"
+                className="form-group mb-3 mt-5">
+                <p className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-2 font-bold">
                   Select a type:
                 </p>
                 <div className="m-2">
-                  <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange} onClick={() => setPasswordRequired(false)}/>
+                  <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange} onClick={() => setPasswordRequired(false)} defaultChecked/>
                   <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
                     Public - everyone can access freely
                   </label>
@@ -106,7 +108,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   autoComplete="off"
                   placeholder="The password" />
               </div>}
-              <div className=" items-center py-2 space-x-2">
+              <div className="flex items-center py-2 space-x-2">
                 <button
                   type="button"
                   onClick={() => props.setShowForm(false)}
