@@ -16,7 +16,7 @@ export class GameService {
   ) {}
 
   join(name: string, client: Socket, id: string, server: Server) {
-    if (name == '') {
+    if (name === '') {
       return this.joinRandom(client, id, server);
     } else {
       return this.joinSpecific(name, client, id, server);
@@ -34,7 +34,7 @@ export class GameService {
   joinSpecific(name: string, client: Socket, id: string, server: Server) {
     const game: Game = this.GameMap.get(name);
 
-    if (game.p1id == id) {
+    if (game.p1id === id) {
       client.join(name);
       this.mutateGameStatus(game, game.status, server);
       if (game.status == Status.PAUSED) {
@@ -43,7 +43,7 @@ export class GameService {
         this.addInterval(game.gameRoomId, 5, server);
       }
       return { gameId: game.gameRoomId, playerNumber: 1 };
-    } else if (game.p2id == id) {
+    } else if (game.p2id === id) {
       client.join(name);
       this.mutateGameStatus(game, game.status, server);
       if (game.status == Status.PAUSED) {
@@ -58,14 +58,14 @@ export class GameService {
   joinRandom(client: Socket, id: string, server: Server) {
     let game: Game;
 
-    if (this.GameMap.size == 0) {
+    if (this.GameMap.size === 0) {
       game = this.createGame(id, null);
       client.join(game.gameRoomId);
       this.mutateGameStatus(game, game.status, server);
       return { gameId: game.gameRoomId, playerNumber: 1 };
     } else {
       for (const [gameRoomId, game] of this.GameMap) {
-        if (game.p2id == null) {
+        if (game.p2id === null) {
           game.p2id = id;
           client.join(gameRoomId);
           this.mutateGameStatus(game, Status.PLAYING, server);
@@ -102,7 +102,7 @@ export class GameService {
 
   pause(id: string, server: Server) {
     for (const [gameRoomId, game] of this.GameMap) {
-      if (game.p1id == id || game.p2id == id) {
+      if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
         this.addTimeout(gameRoomId, 5000, server, id);
@@ -112,7 +112,7 @@ export class GameService {
 
   create(positionDto: PositionDto) {
     const game: Game = this.GameMap.get(positionDto.room);
-    if (game != undefined) {
+    if (game !== undefined) {
       game.movePaddle(positionDto.player, positionDto.y);
       return game;
     }
