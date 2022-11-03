@@ -22,7 +22,14 @@ export class AuthController {
   @Get('/42/callback')
   async loginIntra(@Res() res, @Req() req): Promise<void> {
     const url = new URL('http://localhost:8080/');
+    const url2FA = new URL('http://localhost:8080/2fa-sign-in');
     const token = this.authService.login(req.user);
+    const user = req.user;
+    if (user.twoFactorAuthenticationSet) {
+      return res
+        .cookie('temporaryToken', `${token}`, { httpOnly: true })
+        .redirect(url2FA);
+    }
     res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
   }
 
@@ -30,7 +37,9 @@ export class AuthController {
   async loginUserDev(@Res() res, @Body() req) {
     const jwtPayload: JwtPayload = {
       id: req.id,
+      immutableId: req.immutableId,
       nickname: req.nickname,
+      isTwoFactorSet: false,
     };
     const token = this.authService.login(jwtPayload);
     res.status(201).send(token);
@@ -45,6 +54,7 @@ export class AuthController {
     }
     const jwtPayload = {
       id: user.id,
+      immutableId: user.immutableId,
       nickname: user.nickname,
     };
     const token = this.authService.login(jwtPayload);

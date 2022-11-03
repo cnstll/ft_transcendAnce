@@ -1,6 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { HandshakeRequest } from 'src/pong/entities/game.entities';
 import { JwtPayload } from '../auth/types';
 
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -20,11 +21,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return jwtPayload;
   }
 
-  private static extractJWTfromHandshake(req: any): string | null {
-    // console.log('Extract extractJWTfromHandshake: ');
-    // console.log(req);
+  private static extractJWTfromHandshake(req: HandshakeRequest): string | null {
     if (
-      req.handshake &&
       req.handshake.headers.cookie &&
       req.handshake.headers.cookie.length > 0
     ) {

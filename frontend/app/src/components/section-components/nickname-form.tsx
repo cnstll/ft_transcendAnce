@@ -49,7 +49,7 @@ function NickNameForm(props: NicknameFormProps) {
   }
 
   return (
-    <div className="absolute block p-6 mr-6 rounded-lg shadow-lg max-w-20 bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold">
+    <div className="absolute block p-6 mr-6 rounded-lg shadow-lg max-w-20 bg-purple-light text-white text-xs sm:text-xs md:text-sm font-bold z-20">
       <form onSubmit={onSubmitHandler}>
         <div
           id="form-nickname"

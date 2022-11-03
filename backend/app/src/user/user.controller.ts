@@ -18,7 +18,6 @@ import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-// import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 
 export const storage = {
@@ -39,16 +38,16 @@ export const storage = {
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @Get('get-user-info')
+  @UseGuards(JwtAuthGuard)
+  getUserInfo(@GetCurrentUserId() userId: string) {
+    return this.userService.getUserInfo(userId);
+  }
+
   @Get('get-all-users')
   @UseGuards(JwtAuthGuard)
   getAllUsers(@Res() res: Response) {
     return this.userService.getAllUsers(res);
-  }
-
-  @Get('get-user-info')
-  @UseGuards(JwtAuthGuard)
-  getUserInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserInfo(userId, res);
   }
 
   @Post('request-friend')
@@ -86,7 +85,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
   ) {
     const filename = 'http://localhost:3000/user/' + file.path;
-    this.userService.updateAvatarImg(userId, filename);
+    this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
 

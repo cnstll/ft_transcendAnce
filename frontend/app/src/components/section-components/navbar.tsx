@@ -20,7 +20,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
 
-
   const showInfo = () => {
     setIsShown((current) => !current);
   };
@@ -43,7 +42,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
         width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
         placeholder="player"
         users={usersData.data}
-
       />
       <div className="relative" ref={ref}>
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UserService } from '../user/user.service';
-// import { HttpService } from '@nestjs/axios';
 import { AuthDto } from './dto';
 import { UserDto } from 'src/user/dto/user.dto';
 import { JwtPayload, UserPayload } from './types/';
@@ -17,13 +16,25 @@ export class AuthService {
   login(user: UserPayload) {
     const jwtPayload: JwtPayload = {
       id: user.id,
+      immutableId: user.immutableId,
       nickname: user.nickname,
+      isTwoFactorSet: false,
+    };
+    return this.jwtService.sign(jwtPayload);
+  }
+
+  login2FA(user: UserPayload) {
+    const jwtPayload: JwtPayload = {
+      id: user.id,
+      immutableId: user.immutableId,
+      nickname: user.nickname,
+      isTwoFactorSet: true,
     };
     return this.jwtService.sign(jwtPayload);
   }
 
   public async loginIntra(userData: AuthDto, accessToken: string) {
-    const user: User = await this.userService.findOne(userData.login);
+    const user: User = await this.userService.findOne(userData.id.toString());
     if (!user) {
       const data = {
         nickname: userData.login,
