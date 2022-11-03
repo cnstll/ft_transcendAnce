@@ -17,9 +17,10 @@ export class TwoFactorAuthenticationService {
     res: Response,
   ) {
     const secret: string = authenticator.generateSecret();
-    await this.userService.setTwoFactorAuthenticationSecret(
+    await this.userService.toggleTwoFactorAuthentication(
       secret,
       userId,
+      true,
       res,
     );
   }
