@@ -111,7 +111,73 @@ export class Game {
       gameRoomId: this.gameRoomId,
     };
   }
+
+  computeElo(RA: number, RB: number) {
+    const exponent = (RB - RA) / 400;
+    const intermediary = Math.pow(10, exponent);
+    const newElo: number = 1 / (1 + intermediary);
+    return newElo;
+  }
+
+  // Winner is a boolean set to 1 if player 1 won, and zero if he lost
+  getNewElos(eloPlayer1: number, eloPlayer2: number, winner: boolean) {
+    const newElos: { eloPlayer1: number; eloPlayer2: number } = {
+      eloPlayer1: 0,
+      eloPlayer2: 0,
+    };
+
+    console.log('these are the og ', eloPlayer1, eloPlayer2);
+    const expectedElo1 = this.computeElo(eloPlayer1, eloPlayer2);
+    const expectedElo2 = this.computeElo(eloPlayer2, eloPlayer1);
+
+    if (winner) {
+      newElos.eloPlayer1 = Math.ceil(eloPlayer1 + 15 * (1 - expectedElo1));
+      newElos.eloPlayer2 = Math.ceil(eloPlayer2 + 15 * (0 - expectedElo2));
+    } else {
+      newElos.eloPlayer1 = Math.ceil(eloPlayer1 + 15 * (0 - expectedElo1));
+      newElos.eloPlayer2 = Math.ceil(eloPlayer2 + 15 * (1 - expectedElo2));
+    }
+    return newElos;
+  }
+
   async saveGameResults(prismaService: PrismaService) {
+    // let newElos: { eloPlayer1: number; eloPlayer2: number };
+    // let eloPlayer1: number;
+    // let eloPlayer2: number;
+    let elo: { eloScore: number };
+
+    try {
+      elo = await prismaService.user.findUnique({
+        where: {
+          id: this.p1id,
+        },
+        select: {
+          eloScore: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      //TODO should this error be handled? should be excedingly rare
+    }
+    const eloPlayer1 = elo.eloScore;
+
+    try {
+      elo = await prismaService.user.findUnique({
+        where: {
+          id: this.p2id,
+        },
+        select: {
+          eloScore: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      //TODO should this error be handled? should be excedingly rare
+    }
+    const eloPlayer2 = elo.eloScore;
+
+    const newElos = this.getNewElos(eloPlayer1, eloPlayer2, this.p1s >= 10);
+
     await prismaService.match.create({
       data: {
         id: this.gameRoomId,
@@ -131,6 +197,7 @@ export class Game {
             },
           ],
         },
+        eloScore: newElos.eloPlayer1,
       },
     });
 
@@ -147,6 +214,7 @@ export class Game {
             },
           ],
         },
+        eloScore: newElos.eloPlayer2,
       },
     });
   }
