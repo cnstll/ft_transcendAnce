@@ -6,11 +6,7 @@ import {
 import { Channel, channelType } from '../../global-components/interface';
 import { useState } from 'react';
 
-interface ChannelsListProps {
-  channelItem: Channel;
-}
-
-function ChannelsListItem({ channelItem }: ChannelsListProps) {
+function ChannelsListItem({ channelItem }: { channelItem: Channel }) {
   const [isActive, setIsActive] = useState(false);
 
   function ActiveStateHandler() {

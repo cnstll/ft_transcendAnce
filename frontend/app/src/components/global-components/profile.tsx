@@ -8,7 +8,7 @@ import { MatchData } from '../global-components/interface';
 import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/profile/stats-box';
 import { useParams } from 'react-router-dom';
-import ProfileBox from '../section-components/profile/their-profile';
+import ProfileBox from '../section-components/profile/profile-box';
 import { useNavigate } from 'react-router-dom';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';

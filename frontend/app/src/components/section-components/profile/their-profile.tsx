@@ -6,10 +6,6 @@ import TheirMatchHistory from './their-match-history';
 import { TargetInfo } from '../../global-components/interface';
 import { useEffect } from 'react';
 
-interface UserOptionsProps {
-  nickname: string;
-}
-
 export enum friendshipStatus {
   REQUSTED,
   ACCEPTED,
@@ -17,14 +13,12 @@ export enum friendshipStatus {
   ADD,
 }
 
-function ProfileBox(userProps: UserOptionsProps) {
-  const user: UseQueryResult<TargetInfo> | null = useTargetInfo(
-    userProps.nickname,
-  );
+function ProfileBox({ nickname }: { nickname: string }) {
+  const user: UseQueryResult<TargetInfo> | null = useTargetInfo(nickname);
 
   useEffect(() => {
     void user.refetch();
-  }, [userProps.nickname]);
+  }, [nickname]);
 
   return (
     <>
