@@ -26,6 +26,8 @@ export interface User {
   nickname: string;
   eloScore?: number;
   status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+  twoFactorAuthenticationSet: boolean;
+  twoFactorAuthenticationSecret: string;
 }
 
 export interface UserData {
@@ -47,4 +49,26 @@ export interface TargetInfo {
   eloScore: number;
   status: string;
   friendStatus: string;
+}
+
+export enum GameStatus {
+  PLAYING = 'PLAYING',
+  DONE = "DONE",
+  PENDING = "PENDING",
+  PAUSED = "PAUSED"
+}
+
+export interface GameCoords {
+  gameRoom: string;
+  dirx: number;
+  diry: number;
+  p1x: number;
+  p1y: number;
+  p2x: number;
+  p2y: number;
+  bx: number;
+  by: number;
+  p1s: number;
+  p2s: number;
+  paddleSize: number;
 }

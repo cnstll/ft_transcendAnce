@@ -21,6 +21,8 @@ const chanUsersData: User[] = [
     nickname: 'Alexandra',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
     status: 'OFFLINE',
+    twoFactorAuthenticationSecret: '',
+    twoFactorAuthenticationSet: false,
     eloScore: 1000,
   },
   {
@@ -28,6 +30,8 @@ const chanUsersData: User[] = [
     nickname: 'Alexandre',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
     status: 'ONLINE',
+    twoFactorAuthenticationSecret: '',
+    twoFactorAuthenticationSet: false,
     eloScore: 1500,
   },
   {
@@ -35,6 +39,8 @@ const chanUsersData: User[] = [
     nickname: 'Alexandrinedrinedrine',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
     status: 'PLAYING',
+    twoFactorAuthenticationSecret: '',
+    twoFactorAuthenticationSet: false,
     eloScore: 1000,
   },
   {
@@ -42,6 +48,8 @@ const chanUsersData: User[] = [
     nickname: 'Alexandro',
     avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
     status: 'PLAYING',
+    twoFactorAuthenticationSecret: '',
+    twoFactorAuthenticationSet: false,
     eloScore: 1500,
   },
 ];

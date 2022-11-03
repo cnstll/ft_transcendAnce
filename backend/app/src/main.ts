@@ -11,7 +11,7 @@ async function bootstrap() {
         'http://localhost:8080',
         'http://localhost:3000',
       ],
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE'],
       credentials: true,
     },
   });

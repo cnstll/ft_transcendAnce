@@ -3,10 +3,8 @@ import useTargetInfo from '../query-hooks/useTargetInfo';
 import FriendStatus from './friend-status';
 import { UseQueryResult } from 'react-query';
 import TheirMatchHistory from './their-match-history';
-import { TargetInfo, User } from '../global-components/interface';
+import { TargetInfo } from '../global-components/interface';
 import { useEffect } from 'react';
-
-
 
 interface UserOptionsProps {
   nickname: string;
@@ -27,7 +25,6 @@ function ProfileBox(userProps: UserOptionsProps) {
   useEffect(() => {
     void user.refetch();
   }, [userProps.nickname]);
-
 
   return (
     <>
@@ -51,7 +48,7 @@ function ProfileBox(userProps: UserOptionsProps) {
               />
             </div>
           </SideBox>
-          <TheirMatchHistory user={user.data as User} />
+          <TheirMatchHistory user={user.data} />
         </>
       )}
     </>

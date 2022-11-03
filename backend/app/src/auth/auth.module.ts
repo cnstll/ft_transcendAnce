@@ -9,11 +9,18 @@ import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '../strategy/jwt.strategy';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { UserModule } from '../user/user.module';
+import { TwoFaStrategy } from 'src/strategy/2fa.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, Api42Strategy, JwtStrategy, AuthMiddleware],
-  exports: [AuthService, JwtStrategy, Api42Strategy],
+  providers: [
+    AuthService,
+    Api42Strategy,
+    JwtStrategy,
+    TwoFaStrategy,
+    AuthMiddleware,
+  ],
+  exports: [AuthService, JwtStrategy, Api42Strategy, TwoFaStrategy],
   imports: [
     HttpModule,
     PassportModule,

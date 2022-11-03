@@ -7,6 +7,7 @@ import Ranking from './components/global-components/ranking';
 import Play from './components/global-components/play';
 import Chat from './components/global-components/chat';
 import PageNotFound from './components/global-components/page-not-found';
+import SignIn2FA from './components/global-components/2fa-sign-in';
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/ranking" element={<Ranking />} />
         <Route path="/play" element={<Play />} />
+        <Route path="/play/:id" element={<Play />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/2fa-sign-in" element={<SignIn2FA />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
