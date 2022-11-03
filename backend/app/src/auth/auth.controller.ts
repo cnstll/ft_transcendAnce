@@ -6,16 +6,19 @@ import {
   Res,
   UseGuards,
   Body,
+  UseFilters,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtPayload } from './types';
 import { Api42OauthGuard } from './guard/api42.auth-guards';
+import { Api42Filter } from './middleware/api.filter';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(Api42OauthGuard)
+  @UseFilters(Api42Filter)
   @Get('/42/callback')
   async loginIntra(@Res() res, @Req() req): Promise<void> {
     const url = new URL('http://localhost:8080/');
