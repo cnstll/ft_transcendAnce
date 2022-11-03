@@ -1,7 +1,7 @@
 import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { useQueryClient } from 'react-query';
-import { User } from '../global-components/interface';
-import setUserNickname from '../query-hooks/setUserNickname';
+import { User } from '../../global-components/interface';
+import setUserNickname from '../../query-hooks/setUserNickname';
 
 interface NicknameFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;

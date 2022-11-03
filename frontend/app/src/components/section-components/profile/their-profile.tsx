@@ -1,9 +1,9 @@
-import SideBox from './side-box';
-import useTargetInfo from '../query-hooks/useTargetInfo';
-import FriendStatus from './friend-status';
+import SideBox from '../side-box';
+import useTargetInfo from '../../query-hooks/useTargetInfo';
+import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
 import TheirMatchHistory from './their-match-history';
-import { TargetInfo } from '../global-components/interface';
+import { TargetInfo } from '../../global-components/interface';
 import { useEffect } from 'react';
 
 interface UserOptionsProps {

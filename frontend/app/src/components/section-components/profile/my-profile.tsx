@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import SideBox from './side-box';
+import SideBox from '../side-box';
 import UploadPicture from './upload-picture';
 import MyMatchHistory from './my-match-history';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
-import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
+import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
 import { useState } from 'react';
 import NickNameForm from './nickname-form';
-import useUserInfo from '../query-hooks/useUserInfo';
+import useUserInfo from '../../query-hooks/useUserInfo';
 import TwoFactorAuthentication from './two-factor-authentication';
 
 function MyProfile() {

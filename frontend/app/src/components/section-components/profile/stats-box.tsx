@@ -1,4 +1,4 @@
-import { MatchData } from '../global-components/interface';
+import { MatchData } from '../../global-components/interface';
 
 function StatBox({ numberOfWin, numberOfLoss, ranking }: MatchData) {
   return (
