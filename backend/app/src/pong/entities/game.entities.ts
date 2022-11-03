@@ -166,6 +166,12 @@ export class Game {
       newElos.eloPlayer1 = Math.ceil(eloPlayer1 + 15 * (0 - expectedElo1));
       newElos.eloPlayer2 = Math.ceil(eloPlayer2 + 15 * (1 - expectedElo2));
     }
+    if (newElos.eloPlayer2 < 100) {
+      newElos.eloPlayer2 = 100;
+    }
+    if (newElos.eloPlayer1 < 100) {
+      newElos.eloPlayer2 = 100;
+    }
     return newElos;
   }
 
