@@ -2,16 +2,17 @@ import ChannelsListItem from "./channels-list-item";
 import { Channel } from "../global-components/interface";
 
 interface ChannelsListProps {
-  channels: Channel[];
+  channels: Channel[] | null;
 }
 
 function ChannelsList({ channels }: ChannelsListProps) {
 
   return (
     <div className="flex flex-col text-base my-4">
-      {channels.length === 0 &&
+      {channels?.length === 0 &&
         <p className="text-base text-purple-light my-4 text-center">No channel joined yet 😇</p>}
-      {channels.sort((a, b) => a.name > b.name ? 1 : -1).map((channel) => (
+      {channels?.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)
+        .map((channel) => (
         <ChannelsListItem
           key={channel.id}
           channelItem={channel}

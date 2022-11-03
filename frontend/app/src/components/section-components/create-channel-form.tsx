@@ -2,8 +2,6 @@ import { Dispatch, useState } from "react";
 import { channelType } from "../global-components/interface";
 import useCreateChannel from "../query-hooks/useCreateChannel";
 
-
-
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
 }
@@ -15,14 +13,11 @@ const defaultFormData = {
 }
 
 function CreateChannelForm(props: CreateChannelFormProps) {
-  // const queryClient = useQueryClient();
   const createChannelMutation = useCreateChannel();
-  //const createChannelRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState(defaultFormData);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, password } = formData;
-
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setInputStatus('editing');
@@ -32,14 +27,33 @@ function CreateChannelForm(props: CreateChannelFormProps) {
     }));
   }
 
+  function checkFormData(formData: {name: string, type: channelType, password: string}) {
+    if (formData.name.length === 0)
+      return 1;
+    else if (formData.type === channelType.Protected && formData.password.length === 0)
+      return 2;
+    return 0;
+  }
+
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password });
-    if (createChannelMutation.isSuccess) {
-      props.setShowForm(false);
-      setFormData(defaultFormData);
-    } else {
-      setInputStatus('invalid');
+    if (checkFormData(formData) === 1) {
+      setInputStatus('invalidName');
+    }
+    else if (checkFormData(formData) === 2) {
+      setInputStatus('invalidPassword');
+    }
+    else {
+      createChannelMutation.mutate({ name: formData.name, type: formData.type, passwordHash: formData.password },
+        {
+          onSuccess() {
+            props.setShowForm(false);
+            setFormData(defaultFormData);},
+          onError() {
+            setInputStatus('invalidName');
+            setInputStatus('invalidPassword');
+          },
+        });
     }
   }
 
@@ -59,7 +73,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 </label>
                 <input
                   className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                    inputStatus == 'invalid'? 'border-red-500' : ''}`}
+                    inputStatus == 'invalidName'? 'border-red-500' : ''}`}
                   type="text"
                   name="name"
                   id="name"
@@ -75,19 +89,19 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 </p>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange} onClick={() => setPasswordRequired(false)} defaultChecked/>
-                  <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
+                  <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5">
                     Public - everyone can access freely
                   </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Private} onChange={onChange} onClick={() => setPasswordRequired(false)}/>
-                  <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
+                  <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5">
                     Private - only invited members can join
                   </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Protected} onChange={onChange} onClick={() => setPasswordRequired(true)}/>
-                  <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5 py-2.5">
+                  <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5">
                     Protected - a password is required to join
                   </label>
                 </div>
@@ -100,13 +114,13 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 </label>
                 <input
                   className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                    inputStatus == 'invalid'? 'border-red-500' : ''}`}
+                    inputStatus == 'invalidPassword'? 'border-red-500' : ''}`}
                   name="password"
                   id="password"
                   value={password}
                   onChange={onChange}
                   autoComplete="off"
-                  placeholder="The password" />
+                  placeholder="The password for your channel" />
               </div>}
               <div className="flex items-center py-2 space-x-2">
                 <button

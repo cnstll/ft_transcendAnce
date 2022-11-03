@@ -29,6 +29,6 @@ const fetchAllChannelsByUserId = () =>
       withCredentials: true,
   }).then((res) => res.data);
 
-export function useChannelsByUserList(): UseQueryResult<Channel[]> {
+export function useChannelsByUserList(): UseQueryResult<Channel[] | null > {
   return useQuery('channelsByUserList', fetchAllChannelsByUserId, );
 }
