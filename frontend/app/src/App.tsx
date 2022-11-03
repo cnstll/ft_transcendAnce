@@ -18,6 +18,7 @@ function App() {
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/ranking" element={<Ranking />} />
         <Route path="/play" element={<Play />} />
+        <Route path="/play/:id" element={<Play />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>

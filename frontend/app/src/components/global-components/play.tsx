@@ -3,16 +3,22 @@ import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
+import Game from '../section-components/canvas';
 
 function Play() {
+  const { id } = useParams();
+
   const user = useUserInfo();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
+    if (id) {
+      localStorage.setItem('gameId', id);
+    }
   });
 
   if (user.isSuccess)
@@ -23,6 +29,7 @@ function Play() {
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
           />
+          <Game />
         </Background>
       </div>
     );
