@@ -60,6 +60,7 @@ export class TwoFactorAuthenticationController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
+    this.userService.enableTwoFactorAuthentication(userId, res);
     res.status(201).send();
   }
 
@@ -92,6 +93,6 @@ export class TwoFactorAuthenticationController {
   @Delete('disable')
   @UseGuards(JwtAuthGuard)
   toggle(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    this.userService.toggleTwoFactorAuthentication('', userId, false, res);
+    this.userService.toggleTwoFactorAuthentication('', userId, res);
   }
 }

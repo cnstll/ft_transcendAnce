@@ -1,5 +1,4 @@
 import { Dispatch, FormEvent, useRef, useState } from 'react';
-import { useQueryClient } from 'react-query';
 import { User } from '../global-components/interface';
 import {
   generate2fa,
@@ -9,13 +8,15 @@ import {
 import useQRCode from '../query-hooks/useQRCode';
 
 interface ToggleProps {
-  twoFactorAuthenticationIsSet: boolean;
+  toggleValue: boolean;
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
+  setToggleValue: Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface TwoFaModalProps {
   showModal: boolean;
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
+  setToggleValue: Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**
@@ -24,31 +25,22 @@ interface TwoFaModalProps {
  *
  */
 
-function TwoFaModal({ showModal, setShowModal }: TwoFaModalProps) {
+function TwoFaModal({
+  showModal,
+  setShowModal,
+  setToggleValue,
+}: TwoFaModalProps) {
   const getQRCode = useQRCode();
   const qrCode = getQRCode.data;
   const disable2faMutation = disable2fa();
   const validate2faMutation = validate2faCode();
-  const queryClient = useQueryClient();
   const verficationCodeRef = useRef<HTMLInputElement>(null);
   const [validCode, setValidCode] = useState<boolean>(true);
 
   function closeModal() {
-    disable2faMutation.mutate(
-      {},
-      {
-        onSuccess: ({ status }) => {
-          if (status === 201 || status === 200) {
-            queryClient.setQueryData<User>('userData', (oldData): User => {
-              return {
-                ...oldData!,
-                twoFactorAuthenticationSet: false,
-              };
-            });
-          }
-        },
-      },
-    );
+    setShowModal(false);
+    setToggleValue(false);
+    disable2faMutation.mutate({}, {});
   }
 
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -152,31 +144,18 @@ function TwoFaModal({ showModal, setShowModal }: TwoFaModalProps) {
  */
 
 function Generate2fa({
-  twoFactorAuthenticationIsSet,
+  toggleValue,
   setShowModal,
+  setToggleValue,
 }: ToggleProps) {
-  const queryClient = useQueryClient();
   const generate2faMutation = generate2fa();
 
   /* Generate 2FA Secret */
 
   function on2faActivation() {
-    generate2faMutation.mutate(
-      {},
-      {
-        onSuccess: ({ status }) => {
-          if (status === 201) {
-            setShowModal(true);
-            queryClient.setQueryData<User>('userData', (oldData): User => {
-              return {
-                ...oldData!,
-                twoFactorAuthenticationSet: true,
-              };
-            });
-          }
-        },
-      },
-    );
+    setToggleValue(true);
+    setShowModal(true);
+    generate2faMutation.mutate({}, {});
   }
 
   return (
@@ -187,7 +166,7 @@ function Generate2fa({
         peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
         after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
       >
-        {twoFactorAuthenticationIsSet ? (
+        {toggleValue ? (
           <span className="ml-1 font-bold text-[9px]">ON</span>
         ) : (
           <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
@@ -204,29 +183,16 @@ function Generate2fa({
  */
 
 function Disable2fa({
-  twoFactorAuthenticationIsSet,
-}: {
-  twoFactorAuthenticationIsSet: boolean;
-}) {
-  const queryClient = useQueryClient();
+  toggleValue,
+  setShowModal,
+  setToggleValue,
+}: ToggleProps) {
   const disable2faMutation = disable2fa();
 
   function on2faDelete() {
-    disable2faMutation.mutate(
-      {},
-      {
-        onSuccess: ({ status }) => {
-          if (status === 201) {
-            queryClient.setQueryData<User>('userData', (oldData): User => {
-              return {
-                ...oldData!,
-                twoFactorAuthenticationSet: false,
-              };
-            });
-          }
-        },
-      },
-    );
+    setToggleValue(false);
+    setShowModal(false);
+    disable2faMutation.mutate({}, {});
   }
 
   return (
@@ -236,7 +202,7 @@ function Disable2fa({
           peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
           after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
     >
-      {twoFactorAuthenticationIsSet ? (
+      {toggleValue ? (
         <span className="ml-1 font-bold text-[9px]">ON</span>
       ) : (
         <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
@@ -251,7 +217,7 @@ function Disable2fa({
  *
  */
 
-function Toggle({ twoFactorAuthenticationIsSet, setShowModal }: ToggleProps) {
+function Toggle({ toggleValue, setShowModal, setToggleValue }: ToggleProps) {
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden w-20">
       <div className="flex">
@@ -259,17 +225,20 @@ function Toggle({ twoFactorAuthenticationIsSet, setShowModal }: ToggleProps) {
           <input
             type="checkbox"
             className="sr-only peer"
-            checked={twoFactorAuthenticationIsSet}
+            checked={toggleValue}
             readOnly
           />
-          {twoFactorAuthenticationIsSet ? (
+          {toggleValue ? (
             <Disable2fa
-              twoFactorAuthenticationIsSet={twoFactorAuthenticationIsSet}
+              toggleValue={toggleValue}
+              setShowModal={setShowModal}
+              setToggleValue={setToggleValue}
             />
           ) : (
             <Generate2fa
-              twoFactorAuthenticationIsSet={twoFactorAuthenticationIsSet}
+              toggleValue={toggleValue}
               setShowModal={setShowModal}
+              setToggleValue={setToggleValue}
             />
           )}
         </label>
@@ -280,16 +249,24 @@ function Toggle({ twoFactorAuthenticationIsSet, setShowModal }: ToggleProps) {
 
 function TwoFactorAuthentication({ user }: { user: User }) {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [toggleValue, setToggleValue] = useState<boolean>(
+    user.twoFactorAuthenticationSet,
+  );
 
   return (
     <div className="flex flex-row gap-4">
       <p>Two factor identification</p>
       <Toggle
-        twoFactorAuthenticationIsSet={user.twoFactorAuthenticationSet}
+        toggleValue={toggleValue}
         setShowModal={setShowModal}
+        setToggleValue={setToggleValue}
       />
-      {user.twoFactorAuthenticationSet && (
-        <TwoFaModal showModal={showModal} setShowModal={setShowModal} />
+      {showModal && (
+        <TwoFaModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+          setToggleValue={setToggleValue}
+        />
       )}
     </div>
   );
