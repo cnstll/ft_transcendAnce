@@ -119,52 +119,79 @@ export class Game {
     return newElo;
   }
 
+  async getUserElo(userId: string, prismaService: PrismaService) {
+    try {
+      const user = await prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          eloScore: true,
+        },
+      });
+      return user.eloScore;
+    } catch (error) {
+      console.log(error);
+      //TODO should this error be handled? should be excedingly rare
+    }
+  }
+
+  async updateUserElo(
+    userId: string,
+    newElo: number,
+    prismaService: PrismaService,
+  ) {
+    await prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        playerOnMatches: {
+          create: [
+            {
+              matchId: this.gameRoomId,
+              score: { myself: this.p1s, opponent: this.p2s },
+            },
+          ],
+        },
+        eloScore: newElo,
+      },
+    });
+  }
+
+  computeExpectedElos(eloPlayer1: number, eloPlayer2: number) {
+    const expectedElo1 = this.computeElo(eloPlayer1, eloPlayer2);
+    const expectedElo2 = this.computeElo(eloPlayer2, eloPlayer1);
+    return {
+      expectedEloPlayer1: expectedElo1,
+      expectedEloPlayer2: expectedElo2,
+    };
+  }
   // Winner is a boolean set to 1 if player 1 won, and zero if he lost
   async getNewElos(prismaService: PrismaService, winner: boolean) {
-    let elo: { eloScore: number };
     const newElos: { eloPlayer1: number; eloPlayer2: number } = {
       eloPlayer1: 0,
       eloPlayer2: 0,
     };
+    const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
+    const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
 
-    try {
-      elo = await prismaService.user.findUnique({
-        where: {
-          id: this.p1id,
-        },
-        select: {
-          eloScore: true,
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      //TODO should this error be handled? should be excedingly rare
-    }
-    const eloPlayer1 = elo.eloScore;
-
-    try {
-      elo = await prismaService.user.findUnique({
-        where: {
-          id: this.p2id,
-        },
-        select: {
-          eloScore: true,
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      //TODO should this error be handled? should be excedingly rare
-    }
-    const eloPlayer2 = elo.eloScore;
-    const expectedElo1 = this.computeElo(eloPlayer1, eloPlayer2);
-    const expectedElo2 = this.computeElo(eloPlayer2, eloPlayer1);
+    const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
 
     if (winner) {
-      newElos.eloPlayer1 = Math.ceil(eloPlayer1 + 15 * (1 - expectedElo1));
-      newElos.eloPlayer2 = Math.ceil(eloPlayer2 + 15 * (0 - expectedElo2));
+      newElos.eloPlayer1 = Math.ceil(
+        eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
+      );
+      newElos.eloPlayer2 = Math.ceil(
+        eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
+      );
     } else {
-      newElos.eloPlayer1 = Math.ceil(eloPlayer1 + 15 * (0 - expectedElo1));
-      newElos.eloPlayer2 = Math.ceil(eloPlayer2 + 15 * (1 - expectedElo2));
+      newElos.eloPlayer1 = Math.ceil(
+        eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
+      );
+      newElos.eloPlayer2 = Math.ceil(
+        eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
+      );
     }
     if (newElos.eloPlayer2 < 100) {
       newElos.eloPlayer2 = 100;
@@ -176,46 +203,15 @@ export class Game {
   }
 
   async saveGameResults(prismaService: PrismaService) {
-    const newElos = await this.getNewElos(prismaService, this.p1s >= 10);
     await prismaService.match.create({
       data: {
         id: this.gameRoomId,
       },
     });
 
-    await prismaService.user.update({
-      where: {
-        id: this.p1id,
-      },
-      data: {
-        playerOnMatches: {
-          create: [
-            {
-              matchId: this.gameRoomId,
-              score: { myself: this.p1s, opponent: this.p2s },
-            },
-          ],
-        },
-        eloScore: newElos.eloPlayer1,
-      },
-    });
-
-    await prismaService.user.update({
-      where: {
-        id: this.p2id,
-      },
-      data: {
-        playerOnMatches: {
-          create: [
-            {
-              matchId: this.gameRoomId,
-              score: { myself: this.p2s, opponent: this.p1s },
-            },
-          ],
-        },
-        eloScore: newElos.eloPlayer2,
-      },
-    });
+    const newElos = await this.getNewElos(prismaService, this.p1s >= 10);
+    this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
+    this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
   }
 }
 
