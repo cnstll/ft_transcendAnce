@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { PositionDto } from './dto/position.dto';
-import { Status, Game } from './entities/game.entities';
+import { Status, Game, GameMode } from './entities/game.entities';
 
 @Injectable()
 export class GameService {
@@ -13,11 +13,11 @@ export class GameService {
   constructor(
     private prismaService: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
-  ) {}
+  ) { }
 
-  join(name: string, client: Socket, id: string, server: Server) {
+  join(name: string, client: Socket, id: string, server: Server, mode: GameMode) {
     if (name === '') {
-      return this.joinRandom(client, id, server);
+      return this.joinRandom(client, id, server, mode);
     } else {
       return this.joinSpecific(name, client, id, server);
     }
@@ -55,11 +55,11 @@ export class GameService {
     }
   }
 
-  joinRandom(client: Socket, id: string, server: Server) {
+  joinRandom(client: Socket, id: string, server: Server, mode: GameMode) {
     let game: Game;
 
     if (this.GameMap.size === 0) {
-      game = this.createGame(id, null);
+      game = this.createGame(id, null, mode);
       client.join(game.gameRoomId);
       this.mutateGameStatus(game, game.status, server);
       return { gameId: game.gameRoomId, playerNumber: 1 };
@@ -73,7 +73,7 @@ export class GameService {
           return { gameId: gameRoomId, playerNumber: 2 };
         }
       }
-      game = this.createGame(id, null);
+      game = this.createGame(id, null, mode);
       return { gameId: game.gameRoomId, playerNumber: 1 };
     }
   }
@@ -125,8 +125,8 @@ export class GameService {
     return game.returnGameInfo();
   }
 
-  createGame(p1: string, p2: string | null) {
-    const game = new Game();
+  createGame(p1: string, p2: string | null, mode: GameMode) {
+    const game = new Game(mode);
     this.GameMap.set(game.gameRoomId, game);
     game.p1id = p1;
     game.p2id = p2;

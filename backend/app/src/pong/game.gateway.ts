@@ -11,6 +11,7 @@ import { GameService } from './game.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
+import { GameMode } from './entities/game.entities';
 
 @WebSocketGateway({
   cors: {
@@ -23,7 +24,7 @@ export class GameGateway {
   server: Server;
   socketToId = new Map<string, string>();
 
-  constructor(private readonly messagesService: GameService) {}
+  constructor(private readonly messagesService: GameService) { }
 
   @SubscribeMessage('updatePaddlePos')
   async create(@MessageBody() createMessageDto: PositionDto) {
@@ -44,10 +45,11 @@ export class GameGateway {
   @SubscribeMessage('joinGame')
   joinRoom(
     @MessageBody('name') name: string,
+    @MessageBody('mode') mode: GameMode,
     @ConnectedSocket() client: Socket,
     @GetCurrentUserId() id: string,
   ) {
     this.socketToId.set(client.id, id);
-    return this.messagesService.join(name, client, id, this.server);
+    return this.messagesService.join(name, client, id, this.server, mode);
   }
 }
