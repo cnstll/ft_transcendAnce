@@ -34,7 +34,9 @@ export class AuthService {
   }
 
   public async loginIntra(userData: AuthDto, accessToken: string) {
-    const user: User = await this.userService.findOne(userData.id.toString());
+    const user: User = await this.userService.findOneFromImmutableId(
+      userData.id.toString(),
+    );
     if (!user) {
       const data = {
         nickname: userData.login,
@@ -48,7 +50,9 @@ export class AuthService {
   }
 
   public async create_user_dev(userData: UserDto) {
-    const user: User = await this.userService.findOne(userData.nickname);
+    const user: User = await this.userService.findOneFromUserNickname(
+      userData.nickname,
+    );
     if (!user) {
       const data = {
         nickname: userData.nickname,
