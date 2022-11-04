@@ -421,20 +421,25 @@ export class UserService {
     });
     const matchesList: Match[] = [];
 
-    for (let i = 0; i < matches.playerOneMatch.length; i++) {
-      matchesList.push(matches.playerOneMatch[i]);
+    if (matches.playerOneMatch !== null) {
+      for (let i = 0; i < matches.playerOneMatch.length; i++) {
+        matchesList.push(matches.playerOneMatch[i]);
+      }
     }
-    for (let i = 0; i < matches.playerTwoMatch.length; i++) {
-      matchesList.push(matches.playerTwoMatch[i]);
+    if (matches.playerOneMatch !== null) {
+      for (let i = 0; i < matches.playerTwoMatch.length; i++) {
+        matchesList.push(matches.playerTwoMatch[i]);
+      }
     }
-    matchesList.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    if (matchesList)
+      matchesList.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     return matchesList;
   }
 
   async getUserMatchesStats(userId: string, res: Response) {
     const stats: StatDto = { numberOfWin: 0, numberOfLoss: 0 };
 
-    const matchesList = await this.getUserMatches(userId, res);
+    const matchesList = await this.getUserMatches(userId);
     for (let i = 0; i < matchesList.length; i++) {
       if (
         (matchesList[i].playerOneId === userId && matchesList[i].p1s === 10) ||
