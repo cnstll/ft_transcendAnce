@@ -80,12 +80,12 @@ function CreateChannelForm(props: CreateChannelFormProps) {
               <div id="form-channel-creation-name" className="form-group my-3 ">
                 <label
                   htmlFor="ChannelName"
-                  className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-3 font-bold"
+                  className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light my-3 font-bold"
                 >
                   Enter a name:
                 </label>
                 <input
-                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                     inputStatus == 'invalidName' ? 'border-red-500' : ''
                   }`}
                   type="text"
@@ -101,7 +101,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 id="form-channel-creation-type"
                 className="form-group mb-3 mt-5"
               >
-                <p className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-2 font-bold">
+                <p className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light my-2 font-bold">
                   Select a type:
                 </p>
                 <div className="m-2">
@@ -116,7 +116,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   />
                   <label
                     htmlFor="publicType"
-                    className="text-gray-500 bg-white rounded-lg text-sm text-base px-5"
+                    className="text-gray-500 bg-white rounded-lg text-sm lg:text-base xl:text-base px-5"
                   >
                     Public - everyone can access freely
                   </label>
@@ -132,7 +132,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   />
                   <label
                     htmlFor="privateType"
-                    className="text-gray-500 bg-white rounded-lg text-sm text-base px-5"
+                    className="text-gray-500 bg-white rounded-lg text-sm px-5"
                   >
                     Private - only invited members can join
                   </label>
@@ -148,7 +148,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   />
                   <label
                     htmlFor="protectedType"
-                    className="text-gray-500 bg-white rounded-lg text-sm text-base px-5"
+                    className="text-gray-500 bg-white rounded-lg text-sm px-5"
                   >
                     Protected - a password is required to join
                   </label>
@@ -158,12 +158,12 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 <div id="form-channel-creation-password" className="form-group">
                   <label
                     htmlFor="ChannelPassword"
-                    className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium my-3 font-bold"
+                    className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light my-3 font-bold"
                   >
                     Enter a password:
                   </label>
                   <input
-                    className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                    className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                       inputStatus == 'invalidPassword' ? 'border-red-500' : ''
                     }`}
                     name="password"
