@@ -13,9 +13,15 @@ export class GameService {
   constructor(
     private prismaService: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
-  ) { }
+  ) {}
 
-  join(name: string, client: Socket, id: string, server: Server, mode: GameMode) {
+  join(
+    name: string,
+    client: Socket,
+    id: string,
+    server: Server,
+    mode: GameMode,
+  ) {
     if (name === '') {
       return this.joinRandom(client, id, server, mode);
     } else {

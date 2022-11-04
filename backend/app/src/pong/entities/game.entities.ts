@@ -17,8 +17,7 @@ export enum GameMode {
 }
 const genrateRandomNumber = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-
-}
+};
 export class Game {
   constructor(mode: GameMode) {
     this.gameRoomId = this.makeid(5);
@@ -44,7 +43,7 @@ export class Game {
   p2s = 0;
   paddleSize = 10;
   mode: GameMode = GameMode.CLASSIC;
-  color: string = 'black'
+  color = 'black';
 
   moveBall() {
     if (this.by >= 100) {
@@ -190,7 +189,7 @@ export class Game {
       p2s: this.p2s,
       paddleSize: this.paddleSize,
       gameRoomId: this.gameRoomId,
-      color: this.color
+      color: this.color,
     };
   }
 

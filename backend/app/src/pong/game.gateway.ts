@@ -24,7 +24,7 @@ export class GameGateway {
   server: Server;
   socketToId = new Map<string, string>();
 
-  constructor(private readonly messagesService: GameService) { }
+  constructor(private readonly messagesService: GameService) {}
 
   @SubscribeMessage('updatePaddlePos')
   async create(@MessageBody() createMessageDto: PositionDto) {
