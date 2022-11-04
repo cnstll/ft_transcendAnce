@@ -143,7 +143,7 @@ function Game() {
       {gameStatus == GameStatus.PLAYING && < canvas onMouseMove={movePaddle} ref={canvasRef} />}
       {gameStatus == GameStatus.DONE && <p> done, you probably lost  </p>}
       {gameStatus == GameStatus.PENDING && <p> Waiting for a dance partner  {gameStatus}</p>}
-      {gameStatus == GameStatus.PAUSED && <p> your partner has disconnected, vixtory will be yours if he doens't reconnect withing 5 seconds </p>}
+      {gameStatus == GameStatus.PAUSED && <p> your partner has disconnected, victory will be yours if he doens't reconnect withing 5 seconds </p>}
     </>
   );
 }

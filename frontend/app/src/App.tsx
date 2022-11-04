@@ -21,6 +21,7 @@ function App() {
         <Route path="/play" element={<Play />} />
         <Route path="/play/:id" element={<Play />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/chat/:id" element={<Chat />} />
         <Route path="/2fa-sign-in" element={<SignIn2FA />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
