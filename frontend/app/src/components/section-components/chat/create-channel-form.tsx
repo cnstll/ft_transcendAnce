@@ -1,7 +1,7 @@
 import { Dispatch, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { channelType } from "../global-components/interface";
-import { socket } from './socket';
+import { channelType } from "../../global-components/interface";
+import { socket } from "../socket"
 
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;

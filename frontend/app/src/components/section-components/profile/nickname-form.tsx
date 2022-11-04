@@ -1,13 +1,13 @@
 import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { useQueryClient } from 'react-query';
-import { User } from '../global-components/interface';
-import setUserNickname from '../query-hooks/setUserNickname';
+import { User } from '../../global-components/interface';
+import setUserNickname from '../../query-hooks/setUserNickname';
 
-interface NicknameFormProps {
+function NickNameForm({
+  setShowForm,
+}: {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
-}
-
-function NickNameForm(props: NicknameFormProps) {
+}) {
   const queryClient = useQueryClient();
   const nicknameMutation = setUserNickname();
 
@@ -33,7 +33,7 @@ function NickNameForm(props: NicknameFormProps) {
       onSuccess: ({ status }) => {
         if (status === 201) {
           setInputStatus('valid');
-          props.setShowForm(false);
+          setShowForm(false);
           queryClient.setQueryData<User>('userData', (oldData): User => {
             return {
               ...oldData!,

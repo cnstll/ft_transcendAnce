@@ -1,8 +1,8 @@
 import React, { ChangeEvent, Dispatch, useState } from 'react';
 import { useQueryClient } from 'react-query';
-import setAvatarImg from '../query-hooks/setAvatarImg';
-import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
-import { User } from '../global-components/interface';
+import setAvatarImg from '../../query-hooks/setAvatarImg';
+import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
+import { User } from '../../global-components/interface';
 
 interface AvatarImgFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
