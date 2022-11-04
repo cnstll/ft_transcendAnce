@@ -163,4 +163,13 @@ export class UserController {
   ) {
     return this.userService.getUserMatchesStats(userId, res);
   }
+
+  @Get('get-user-match-history')
+  @UseGuards(JwtAuthGuard)
+  getUserMatchHistory(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.userService.getUserMatchHistory(userId, res);
+  }
 }

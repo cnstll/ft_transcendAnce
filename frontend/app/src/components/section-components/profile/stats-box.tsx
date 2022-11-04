@@ -1,6 +1,21 @@
+import { NumericFormat } from 'react-number-format';
 import useUserStats from 'src/components/query-hooks/useUserStats';
 
-function StatBox() {
+interface DisplayValueProps {
+  value: number;
+  icon: string;
+}
+
+function DisplayValue({ value, icon }: DisplayValueProps) {
+  return (
+    <div className="flex flex-row gap-2">
+      <p>{icon}</p>
+      <NumericFormat value={value} thousandSeparator=" " displayType="text" />
+    </div>
+  );
+}
+
+function StatBox({ eloScore }: { eloScore: number }) {
   const stats = useUserStats();
   return (
     <>
@@ -11,10 +26,11 @@ function StatBox() {
     xl:w-7/12 lg:w-7/12 md:w-1/2 min-w-[280px]"
         >
           <h2 className="text-xl">STATS</h2>
-          <div className="p-2 grid grid-cols-3 text-sm sm:text-base md:text-lg lg:text-xl h-16">
-            <p>🏆 {stats.data.numberOfWin} </p>
-            <p>❌ {stats.data.numberOfLoss} </p>
-            {/* <p>👑 {ranking} </p> */}
+          <div className="p-2 flex flex-row justify-around text-sm sm:text-base md:text-lg lg:text-xl h-16">
+            <DisplayValue value={stats.data.numberOfWin} icon="🏆" />
+            <DisplayValue value={stats.data.numberOfLoss} icon="❌" />
+            <DisplayValue value={eloScore} icon="📈" />
+            <p>👑 1/200</p>
           </div>
         </div>
       )}

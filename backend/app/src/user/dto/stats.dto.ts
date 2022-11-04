@@ -1,11 +1,11 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class StatDto {
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
   numberOfWin: number;
 
-  @IsBoolean()
-  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
   numberOfLoss: number;
 }

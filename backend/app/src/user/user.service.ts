@@ -9,6 +9,7 @@ import { UserDto } from './dto/user.dto';
 import { StatDto } from './dto/stats.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Response } from 'express';
+import { MatchHistoryDto } from './dto/matchHistory.dto';
 
 @Injectable()
 export class UserService {
@@ -449,5 +450,9 @@ export class UserService {
     }
     stats.numberOfLoss = matchesList.length - stats.numberOfWin;
     return res.status(200).send(stats);
+  }
+
+  async getUserMatchHistory(userId: string, res: Response) {
+    let matchHistory: MatchHistoryDto[] = [];
   }
 }

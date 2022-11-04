@@ -46,7 +46,7 @@ function Profile() {
               )}
             </div>
             <div className="flex justify-center">
-              <StatsBox />
+              <StatsBox eloScore={user.data.eloScore} />
             </div>
           </Background>
         </div>

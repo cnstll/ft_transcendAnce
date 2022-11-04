@@ -23,7 +23,7 @@ export interface User {
   id: string;
   avatarImg: string;
   nickname: string;
-  eloScore?: number;
+  eloScore: number;
   status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
   twoFactorAuthenticationSet: boolean;
   twoFactorAuthenticationSecret: string;
