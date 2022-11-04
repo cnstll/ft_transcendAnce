@@ -151,7 +151,7 @@ export class UserController {
     @Res() res: Response,
     @GetCurrentUserId() userId: string,
   ) {
-    const matches = await this.userService.getUserMatches(userId, res);
+    const matches = await this.userService.getUserMatches(userId);
     return res.status(200).send(matches);
   }
 

@@ -409,7 +409,7 @@ export class UserService {
 
   /** Game management */
 
-  async getUserMatches(userId: string, res: Response) {
+  async getUserMatches(userId: string) {
     const matches = await this.prismaService.user.findUnique({
       where: {
         id: userId,
