@@ -166,12 +166,12 @@ export class UserController {
     return this.userService.getLeaderboard(res);
   }
 
-  // @Get('get-user-match-history')
-  // @UseGuards(JwtAuthGuard)
-  // getUserMatchHistory(
-  //   @Res() res: Response,
-  //   @GetCurrentUserId() userId: string,
-  // ) {
-  //   return this.userService.getUserMatchHistory(userId, res);
-  // }
+  @Post('get-user-match-history')
+  @UseGuards(JwtAuthGuard)
+  getUserMatchHistory(
+    @Res() res: Response,
+    @Body() target: { userNickname: string },
+  ) {
+    return this.userService.getUserMatchHistory(target.userNickname, res);
+  }
 }

@@ -453,11 +453,7 @@ export class UserService {
 
     const matchesList = await this.getUserMatches(userNickname);
     for (let i = 0; i < matchesList.length; i++) {
-      if (
-        (matchesList[i].playerOneId === user.id && matchesList[i].p1s === 10) ||
-        (matchesList[i].playerTwoId === user.id && matchesList[i].p2s === 10)
-      )
-        stats.numberOfWin++;
+      if (matchesList[i].playerOneId === user.id) stats.numberOfWin++;
     }
     stats.numberOfLoss = matchesList.length - stats.numberOfWin;
     return res.status(200).send(stats);
@@ -498,7 +494,34 @@ export class UserService {
     return userRank;
   }
 
-  // async getUserMatchHistory(userId: string, res: Response) {
-  //   let matchHistory: MatchHistoryDto[] = [];
-  // }
+  async getUserMatchHistory(userNickname: string, res: Response) {
+    const matchesList = await this.getUserMatches(userNickname);
+    const matchHistory: MatchHistoryDto[] = [];
+    const currentUser = await this.findOneFromUserNickname(userNickname);
+    let opponent: User;
+    let matchWon = false;
+    let score: string;
+
+    for (let i = 0; i < matchesList.length; i++) {
+      if (matchesList[i].playerOneId === currentUser.id) {
+        opponent = await this.getUserInfo(matchesList[i].playerTwoId);
+        score =
+          matchesList[i].p1s.toString() + '-' + matchesList[i].p2s.toString();
+        matchWon = true;
+      } else {
+        opponent = await this.getUserInfo(matchesList[i].playerOneId);
+        score =
+          matchesList[i].p2s.toString() + '-' + matchesList[i].p1s.toString();
+        matchWon = false;
+      }
+      const imageOpponent = opponent.avatarImg;
+      matchHistory.push({
+        id: matchesList[i].gameId,
+        imageOpponent: imageOpponent,
+        score: score,
+        matchWon: matchWon,
+      });
+    }
+    return res.status(200).send(matchHistory);
+  }
 }

@@ -41,13 +41,20 @@ export interface Stats {
   ranking: string;
 }
 
+export interface MatchData {
+  id: string;
+  imageOpponent: string;
+  score: string;
+  matchWon: boolean;
+}
+
 export interface TargetInfo {
   id: string;
   nickname: string;
   avatarImg: string;
   eloScore: number;
   status: string;
-  friendStatus: string;
+  friendStatus?: string;
 }
 
 export enum GameStatus {

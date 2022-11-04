@@ -7,10 +7,6 @@ export class MatchHistoryDto {
 
   @IsNotEmpty()
   @IsString()
-  imageCurrentUser: string;
-
-  @IsNotEmpty()
-  @IsString()
   imageOpponent: string;
 
   @IsNotEmpty()
