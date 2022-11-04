@@ -55,9 +55,45 @@ export class UserService {
     try {
       const nicknames = await this.prismaService.user.findMany({});
       return res.status(200).send(nicknames);
+      //TODO select so you don't return unneeded user info
     } catch (error) {
       console.log(error);
+      return res.status(500).send();
+    }
+  }
 
+  async getLeaderboard(res: Response) {
+    try {
+      const nicknames = await this.prismaService.user.findMany({
+        take: 10,
+        orderBy: {
+          eloScore: 'desc',
+        },
+      });
+      //TODO select so you don't return unneeded user info
+      return res.status(200).send(nicknames);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+  }
+
+  async getUserRanking(id: string, res: Response) {
+    try {
+      const users = await this.prismaService.user.findMany({
+        orderBy: {
+          eloScore: 'desc',
+        },
+      });
+      //TODO select so you don't return unneeded user info
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id == id) {
+          return res.status(200).send({ userRank: i + 1 });
+        }
+      }
+      return res.status(500).send();
+    } catch (error) {
+      console.log(error);
       return res.status(500).send();
     }
   }
