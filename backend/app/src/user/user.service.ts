@@ -499,7 +499,7 @@ export class UserService {
     const matchHistory: MatchHistoryDto[] = [];
     const currentUser = await this.findOneFromUserNickname(userNickname);
     let opponent: User;
-    let matchWon = false;
+    let matchWon: boolean;
     let score: string;
 
     for (let i = 0; i < matchesList.length; i++) {
@@ -507,12 +507,14 @@ export class UserService {
         opponent = await this.getUserInfo(matchesList[i].playerTwoId);
         score =
           matchesList[i].p1s.toString() + '-' + matchesList[i].p2s.toString();
-        matchWon = true;
+        if (matchesList[i].p1s == 10) matchWon = true;
+        else matchWon = false;
       } else {
         opponent = await this.getUserInfo(matchesList[i].playerOneId);
         score =
           matchesList[i].p2s.toString() + '-' + matchesList[i].p1s.toString();
-        matchWon = false;
+        if (matchesList[i].p2s == 10) matchWon = true;
+        else matchWon = false;
       }
       const imageOpponent = opponent.avatarImg;
       matchHistory.push({
