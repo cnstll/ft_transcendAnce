@@ -23,7 +23,6 @@ function Game() {
     ) {
       test = sessionStorage.getItem('gameId');
       setGameId(sessionStorage.getItem('gameId'));
-      // return;
     }
 
     socket.emit(
@@ -73,10 +72,10 @@ function Game() {
     socket.on('gameStatus', joinListener);
 
     if (canvas !== null) {
-      canvas.width = window.innerWidth * 2;
+      canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight / 2}px`;
+      canvas.style.height = `${window.innerHeight / 2 + 5}px`;
       paddleHeight = canvas.height / 20;
       const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
       if (context !== null) {
