@@ -1,8 +1,8 @@
 import ChannelsList from './channels-list';
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
-import { Channel } from '../global-components/interface';
-import { socket } from './socket';
+import { Channel } from '../../global-components/interface';
+import { socket } from '../../global-components/client-socket';
 
 function MyChannelsList() {
   const queryClient = useQueryClient();

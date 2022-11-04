@@ -1,5 +1,5 @@
-import { TargetInfo } from '../global-components/interface';
-import CenterBox from './center-box';
+import { TargetInfo } from '../../global-components/interface';
+import CenterBox from '../center-box';
 import MatchHistory from './match-history';
 
 function TheirMatchHistory({ user }: { user: TargetInfo }) {

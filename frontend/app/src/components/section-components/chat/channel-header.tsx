@@ -1,12 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-import { Channel } from '../global-components/interface';
+import { Channel } from '../../global-components/interface';
 import { UseQueryResult } from 'react-query';
-import { useGroupChannelsList } from '../query-hooks/useGetChannels';
+import { useGroupChannelsList } from '../../query-hooks/useGetChannels';
 import { useState } from 'react';
-import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
+import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
 import CreateChannelForm from './create-channel-form';
-import SearchBoxChannel from './search-box-channel';
+import SearchBoxChannel from '../search-box-channel';
 
 function ChannelHeader() {
   const channelsData: UseQueryResult<Channel[] | undefined> =

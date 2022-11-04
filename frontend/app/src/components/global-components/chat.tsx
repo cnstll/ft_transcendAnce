@@ -4,12 +4,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../section-components/navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
-import ChatBox from '../section-components/chat-box';
-import Message from '../section-components/message';
+import ChatBox from '../section-components/chat/chat-box';
+import Message from '../section-components/chat/message';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
-import ChannelHeader from '../section-components/channel-header';
 import { Channel, User } from '../global-components/interface';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
@@ -17,6 +16,7 @@ import { useChannelsByUserList } from '../query-hooks/useGetChannels';
 import { UseQueryResult } from 'react-query';
 import MyChannelsList from '../section-components/my-channels-list';
 import ChannelOptions from '../section-components/channel-options';
+import ChannelHeader from '../section-components/chat/channel-header';
 
 const chanUsersData: User[] = [
   {

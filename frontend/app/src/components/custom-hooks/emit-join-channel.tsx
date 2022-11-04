@@ -1,5 +1,5 @@
 import { Channel, channelType } from '../global-components/interface';
-import { socket } from '../section-components/socket';
+import { socket } from '../global-components/client-socket';
 
 function JoinChannel(channelInfo: Channel) {
   if (channelInfo.type === channelType.Public) {

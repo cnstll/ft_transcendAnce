@@ -37,10 +37,9 @@ export interface UserData {
   avatarImg: string;
 }
 
-export interface MatchData {
+export interface Stats {
   numberOfWin: number;
   numberOfLoss: number;
-  ranking: number;
 }
 
 export interface TargetInfo {

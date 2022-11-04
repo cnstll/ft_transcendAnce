@@ -1,5 +1,5 @@
 import ChannelsListItem from './channels-list-item';
-import { Channel } from '../global-components/interface';
+import { Channel } from '../../global-components/interface';
 import { useState } from 'react';
 
 interface ChannelsListProps {

@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   private static extractJWTfromHandshake(req: HandshakeRequest): string | null {
     if (
+      req.handshake &&
       req.handshake.headers.cookie &&
       req.handshake.headers.cookie.length > 0
     ) {

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Channel } from '../global-components/interface';
-import { socket } from './socket';
+import { socket } from '../global-components/client-socket';
 
 function ChannelOptions() {
   const { activeChannel } = useParams();

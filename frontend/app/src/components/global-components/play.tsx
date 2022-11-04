@@ -6,7 +6,7 @@ import Background from '../section-components/background';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import Game from '../section-components/canvas';
+import Game from '../section-components/play/canvas';
 
 function Play() {
   const { id } = useParams();

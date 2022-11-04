@@ -3,7 +3,7 @@ import {
   faUsers as faChannel,
   faCommentDots as faMessage,
 } from '@fortawesome/free-solid-svg-icons';
-import { Channel, channelType } from '../global-components/interface';
+import { Channel, channelType } from '../../global-components/interface';
 import { useNavigate } from 'react-router-dom';
 
 interface ChannelsListProps {
