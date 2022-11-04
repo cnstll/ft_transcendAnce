@@ -99,6 +99,12 @@ export class UserController {
     return this.userService.getUserFriends(userId, res);
   }
 
+  @Get('get-user-matches')
+  @UseGuards(JwtAuthGuard)
+  getUserMatches(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.getUserMatches(userId, res);
+  }
+
   @Post('get-target-info')
   @UseGuards(JwtAuthGuard)
   getOtherUserInfo(
@@ -106,6 +112,7 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() target: { nickname: string },
   ) {
+    console.log(target);
     return this.userService.getTargetInfo(userId, target.nickname, res);
   }
 
