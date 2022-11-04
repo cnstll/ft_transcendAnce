@@ -24,7 +24,7 @@ function validateNameInput(input: string): boolean {
 
 function validatePwdInput(input: string): boolean {
     // Regex would accept alphanumeric and special char: !?@#$%^&*()+./'"" but no space
-  const regex = /^[!?@#$%^&*()+.'"\/\w\d]+$/;
+  const regex = /^[!?@#$%^&*()+.'"/\w\d]+$/;
   const regexWhiteChar = /^\s+$/;
   const ret = input.length !== 0 && input.length <= 32 && regex.test(input)
     && !regexWhiteChar.test(input)
