@@ -27,7 +27,7 @@ function Game() {
 
     socket.emit(
       'joinGame',
-      { name: test },
+      { name: test, mode: 'CLASSIC' },
       (response: { gameId: string; playerNumber: number }) => {
         if (response.playerNumber > 1) {
           player = 2;
@@ -84,11 +84,15 @@ function Game() {
         context.strokeStyle = 'white';
         context.fillStyle = 'white';
         contextRef.current = context;
+        context.setLineDash([10, 10]);
+        context.moveTo(canvas.width / 4, 0);
+        context.lineTo(canvas.width / 4, canvas.height);
 
         const messageListener = (text: GameCoords) => {
-          context.fillStyle = 'black';
+          context.fillStyle = text.color;
           context.fillRect(0, 0, canvas.width / 2, canvas.height);
           context.fillStyle = 'white';
+          context.stroke();
           let posy = (canvas.height / 2) * (text.p1y / 100);
           let posx = (canvas.width / 2) * (text.p1x / 100);
 
