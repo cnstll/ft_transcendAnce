@@ -125,15 +125,15 @@ export class UserService {
     return user;
   }
 
-  findOneFromNickname(immutableId: string): Promise<User | undefined> {
-    return this.prismaService.user.findUnique({
+  async findOneFromUserNickname(userId: string): Promise<User | undefined> {
+    return await this.prismaService.user.findUnique({
       where: {
-        immutableId: immutableId,
+        nickname: userId,
       },
     });
   }
 
-  findOne(immutableId: string): Promise<User | undefined> {
+  findOneFromImmutableId(immutableId: string): Promise<User | undefined> {
     return this.prismaService.user.findUnique({
       where: {
         immutableId: immutableId,
@@ -152,7 +152,9 @@ export class UserService {
     futureFriendNickname: string,
     res: Response,
   ) {
-    const futureFriend: User = await this.findOne(futureFriendNickname);
+    const futureFriend: User = await this.findOneFromUserNickname(
+      futureFriendNickname,
+    );
     try {
       await this.prismaService.user.update({
         where: {
@@ -185,7 +187,7 @@ export class UserService {
   }
 
   async deleteFriendship(activeUserId: string, target: string, res: Response) {
-    const user: User = await this.findOne(target);
+    const user: User = await this.findOneFromUserNickname(target);
     try {
       const result = await this.prismaService.friendship.findFirst({
         where: {
@@ -220,7 +222,9 @@ export class UserService {
     res: Response,
   ) {
     const status: FriendshipStatus = 'ACCEPTED';
-    const requester: User = await this.findOne(requesterNickname);
+    const requester: User = await this.findOneFromUserNickname(
+      requesterNickname,
+    );
     try {
       await this.prismaService.user.update({
         where: {
@@ -308,8 +312,7 @@ export class UserService {
     res: Response,
   ) {
     try {
-      console.log(targetUserId);
-      const target: User = await this.findOne(targetUserId);
+      const target: User = await this.findOneFromUserNickname(targetUserId);
       const info: {
         id: string;
         nickname: string;
