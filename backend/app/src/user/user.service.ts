@@ -452,7 +452,7 @@ export class UserService {
     return res.status(200).send(stats);
   }
 
-  async getUserMatchHistory(userId: string, res: Response) {
-    let matchHistory: MatchHistoryDto[] = [];
-  }
+  // async getUserMatchHistory(userId: string, res: Response) {
+  //   let matchHistory: MatchHistoryDto[] = [];
+  // }
 }
