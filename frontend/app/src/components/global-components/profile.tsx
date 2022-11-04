@@ -42,8 +42,8 @@ function Profile() {
               className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
           gap-10 px-5 justify-center mt-6 text-white text-3xl"
             >
-              <ProfileBox nickname={id} />
-              {!id && (
+              <ProfileBox nickname={id} currentUser={user} />
+              {(!id || user.data.nickname === id) && (
                 <SideBox>
                   <h2 className="flex justify-center font-bold break-all">
                     FRIENDS
