@@ -1,8 +1,6 @@
-interface ButtonProps {
-  children: React.ReactNode;
-}
+import React from 'react';
 
-function Button({ children }: ButtonProps) {
+function Button({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="bg-blue hover:bg-dark-blue text-white flex justify-center items-center

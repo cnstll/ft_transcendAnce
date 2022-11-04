@@ -1,11 +1,11 @@
 import { Dispatch, FormEvent, useRef, useState } from 'react';
-import { User } from '../global-components/interface';
+import { User } from '../../global-components/interface';
 import {
   generate2fa,
   disable2fa,
   validate2faCode,
-} from '../query-hooks/set2fa';
-import useQRCode from '../query-hooks/useQRCode';
+} from '../../query-hooks/set2fa';
+import useQRCode from '../../query-hooks/useQRCode';
 
 interface ToggleProps {
   toggleValue: boolean;

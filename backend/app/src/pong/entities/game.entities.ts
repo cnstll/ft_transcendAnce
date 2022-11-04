@@ -146,14 +146,6 @@ export class Game {
         id: userId,
       },
       data: {
-        playerOnMatches: {
-          create: [
-            {
-              matchId: this.gameRoomId,
-              score: { myself: this.p1s, opponent: this.p2s },
-            },
-          ],
-        },
         eloScore: newElo,
       },
     });
@@ -203,9 +195,21 @@ export class Game {
   }
 
   async saveGameResults(prismaService: PrismaService) {
-    await prismaService.match.create({
+    await prismaService.user.update({
+      where: {
+        id: this.p1id,
+      },
       data: {
-        id: this.gameRoomId,
+        playerOneMatch: {
+          create: [
+            {
+              gameId: this.gameRoomId,
+              p1s: this.p1s,
+              p2s: this.p2s,
+              playerTwoId: this.p2id,
+            },
+          ],
+        },
       },
     });
 
@@ -226,12 +230,14 @@ export enum Status {
   PAUSED = 'PAUSED',
   PENDING = 'PENDING',
 }
+
 export interface GameRoom extends Players {
   p1: string;
   p2: string;
   roomName: string;
   status: Status;
 }
+
 export type roomMapType = {
   [id: string]: Players;
 };
