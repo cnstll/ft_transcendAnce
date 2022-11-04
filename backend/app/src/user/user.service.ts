@@ -252,6 +252,7 @@ export class UserService {
     res: Response,
   ) {
     try {
+      console.log(targetUserId);
       const target: User = await this.findOne(targetUserId);
       const info: {
         id: string;
@@ -289,6 +290,31 @@ export class UserService {
     }
   }
 
+  async getUserMatches(userId: string, res: Response) {
+    const matches = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        playerOneMatch: {},
+        playerTwoMatch: {},
+      },
+    });
+    const friendsList = [];
+
+    console.log(matches);
+    // for (let i = 0; i < matches.length; i++) {
+    //   matchesList.push(
+    //     await this.getInfo(userId, matches.matchesAddressee[i].requesterId),
+    //   );
+    // }
+    // for (let i = 0; i < matches.matchesRequester.length; i++) {
+    //   matchesList.push(
+    //     await this.getInfo(userId, matches.matchesRequester[i].addresseeId),
+    //   );
+    // }
+    return res.status(200).send(friendsList);
+  }
   async getUserFriends(userId: string, res: Response) {
     const friends = await this.prismaService.user.findUnique({
       where: {
@@ -335,6 +361,14 @@ export class UserService {
       },
     });
     return user;
+  }
+
+  findOneFromNickname(immutableId: string): Promise<User | undefined> {
+    return this.prismaService.user.findUnique({
+      where: {
+        immutableId: immutableId,
+      },
+    });
   }
 
   findOne(immutableId: string): Promise<User | undefined> {
