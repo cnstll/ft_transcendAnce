@@ -52,18 +52,6 @@ export class UserController {
     return this.userService.getAllUsers(res);
   }
 
-  @Get('get-leaderboard')
-  @UseGuards(JwtAuthGuard)
-  getLeaderBoard(@Res() res: Response) {
-    return this.userService.getLeaderboard(res);
-  }
-
-  @Get('get-user-rank')
-  @UseGuards(JwtAuthGuard)
-  getUserRan(@Res() res: Response, @GetCurrentUserId() id: string) {
-    return this.userService.getUserRanking(id, res);
-  }
-
   @Put('update-avatarImg')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', storage))
@@ -158,21 +146,24 @@ export class UserController {
 
   @Get('get-user-matches')
   @UseGuards(JwtAuthGuard)
-  async getUserMatches(
-    @Res() res: Response,
-    @GetCurrentUserId() userId: string,
-  ) {
-    const matches = await this.userService.getUserMatches(userId);
+  async getUserMatches(@Res() res: Response, @Body() userNickname: string) {
+    const matches = await this.userService.getUserMatches(userNickname);
     return res.status(200).send(matches);
   }
 
-  @Get('get-user-matches-stats')
+  @Post('get-user-matches-stats')
   @UseGuards(JwtAuthGuard)
   getUserMatchesStats(
     @Res() res: Response,
-    @GetCurrentUserId() userId: string,
+    @Body() target: { userNickname: string },
   ) {
-    return this.userService.getUserMatchesStats(userId, res);
+    return this.userService.getUserMatchesStats(target.userNickname, res);
+  }
+
+  @Get('get-leaderboard')
+  @UseGuards(JwtAuthGuard)
+  getLeaderBoard(@Res() res: Response) {
+    return this.userService.getLeaderboard(res);
   }
 
   // @Get('get-user-match-history')

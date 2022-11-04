@@ -46,7 +46,11 @@ function Profile() {
               )}
             </div>
             <div className="flex justify-center">
-              <StatsBox eloScore={user.data.eloScore} />
+              {!id ? (
+                <StatsBox nickname={user.data.nickname} />
+              ) : (
+                <StatsBox nickname={id} />
+              )}
             </div>
           </Background>
         </div>

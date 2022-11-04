@@ -38,6 +38,7 @@ export interface UserData {
 export interface Stats {
   numberOfWin: number;
   numberOfLoss: number;
+  ranking: string;
 }
 
 export interface TargetInfo {

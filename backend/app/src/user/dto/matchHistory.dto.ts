@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class MatchHistoryDto {
   @IsNotEmpty()
@@ -18,6 +18,6 @@ export class MatchHistoryDto {
   score: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsBoolean()
   matchWon: boolean;
 }

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class StatDto {
   @IsNotEmpty()
@@ -8,4 +8,8 @@ export class StatDto {
   @IsNotEmpty()
   @IsNumber()
   numberOfLoss: number;
+
+  @IsNotEmpty()
+  @IsString()
+  ranking: string;
 }
