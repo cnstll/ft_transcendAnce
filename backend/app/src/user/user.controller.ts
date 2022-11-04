@@ -133,7 +133,6 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() target: { nickname: string },
   ) {
-    console.log(target);
     return this.userService.getTargetInfo(userId, target.nickname, res);
   }
 
