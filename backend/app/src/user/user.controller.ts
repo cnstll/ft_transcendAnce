@@ -52,6 +52,18 @@ export class UserController {
     return this.userService.getAllUsers(res);
   }
 
+  @Get('get-leaderboard')
+  @UseGuards(JwtAuthGuard)
+  getLeaderBoard(@Res() res: Response) {
+    return this.userService.getLeaderboard(res);
+  }
+
+  @Get('get-user-rank')
+  @UseGuards(JwtAuthGuard)
+  getUserRan(@Res() res: Response, @GetCurrentUserId() id: string) {
+    return this.userService.getUserRanking(id, res);
+  }
+
   @Put('update-avatarImg')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', storage))
@@ -133,7 +145,6 @@ export class UserController {
     @GetCurrentUserId() userId: string,
     @Body() target: { nickname: string },
   ) {
-    console.log(target);
     return this.userService.getTargetInfo(userId, target.nickname, res);
   }
 
