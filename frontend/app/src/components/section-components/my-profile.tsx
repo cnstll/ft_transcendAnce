@@ -7,17 +7,12 @@ import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { UseOutsideDivClick } from '../custom-hooks/use-outside-click';
 import { useState } from 'react';
 import NickNameForm from './nickname-form';
-// import useUserInfo from '../query-hooks/useUserInfo';
 import TwoFactorAuthentication from './two-factor-authentication';
 import { UseQueryResult } from 'react-query';
 import { User } from '../global-components/interface';
 
 
-interface ProfileProps {
-  user: UseQueryResult<User>,
-}
-
-function MyProfile(props: ProfileProps) {
+function MyProfile(props: { user: UseQueryResult<User> }) {
 
   const [showForm, setShowForm] = useState<boolean>(false);
 
