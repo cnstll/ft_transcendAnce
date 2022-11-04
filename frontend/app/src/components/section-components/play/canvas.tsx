@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { socket } from './socket';
-import { GameCoords, GameStatus } from '../global-components/interface';
+import { GameCoords, GameStatus } from '../../global-components/interface';
 
 let player = 1;
 let paddleHeight = 50;
@@ -16,26 +16,36 @@ function Game() {
   useEffect(() => {
     let test: string | null;
     test = '';
-    const gameId: string | null = "";
-    if (sessionStorage.getItem('gameId') != null && sessionStorage.getItem('gameId') != "") {
-      test = sessionStorage.getItem('gameId')
+    const gameId: string | null = '';
+    if (
+      sessionStorage.getItem('gameId') != null &&
+      sessionStorage.getItem('gameId') != ''
+    ) {
+      test = sessionStorage.getItem('gameId');
       setGameId(sessionStorage.getItem('gameId'));
     }
 
-    socket.emit('joinGame', { name: test }, (response: { gameId: string, playerNumber: number }) => {
-      if (response.playerNumber > 1) {
-        player = 2;
-      } else {
-        player = 1;
-      }
-      sessionStorage.setItem('gameId', response.gameId);
-      setGameId(gameId);
-    });
-  }, [])
+    socket.emit(
+      'joinGame',
+      { name: test },
+      (response: { gameId: string; playerNumber: number }) => {
+        if (response.playerNumber > 1) {
+          player = 2;
+        } else {
+          player = 1;
+        }
+        sessionStorage.setItem('gameId', response.gameId);
+        setGameId(gameId);
+      },
+    );
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (sessionStorage.getItem('gameId') != null && sessionStorage.getItem('gameId') != "") {
+    if (
+      sessionStorage.getItem('gameId') != null &&
+      sessionStorage.getItem('gameId') != ''
+    ) {
       // gameId = sessionStorage.getItem('gameId');
       setGameId(sessionStorage.getItem('gameId'));
     }
@@ -53,12 +63,11 @@ function Game() {
         navigate('/');
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
-      }
-      else if (text.status == 'PAUSED') {
+      } else if (text.status == 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
       // console.log('i am here');
-    }
+    };
 
     socket.on('gameStatus', joinListener);
 
@@ -139,10 +148,20 @@ function Game() {
 
   return (
     <>
-      {gameStatus == GameStatus.PLAYING && < canvas onMouseMove={movePaddle} ref={canvasRef} />}
-      {gameStatus == GameStatus.DONE && <p> done, you probably lost  </p>}
-      {gameStatus == GameStatus.PENDING && <p> Waiting for a dance partner  {gameStatus}</p>}
-      {gameStatus == GameStatus.PAUSED && <p> your partner has disconnected, vixtory will be yours if he doens't reconnect withing 5 seconds </p>}
+      {gameStatus == GameStatus.PLAYING && (
+        <canvas onMouseMove={movePaddle} ref={canvasRef} />
+      )}
+      {gameStatus == GameStatus.DONE && <p> done, you probably lost </p>}
+      {gameStatus == GameStatus.PENDING && (
+        <p> Waiting for a dance partner {gameStatus}</p>
+      )}
+      {gameStatus == GameStatus.PAUSED && (
+        <p>
+          {' '}
+          your partner has disconnected, vixtory will be yours if he doens't
+          reconnect withing 5 seconds{' '}
+        </p>
+      )}
     </>
   );
 }

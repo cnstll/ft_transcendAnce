@@ -4,20 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
-import { MatchData } from '../global-components/interface';
 import FriendList from '../section-components/friend-list';
-import StatsBox from '../section-components/stats-box';
+import StatsBox from '../section-components/profile/stats-box';
 import { useParams } from 'react-router-dom';
-import ProfileBox from '../section-components/profile-box';
+import ProfileBox from '../section-components/profile/profile-box';
 import { useNavigate } from 'react-router-dom';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';
-
-const matchExamples: MatchData = {
-  numberOfWin: 10,
-  numberOfLoss: 2,
-  ranking: 1,
-};
 
 function Profile() {
   const { id } = useParams();
@@ -53,11 +46,7 @@ function Profile() {
               )}
             </div>
             <div className="flex justify-center">
-              <StatsBox
-                numberOfWin={matchExamples.numberOfWin}
-                numberOfLoss={matchExamples.numberOfLoss}
-                ranking={matchExamples.ranking}
-              />
+              <StatsBox />
             </div>
           </Background>
         </div>

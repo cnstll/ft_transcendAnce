@@ -1,5 +1,5 @@
-import { User } from '../global-components/interface';
-import CenterBox from './center-box';
+import { User } from '../../global-components/interface';
+import CenterBox from '../center-box';
 import MatchHistory from './match-history';
 
 function MyMatchHistory({ user }: { user: User }) {

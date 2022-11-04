@@ -19,7 +19,7 @@ model User {
   updatedAt                     DateTime          @updatedAt
   status                        UserStatus        @default(OFFLINE)
   avatarImg                     String?
-  eloScore                      Int               @default(0)
+  eloScore                      Int               @default(1000)
   twoFactorAuthenticationSet    Boolean           @default(false)
   twoFactorAuthenticationSecret String            @default("")
   friendsRequester              Friendship[]      @relation("requester")

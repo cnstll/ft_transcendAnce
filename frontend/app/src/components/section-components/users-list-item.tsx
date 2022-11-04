@@ -1,31 +1,28 @@
 import DropDownButton from './drop-down-button';
-import NormUrl from "../custom-hooks/norm-url";
+import NormUrl from '../custom-hooks/norm-url';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faGamepad,
-  faCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
 import type { User } from '../global-components/interface';
 
-interface UserOptionsProps {
-  nickname: string,
-}
-
-function UserOptions({ nickname }: UserOptionsProps) {
+function UserOptions({ nickname }: { nickname: string }) {
   return (
     <div>
-      <Link to={NormUrl("/profile/", nickname)}>
+      <Link to={NormUrl('/profile/', nickname)}>
         <p className="text-center hover:underline my-2">Go to profile</p>
       </Link>
       <Link to="/">
         <p className="text-center hover:underline my-2">Invite to play</p>
       </Link>
       <Link to="/">
-        <p className="text-center hover:underline my-2 truncate">Block {nickname}</p>
+        <p className="text-center hover:underline my-2 truncate">
+          Block {nickname}
+        </p>
       </Link>
       <Link to="/">
-        <p className="text-center hover:underline my-2 truncate">Ban {nickname}</p>
+        <p className="text-center hover:underline my-2 truncate">
+          Ban {nickname}
+        </p>
       </Link>
     </div>
   );
@@ -47,17 +44,12 @@ function UsersListItem({ user }: UsersListItemProps) {
         <div className="relative">
           <div className="absolute -left-2 z-10">
             {user.status === 'ONLINE' && (
-              <FontAwesomeIcon
-                className="text-green-600"
-                icon={faCircle}
-              />
+              <FontAwesomeIcon className="text-green-600" icon={faCircle} />
             )}
             {user.status === 'OFFLINE' && (
               <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
             )}
-            {user.status === 'PLAYING' && (
-              <FontAwesomeIcon icon={faGamepad} />
-            )}
+            {user.status === 'PLAYING' && <FontAwesomeIcon icon={faGamepad} />}
           </div>
         </div>
       </div>

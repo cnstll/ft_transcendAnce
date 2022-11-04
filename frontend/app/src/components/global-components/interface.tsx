@@ -2,14 +2,13 @@ export enum channelType {
   Public = 'PUBLIC',
   Private = 'PRIVATE',
   Protected = 'PROTECTED',
-  DirectMessage = 'DIRECTMESSAGE'
+  DirectMessage = 'DIRECTMESSAGE',
 }
-
 
 export interface Channel {
   id: string;
   name: string;
-  password?: string,
+  password?: string;
   type: channelType;
 }
 
@@ -17,7 +16,7 @@ export enum friendshipStatus {
   REQUSTED,
   ACCEPTED,
   PENDING,
-  ADD
+  ADD,
 }
 
 export interface User {
@@ -36,10 +35,9 @@ export interface UserData {
   avatarImg: string;
 }
 
-export interface MatchData {
+export interface Stats {
   numberOfWin: number;
   numberOfLoss: number;
-  ranking: number;
 }
 
 export interface TargetInfo {
@@ -53,9 +51,9 @@ export interface TargetInfo {
 
 export enum GameStatus {
   PLAYING = 'PLAYING',
-  DONE = "DONE",
-  PENDING = "PENDING",
-  PAUSED = "PAUSED"
+  DONE = 'DONE',
+  PENDING = 'PENDING',
+  PAUSED = 'PAUSED',
 }
 
 export interface GameCoords {

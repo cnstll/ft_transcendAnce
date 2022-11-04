@@ -3,15 +3,18 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { User, FriendshipStatus, UserStatus } from '@prisma/client';
+import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
+import { StatDto } from './dto/stats.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Response } from 'express';
 
 @Injectable()
 export class UserService {
   constructor(private prismaService: PrismaService) {}
+
+  /** User management */
 
   async createUser(dto: UserDto) {
     try {
@@ -59,30 +62,6 @@ export class UserService {
     }
   }
 
-  async requestFriend(
-    requesterId: string,
-    futureFriendNickname: string,
-    res: Response,
-  ) {
-    const futureFriend: User = await this.findOne(futureFriendNickname);
-    try {
-      await this.prismaService.user.update({
-        where: {
-          id: requesterId,
-        },
-        data: {
-          friendsRequester: {
-            create: [{ addresseeId: futureFriend.id }],
-          },
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
-    }
-    return res.status(201).send();
-  }
-
   async updateUserName(userId: string, newNickname: string, res: Response) {
     try {
       await this.prismaService.user.update({
@@ -113,6 +92,83 @@ export class UserService {
     } catch (error) {
       return res.status(200).send();
     }
+  }
+
+  async getInfo(userId: string, userId1: string) {
+    try {
+      const user: User = await this.prismaService.user.findUnique({
+        where: {
+          id: userId1,
+        },
+      });
+      const friendStatus = await this.getFriendStatus(userId, userId1);
+      const userInfo = {
+        id: user.id,
+        nickname: user.nickname,
+        avatarImg: user.avatarImg,
+        eloScore: user.eloScore,
+        status: user.status,
+        friendStatus: friendStatus,
+      };
+      return userInfo;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getUserInfo(userId: string): Promise<User | undefined> {
+    const user: User = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    return user;
+  }
+
+  findOneFromNickname(immutableId: string): Promise<User | undefined> {
+    return this.prismaService.user.findUnique({
+      where: {
+        immutableId: immutableId,
+      },
+    });
+  }
+
+  findOne(immutableId: string): Promise<User | undefined> {
+    return this.prismaService.user.findUnique({
+      where: {
+        immutableId: immutableId,
+      },
+    });
+  }
+
+  logout(res: Response) {
+    return res.clearCookie('jwtToken', { httpOnly: true });
+  }
+
+  /** Friendship management */
+
+  async requestFriend(
+    requesterId: string,
+    futureFriendNickname: string,
+    res: Response,
+  ) {
+    const futureFriend: User = await this.findOne(futureFriendNickname);
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: requesterId,
+        },
+        data: {
+          friendsRequester: {
+            create: [{ addresseeId: futureFriend.id }],
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+    return res.status(201).send();
   }
 
   async updateFriendshipStatus(
@@ -268,53 +324,6 @@ export class UserService {
     }
   }
 
-  async getInfo(userId: string, userId1: string) {
-    try {
-      const user: User = await this.prismaService.user.findUnique({
-        where: {
-          id: userId1,
-        },
-      });
-      const friendStatus = await this.getFriendStatus(userId, userId1);
-      const userInfo = {
-        id: user.id,
-        nickname: user.nickname,
-        avatarImg: user.avatarImg,
-        eloScore: user.eloScore,
-        status: user.status,
-        friendStatus: friendStatus,
-      };
-      return userInfo;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async getUserMatches(userId: string, res: Response) {
-    const matches = await this.prismaService.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        playerOneMatch: {},
-        playerTwoMatch: {},
-      },
-    });
-    const friendsList = [];
-
-    console.log(matches);
-    // for (let i = 0; i < matches.length; i++) {
-    //   matchesList.push(
-    //     await this.getInfo(userId, matches.matchesAddressee[i].requesterId),
-    //   );
-    // }
-    // for (let i = 0; i < matches.matchesRequester.length; i++) {
-    //   matchesList.push(
-    //     await this.getInfo(userId, matches.matchesRequester[i].addresseeId),
-    //   );
-    // }
-    return res.status(200).send(friendsList);
-  }
   async getUserFriends(userId: string, res: Response) {
     const friends = await this.prismaService.user.findUnique({
       where: {
@@ -352,35 +361,6 @@ export class UserService {
       );
     }
     return res.status(200).send(friendsList);
-  }
-
-  async getUserInfo(userId: string): Promise<User | undefined> {
-    const user: User = await this.prismaService.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-    return user;
-  }
-
-  findOneFromNickname(immutableId: string): Promise<User | undefined> {
-    return this.prismaService.user.findUnique({
-      where: {
-        immutableId: immutableId,
-      },
-    });
-  }
-
-  findOne(immutableId: string): Promise<User | undefined> {
-    return this.prismaService.user.findUnique({
-      where: {
-        immutableId: immutableId,
-      },
-    });
-  }
-
-  logout(res: Response) {
-    return res.clearCookie('jwtToken', { httpOnly: true });
   }
 
   /**
@@ -425,5 +405,49 @@ export class UserService {
       console.log(error);
     }
     return;
+  }
+
+  /** Game management */
+
+  async getUserMatches(userId: string) {
+    const matches = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        playerOneMatch: {},
+        playerTwoMatch: {},
+      },
+    });
+    const matchesList: Match[] = [];
+
+    if (matches.playerOneMatch !== null) {
+      for (let i = 0; i < matches.playerOneMatch.length; i++) {
+        matchesList.push(matches.playerOneMatch[i]);
+      }
+    }
+    if (matches.playerOneMatch !== null) {
+      for (let i = 0; i < matches.playerTwoMatch.length; i++) {
+        matchesList.push(matches.playerTwoMatch[i]);
+      }
+    }
+    if (matchesList)
+      matchesList.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return matchesList;
+  }
+
+  async getUserMatchesStats(userId: string, res: Response) {
+    const stats: StatDto = { numberOfWin: 0, numberOfLoss: 0 };
+
+    const matchesList = await this.getUserMatches(userId);
+    for (let i = 0; i < matchesList.length; i++) {
+      if (
+        (matchesList[i].playerOneId === userId && matchesList[i].p1s === 10) ||
+        (matchesList[i].playerTwoId === userId && matchesList[i].p2s === 10)
+      )
+        stats.numberOfWin++;
+    }
+    stats.numberOfLoss = matchesList.length - stats.numberOfWin;
+    return res.status(200).send(stats);
   }
 }
