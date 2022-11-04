@@ -145,13 +145,8 @@ export class ChannelGateway {
       userId,
       leaveChannelDto,
     );
-    function isChannel(obj): obj is Channel {
-      return obj.id !== undefined;
-    }
     if (roomDeleted == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
-    } else if (isChannel(roomDeleted)) {
-      this.server.emit('roomDeleted', roomDeleted);
     } else {
       this.server.emit('roomLeft', roomDeleted);
     }

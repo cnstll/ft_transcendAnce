@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Channel } from '../global-components/interface';
-import { socket } from '../global-components/client-socket';
+import { Channel } from '../../global-components/interface';
+import { socket } from '../../global-components/client-socket';
 
 function ChannelOptions() {
   const { activeChannel } = useParams();
@@ -35,7 +35,6 @@ function ChannelOptions() {
         const nextChannelId =
           channelsQueryData.find((channel) => channel.id != channelInfo.id)
             ?.id ?? '';
-
         navigate(`../chat/ ${nextChannelId}`);
       } else {
         navigate('../chat');

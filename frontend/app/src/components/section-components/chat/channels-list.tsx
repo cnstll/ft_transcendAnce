@@ -4,8 +4,6 @@ import { useState } from 'react';
 
 interface ChannelsListProps {
   channels: Channel[];
-  //   activeChannelId: string;
-  //   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function ChannelsList({ channels }: ChannelsListProps) {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { Channel } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
-import SearchChannelItem from './search-channel-item';
+import SearchChannelItem from './chat/search-channel-item';
 import { socket } from '../global-components/client-socket';
 import JoinChannel from '../custom-hooks/emit-join-channel';
 

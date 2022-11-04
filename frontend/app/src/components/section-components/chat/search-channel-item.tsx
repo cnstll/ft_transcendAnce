@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Channel } from '../global-components/interface';
-import NormUrl from '../custom-hooks/norm-url';
-import JoinChannel from '../custom-hooks/emit-join-channel';
-import { socket } from '../global-components/client-socket';
+import { Channel } from '../../global-components/interface';
+import NormUrl from '../../custom-hooks/norm-url';
+import JoinChannel from '../../custom-hooks/emit-join-channel';
+import { socket } from '../../global-components/client-socket';
 
 interface SearchChannelItemProps {
   channel: Channel;

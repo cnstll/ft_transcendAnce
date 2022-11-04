@@ -15,7 +15,7 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import { useChannelsByUserList } from '../query-hooks/useGetChannels';
 import { UseQueryResult } from 'react-query';
 import MyChannelsList from '../section-components/my-channels-list';
-import ChannelOptions from '../section-components/channel-options';
+import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 
 const chanUsersData: User[] = [
