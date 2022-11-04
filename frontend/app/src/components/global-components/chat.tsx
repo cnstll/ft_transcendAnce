@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../section-components/navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
@@ -10,10 +10,13 @@ import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
 import ChannelHeader from '../section-components/channel-header';
-import { User } from '../global-components/interface';
+import { Channel, User } from '../global-components/interface';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
+import { useChannelsByUserList } from '../query-hooks/useGetChannels';
+import { UseQueryResult } from 'react-query';
 import MyChannelsList from '../section-components/my-channels-list';
+import ChannelOptions from '../section-components/channel-options';
 
 const chanUsersData: User[] = [
   {
@@ -54,28 +57,12 @@ const chanUsersData: User[] = [
   },
 ];
 
-function ChannelOptions() {
-  return (
-    <div>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Leave channel</p>
-      </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Change settings</p>
-      </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Invite user</p>
-      </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Ban user</p>
-      </Link>
-    </div>
-  );
-}
-
 function Chat() {
   const user = useUserInfo();
+  const { activeChannel } = useParams();
   const navigate = useNavigate();
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
@@ -104,7 +91,11 @@ function Chat() {
               <div className="flex">
                 <div className="flex-1">
                   <h2 className="flex justify-center p-5 font-bold">
-                    [Channel name]
+                    {channels.isSuccess &&
+                      channels.data &&
+                      channels.data.find(
+                        (channel) => channel.id === activeChannel,
+                      )?.name}
                   </h2>
                 </div>
                 <div className="p-5 flex justify-center">

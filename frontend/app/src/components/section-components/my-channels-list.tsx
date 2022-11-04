@@ -1,23 +1,33 @@
-import ChannelsList from "./channels-list";
-import { useChannelsByUserList } from "../query-hooks/useGetChannels";
-import { useEffect } from "react";
-import { UseQueryResult } from "react-query";
-import { Channel } from "../global-components/interface";
+import ChannelsList from './channels-list';
+import { useEffect } from 'react';
+import { useQueryClient } from 'react-query';
+import { Channel } from '../global-components/interface';
+import { socket } from './socket';
 
 function MyChannelsList() {
-  const channels : UseQueryResult<Channel[] | undefined>  = useChannelsByUserList();
+  const queryClient = useQueryClient();
+  const channelsQueryKey = 'channelsByUserList';
+
+  const channelsQueryData = queryClient.getQueryData(channelsQueryKey);
+  const channelsQueryState = queryClient.getQueryState(channelsQueryKey);
 
   useEffect(() => {
-    void channels.refetch();
-  }, [channels]);
+    socket.on('roomJoined', () => queryClient.refetchQueries(channelsQueryKey));
+  }, []);
 
   return (
     <>
-      {channels.isLoading && <p className="m-4 text-base">Loading channels...</p>}
-      {channels.isError && <p className="m-4 text-base">Could not fetch channels</p>}
-      {channels.data && channels.isSuccess && <ChannelsList channels={channels.data} />}
+      {channelsQueryState?.status === 'loading' && (
+        <p className="m-4 text-base">Loading channels...</p>
+      )}
+      {channelsQueryState?.status === 'error' && (
+        <p className="m-4 text-base">Could not fetch channels</p>
+      )}
+      {channelsQueryState?.status === 'success' && (
+        <ChannelsList channels={channelsQueryData as Channel[]} />
+      )}
     </>
-  )
+  );
 }
 
 export default MyChannelsList;
