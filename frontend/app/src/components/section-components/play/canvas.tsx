@@ -6,7 +6,7 @@ import { GameCoords, GameStatus } from '../../global-components/interface';
 let player = 1;
 let paddleHeight = 50;
 
-function Game() {
+function Game({ gameMode }: { gameMode: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
@@ -27,7 +27,7 @@ function Game() {
 
     socket.emit(
       'joinGame',
-      { name: test, mode: 'CLASSIC' },
+      { name: test, mode: gameMode },
       (response: { gameId: string; playerNumber: number }) => {
         if (response.playerNumber > 1) {
           player = 2;
@@ -66,7 +66,6 @@ function Game() {
       } else if (text.status == 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
-      // console.log('i am here');
     };
 
     socket.on('gameStatus', joinListener);

@@ -4,15 +4,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import Game from '../section-components/play/canvas';
+import Button from '../section-components/button';
 
 function Play() {
   const { id } = useParams();
 
   const user = useUserInfo();
   const navigate = useNavigate();
+  const [gameMode, setGameMode] = useState<string | null>(null);
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
@@ -20,7 +22,13 @@ function Play() {
       localStorage.setItem('gameId', id);
     }
   });
-
+  const setMayhem = () => {
+    setGameMode('MAYHEM');
+  };
+  function setClassic(e: React.MouseEvent) {
+    e.preventDefault();
+    setGameMode('CLASSIC');
+  }
   if (user.isSuccess)
     return (
       <div>
@@ -29,7 +37,19 @@ function Play() {
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
           />
-          <Game />
+          {gameMode === null &&
+            <div className="flex flex-col h-screen justify-center items-center gap-10">
+              <Button>
+                <button onClick={setClassic}> CLASSIC </button >
+              </Button>
+              <Button>
+                <button onClick={setMayhem}> MAYHEM </button >
+              </Button>
+            </div>
+          }
+          {gameMode != null &&
+            <Game gameMode={gameMode} />
+          }
         </Background>
       </div>
     );
