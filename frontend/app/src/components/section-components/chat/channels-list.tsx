@@ -10,7 +10,7 @@ function ChannelsList({ channels }: { channels: Channel[] }) {
         </p>
       )}
       {channels
-        ?.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1))
+        .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1))
         .map((channel) => (
           <ChannelsListItem key={channel.id} channelItem={channel} />
         ))}
