@@ -38,6 +38,8 @@ export const storage = {
 export class UserController {
   constructor(private userService: UserService) {}
 
+  /** User management */
+
   @Get('get-user-info')
   @UseGuards(JwtAuthGuard)
   getUserInfo(@GetCurrentUserId() userId: string) {
@@ -49,6 +51,49 @@ export class UserController {
   getAllUsers(@Res() res: Response) {
     return this.userService.getAllUsers(res);
   }
+
+  @Put('update-avatarImg')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', storage))
+  updateAvatar(
+    @UploadedFile() file,
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+  ) {
+    const filename = 'http://localhost:3000/user/' + file.path;
+    this.userService.updateAvatarImg(userId, filename, res);
+    return res.status(200).send();
+  }
+
+  @Get('avatar/:fileId')
+  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
+    res.sendFile(fileId, { root: 'avatar' });
+  }
+
+  @Put('update-nickname')
+  @UseGuards(JwtAuthGuard)
+  updateUserName(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+    @Body() data: { newNickname: string },
+  ) {
+    return this.userService.updateUserName(userId, data.newNickname, res);
+  }
+
+  @Get('logout')
+  @UseGuards(JwtAuthGuard)
+  logout(@Res() res: Response) {
+    this.userService.logout(res);
+    return res.status(200).send();
+  }
+
+  @Delete('delete')
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return await this.userService.deleteUser(userId, res);
+  }
+
+  /** Friendship management */
 
   @Post('request-friend')
   @UseGuards(JwtAuthGuard)
@@ -75,34 +120,10 @@ export class UserController {
     );
   }
 
-  @Put('update-avatarImg')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file', storage))
-  updateAvatar(
-    @UploadedFile() file,
-    @Res() res: Response,
-    @GetCurrentUserId() userId: string,
-  ) {
-    const filename = 'http://localhost:3000/user/' + file.path;
-    this.userService.updateAvatarImg(userId, filename, res);
-    return res.status(200).send();
-  }
-
-  @Get('avatar/:fileId')
-  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
-    res.sendFile(fileId, { root: 'avatar' });
-  }
-
   @Get('get-user-friends')
   @UseGuards(JwtAuthGuard)
   getFriendsInfo(@Res() res: Response, @GetCurrentUserId() userId: string) {
     return this.userService.getUserFriends(userId, res);
-  }
-
-  @Get('get-user-matches')
-  @UseGuards(JwtAuthGuard)
-  getUserMatches(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return this.userService.getUserMatches(userId, res);
   }
 
   @Post('get-target-info')
@@ -122,26 +143,24 @@ export class UserController {
     return this.userService.getUserFriendRequests(userId, res);
   }
 
-  @Put('update-nickname')
+  /** Match management */
+
+  @Get('get-user-matches')
   @UseGuards(JwtAuthGuard)
-  updateUserName(
+  async getUserMatches(
     @Res() res: Response,
     @GetCurrentUserId() userId: string,
-    @Body() data: { newNickname: string },
   ) {
-    return this.userService.updateUserName(userId, data.newNickname, res);
+    const matches = await this.userService.getUserMatches(userId, res);
+    return res.status(200).send(matches);
   }
 
-  @Get('logout')
+  @Get('get-user-matches-stats')
   @UseGuards(JwtAuthGuard)
-  logout(@Res() res: Response) {
-    this.userService.logout(res);
-    return res.status(200).send();
-  }
-
-  @Delete('delete')
-  @UseGuards(JwtAuthGuard)
-  async deleteUser(@Res() res: Response, @GetCurrentUserId() userId: string) {
-    return await this.userService.deleteUser(userId, res);
+  getUserMatchesStats(
+    @Res() res: Response,
+    @GetCurrentUserId() userId: string,
+  ) {
+    return this.userService.getUserMatchesStats(userId, res);
   }
 }
