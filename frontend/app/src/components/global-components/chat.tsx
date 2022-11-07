@@ -13,10 +13,10 @@ import { Channel, User } from '../global-components/interface';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useChannelsByUserList } from '../query-hooks/useGetChannels';
-import { UseQueryResult } from 'react-query';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
+import { UseQueryResult } from 'react-query';
 
 const chanUsersData: User[] = [
   {
