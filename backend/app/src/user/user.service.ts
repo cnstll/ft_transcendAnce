@@ -6,10 +6,10 @@ import {
 import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
-import { StatDto } from './dto/stats.dto';
+import { Stat } from './interfaces/stats.interface';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Response } from 'express';
-import { MatchHistoryDto } from './dto/matchHistory.dto';
+import { MatchHistory } from './interfaces/matchHistory.interface';
 
 @Injectable()
 export class UserService {
@@ -445,7 +445,7 @@ export class UserService {
   async getUserMatchesStats(userNickname: string, res: Response) {
     const user = await this.findOneFromUserNickname(userNickname);
     const ranking = await this.getUserRanking(userNickname);
-    const stats: StatDto = {
+    const stats: Stat = {
       numberOfWin: 0,
       numberOfLoss: 0,
       ranking: ranking,
@@ -500,34 +500,39 @@ export class UserService {
 
   async getUserMatchHistory(userNickname: string, res: Response) {
     const matchesList = await this.getUserMatches(userNickname);
-    const matchHistory: MatchHistoryDto[] = [];
+    const matchHistory: MatchHistory[] = [];
     const currentUser = await this.findOneFromUserNickname(userNickname);
     let opponent: User;
     let matchWon: boolean;
     let score: string;
 
-    for (let i = 0; i < matchesList.length; i++) {
-      if (matchesList[i].playerOneId === currentUser.id) {
-        opponent = await this.getUserInfo(matchesList[i].playerTwoId);
-        score =
-          matchesList[i].p1s.toString() + '-' + matchesList[i].p2s.toString();
-        if (matchesList[i].p1s == 10) matchWon = true;
-        else matchWon = false;
-      } else {
-        opponent = await this.getUserInfo(matchesList[i].playerOneId);
-        score =
-          matchesList[i].p2s.toString() + '-' + matchesList[i].p1s.toString();
-        if (matchesList[i].p2s == 10) matchWon = true;
-        else matchWon = false;
+    try {
+      for (let i = 0; i < matchesList.length; i++) {
+        if (matchesList[i].playerOneId === currentUser.id) {
+          opponent = await this.getUserInfo(matchesList[i].playerTwoId);
+          score =
+            matchesList[i].p1s.toString() + '-' + matchesList[i].p2s.toString();
+          if (matchesList[i].p1s == 10) matchWon = true;
+          else matchWon = false;
+        } else {
+          opponent = await this.getUserInfo(matchesList[i].playerOneId);
+          score =
+            matchesList[i].p2s.toString() + '-' + matchesList[i].p1s.toString();
+          if (matchesList[i].p2s == 10) matchWon = true;
+          else matchWon = false;
+        }
+        const imageOpponent = opponent.avatarImg;
+        matchHistory.push({
+          id: matchesList[i].gameId,
+          imageOpponent: imageOpponent,
+          score: score,
+          matchWon: matchWon,
+        });
       }
-      const imageOpponent = opponent.avatarImg;
-      matchHistory.push({
-        id: matchesList[i].gameId,
-        imageOpponent: imageOpponent,
-        score: score,
-        matchWon: matchWon,
-      });
+      return res.status(200).send(matchHistory);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
     }
-    return res.status(200).send(matchHistory);
   }
 }
