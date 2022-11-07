@@ -69,7 +69,7 @@ export class Game {
     this.gameRoomId = this.makeid(5);
     this.mode = mode;
     if (this.mode === GameMode.MAYHEM) {
-      this.color = 'red';
+      this.color = 'black';
     }
   }
 
@@ -184,9 +184,6 @@ export class Game {
           break;
         }
       }
-      // this.bx = 100;
-      // this.p1s += 1;
-      // this.dirx = -0.5;
     }
     this['bx'] += this.dirx;
     this['by'] += this.diry;
@@ -346,25 +343,9 @@ export class Game {
   }
 }
 
-export interface Players {
-  p1: string;
-  p2: string;
-}
-
 export enum Status {
   PLAYING = 'PLAYING',
   DONE = 'DONE',
   PAUSED = 'PAUSED',
   PENDING = 'PENDING',
 }
-
-export interface GameRoom extends Players {
-  p1: string;
-  p2: string;
-  roomName: string;
-  status: Status;
-}
-
-export type roomMapType = {
-  [id: string]: Players;
-};
