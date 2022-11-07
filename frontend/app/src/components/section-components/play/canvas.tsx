@@ -3,60 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import { socket } from './socket';
 import { GameCoords, GameStatus } from '../../global-components/interface';
 
-const player = 1;
 let paddleHeight = 50;
 
 function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
-  // const [gameId, setGameId] = useState<null | string>(null);
   const navigate = useNavigate();
+  let player: number;
 
   useEffect(() => {
-    //   // let test: string | null;
-    //   // test = '';
-    //   // const gameId: string | null = '';
-    //   // if (
-    //   //   sessionStorage.getItem('gameId') != null &&
-    //   //   sessionStorage.getItem('gameId') != ''
-    //   // ) {
-    //     // test = sessionStorage.getItem('gameId');
-    //     // setGameId(sessionStorage.getItem('gameId'));
-    //   }
-
     socket.emit(
       'joinGame',
-      { name: null },
-      (response: any) => {
+      {},
+      (response: { playerNumber: number }) => {
+        player = response.playerNumber;
         console.log(response)
-        // if (response.playerNumber > 1) {
-        //   player = 2;
-        // } else {
-        //   player = 1;
-        // }
-        // sessionStorage.setItem('gameId', response.gameId);
-        // setGameId(gameId);
       },
     );
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    // if (
-    //   sessionStorage.getItem('gameId') != null &&
-    //   sessionStorage.getItem('gameId') != ''
-    // )
-    // {
-    // gameId = sessionStorage.getItem('gameId');
-    // setGameId(sessionStorage.getItem('gameId'));
-    // }
     const joinListener = (text: {
       gameId: string;
       status: string;
       winner: string;
     }) => {
-      // setGameId(gameId);
       if (text.status === 'PENDING') {
         setGameStatus(GameStatus.PENDING);
       } else if (text.status === 'DONE') {
@@ -68,7 +41,6 @@ function Game() {
       } else if (text.status == 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
-      // console.log('i am here');
     };
 
     socket.on('gameStatus', joinListener);
@@ -139,12 +111,11 @@ function Game() {
         ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
       socket.emit(
         'updatePaddlePos',
-        { x: 50, y: posy, room: null, player: player },
+        { yPos: posy },
         (res: GameCoords) => {
           void res;
         },
       );
-      //TODO remove x
     }
   }
 

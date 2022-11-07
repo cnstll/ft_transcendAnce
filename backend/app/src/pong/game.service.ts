@@ -3,7 +3,6 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
-import { PositionDto } from './dto/position.dto';
 import { Status, Game, DoubleKeyMap } from './entities/game.entities';
 
 @Injectable()
@@ -15,10 +14,6 @@ export class GameService {
     private schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  join(client: Socket, userId: string, server: Server) {
-    return this.joinNew(client, userId, server);
-  }
-
   mutateGameStatus(game: Game, status: Status, server: Server) {
     game.status = status;
     server.to(game.gameRoomId).emit('gameStatus', {
@@ -28,7 +23,7 @@ export class GameService {
     });
   }
 
-  joinNew(client: Socket, userId: string, server: Server) {
+  join(client: Socket, userId: string, server: Server) {
     let game: Game;
 
     if (this.GameMap.size == 0) {
@@ -44,6 +39,7 @@ export class GameService {
           this.deleteTimeout(game.gameRoomId);
           this.addInterval(game.gameRoomId, userId, 5, server);
         }
+        if (game.p2id === userId) return { playerNumber: 2 };
         return { playerNumber: 1 };
       }
       if ((game = this.GameMap.matchPlayer(userId))) {
@@ -82,7 +78,6 @@ export class GameService {
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
     if (game && game.status == Status.PLAYING) {
-      // for (const [gameRoomId, game] of this.GameMap) {
       if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
@@ -92,7 +87,6 @@ export class GameService {
           this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
         }
       }
-      // }
     }
   }
 
@@ -111,18 +105,14 @@ export class GameService {
 
   moveBall(id: string) {
     const game: Game = this.GameMap.getGame(id);
-
     game.moveBall();
-    return game.returnGameInfo();
+    return game;
+    // TODO i shouldnt have to resend everything here
   }
 
   createGame(p1: string) {
     const game = new Game();
-    // this.GameMap.setGame(p1, p2, game);
     this.GameMap.setPlayer1(p1, game);
-    // this.GameMap.set(game.gameRoomId, game);
-    // game.p1id = p1;
-    // game.p2id = p2;
     return game;
   }
 
