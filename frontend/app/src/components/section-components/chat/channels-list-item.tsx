@@ -9,14 +9,14 @@ import { useNavigate } from 'react-router-dom';
 interface ChannelsListProps {
   channelItem: Channel;
   activeChannel: string;
-  setCurrentlyActivated: React.Dispatch<React.SetStateAction<string>>;
+  setActiveChannel: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function ChannelsListItem(p: ChannelsListProps) {
   const navigate = useNavigate();
 
   function onClickHandler() {
-    p.setCurrentlyActivated(p.channelItem.id);
+    p.setActiveChannel(p.channelItem.id);
     navigate('../chat/' + p.channelItem.id);
   }
 

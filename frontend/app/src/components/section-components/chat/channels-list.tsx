@@ -2,11 +2,7 @@ import ChannelsListItem from './channels-list-item';
 import { Channel } from '../../global-components/interface';
 import { useState } from 'react';
 
-interface ChannelsListProps {
-  channels: Channel[];
-}
-
-function ChannelsList({ channels }: ChannelsListProps) {
+function ChannelsList({ channels }: { channels: Channel[] }) {
   const [activeChannelId, setActiveChannelId] = useState('');
 
   return (
@@ -23,7 +19,7 @@ function ChannelsList({ channels }: ChannelsListProps) {
             key={channel.id}
             channelItem={channel}
             activeChannel={activeChannelId}
-            setCurrentlyActivated={setActiveChannelId}
+            setActiveChannel={setActiveChannelId}
           />
         ))}
     </div>
