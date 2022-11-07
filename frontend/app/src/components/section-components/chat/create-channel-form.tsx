@@ -1,4 +1,4 @@
-import { Dispatch, useState } from "react";
+import { Dispatch, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { channelType } from "../../global-components/interface";
 import { socket } from "../socket"
@@ -20,17 +20,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   const { name, passwordHash } = formData;
   const navigate = useNavigate();
 
-  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setInputStatus('editing');
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.id]: e.target.value,
-    }));
-  }
-
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    socket.emit('createRoom', { createInfo: formData });
+  useEffect(() => {
     socket.on('roomCreated', (channelId: string) => {
       props.setShowForm(false);
       setFormData(defaultFormData);
@@ -46,6 +36,19 @@ function CreateChannelForm(props: CreateChannelFormProps) {
         formData.passwordHash.length === 0)
         setInputStatus('invalidPassword');
     });
+  }, []);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputStatus('editing');
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
+  }
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    socket.emit('createRoom', { createInfo: formData });
   }
 
   return (
@@ -105,25 +108,29 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   </label>
                 </div>
               </div>
-              {passwordRequired &&
-                <div id="form-channel-creation-password"
-                className="form-group">
-                <label htmlFor="ChannelPassword"  className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
-                  text-purple-light font-medium my-3 font-bold">
-                  Enter a password:
-                </label>
-                <input
-                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding
-                    border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                    inputStatus == 'invalidPassword'? 'border-red-500' : ''}`}
-                  name="password"
-                  id="password"
-                  value={passwordHash}
-                  onChange={onChange}
-                  autoComplete="off"
-                  placeholder="The password for your channel" />
+              {passwordRequired && (
+                <div id="form-channel-creation-password" className="form-group">
+                  <label
+                    htmlFor="ChannelPassword"
+                    className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light my-3 font-bold"
+                  >
+                    Enter a password:
+                  </label>
+                  <input
+                    className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                      inputStatus == 'invalidPassword' ? 'border-red-500' : ''
+                    }`}
+                    type="text"
+                    name="password"
+                    id="passwordHash"
+                    value={passwordHash}
+                    onChange={onChange}
+                    autoComplete="off"
+                    placeholder="The password for your channel"
+                  />
                   {inputStatus == 'invalidPassword' && <p className="text-red-500 text-xs font-medium">Invalid password format</p>}
-              </div>}
+                </div>
+              )}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"

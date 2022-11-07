@@ -305,7 +305,9 @@ export class ChannelService {
       clientSocket.join(newChannel.id);
       return newChannel;
     } catch (error) {
-      if (error.code === 'P2002') return 'alreadyUsed' + error.meta.target[0];
+      if (error.code === 'P2002') {
+        return 'alreadyUsed' + error.meta.target[0];
+      }
       return null;
     }
   }
