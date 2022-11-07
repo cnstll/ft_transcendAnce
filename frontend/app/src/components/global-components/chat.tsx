@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../section-components/navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
@@ -10,10 +10,12 @@ import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
 import ChannelHeader from '../section-components/chat/channel-header';
-import { User } from '../global-components/interface';
+import { Channel, User } from '../global-components/interface';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import MyChannelsList from '../section-components/chat/my-channels-list';
+import { useMyChannelByUserId } from '../query-hooks/useGetChannels';
+import { UseQueryResult } from 'react-query';
 
 const chanUsersData: User[] = [
   {
@@ -74,6 +76,8 @@ function ChannelOptions() {
 }
 
 function Chat() {
+  const { id } = useParams();
+  const channel : UseQueryResult<{ channel: Channel } | undefined>  = useMyChannelByUserId(id);
   const user = useUserInfo();
   const navigate = useNavigate();
 
@@ -102,9 +106,9 @@ function Chat() {
               style={{ backgroundImage: `url(${BackgroundGeneral})` }}
             >
               <div className="flex">
-                <div className="flex-1">
-                  <h2 className="flex justify-center p-5 font-bold">
-                    [Channel name]
+                <div className="flex-1 break-words text-center w-40">
+                  <h2 className="p-5 font-bold">
+                    {!channel.data ? "Default name" : channel.data.channel.name}
                   </h2>
                 </div>
                 <div className="p-5 flex justify-center">
