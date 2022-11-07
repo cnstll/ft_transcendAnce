@@ -4,7 +4,14 @@ import { useQueryClient } from 'react-query';
 import { Channel } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 
-function MyChannelsList() {
+interface MyChannelsListProps {
+  activeChannelId: string;
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+}
+function MyChannelsList({
+  activeChannelId,
+  setActiveChannelId,
+}: MyChannelsListProps) {
   const queryClient = useQueryClient();
   const channelsQueryKey = 'channelsByUserList';
 
@@ -13,6 +20,9 @@ function MyChannelsList() {
 
   useEffect(() => {
     socket.on('roomJoined', () => queryClient.refetchQueries(channelsQueryKey));
+    return () => {
+      socket.off('roomJoined');
+    };
   }, []);
 
   return (
@@ -24,7 +34,11 @@ function MyChannelsList() {
         <p className="m-4 text-base">Could not fetch channels</p>
       )}
       {channelsQueryState?.status === 'success' && (
-        <ChannelsList channels={channelsQueryData as Channel[]} />
+        <ChannelsList
+          activeChannelId={activeChannelId}
+          setActiveChannelId={setActiveChannelId}
+          channels={channelsQueryData as Channel[]}
+        />
       )}
     </>
   );

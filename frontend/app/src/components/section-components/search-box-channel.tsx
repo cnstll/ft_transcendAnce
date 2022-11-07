@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { Channel } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
 import SearchChannelItem from './chat/search-channel-item';
 import { socket } from '../global-components/client-socket';
 import JoinChannel from '../custom-hooks/emit-join-channel';
+import { useQueryClient } from 'react-query';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -29,6 +30,22 @@ function SearchBoxChannel({
   const [isShown, setIsShown] = useState(false);
   const [searchData, setSearchData] = useState(defaultSearchData);
   const { keyword } = searchData;
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    socket.on('roomJoined', async (channelJoined: Channel) => {
+      await queryClient.refetchQueries('channelsByUserList');
+      setIsShown(false);
+      navigate(`../chat/${channelJoined.id}`);
+    });
+    socket.on('joinRoomFailed', () => {
+      alert('Failed to join room, sorry');
+    });
+    return () => {
+      socket.off('roomJoined');
+      socket.off('joinRoomFailed');
+    };
+  }, []);
 
   function ShowInfo() {
     setIsShown(true);
@@ -68,16 +85,11 @@ function SearchBoxChannel({
     if (filteredChannels) {
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
-        if (firstResult) {
+        if (firstResult || firstResult === '') {
           JoinChannel(filteredChannels[0]);
-          socket.on('roomJoined', () => {
-            setIsShown(false);
-            navigate('../chat/' + firstResult);
-          });
-          socket.on('joinRoomFailed', () => {
-            alert('Failed to join room, sorry');
-          });
         }
+      } else {
+        alert('No channel found ;(');
       }
     }
   }
@@ -117,7 +129,6 @@ function SearchBoxChannel({
                   <SearchChannelItem
                     key={channelItem.id}
                     channel={channelItem}
-                    setIsShown={setIsShown}
                   />
                 ))}
             </ul>

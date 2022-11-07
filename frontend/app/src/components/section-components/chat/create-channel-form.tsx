@@ -63,6 +63,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       )
         setInputStatus('invalidPassword');
     });
+    socket.off('roomCreated');
+    socket.off('createRoomFailed');
   }, [formData]);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {

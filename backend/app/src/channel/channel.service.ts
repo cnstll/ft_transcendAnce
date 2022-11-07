@@ -424,7 +424,6 @@ export class ChannelService {
             id: dto.id,
           },
         });
-        return channel;
       }
       return leavingUser;
     } catch (error) {

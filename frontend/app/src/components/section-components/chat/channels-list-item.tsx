@@ -17,7 +17,7 @@ function ChannelsListItem(p: ChannelsListProps) {
 
   function onClickHandler() {
     p.setActiveChannel(p.channelItem.id);
-    navigate('../chat/' + p.channelItem.id);
+    navigate(`../chat/${p.channelItem.id}`);
   }
 
   const isActiveChannel = () => {

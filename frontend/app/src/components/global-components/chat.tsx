@@ -10,7 +10,7 @@ import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
 import { Channel, User } from '../global-components/interface';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useChannelsByUserList } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
@@ -60,6 +60,8 @@ const chanUsersData: User[] = [
 function Chat() {
   const user = useUserInfo();
   const { activeChannel } = useParams();
+  const [activeChannelId, setActiveChannelId] = useState('');
+
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
@@ -81,7 +83,10 @@ function Chat() {
         >
           <SideBox>
             <ChannelHeader />
-            <MyChannelsList />
+            <MyChannelsList
+              activeChannelId={activeChannelId}
+              setActiveChannelId={setActiveChannelId}
+            />
           </SideBox>
           <CenterBox>
             <div
@@ -100,7 +105,7 @@ function Chat() {
                 </div>
                 <div className="p-5 flex justify-center">
                   <DropDownButton>
-                    <ChannelOptions />
+                    <ChannelOptions setActiveChannelId={setActiveChannelId} />
                   </DropDownButton>
                 </div>
               </div>
