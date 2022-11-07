@@ -13,6 +13,25 @@ const defaultFormData = {
   passwordHash: "",
 }
 
+function validateNameInput(input: string): boolean {
+  // Regex would accept alphanumeric and simple spaces
+  const regex = /^[\w ]+$/;
+  // Regex would check for one to many whitespaces, without alphanumeric
+  const regexWhiteChar = /^\s+$/;
+  const ret = input.length !== 0 && input.length <= 21 && regex.test(input)
+    && !regexWhiteChar.test(input);
+  return ret;
+}
+
+function validatePwdInput(input: string): boolean {
+    // Regex would accept alphanumeric and special char: !?@#$%^&*()+./'"" but no space
+  const regex = /^[!?@#$%^&*()+.'"/\w\d]+$/;
+  const regexWhiteChar = /^\s+$/;
+  const ret = input.length !== 0 && input.length <= 32 && regex.test(input)
+    && !regexWhiteChar.test(input)
+  return ret;
+}
+
 function CreateChannelForm(props: CreateChannelFormProps) {
   const [formData, setFormData] = useState(defaultFormData);
   const [passwordRequired, setPasswordRequired] = useState(false);
@@ -47,8 +66,19 @@ function CreateChannelForm(props: CreateChannelFormProps) {
     }));
   }
 
+  function checkFormData(formData: {
+    name: string;
+    type: channelType;
+    passwordHash: string;
+  }) {
+    if (!validateNameInput(formData.name)) return 1;
+    else if (formData.passwordHash && !validatePwdInput(formData.passwordHash)) return 2;
+    return 0;
+  }
+
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    checkFormData(formData);
     socket.emit('createRoom', { createInfo: formData });
   }
 
