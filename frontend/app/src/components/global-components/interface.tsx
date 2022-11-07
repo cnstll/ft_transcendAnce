@@ -10,8 +10,6 @@ export interface Channel {
   name: string;
   passwordHash?: string;
   type: channelType;
-  updatedAt?: Date;
-  createdAt?: Date;
 }
 
 export enum friendshipStatus {
