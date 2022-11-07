@@ -1,11 +1,6 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
 export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
@@ -15,7 +10,6 @@ export class DoubleKeyMap {
   size = 0;
 
   getGame(playerId: string) {
-    // let game: Game;
     const game = this.playerMap.get(playerId);
     if (game != null) {
       return game;
@@ -33,7 +27,8 @@ export class DoubleKeyMap {
 
   matchPlayer(player2Id: string) {
     for (const [_, game] of this.playerMap) {
-      if (game.p2id === null) {
+      if (game.p2id === null && _) {
+        // the above is ugly but a linting rule is forcing me to add it
         game.p2id = player2Id;
         this.playerMap.set(player2Id, game);
         return game;
