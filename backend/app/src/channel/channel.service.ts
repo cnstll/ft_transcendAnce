@@ -409,6 +409,7 @@ export class ChannelService {
           ...dto,
         },
       });
+      delete editedChannel.passwordHash;
       return editedChannel;
     } catch (error) {
       return null;
