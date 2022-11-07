@@ -10,7 +10,7 @@ export enum GameMode {
   MAYHEM = 'MAYHEM',
   HOCKEY = 'HOCKEY',
 }
-const genrateRandomNumber = (min: number, max: number) => {
+const generateRandomNumber = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
@@ -20,7 +20,7 @@ export class DoubleKeyMap {
 
   getGame(playerId: string) {
     const game = this.playerMap.get(playerId);
-    if (game != null) {
+    if (game !== null) {
       return game;
     }
     return null;
@@ -28,7 +28,7 @@ export class DoubleKeyMap {
 
   rejoinGame(playerId: string) {
     const game: Game = this.playerMap.get(playerId);
-    if (game != null) {
+    if (game !== null) {
       return game;
     }
     return null;
@@ -54,7 +54,7 @@ export class DoubleKeyMap {
 
   delete(userId: string) {
     const game = this.playerMap.get(userId);
-    if (game.p1id == userId) {
+    if (game.p1id === userId) {
       this.playerMap.delete(game.p2id);
     } else {
       this.playerMap.delete(game.p1id);
@@ -155,7 +155,7 @@ export class Game {
           this.p2s += 1;
           this.dirx = 0.2;
           this.bx = 50;
-          this.diry = genrateRandomNumber(-10, 10) / 20;
+          this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
 
@@ -173,7 +173,7 @@ export class Game {
           this.p1s += 1;
           this.dirx = -0.2;
           this.bx = 50;
-          this.diry = genrateRandomNumber(-10, 10) / 20;
+          this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
 
@@ -191,7 +191,7 @@ export class Game {
   }
 
   claimVictory(winnerId: string, prismaService: PrismaService) {
-    if (this.p1id == winnerId) {
+    if (this.p1id === winnerId) {
       this.p1s = 10;
     } else {
       this.p2s = 10;
@@ -211,7 +211,7 @@ export class Game {
   }
 
   movePaddle(player: number, pos: number) {
-    if (player == 1) {
+    if (player === 1) {
       this.p1y = pos;
     } else {
       this.p2y = pos;
