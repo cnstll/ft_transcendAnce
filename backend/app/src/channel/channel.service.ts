@@ -290,6 +290,7 @@ export class ChannelService {
     }
     return channel;
   }
+
   async createChannelWS(
     dto: CreateChannelDto,
     userId: string,
@@ -297,7 +298,7 @@ export class ChannelService {
   ) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-      if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+      if ((dto.type === 'PROTECTED' && !dto.passwordHash) || dto.name === '') {
         return null;
       }
       /* Hash the password */
@@ -322,6 +323,9 @@ export class ChannelService {
       clientSocket.join(newChannel.id);
       return newChannel;
     } catch (error) {
+      if (error.code === 'P2002') {
+        return 'alreadyUsed' + error.meta.target[0];
+      }
       return null;
     }
   }
@@ -386,7 +390,7 @@ export class ChannelService {
   ) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-      if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+      if ((dto.type === 'PROTECTED' && !dto.passwordHash) || dto.name === '') {
         return null;
       }
       /* Check that the user is owner or admin for update rights */
