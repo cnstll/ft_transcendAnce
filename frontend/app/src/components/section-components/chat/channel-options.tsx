@@ -35,7 +35,7 @@ function ChannelOptions() {
         const nextChannelId =
           channelsQueryData.find((channel) => channel.id != channelInfo.id)
             ?.id ?? '';
-        navigate(`../chat/ ${nextChannelId}`);
+        navigate(`../chat/${nextChannelId}`);
       } else {
         navigate('../chat');
       }
