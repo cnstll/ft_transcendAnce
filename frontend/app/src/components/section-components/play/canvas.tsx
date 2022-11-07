@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { socket } from './socket';
+import { socket } from '../socket';
 import { GameCoords, GameStatus } from '../../global-components/interface';
 
 let player = 1;

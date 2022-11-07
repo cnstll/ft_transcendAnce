@@ -127,7 +127,7 @@ async function main() {
     update: {},
     create: {
       id: 'channel4',
-      name: 'Constant & You',
+      name: 'Constant',
       type: 'DIRECTMESSAGE',
       users: {
         create: [
@@ -143,7 +143,7 @@ async function main() {
     update: {},
     create: {
       id: 'channel5',
-      name: 'Léa & You',
+      name: 'Léa',
       type: 'DIRECTMESSAGE',
       users: {
         create: [
