@@ -108,8 +108,7 @@ function Chat() {
               <div className="flex">
                 <div className="flex-1 break-words text-center w-40">
                   <h2 className="p-5 font-bold">
-                    {channel.data && channel.data.channel.name}
-                    {!channel.data && "Default name"}
+                    {(!channel.data && "Default name") || (channel.data?.channel.name)}
                   </h2>
                 </div>
                 <div className="p-5 flex justify-center">

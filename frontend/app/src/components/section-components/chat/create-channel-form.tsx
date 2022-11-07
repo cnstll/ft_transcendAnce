@@ -27,7 +27,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
-      if (channel === 'alreadyUsedname'){
+      console.log(formData);
+      if (channel === 'alreadyUsedname') {
         setInputStatus('invalidAlreadyUsedname');
       }
       if (formData.name.length === 0)
@@ -36,7 +37,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
         formData.passwordHash.length === 0)
         setInputStatus('invalidPassword');
     });
-  }, []);
+  }, [formData]);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setInputStatus('editing');
