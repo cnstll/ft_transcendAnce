@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface ChannelsListProps {
   channelItem: Channel;
-  currentlyActivated: string;
+  activeChannel: string;
   setCurrentlyActivated: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -20,15 +20,15 @@ function ChannelsListItem(p: ChannelsListProps) {
     navigate('../chat/' + p.channelItem.id);
   }
 
-  const isCurrentlyActivated = () => {
-    return p.currentlyActivated === p.channelItem.id;
+  const isActiveChannel = () => {
+    return p.activeChannel === p.channelItem.id;
   };
 
   return (
     <div onClick={onClickHandler}>
       <div
         className={
-          isCurrentlyActivated()
+          isActiveChannel()
             ? 'bg-purple-light flex items-center justify-start'
             : 'flex items-center justify-start'
         }
