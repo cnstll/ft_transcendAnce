@@ -453,7 +453,11 @@ export class UserService {
 
     const matchesList = await this.getUserMatches(userNickname);
     for (let i = 0; i < matchesList.length; i++) {
-      if (matchesList[i].playerOneId === user.id) stats.numberOfWin++;
+      if (
+        (matchesList[i].playerOneId === user.id && matchesList[i].p1s == 10) ||
+        (matchesList[i].playerTwoId === user.id && matchesList[i].p2s == 10)
+      )
+        stats.numberOfWin++;
     }
     stats.numberOfLoss = matchesList.length - stats.numberOfWin;
     return res.status(200).send(stats);

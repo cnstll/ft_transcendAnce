@@ -58,18 +58,27 @@ function MatchHistoryComponent({
   return (
     <>
       <div className="flex flex-col gap-6 m-10">
-        {matchData.map((matchData) => (
-          <div key={matchData.id} className="flex flex-row gap-32 items-center">
-            <VersusComponent
-              imageCurrentUser={imageCurrentUser}
-              imageOpponent={matchData.imageOpponent}
-            />
-            <StatusComponent
-              matchWon={matchData.matchWon}
-              score={matchData.score}
-            />
-          </div>
-        ))}
+        {matchData.length === 0 ? (
+          <p className="flex justify-center text-base sm:text-base md:text-2xl lg:text-2xl xl:text-3xl">
+            No match yet, go show your pong move 🕺
+          </p>
+        ) : (
+          matchData.map((matchData) => (
+            <div
+              key={matchData.id}
+              className="flex flex-row gap-32 items-center"
+            >
+              <VersusComponent
+                imageCurrentUser={imageCurrentUser}
+                imageOpponent={matchData.imageOpponent}
+              />
+              <StatusComponent
+                matchWon={matchData.matchWon}
+                score={matchData.score}
+              />
+            </div>
+          ))
+        )}
       </div>
     </>
   );
