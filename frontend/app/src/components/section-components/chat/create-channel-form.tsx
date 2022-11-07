@@ -78,8 +78,13 @@ function CreateChannelForm(props: CreateChannelFormProps) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    checkFormData(formData);
-    socket.emit('createRoom', { createInfo: formData });
+    if (checkFormData(formData) === 1) {
+      setInputStatus('invalidName');
+    } else if (checkFormData(formData) === 2) {
+      setInputStatus('invalidPassword');
+    } else {
+      socket.emit('createRoom', { createInfo: formData });
+    }
   }
 
   return (
@@ -120,21 +125,21 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange}
                     onClick={() => setPasswordRequired(false)} defaultChecked/>
-                  <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5">
+                  <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
                     Public - everyone can access freely
                   </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Private} onChange={onChange}
                     onClick={() => setPasswordRequired(false)}/>
-                  <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5">
+                  <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
                     Private - only invited members can join
                   </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Protected} onChange={onChange}
                     onClick={() => setPasswordRequired(true)}/>
-                  <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-base px-5">
+                  <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
                     Protected - a password is required to join
                   </label>
                 </div>
