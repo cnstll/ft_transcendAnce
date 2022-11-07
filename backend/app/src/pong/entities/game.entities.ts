@@ -1,11 +1,6 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
 export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
@@ -18,6 +13,57 @@ export enum GameMode {
 const genrateRandomNumber = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+
+export class DoubleKeyMap {
+  playerMap = new Map<string, Game>();
+  size = 0;
+
+  getGame(playerId: string) {
+    const game = this.playerMap.get(playerId);
+    if (game != null) {
+      return game;
+    }
+    return null;
+  }
+
+  rejoinGame(playerId: string) {
+    const game: Game = this.playerMap.get(playerId);
+    if (game != null) {
+      return game;
+    }
+    return null;
+  }
+
+  matchPlayer(player2Id: string) {
+    for (const [_, game] of this.playerMap) {
+      if (game.p2id === null && _) {
+        // the above is ugly but a linting rule is forcing me to add it
+        game.p2id = player2Id;
+        this.playerMap.set(player2Id, game);
+        return game;
+      }
+    }
+    return null;
+  }
+  setPlayer1(player1Id: string, game: Game) {
+    game.p1id = player1Id;
+    game.p2id = null;
+    this.playerMap.set(player1Id, game);
+    this.size++;
+  }
+
+  delete(userId: string) {
+    const game = this.playerMap.get(userId);
+    if (game.p1id == userId) {
+      this.playerMap.delete(game.p2id);
+    } else {
+      this.playerMap.delete(game.p1id);
+    }
+    this.playerMap.delete(userId);
+    this.size--;
+  }
+}
+
 export class Game {
   constructor(mode: GameMode) {
     this.gameRoomId = this.makeid(5);
