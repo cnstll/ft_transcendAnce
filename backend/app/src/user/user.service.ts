@@ -449,6 +449,7 @@ export class UserService {
       numberOfWin: 0,
       numberOfLoss: 0,
       ranking: ranking,
+      eloScore: user.eloScore,
     };
 
     const matchesList = await this.getUserMatches(userNickname);
@@ -524,6 +525,7 @@ export class UserService {
         const imageOpponent = opponent.avatarImg;
         matchHistory.push({
           id: matchesList[i].gameId,
+          imageCurrentUser: currentUser.avatarImg,
           imageOpponent: imageOpponent,
           score: score,
           matchWon: matchWon,

@@ -1,10 +1,5 @@
 import { useEffect } from 'react';
-import { UseQueryResult } from 'react-query';
-import {
-  MatchData,
-  TargetInfo,
-} from 'src/components/global-components/interface';
-import useTargetInfo from 'src/components/query-hooks/useTargetInfo';
+import { MatchData } from 'src/components/global-components/interface';
 import useUserMatchHistory from 'src/components/query-hooks/useUserMatchHistory';
 import CenterBox from '../center-box';
 
@@ -16,11 +11,6 @@ interface StatusData {
 interface PictureData {
   imageCurrentUser: string;
   imageOpponent: string;
-}
-
-interface MatchHistoryComponentProps {
-  matchData: MatchData[];
-  imageCurrentUser: string;
 }
 
 function VersusComponent({ imageCurrentUser, imageOpponent }: PictureData) {
@@ -53,10 +43,7 @@ function StatusComponent({ matchWon, score }: StatusData) {
   );
 }
 
-function MatchHistoryComponent({
-  matchData,
-  imageCurrentUser,
-}: MatchHistoryComponentProps) {
+function MatchHistoryComponent({ matchData }: { matchData: MatchData[] }) {
   return (
     <>
       <div className="flex flex-col gap-6 m-10">
@@ -71,7 +58,7 @@ function MatchHistoryComponent({
               className="flex flex-row gap-32 items-center"
             >
               <VersusComponent
-                imageCurrentUser={imageCurrentUser}
+                imageCurrentUser={matchData.imageCurrentUser}
                 imageOpponent={matchData.imageOpponent}
               />
               <StatusComponent
@@ -88,17 +75,15 @@ function MatchHistoryComponent({
 
 function MatchHistory({ nickname }: { nickname: string }) {
   const matchData = useUserMatchHistory(nickname);
-  const user: UseQueryResult<TargetInfo> | null = useTargetInfo(nickname);
 
   useEffect(() => {
     void matchData.refetch();
-    void user.refetch();
   }, [nickname]);
 
   return (
     <>
-      {matchData.isLoading && user.isLoading && <p>isLoading...</p>}
-      {matchData.isSuccess && user.isSuccess && (
+      {matchData.isLoading && <p>isLoading...</p>}
+      {matchData.isSuccess && (
         <CenterBox>
           <div className="h-full overflow-y-auto">
             <div className="flex">
@@ -106,10 +91,7 @@ function MatchHistory({ nickname }: { nickname: string }) {
                 <h2 className="flex justify-center p-5 font-bold">
                   MATCH HISTORY
                 </h2>
-                <MatchHistoryComponent
-                  matchData={matchData.data}
-                  imageCurrentUser={user.data.avatarImg}
-                />
+                <MatchHistoryComponent matchData={matchData.data} />
               </div>
             </div>
           </div>

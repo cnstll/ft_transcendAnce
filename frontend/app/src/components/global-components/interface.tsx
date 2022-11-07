@@ -39,10 +39,12 @@ export interface Stats {
   numberOfWin: number;
   numberOfLoss: number;
   ranking: string;
+  eloScore: number;
 }
 
 export interface MatchData {
   id: string;
+  imageCurrentUser: string;
   imageOpponent: string;
   score: string;
   matchWon: boolean;

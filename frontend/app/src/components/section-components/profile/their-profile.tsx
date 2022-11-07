@@ -3,6 +3,7 @@ import useTargetInfo from '../../query-hooks/useTargetInfo';
 import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
 import { TargetInfo } from '../../global-components/interface';
+import { useEffect } from 'react';
 
 export enum friendshipStatus {
   REQUSTED,
@@ -13,6 +14,10 @@ export enum friendshipStatus {
 
 function TheirProfile({ nickname }: { nickname: string }) {
   const user: UseQueryResult<TargetInfo> | null = useTargetInfo(nickname);
+
+  useEffect(() => {
+    void user.refetch();
+  }, [nickname]);
 
   return (
     <>
