@@ -18,7 +18,6 @@ function Game() {
       {},
       (response: { playerNumber: number }) => {
         player = response.playerNumber;
-        console.log(response)
       },
     );
   }, []);

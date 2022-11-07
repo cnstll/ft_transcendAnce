@@ -42,13 +42,7 @@ export class DoubleKeyMap {
     this.playerMap.set(player1Id, game);
     this.size++;
   }
-  setGame(player1Id: string, player2Id: string, game: Game) {
-    game.p1id = player1Id;
-    game.p2id = player2Id;
-    this.playerMap.set(player1Id, game);
-    this.playerMap.set(player2Id, game);
-    this.size++;
-  }
+
   delete(userId: string) {
     const game = this.playerMap.get(userId);
     if (game.p1id == userId) {
