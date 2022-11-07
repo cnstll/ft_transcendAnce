@@ -22,7 +22,7 @@ function ChannelsList({ channels }: ChannelsListProps) {
           <ChannelsListItem
             key={channel.id}
             channelItem={channel}
-            currentlyActivated={activeChannelId}
+            activeChannel={activeChannelId}
             setCurrentlyActivated={setActiveChannelId}
           />
         ))}

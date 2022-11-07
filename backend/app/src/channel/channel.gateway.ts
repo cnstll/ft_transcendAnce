@@ -14,11 +14,9 @@ import { CreateChannelDto, EditChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
-import { Channel } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
-    // origin: '  http://localhost',
     origin: 'http://localhost:8080',
     credentials: true,
   },
