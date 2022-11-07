@@ -30,5 +30,18 @@ const fetchAllChannelsByUserId = () =>
   }).then((res) => res.data);
 
 export function useChannelsByUserList(): UseQueryResult<Channel[] | undefined> {
-  return useQuery('channelsByUserList', fetchAllChannelsByUserId, );
+  return useQuery('channelsByUserList', fetchAllChannelsByUserId);
+}
+
+const fetchMyChannelByUserId = (channelId: string) =>
+  axios
+    .get<Channel>('http://localhost:3000/channels/get-user-channel/' + channelId, {
+      withCredentials: true,
+  }).then((res) => res.data);
+
+// Had to define channelId as string or undefined because it's the return of useParams which is defined as such
+export function useMyChannelByUserId(channelId: string | undefined):
+  UseQueryResult<{ channel: Channel } | undefined> {
+  return useQuery(['myChannelByUser', channelId], () =>
+    fetchMyChannelByUserId(channelId ?? ''));
 }
