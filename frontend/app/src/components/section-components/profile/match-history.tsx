@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
+import { UseQueryResult } from 'react-query';
 import {
   MatchData,
   TargetInfo,
 } from 'src/components/global-components/interface';
+import useTargetInfo from 'src/components/query-hooks/useTargetInfo';
 import useUserMatchHistory from 'src/components/query-hooks/useUserMatchHistory';
 import CenterBox from '../center-box';
 
@@ -84,17 +86,19 @@ function MatchHistoryComponent({
   );
 }
 
-function MatchHistory({ user }: { user: TargetInfo }) {
-  const matchData = useUserMatchHistory(user.nickname);
+function MatchHistory({ nickname }: { nickname: string }) {
+  const matchData = useUserMatchHistory(nickname);
+  const user: UseQueryResult<TargetInfo> | null = useTargetInfo(nickname);
 
   useEffect(() => {
     void matchData.refetch();
-  }, [user, matchData.data]);
+    void user.refetch();
+  }, [nickname]);
 
   return (
     <>
-      {matchData.isLoading && <p>isLoading...</p>}
-      {matchData.isSuccess && (
+      {matchData.isLoading && user.isLoading && <p>isLoading...</p>}
+      {matchData.isSuccess && user.isSuccess && (
         <CenterBox>
           <div className="h-full overflow-y-auto">
             <div className="flex">
@@ -104,7 +108,7 @@ function MatchHistory({ user }: { user: TargetInfo }) {
                 </h2>
                 <MatchHistoryComponent
                   matchData={matchData.data}
-                  imageCurrentUser={user.avatarImg}
+                  imageCurrentUser={user.data.avatarImg}
                 />
               </div>
             </div>
