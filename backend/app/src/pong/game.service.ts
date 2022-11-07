@@ -26,7 +26,7 @@ export class GameService {
   join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
-    if (this.GameMap.size == 0) {
+    if (this.GameMap.size === 0) {
       game = this.createGame(userId, mode);
       client.join(game.gameRoomId);
       this.mutateGameStatus(game, game.status, server);
@@ -77,7 +77,7 @@ export class GameService {
 
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
-    if (game && game.status == Status.PLAYING) {
+    if (game && game.status === Status.PLAYING) {
       if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);

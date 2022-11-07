@@ -37,7 +37,7 @@ function Game({ gameMode }: { gameMode: string }) {
         navigate('/');
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
-      } else if (text.status == 'PAUSED') {
+      } else if (text.status === 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
     };
@@ -124,14 +124,14 @@ function Game({ gameMode }: { gameMode: string }) {
 
   return (
     <>
-      {gameStatus == GameStatus.PLAYING && (
+      {gameStatus === GameStatus.PLAYING && (
         <canvas onMouseMove={movePaddle} ref={canvasRef} />
       )}
-      {gameStatus == GameStatus.DONE && <p> done, you probably lost </p>}
-      {gameStatus == GameStatus.PENDING && (
+      {gameStatus === GameStatus.DONE && <p> done, you probably lost </p>}
+      {gameStatus === GameStatus.PENDING && (
         <p> Waiting for a dance partner {gameStatus}</p>
       )}
-      {gameStatus == GameStatus.PAUSED && (
+      {gameStatus === GameStatus.PAUSED && (
         <p>
           {' '}
           your partner has disconnected, vixtory will be yours if he doens't
