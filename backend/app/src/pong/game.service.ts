@@ -105,7 +105,10 @@ export class GameService {
       if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
-        this.addTimeout(gameRoomId, 5000, server, id);
+        if (id === game.p1id) {
+          this.addTimeout(gameRoomId, 5000, server, game.p2id);
+        } else {
+        }
       }
     }
   }
