@@ -10,6 +10,7 @@ import NickNameForm from './nickname-form';
 import TwoFactorAuthentication from './two-factor-authentication';
 import { UseQueryResult } from 'react-query';
 import { User } from '../../global-components/interface';
+import LoadingSpinner from '../loading-spinner';
 
 function MyProfile(props: { user: UseQueryResult<User> }) {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -56,8 +57,8 @@ function MyProfile(props: { user: UseQueryResult<User> }) {
           <MyMatchHistory user={props.user.data} />
         </>
       )}
-      {props.user.isError && <p>this is an error</p>}
-      {props.user.isLoading && <div> Loading...</div>}
+      {props.user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
+      {props.user.isLoading && <LoadingSpinner/>}
     </>
   );
 }
