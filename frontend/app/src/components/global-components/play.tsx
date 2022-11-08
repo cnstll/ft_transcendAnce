@@ -11,7 +11,6 @@ import Button from '../section-components/button';
 
 function Play() {
   const { id } = useParams();
-
   const user = useUserInfo();
   const navigate = useNavigate();
   const [gameMode, setGameMode] = useState<string | null>(null);
@@ -22,13 +21,16 @@ function Play() {
       localStorage.setItem('gameId', id);
     }
   });
+
   const setMayhem = () => {
     setGameMode('MAYHEM');
   };
+
   function setClassic(e: React.MouseEvent) {
     e.preventDefault();
     setGameMode('CLASSIC');
   }
+
   if (user.isSuccess)
     return (
       <div>
@@ -57,7 +59,6 @@ function Play() {
         </Background>
       </div>
     );
-
   return <></>;
 }
 
