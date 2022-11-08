@@ -4,7 +4,7 @@ import { channelType } from "../../global-components/interface";
 import { socket } from "../socket";
 import { validateNameInput, validatePwdInput } from "./regex-input-validations";
 
-interface CreateChannelFormProps {
+interface EditChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -14,7 +14,7 @@ const defaultFormData = {
   passwordHash: "",
 }
 
-function CreateChannelForm(props: CreateChannelFormProps) {
+function EditChannelForm(props: EditChannelFormProps) {
   const [formData, setFormData] = useState(defaultFormData);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [inputStatus, setInputStatus] = useState<string>('empty');
@@ -22,12 +22,12 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket.on('roomCreated', (channelId: string) => {
+    socket.on('roomCreated', (channelId: string) => {       // change event
       props.setShowForm(false);
       setFormData(defaultFormData);
       navigate('../chat/' + channelId);
     });
-    socket.on('createRoomFailed', (channel: null | string) => {
+    socket.on('createRoomFailed', (channel: null | string) => {       // change event
       if (channel === 'alreadyUsedname') {
         setInputStatus('invalidAlreadyUsedname');
       }
@@ -58,7 +58,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       && !validatePwdInput(formData.passwordHash))
         setInputStatus('invalidPassword');
     else
-      socket.emit('createRoom', { createInfo: formData });
+      socket.emit('updateRoom', { createInfo: formData });        // change event
   }
 
   return (
@@ -68,7 +68,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
           <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
             <div className="relative bg-white rounded-lg shadow text-black p-6">
               <h3 className="xl:text-xl lg:text-lg md:text-base sm:text-base text-base font-semibold text-gray-900 p-4 border-b">
-                Create a new channel
+                Edit channel
               </h3>
               <form onSubmit={onSubmit}>
               <div id="form-channel-creation-name"
@@ -166,4 +166,4 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   );
 }
 
-export default CreateChannelForm;
+export default EditChannelForm;
