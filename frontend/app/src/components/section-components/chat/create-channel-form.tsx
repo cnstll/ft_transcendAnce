@@ -1,4 +1,5 @@
 import { Dispatch, useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { socket } from '../../global-components/client-socket';
 import { channelType } from '../../global-components/interface';
@@ -44,10 +45,13 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, passwordHash } = formData;
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const channelsQueryKey = 'channelsByUserList';
 
   useEffect(() => {
-    socket.on('roomCreated', (channelId: string) => {
+    socket.on('roomCreated', async (channelId: string) => {
       props.setShowForm(false);
+      await queryClient.refetchQueries(channelsQueryKey);
       setFormData(defaultFormData);
       navigate('../chat/' + channelId);
     });
@@ -63,8 +67,10 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       )
         setInputStatus('invalidPassword');
     });
-    socket.off('roomCreated');
-    socket.off('createRoomFailed');
+    return () => {
+      socket.off('roomCreated');
+      socket.off('createRoomFailed');
+    };
   }, [formData]);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {

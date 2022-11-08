@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Channel } from '../../global-components/interface';
-// import NormUrl from '../../custom-hooks/norm-url';
 import JoinChannel from '../../custom-hooks/emit-join-channel';
 
 function SearchChannelItem({ channel }: { channel: Channel }) {
