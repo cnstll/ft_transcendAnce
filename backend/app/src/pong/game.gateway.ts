@@ -41,6 +41,12 @@ export class GameGateway {
   }
 
   @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('leaveGame')
+  handleAbandon(@ConnectedSocket() client: Socket) {
+    this.messagesService.pause(this.socketToId.get(client.id), this.server);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinGame')
   joinRoom(@ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
     this.socketToId.set(client.id, id);

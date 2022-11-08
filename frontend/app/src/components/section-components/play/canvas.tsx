@@ -20,6 +20,9 @@ function Game() {
         player = response.playerNumber;
       },
     );
+        return () => {
+          socket.emit('leaveGame', {});
+        };
   }, []);
 
   useEffect(() => {
@@ -130,8 +133,8 @@ function Game() {
       {gameStatus == GameStatus.PAUSED && (
         <p>
           {' '}
-          your partner has disconnected, vixtory will be yours if he doens't
-          reconnect withing 5 seconds{' '}
+          your partner has disconnected, victory will be yours if he doens't
+          reconnect withing 10 seconds{' '}
         </p>
       )}
     </>
