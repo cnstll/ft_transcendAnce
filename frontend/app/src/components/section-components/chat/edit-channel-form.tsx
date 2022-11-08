@@ -8,7 +8,7 @@ interface EditChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
 }
 
-const defaultFormData = {
+const defaultFormData = {            // get the data from the channel to init the default
   name: "",
   type: channelType.Public,
   passwordHash: "",
@@ -22,12 +22,12 @@ function EditChannelForm(props: EditChannelFormProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket.on('roomCreated', (channelId: string) => {       // change event
+    socket.on('roomEdited', (channelId: string) => {
       props.setShowForm(false);
       setFormData(defaultFormData);
       navigate('../chat/' + channelId);
     });
-    socket.on('createRoomFailed', (channel: null | string) => {       // change event
+    socket.on('editRoomFailed', (channel: null | string) => {
       if (channel === 'alreadyUsedname') {
         setInputStatus('invalidAlreadyUsedname');
       }
@@ -58,7 +58,7 @@ function EditChannelForm(props: EditChannelFormProps) {
       && !validatePwdInput(formData.passwordHash))
         setInputStatus('invalidPassword');
     else
-      socket.emit('updateRoom', { createInfo: formData });        // change event
+      socket.emit('editRoom', { createInfo: formData });
   }
 
   return (
@@ -102,7 +102,7 @@ function EditChannelForm(props: EditChannelFormProps) {
                   <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange}
                     onClick={() => setPasswordRequired(false)} defaultChecked/>
                   <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
-                    Public - everyone can access freely
+                    Public - everyone can join, no password required
                   </label>
                 </div>
                 <div className="m-2">
@@ -116,7 +116,7 @@ function EditChannelForm(props: EditChannelFormProps) {
                   <input type="radio" id="type" name="type" value={channelType.Protected} onChange={onChange}
                     onClick={() => setPasswordRequired(true)}/>
                   <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
-                    Protected - a password is required to join
+                    Protected - add a password to access your channel
                   </label>
                 </div>
               </div>
@@ -155,7 +155,7 @@ function EditChannelForm(props: EditChannelFormProps) {
                 <button
                   type="submit"
                   className="text-white bg-purple-light hover:bg-purple-medium font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-                  Create
+                  Edit
                 </button>
               </div>
             </form>
