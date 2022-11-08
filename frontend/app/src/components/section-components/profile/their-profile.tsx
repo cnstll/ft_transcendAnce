@@ -3,7 +3,6 @@ import useTargetInfo from '../../query-hooks/useTargetInfo';
 import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
 import { TargetInfo } from '../../global-components/interface';
-import { useEffect } from 'react';
 import LoadingSpinner from '../loading-spinner';
 
 export enum friendshipStatus {
@@ -16,14 +15,12 @@ export enum friendshipStatus {
 function TheirProfile({ nickname }: { nickname: string }) {
   const user: UseQueryResult<TargetInfo> | null = useTargetInfo(nickname);
 
-  useEffect(() => {
-    void user.refetch();
-  }, [nickname]);
-
   return (
     <>
-      {user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
-      {user.isLoading && <LoadingSpinner/>}
+      {user.isError && (
+        <p className="text-base text-gray-400">We encountered an error 🤷</p>
+      )}
+      {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <>
           <SideBox>
