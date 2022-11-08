@@ -3,7 +3,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
-import { Status, Game, DoubleKeyMap } from './entities/game.entities';
+import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
 
 @Injectable()
 export class GameService {
@@ -23,11 +23,11 @@ export class GameService {
     });
   }
 
-  join(client: Socket, userId: string, server: Server) {
+  join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
-    if (this.GameMap.size == 0) {
-      game = this.createGame(userId);
+    if (this.GameMap.size === 0) {
+      game = this.createGame(userId, mode);
       client.join(game.gameRoomId);
       this.mutateGameStatus(game, game.status, server);
       return { playerNumber: 1 };
@@ -48,7 +48,7 @@ export class GameService {
         this.addInterval(game.gameRoomId, userId, 5, server);
         return { playerNumber: 2 };
       }
-      game = this.createGame(userId);
+      game = this.createGame(userId, mode);
       return { playerNumber: 1 };
     }
   }
@@ -77,7 +77,7 @@ export class GameService {
 
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
-    if (game && game.status == Status.PLAYING) {
+    if (game && game.status === Status.PLAYING) {
       if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
@@ -110,8 +110,8 @@ export class GameService {
     // TODO i shouldnt have to resend everything here
   }
 
-  createGame(p1: string) {
-    const game = new Game();
+  createGame(p1: string, mode: GameMode) {
+    const game = new Game(mode);
     this.GameMap.setPlayer1(p1, game);
     return game;
   }

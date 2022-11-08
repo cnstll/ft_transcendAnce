@@ -78,5 +78,6 @@ export interface GameCoords {
   by: number;
   p1s: number;
   p2s: number;
+  color: string;
   paddleSize: number;
 }

@@ -5,13 +5,22 @@ export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
 
+export enum GameMode {
+  CLASSIC = 'CLASSIC',
+  MAYHEM = 'MAYHEM',
+  HOCKEY = 'HOCKEY',
+}
+const generateRandomNumber = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 export class DoubleKeyMap {
   playerMap = new Map<string, Game>();
   size = 0;
 
   getGame(playerId: string) {
     const game = this.playerMap.get(playerId);
-    if (game != null) {
+    if (game !== null) {
       return game;
     }
     return null;
@@ -19,7 +28,7 @@ export class DoubleKeyMap {
 
   rejoinGame(playerId: string) {
     const game: Game = this.playerMap.get(playerId);
-    if (game != null) {
+    if (game !== null) {
       return game;
     }
     return null;
@@ -45,7 +54,7 @@ export class DoubleKeyMap {
 
   delete(userId: string) {
     const game = this.playerMap.get(userId);
-    if (game.p1id == userId) {
+    if (game.p1id === userId) {
       this.playerMap.delete(game.p2id);
     } else {
       this.playerMap.delete(game.p1id);
@@ -56,15 +65,19 @@ export class DoubleKeyMap {
 }
 
 export class Game {
-  constructor() {
+  constructor(mode: GameMode) {
     this.gameRoomId = this.makeid(5);
+    this.mode = mode;
+    if (this.mode === GameMode.MAYHEM) {
+      this.color = 'black';
+    }
   }
 
   gameRoomId: string;
   p1id: string = null;
   p2id: string = null;
   status: Status;
-  dirx = 0.5;
+  dirx = 0.3;
   diry = 0.0;
   p1x = 5;
   p1y = 50;
@@ -75,6 +88,8 @@ export class Game {
   p1s = 0;
   p2s = 0;
   paddleSize = 10;
+  mode: GameMode = GameMode.CLASSIC;
+  color = 'black';
 
   moveBall() {
     if (this.by >= 100) {
@@ -85,27 +100,90 @@ export class Game {
     }
     if (this['bx'] <= 7 && this['bx'] >= 3) {
       if (this['by'] >= this['p1y'] && this['by'] <= this['p1y'] + 10) {
-        if (this.dirx > 0) {
-          this.dirx = 5;
-        } else {
-          this.dirx = this.dirx * -1 + 0.05;
+        switch (this.mode) {
+          case GameMode.MAYHEM: {
+            if (this.dirx > 0) {
+              this.dirx = 5;
+            } else {
+              this.dirx = this.dirx * -1;
+              if (this.dirx < 3) {
+                this.dirx += 0.05;
+              }
+            }
+            break;
+          }
+          case GameMode.CLASSIC: {
+            this.dirx = this.dirx * -1;
+            if (this.dirx < 3) {
+              this.dirx += 0.05;
+            }
+            break;
+          }
         }
         this.diry = (this['by'] - this['p1y'] - 5) / 10;
       }
     }
     if (this['bx'] >= 93 && this['bx'] <= 97) {
       if (this['by'] >= this['p2y'] && this['by'] <= this['p2y'] + 10) {
-        this.dirx = this.dirx * -1 - 0.05;
+        switch (this.mode) {
+          case GameMode.MAYHEM: {
+            if (this.dirx < 0) {
+              this.dirx = -5;
+            } else {
+              this.dirx = this.dirx * -1;
+              if (this.dirx > -3) {
+                this.dirx -= 0.05;
+              }
+            }
+            break;
+          }
+          case GameMode.CLASSIC: {
+            this.dirx = this.dirx * -1;
+            if (this.dirx > -2) {
+              this.dirx -= 0.05;
+            }
+            break;
+          }
+        }
         this.diry = (this['by'] - this['p2y'] - 5) / 10;
       }
     }
-    if (this['bx'] < 0) {
-      this['p2s'] += 1;
-      this.dirx = 0.5;
+    if (this['bx'] <= 0) {
+      switch (this.mode) {
+        case GameMode.CLASSIC: {
+          // this.bx = 0;
+          this.p2s += 1;
+          this.dirx = 0.2;
+          this.bx = 50;
+          this.diry = generateRandomNumber(-10, 10) / 20;
+          break;
+        }
+
+        case GameMode.MAYHEM: {
+          this.bx = 0;
+          this.p2s += 1;
+          this.dirx = 0.5;
+          break;
+        }
+      }
     }
     if (this['bx'] > 100) {
-      this['p1s'] += 1;
-      this.dirx = -0.5;
+      switch (this.mode) {
+        case GameMode.CLASSIC: {
+          this.p1s += 1;
+          this.dirx = -0.2;
+          this.bx = 50;
+          this.diry = generateRandomNumber(-10, 10) / 20;
+          break;
+        }
+
+        case GameMode.MAYHEM: {
+          this.bx = 0;
+          this.p1s += 1;
+          this.dirx = 0.2;
+          break;
+        }
+      }
     }
     this['bx'] += this.dirx;
     this['by'] += this.diry;
@@ -113,7 +191,7 @@ export class Game {
   }
 
   claimVictory(winnerId: string, prismaService: PrismaService) {
-    if (this.p1id == winnerId) {
+    if (this.p1id === winnerId) {
       this.p1s = 10;
     } else {
       this.p2s = 10;
@@ -133,7 +211,7 @@ export class Game {
   }
 
   movePaddle(player: number, pos: number) {
-    if (player == 1) {
+    if (player === 1) {
       this.p1y = pos;
     } else {
       this.p2y = pos;
@@ -154,6 +232,7 @@ export class Game {
       p2s: this.p2s,
       paddleSize: this.paddleSize,
       gameRoomId: this.gameRoomId,
+      color: this.color,
     };
   }
 
@@ -264,25 +343,9 @@ export class Game {
   }
 }
 
-export interface Players {
-  p1: string;
-  p2: string;
-}
-
 export enum Status {
   PLAYING = 'PLAYING',
   DONE = 'DONE',
   PAUSED = 'PAUSED',
   PENDING = 'PENDING',
 }
-
-export interface GameRoom extends Players {
-  p1: string;
-  p2: string;
-  roomName: string;
-  status: Status;
-}
-
-export type roomMapType = {
-  [id: string]: Players;
-};
