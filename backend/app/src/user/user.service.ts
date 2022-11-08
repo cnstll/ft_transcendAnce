@@ -62,42 +62,6 @@ export class UserService {
     }
   }
 
-  async getLeaderboard(res: Response) {
-    try {
-      const nicknames = await this.prismaService.user.findMany({
-        take: 10,
-        orderBy: {
-          eloScore: 'desc',
-        },
-      });
-      //TODO select so you don't return unneeded user info
-      return res.status(200).send(nicknames);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
-    }
-  }
-
-  async getUserRanking(id: string, res: Response) {
-    try {
-      const users = await this.prismaService.user.findMany({
-        orderBy: {
-          eloScore: 'desc',
-        },
-      });
-      //TODO select so you don't return unneeded user info
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].id == id) {
-          return res.status(200).send({ userRank: i + 1 });
-        }
-      }
-      return res.status(500).send();
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
-    }
-  }
-
   async updateUserName(userId: string, newNickname: string, res: Response) {
     try {
       await this.prismaService.user.update({
@@ -488,5 +452,45 @@ export class UserService {
     }
     stats.numberOfLoss = matchesList.length - stats.numberOfWin;
     return res.status(200).send(stats);
+  }
+
+  async getLeaderboard(res: Response) {
+    try {
+      const leaderboard = await this.prismaService.user.findMany({
+        take: 10,
+        orderBy: {
+          eloScore: 'desc',
+        },
+        select: {
+          id: true,
+          nickname: true,
+          avatarImg: true,
+          eloScore: true,
+        },
+      });
+      return res.status(200).send(leaderboard);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+  }
+
+  async getUserRanking(id: string, res: Response) {
+    try {
+      const users = await this.prismaService.user.findMany({
+        orderBy: {
+          eloScore: 'desc',
+        },
+      });
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id == id) {
+          return res.status(200).send({ userRank: i + 1 });
+        }
+      }
+      return res.status(500).send();
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
   }
 }

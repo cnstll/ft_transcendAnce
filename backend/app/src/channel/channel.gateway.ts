@@ -18,7 +18,6 @@ import { Channel } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
-    // origin: '  http://localhost',
     origin: 'http://localhost:8080',
     credentials: true,
   },
