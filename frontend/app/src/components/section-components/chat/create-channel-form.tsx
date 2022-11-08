@@ -19,7 +19,7 @@ function validateNameInput(input: string): boolean {
   // Regex would check for one to many whitespaces, without alphanumeric
   const regexWhiteChar = /^\s+$/;
   const ret = input.length !== 0 && input.length <= 21 && regex.test(input)
-    && !regexWhiteChar.test(input);
+   && !regexWhiteChar.test(input);
   return ret;
 }
 
@@ -46,45 +46,37 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
-      console.log(formData);
       if (channel === 'alreadyUsedname') {
         setInputStatus('invalidAlreadyUsedname');
       }
-      if (formData.name.length === 0)
-        setInputStatus('invalidName');
-      else if (formData.type === channelType.Protected &&
-        formData.passwordHash.length === 0)
-        setInputStatus('invalidPassword');
     });
   }, [formData]);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setInputStatus('editing');
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
-  }
-
-  function checkFormData(formData: {
-    name: string;
-    type: channelType;
-    passwordHash: string;
-  }) {
-    if (!validateNameInput(formData.name)) return 1;
-    else if (formData.passwordHash && !validatePwdInput(formData.passwordHash)) return 2;
-    return 0;
+    setInputStatus('editing');
+    if (e.target.name === 'name' && e.target.value.length > 21)
+      setInputStatus('invalidNameLength');
+    else if (e.target.name === 'name' && !validateNameInput(e.target.value))
+      setInputStatus('invalidName');
+    else if (e.target.name === 'password' && e.target.value.length > 32)
+      setInputStatus('invalidPasswordLength');
+    else if (e.target.name === 'password' && !validatePwdInput(e.target.value))
+      setInputStatus('invalidPassword');
   }
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (checkFormData(formData) === 1) {
+    if (!validateNameInput(formData.name))
       setInputStatus('invalidName');
-    } else if (checkFormData(formData) === 2) {
-      setInputStatus('invalidPassword');
-    } else {
+    else if (formData.type === channelType.Protected
+      && !validatePwdInput(formData.passwordHash))
+        setInputStatus('invalidPassword');
+    else
       socket.emit('createRoom', { createInfo: formData });
-    }
   }
 
   return (
@@ -106,7 +98,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                 <input
                   className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding
                     border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                    (inputStatus == 'invalidName' || inputStatus == 'invalidAlreadyUsedname')? 'border-red-500' : ''}`}
+                    (inputStatus === 'invalidName' || inputStatus === 'invalidAlreadyUsedname' || inputStatus === 'invalidNameLengt')?
+                      'border-red-500' : ''}`}
                   type="text"
                   name="name"
                   id="name"
@@ -114,8 +107,9 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   onChange={onChange}
                   autoComplete="off"
                   placeholder="The name of your channel" />
-                  {inputStatus == 'invalidAlreadyUsedname' && <p className="text-red-500 text-xs font-medium">Name already taken</p>}
-                  {inputStatus == 'invalidName' && <p className="text-red-500 text-xs font-medium">Invalid name format</p>}
+                  {inputStatus === 'invalidAlreadyUsedname' && <p className="text-red-500 text-xs font-medium">Name already taken</p>}
+                  {inputStatus === 'invalidName' && <p className="text-red-500 text-xs font-medium">Invalid name format</p>}
+                  {inputStatus === 'invalidNameLength' && <p className="text-red-500 text-xs font-medium">Name must be less than 22 characters</p>}
               </div>
               <div id="form-channel-creation-type"
                 className="form-group mb-3 mt-5">
@@ -154,7 +148,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   </label>
                   <input
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                      inputStatus == 'invalidPassword' ? 'border-red-500' : ''
+                      inputStatus === 'invalidPassword' || inputStatus === 'invalidPasswordLength' ? 'border-red-500' : ''
                     }`}
                     type="text"
                     name="password"
@@ -164,7 +158,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                     autoComplete="off"
                     placeholder="The password for your channel"
                   />
-                  {inputStatus == 'invalidPassword' && <p className="text-red-500 text-xs font-medium">Invalid password format</p>}
+                  {inputStatus === 'invalidPassword' && <p className="text-red-500 text-xs font-medium">Invalid password format</p>}
+                  {inputStatus === 'invalidPasswordLength' && <p className="text-red-500 text-xs font-medium">Password must be less than 33 characters</p>}
                 </div>
               )}
               <div className="flex items-center py-2 space-x-2 mt-2">

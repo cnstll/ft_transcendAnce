@@ -130,7 +130,7 @@ function Game() {
       {gameStatus == GameStatus.PAUSED && (
         <p>
           {' '}
-          your partner has disconnected, vixtory will be yours if he doens't
+          your partner has disconnected, victory will be yours if he doesn't
           reconnect withing 5 seconds{' '}
         </p>
       )}
