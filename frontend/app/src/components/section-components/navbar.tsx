@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
-import SearchBox from './search-box';
 import { User } from '../global-components/interface';
 import axios from 'axios';
 import { UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
+import SearchBoxUser from './search-box-user';
 
 interface BannerProps {
   children?: React.ReactNode;
@@ -37,7 +37,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
           {text}
         </h2>
       </Link>
-      <SearchBox
+      <SearchBoxUser
         height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
         width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
         placeholder="player"

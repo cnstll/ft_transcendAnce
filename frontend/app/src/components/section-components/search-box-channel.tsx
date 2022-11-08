@@ -1,34 +1,51 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { User, Channel } from '../global-components/interface';
-import SearchItem from './search-item';
+import { Channel } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
+import SearchChannelItem from './chat/search-channel-item';
+import { socket } from '../global-components/client-socket';
+import JoinChannel from '../custom-hooks/emit-join-channel';
+import { useQueryClient } from 'react-query';
 
-interface SearchBoxProps {
+interface SearchBoxChannelProps {
   height: string;
   width: string;
   placeholder: string;
-  users?: User[];
-  channels?: Channel[];
+  channels: Channel[] | undefined;
 }
 
 const defaultSearchData = {
   keyword: '',
 };
 
-function SearchBox({
+function SearchBoxChannel({
   height,
   width,
   placeholder,
-  users,
   channels,
-}: SearchBoxProps) {
+}: SearchBoxChannelProps) {
   const navigate = useNavigate();
   const [isShown, setIsShown] = useState(false);
   const [searchData, setSearchData] = useState(defaultSearchData);
   const { keyword } = searchData;
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    socket.on('roomJoined', async (channelJoined: Channel) => {
+      await queryClient.refetchQueries('channelsByUserList');
+      setIsShown(false);
+      navigate(`../chat/${channelJoined.id}`);
+    });
+    socket.on('joinRoomFailed', () => {
+      alert('Failed to join room, sorry');
+    });
+    return () => {
+      socket.off('roomJoined');
+      socket.off('joinRoomFailed');
+    };
+  }, []);
 
   function ShowInfo() {
     setIsShown(true);
@@ -39,26 +56,12 @@ function SearchBox({
   }
 
   const ref = UseOutsideClick(ClickOutsideHandler);
-
   function OnChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
   }
-
-  const filterUsers = (users: User[] | undefined, query: string) => {
-    if (!query) {
-      return users;
-    }
-    if (!users) {
-      return [];
-    }
-    return users.filter((user) => {
-      const filterUsers = user.nickname.toLowerCase();
-      return filterUsers.includes(query.toLowerCase());
-    });
-  };
 
   const filterChannels = (channels: Channel[] | undefined, query: string) => {
     if (!query) {
@@ -73,30 +76,20 @@ function SearchBox({
     });
   };
 
-  function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function OnSubmitChannelQuery(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const filteredResults: User[] | undefined = filterUsers(
-      users,
-      searchData.keyword,
-    );
-    if (filteredResults) {
-      if (filteredResults[0]) {
-        const firstResult = filteredResults[0].nickname;
-        if (firstResult) {
-          navigate('../profile/' + firstResult);
-        }
-      }
-    }
     const filteredChannels: Channel[] | undefined = filterChannels(
       channels,
       searchData.keyword,
     );
     if (filteredChannels) {
       if (filteredChannels[0]) {
-        const firstResult = filteredChannels[0].name;
-        if (firstResult) {
-          navigate('../chat/' + firstResult);
+        const firstResult = filteredChannels[0].id;
+        if (firstResult || firstResult === '') {
+          JoinChannel(filteredChannels[0]);
         }
+      } else {
+        alert('No channel found ;(');
       }
     }
   }
@@ -104,7 +97,7 @@ function SearchBox({
   return (
     <>
       <div className="relative text-black" ref={ref}>
-        <form onSubmit={OnSubmit}>
+        <form onSubmit={OnSubmitChannelQuery}>
           <input
             className={
               height +
@@ -127,18 +120,16 @@ function SearchBox({
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white rounded-lg text-sm absolute z-20' + width}>
+        <div className={'bg-white rounded-lg text-sm absolute ' + width}>
           {isShown && (
             <ul>
-              {filterUsers(users, searchData.keyword)
-                ?.slice(0, 5)
-                .map((userItem) => (
-                  <SearchItem key={userItem.id} user={userItem} />
-                ))}
               {filterChannels(channels, searchData.keyword)
                 ?.slice(0, 5)
                 .map((channelItem) => (
-                  <SearchItem key={channelItem.id} channel={channelItem} />
+                  <SearchChannelItem
+                    key={channelItem.id}
+                    channel={channelItem}
+                  />
                 ))}
             </ul>
           )}
@@ -148,4 +139,4 @@ function SearchBox({
   );
 }
 
-export default SearchBox;
+export default SearchBoxChannel;
