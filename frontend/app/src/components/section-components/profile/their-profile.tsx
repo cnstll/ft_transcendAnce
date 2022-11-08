@@ -2,7 +2,6 @@ import SideBox from '../side-box';
 import useTargetInfo from '../../query-hooks/useTargetInfo';
 import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
-import TheirMatchHistory from './their-match-history';
 import { TargetInfo } from '../../global-components/interface';
 import { useEffect } from 'react';
 import LoadingSpinner from '../loading-spinner';
@@ -14,7 +13,7 @@ export enum friendshipStatus {
   ADD,
 }
 
-function ProfileBox({ nickname }: { nickname: string }) {
+function TheirProfile({ nickname }: { nickname: string }) {
   const user: UseQueryResult<TargetInfo> | null = useTargetInfo(nickname);
 
   useEffect(() => {
@@ -37,17 +36,18 @@ function ProfileBox({ nickname }: { nickname: string }) {
             </div>
             <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
               <p>{user.data.nickname}</p>
-              <FriendStatus
-                status={user.data.friendStatus}
-                nickname={user.data.nickname}
-              />
+              {user.data.friendStatus && (
+                <FriendStatus
+                  status={user.data.friendStatus}
+                  nickname={user.data.nickname}
+                />
+              )}
             </div>
           </SideBox>
-          <TheirMatchHistory user={user.data} />
         </>
       )}
     </>
   );
 }
 
-export default ProfileBox;
+export default TheirProfile;
