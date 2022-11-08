@@ -12,6 +12,6 @@ export class RankingService {
   ) {}
 
   list(client: Socket, server: Server) {
-    this.userService.getLeaderboard(res);
+    // this.userService.getLeaderboard(res);
   }
 }

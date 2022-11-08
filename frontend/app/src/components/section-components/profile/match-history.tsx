@@ -1,72 +1,30 @@
-interface MatchData {
-  id?: string;
-  imageCurrentPlayer: string;
-  imageOponent: string;
-  score: string;
-  matchWon: boolean;
-}
-
-interface PictureData {
-  imageCurrentPlayer: string;
-  imageOponent?: string;
-}
+import { useEffect } from 'react';
+import { MatchData } from 'src/components/global-components/interface';
+import useUserMatchHistory from 'src/components/query-hooks/useUserMatchHistory';
+import CenterBox from '../center-box';
 
 interface StatusData {
   score: string;
   matchWon: boolean;
 }
 
-const matchExamples: MatchData[] = [
-  {
-    id: '123e4567e89b1',
-    imageCurrentPlayer:
-      'https://flowbite.com/docs/images/people/profile-picture-5.jpg',
-    imageOponent:
-      'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
-    score: '7-10',
-    matchWon: false,
-  },
-  {
-    id: '123e4567e89b2',
-    imageCurrentPlayer:
-      'https://flowbite.com/docs/images/people/profile-picture-5.jpg',
-    imageOponent:
-      'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-    score: '10-3',
-    matchWon: true,
-  },
-  {
-    id: '123e4567e89b3',
-    imageCurrentPlayer:
-      'https://flowbite.com/docs/images/people/profile-picture-5.jpg',
-    imageOponent:
-      'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
-    score: '10-1',
-    matchWon: true,
-  },
-  {
-    id: '123e4567e89b4',
-    imageCurrentPlayer:
-      'https://flowbite.com/docs/images/people/profile-picture-5.jpg',
-    imageOponent:
-      'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
-    score: '10-9',
-    matchWon: true,
-  },
-];
+interface PictureData {
+  imageCurrentUser: string;
+  imageOpponent: string;
+}
 
-function VersusComponent({ imageCurrentPlayer, imageOponent }: PictureData) {
+function VersusComponent({ imageCurrentUser, imageOpponent }: PictureData) {
   return (
     <div className="flex flex-row gap-2">
       <img
         className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
-        src={imageCurrentPlayer}
+        src={imageCurrentUser}
         alt="Rounded avatar"
       />
       <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl">/</p>
       <img
         className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
-        src={imageOponent}
+        src={imageOpponent}
         alt="Rounded avatar"
       />
     </div>
@@ -85,25 +43,61 @@ function StatusComponent({ matchWon, score }: StatusData) {
   );
 }
 
-function MatchHistory({ imageCurrentPlayer }: PictureData) {
+function MatchHistoryComponent({ matchData }: { matchData: MatchData[] }) {
   return (
-    <div className="flex flex-col gap-6 m-10">
-      {matchExamples.map((matchExample) => (
-        <div
-          key={matchExample.id}
-          className="flex flex-row gap-32 items-center"
-        >
-          <VersusComponent
-            imageCurrentPlayer={imageCurrentPlayer}
-            imageOponent={matchExample.imageOponent}
-          />
-          <StatusComponent
-            matchWon={matchExample.matchWon}
-            score={matchExample.score}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="flex flex-col gap-6 m-10">
+        {matchData.length === 0 ? (
+          <p className="flex justify-center text-base sm:text-base md:text-2xl lg:text-2xl xl:text-3xl">
+            No match yet, go show your pong move 🕺
+          </p>
+        ) : (
+          matchData.map((matchData) => (
+            <div
+              key={matchData.id}
+              className="flex flex-row gap-32 items-center"
+            >
+              <VersusComponent
+                imageCurrentUser={matchData.imageCurrentUser}
+                imageOpponent={matchData.imageOpponent}
+              />
+              <StatusComponent
+                matchWon={matchData.matchWon}
+                score={matchData.score}
+              />
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  );
+}
+
+function MatchHistory({ nickname }: { nickname: string }) {
+  const matchData = useUserMatchHistory(nickname);
+
+  useEffect(() => {
+    void matchData.refetch();
+  }, [nickname]);
+
+  return (
+    <>
+      {matchData.isLoading && <p>isLoading...</p>}
+      {matchData.isSuccess && (
+        <CenterBox>
+          <div className="h-full overflow-y-auto">
+            <div className="flex">
+              <div className="flex-1">
+                <h2 className="flex justify-center p-5 font-bold">
+                  MATCH HISTORY
+                </h2>
+                <MatchHistoryComponent matchData={matchData.data} />
+              </div>
+            </div>
+          </div>
+        </CenterBox>
+      )}
+    </>
   );
 }
 

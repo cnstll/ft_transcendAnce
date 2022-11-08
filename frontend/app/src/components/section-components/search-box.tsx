@@ -1,24 +1,30 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { UseOutsideClick } from "../custom-hooks/use-outside-click"
-import { User, Channel } from "../global-components/interface";
-import SearchItem from "./search-item";
-import { useNavigate } from 'react-router-dom'
+import { UseOutsideClick } from '../custom-hooks/use-outside-click';
+import { User, Channel } from '../global-components/interface';
+import SearchItem from './search-item';
+import { useNavigate } from 'react-router-dom';
 
 interface SearchBoxProps {
-  height: string,
-  width: string,
-  placeholder: string,
-  users?: User[],
-  channels?: Channel[],
+  height: string;
+  width: string;
+  placeholder: string;
+  users?: User[];
+  channels?: Channel[];
 }
 
 const defaultSearchData = {
-  keyword: "",
-}
+  keyword: '',
+};
 
-function SearchBox({ height, width, placeholder, users, channels }: SearchBoxProps) {
+function SearchBox({
+  height,
+  width,
+  placeholder,
+  users,
+  channels,
+}: SearchBoxProps) {
   const navigate = useNavigate();
   const [isShown, setIsShown] = useState(false);
   const [searchData, setSearchData] = useState(defaultSearchData);
@@ -69,7 +75,10 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
 
   function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const filteredResults: User[] | undefined = filterUsers(users, searchData.keyword);
+    const filteredResults: User[] | undefined = filterUsers(
+      users,
+      searchData.keyword,
+    );
     if (filteredResults) {
       if (filteredResults[0]) {
         const firstResult = filteredResults[0].nickname;
@@ -78,7 +87,10 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
         }
       }
     }
-    const filteredChannels: Channel[] | undefined = filterChannels(channels, searchData.keyword);
+    const filteredChannels: Channel[] | undefined = filterChannels(
+      channels,
+      searchData.keyword,
+    );
     if (filteredChannels) {
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].name;
@@ -89,29 +101,51 @@ function SearchBox({ height, width, placeholder, users, channels }: SearchBoxPro
     }
   }
 
-  return <>
-    <div className="relative text-black" ref={ref}>
-      <form onSubmit={OnSubmit}>
-        <input className={height + width + " bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative"}
-          type="text" name="search" id="keyword" value={keyword} onChange={OnChange}
-          onFocus={ShowInfo} autoComplete="off" placeholder={"Search " + placeholder} />
-        <button type="submit" className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black">
-          <FontAwesomeIcon icon={faMagnifyingGlass} />
-        </button>
-      </form>
-      <div className={"bg-white rounded-lg text-sm absolute " + width}>
-        {isShown &&
-          <ul>
-            {filterUsers(users, searchData.keyword)?.slice(0, 5).map((userItem) => (
-              <SearchItem key={userItem.id} user={userItem} />
-            ))}
-            {filterChannels(channels, searchData.keyword)?.slice(0, 5).map((channelItem) => (
-              <SearchItem key={channelItem.id} channel={channelItem} />
-            ))}
-          </ul>}
+  return (
+    <>
+      <div className="relative text-black" ref={ref}>
+        <form onSubmit={OnSubmit}>
+          <input
+            className={
+              height +
+              width +
+              ' bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative'
+            }
+            type="text"
+            name="search"
+            id="keyword"
+            value={keyword}
+            onChange={OnChange}
+            onFocus={ShowInfo}
+            autoComplete="off"
+            placeholder={'Search ' + placeholder}
+          />
+          <button
+            type="submit"
+            className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
+          >
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </button>
+        </form>
+        <div className={'bg-white rounded-lg text-sm absolute z-20' + width}>
+          {isShown && (
+            <ul>
+              {filterUsers(users, searchData.keyword)
+                ?.slice(0, 5)
+                .map((userItem) => (
+                  <SearchItem key={userItem.id} user={userItem} />
+                ))}
+              {filterChannels(channels, searchData.keyword)
+                ?.slice(0, 5)
+                .map((channelItem) => (
+                  <SearchItem key={channelItem.id} channel={channelItem} />
+                ))}
+            </ul>
+          )}
+        </div>
       </div>
-    </div>
-  </>
+    </>
+  );
 }
 
 export default SearchBox;

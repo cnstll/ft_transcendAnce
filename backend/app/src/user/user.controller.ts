@@ -144,34 +144,27 @@ export class UserController {
 
   /** Match management */
 
-  @Get('get-user-matches')
-  @UseGuards(JwtAuthGuard)
-  async getUserMatches(
-    @Res() res: Response,
-    @GetCurrentUserId() userId: string,
-  ) {
-    const matches = await this.userService.getUserMatches(userId);
-    return res.status(200).send(matches);
-  }
-
-  @Get('get-user-matches-stats')
+  @Post('get-user-matches-stats')
   @UseGuards(JwtAuthGuard)
   getUserMatchesStats(
     @Res() res: Response,
-    @GetCurrentUserId() userId: string,
+    @Body() target: { userNickname: string },
   ) {
-    return this.userService.getUserMatchesStats(userId, res);
+    return this.userService.getUserMatchesStats(target.userNickname, res);
+  }
+
+  @Post('get-user-match-history')
+  @UseGuards(JwtAuthGuard)
+  getUserMatchHistory(
+    @Res() res: Response,
+    @Body() target: { userNickname: string },
+  ) {
+    return this.userService.getUserMatchHistory(target.userNickname, res);
   }
 
   @Get('get-leaderboard')
   @UseGuards(JwtAuthGuard)
   getLeaderBoard(@Res() res: Response) {
     return this.userService.getLeaderboard(res);
-  }
-
-  @Get('get-user-rank')
-  @UseGuards(JwtAuthGuard)
-  getUserRan(@Res() res: Response, @GetCurrentUserId() id: string) {
-    return this.userService.getUserRanking(id, res);
   }
 }
