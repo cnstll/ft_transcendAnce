@@ -395,6 +395,7 @@ export class ChannelService {
       }
       /* Check that the user is owner or admin for update rights */
       const canEdit = await this.hasAdminRights(userId, channelId);
+      console.log(canEdit);
       if (!canEdit) {
         return null;
       }
@@ -444,7 +445,7 @@ export class ChannelService {
       /* Then, delete channel */
       // If user is the last one delete the channel
       if (channelUsers.users.length == 0) {
-        const channel = await this.prisma.channel.delete({
+        await this.prisma.channel.delete({
           where: {
             id: dto.id,
           },

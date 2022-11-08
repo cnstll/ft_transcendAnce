@@ -1,11 +1,12 @@
 import { Dispatch, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { channelType } from "../../global-components/interface";
+import { Channel, channelType } from "../../global-components/interface";
 import { socket } from "../../global-components/client-socket";
 import { validateNameInput, validatePwdInput } from "./regex-input-validations";
 
 interface EditChannelFormProps {
-  setShowForm: Dispatch<React.SetStateAction<boolean>>;
+  setShowModal: Dispatch<React.SetStateAction<boolean>>;
+  currentChannel: Channel;
 }
 
 const defaultFormData = {            // get the data from the channel to init the default
@@ -23,7 +24,7 @@ function EditChannelForm(props: EditChannelFormProps) {
 
   useEffect(() => {
     socket.on('roomEdited', (channelId: string) => {
-      props.setShowForm(false);
+      props.setShowModal(false);
       setFormData(defaultFormData);
       navigate('../chat/' + channelId);
     });
@@ -32,6 +33,10 @@ function EditChannelForm(props: EditChannelFormProps) {
         setInputStatus('invalidAlreadyUsedname');
       }
     });
+    return () => {
+      socket.off('roomCreated');
+      socket.off('createRoomFailed');
+    };
   }, [formData]);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -52,13 +57,16 @@ function EditChannelForm(props: EditChannelFormProps) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const channelId: string = props.currentChannel.id;
     if (!validateNameInput(formData.name))
       setInputStatus('invalidName');
     else if (formData.type === channelType.Protected
       && !validatePwdInput(formData.passwordHash))
         setInputStatus('invalidPassword');
-    else
-      socket.emit('editRoom', { createInfo: formData });
+    else {
+      console.log(formData);
+      socket.emit('editRoom', { channelId , editInfo: formData });
+    }
   }
 
   return (
@@ -147,7 +155,7 @@ function EditChannelForm(props: EditChannelFormProps) {
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"
-                  onClick={() => props.setShowForm(false)}
+                  onClick={() => props.setShowModal(false)}
                   className="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium
                     px-5 py-2.5 hover:text-gray-900">
                   Close

@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Channel } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
+import EditChannelForm from './edit-channel-form';
 
 interface ChannelOptions {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
@@ -13,6 +14,8 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const channelsQueryKey = 'channelsByUserList';
+  const [showModal, setShowModal] = useState<boolean>(false);
+
 
   const channelsQueryData: Channel[] | undefined =
     queryClient.getQueryData(channelsQueryKey);
@@ -63,19 +66,30 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
     };
   }, []);
 
+  function handleModal() {
+    setShowModal(!showModal);
+  }
+
   return (
     <div>
       <Link to="/chat">
-        <p
-          className="text-center hover:underline my-2"
-          onClick={leaveChannelHandler}
-        >
+        <p className="text-center hover:underline my-2"
+          onClick={leaveChannelHandler}>
           Leave channel
         </p>
       </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Change settings</p>
-      </Link>
+      { channelInfo !== undefined ?
+        <div className="z-index-20">
+          <div onClick={handleModal}>
+            <p className="text-center hover:underline my-2">
+              Edit your channel
+            </p>
+          </div>
+          <div>
+              {showModal && <EditChannelForm setShowModal={setShowModal} currentChannel={channelInfo} />}
+          </div>
+        </div>
+      : null}
       <Link to="/">
         <p className="text-center hover:underline my-2">Invite user</p>
       </Link>

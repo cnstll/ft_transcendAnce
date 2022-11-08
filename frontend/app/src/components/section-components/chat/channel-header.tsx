@@ -4,7 +4,6 @@ import { Channel } from '../../global-components/interface';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { useGroupChannelsList } from '../../query-hooks/useGetChannels';
 import { useState } from 'react';
-import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
 import CreateChannelForm from './create-channel-form';
 import SearchBoxChannel from '../search-box-channel';
 import LoadingSpinner from '../loading-spinner';
@@ -25,17 +24,11 @@ function ChannelHeader() {
     setShowForm(!showForm);
   }
 
-  function ClickOutsideHandler() {
-    setShowForm(false);
-  }
-
-  const ref = UseOutsideDivClick(ClickOutsideHandler);
-
   return (
     <div className="flex items-center flex-col gap-4 font-bold">
       <div className="flex items-center">
         <h1>CHANNELS</h1>
-        <div className="flex justify-center ml-4" ref={ref}>
+        <div className="flex justify-center ml-4">
           <button className="mx-2" onClick={showCreateChannelForm}>
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
