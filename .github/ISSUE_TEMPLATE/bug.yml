@@ -40,33 +40,33 @@ body:
       label: Environment
       placeholder: Desktop or Mobile or both
     validations:
-      required: true
+      required: false
   - type: input
     id: OS
     attributes:
       label: OS
       placeholder: iOS8.1, macOS Monterey
     validations:
-      required: true
+      required: false
   - type: dropdown
     id: browsers
     attributes:
       label: Browser
-      multiple: true
+      multiple: false
       options:
         - Firefox
         - Chrome
         - Safari
         - Microsoft Edge
     validations:
-      required: true
+      required: false
   - type: input
     id: version
     attributes:
       label: Version
       placeholder: Browser's version
     validations:
-      required: true
+      required: false
   - type: textarea
     id: additional-context
     attributes:
