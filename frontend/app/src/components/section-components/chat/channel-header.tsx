@@ -1,14 +1,22 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-import SearchBox from '../search-box';
 import { Channel } from '../../global-components/interface';
-import { UseQueryResult } from 'react-query';
+import { useQueryClient, UseQueryResult } from 'react-query';
 import { useGroupChannelsList } from '../../query-hooks/useGetChannels';
 import { useState } from 'react';
 import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
 import CreateChannelForm from './create-channel-form';
+import SearchBoxChannel from '../search-box-channel';
+import LoadingSpinner from '../loading-spinner';
 
 function ChannelHeader() {
+  const queryClient = useQueryClient();
+  const channelsQueryKey = 'channelsByUserList';
+
+  const myChannelsQueryData: Channel[] | undefined =
+    queryClient.getQueryData(channelsQueryKey);
+  //   const channelsQueryState = queryClient.getQueryState(channelsQueryKey);
+
   const channelsData: UseQueryResult<Channel[] | undefined> =
     useGroupChannelsList();
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -37,18 +45,23 @@ function ChannelHeader() {
         </div>
       </div>
       {!channelsData}
-      {channelsData.isLoading && (
-        <p className="m-4 text-base">Loading channels...</p>
-      )}
+      {channelsData.isLoading && <LoadingSpinner />}
       {channelsData.isError && (
-        <p className="m-4 text-base">Could not fetch channel search</p>
+        <p className="m-4 text-base text-gray-400">
+          We encountered an error 🤷
+        </p>
       )}
       {channelsData.data && channelsData.isSuccess && (
-        <SearchBox
+        <SearchBoxChannel
           height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 "
           width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
           placeholder="channel"
-          channels={channelsData.data}
+          channels={channelsData.data.filter(
+            (channel) =>
+              !myChannelsQueryData
+                ?.map((channel) => channel.id)
+                .includes(channel.id),
+          )}
         />
       )}
     </div>

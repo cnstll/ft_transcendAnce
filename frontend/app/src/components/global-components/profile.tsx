@@ -11,6 +11,8 @@ import ProfileBox from '../section-components/profile/profile-box';
 import { useNavigate } from 'react-router-dom';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';
+import MatchHistory from '../section-components/profile/match-history';
+import LoadingSpinner from '../section-components/loading-spinner';
 
 function Profile() {
   const { id } = useParams();
@@ -23,7 +25,8 @@ function Profile() {
 
   return (
     <>
-      {user.isLoading && <p>isLoading...</p>}
+      {user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
+      {user.isLoading && <LoadingSpinner/>}
       {user.isSuccess && (
         <div>
           <Background background={BackgroundGeneral}>
@@ -36,17 +39,26 @@ function Profile() {
           gap-10 px-5 justify-center mt-6 text-white text-3xl"
             >
               <ProfileBox nickname={id} currentUser={user} />
-              {(!id || user.data.nickname === id) && (
-                <SideBox>
-                  <h2 className="flex justify-center font-bold break-all">
-                    FRIENDS
-                  </h2>
-                  <FriendList />
-                </SideBox>
+              {!id || user.data.nickname === id ? (
+                <>
+                  <MatchHistory nickname={user.data.nickname} />
+                  <SideBox>
+                    <h2 className="flex justify-center font-bold break-all">
+                      FRIENDS
+                    </h2>
+                    <FriendList />
+                  </SideBox>
+                </>
+              ) : (
+                <MatchHistory nickname={id} />
               )}
             </div>
             <div className="flex justify-center">
-              <StatsBox />
+              {!id || user.data.nickname === id ? (
+                <StatsBox nickname={user.data.nickname} />
+              ) : (
+                <StatsBox nickname={id} />
+              )}
             </div>
           </Background>
         </div>

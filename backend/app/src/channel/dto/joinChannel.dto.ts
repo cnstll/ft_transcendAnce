@@ -1,9 +1,9 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class JoinChannelDto {
   @IsString()
-  @IsOptional()
-  id?: string;
+  @IsNotEmpty()
+  id: string;
 
   @IsString()
   @IsOptional()

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { socket } from './socket';
+import { socket } from '../../global-components/client-socket';
 import { GameCoords, GameStatus } from '../../global-components/interface';
 
 let paddleHeight = 50;

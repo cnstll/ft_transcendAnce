@@ -198,7 +198,7 @@ function Disable2fa({
   return (
     <div
       onClick={on2faDelete}
-      className="w-11 h-6 bg-gray-200 rounded-full peer  peer-focus:ring-green-300  peer-checked:after:translate-x-full
+      className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-green-300  peer-checked:after:translate-x-full
           peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
           after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
     >
@@ -220,29 +220,27 @@ function Disable2fa({
 function Toggle({ toggleValue, setShowModal, setToggleValue }: ToggleProps) {
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden w-20">
-      <div className="flex">
-        <label className="inline-flex relative items-center mr-5 cursor-pointer">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            checked={toggleValue}
-            readOnly
+      <label className="absolute cursor-pointer">
+        <input
+          type="checkbox"
+          className="sr-only peer"
+          checked={toggleValue}
+          readOnly
+        />
+        {toggleValue ? (
+          <Disable2fa
+            toggleValue={toggleValue}
+            setShowModal={setShowModal}
+            setToggleValue={setToggleValue}
           />
-          {toggleValue ? (
-            <Disable2fa
-              toggleValue={toggleValue}
-              setShowModal={setShowModal}
-              setToggleValue={setToggleValue}
-            />
-          ) : (
-            <Generate2fa
-              toggleValue={toggleValue}
-              setShowModal={setShowModal}
-              setToggleValue={setToggleValue}
-            />
-          )}
-        </label>
-      </div>
+        ) : (
+          <Generate2fa
+            toggleValue={toggleValue}
+            setShowModal={setShowModal}
+            setToggleValue={setToggleValue}
+          />
+        )}
+      </label>
     </div>
   );
 }

@@ -1,7 +1,16 @@
 import ChannelsListItem from './channels-list-item';
 import { Channel } from '../../global-components/interface';
 
-function ChannelsList({ channels }: { channels: Channel[] }) {
+interface MyChannelsListProps {
+  activeChannelId: string;
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+  channels: Channel[];
+}
+function ChannelsList({
+  activeChannelId,
+  setActiveChannelId,
+  channels,
+}: MyChannelsListProps) {
   return (
     <div className="flex flex-col text-base my-4">
       {channels.length === 0 && (
@@ -12,7 +21,12 @@ function ChannelsList({ channels }: { channels: Channel[] }) {
       {channels
         .sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1))
         .map((channel) => (
-          <ChannelsListItem key={channel.id} channelItem={channel} />
+          <ChannelsListItem
+            key={channel.id}
+            channelItem={channel}
+            activeChannel={activeChannelId}
+            setActiveChannel={setActiveChannelId}
+          />
         ))}
     </div>
   );

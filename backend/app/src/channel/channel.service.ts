@@ -14,6 +14,7 @@ import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class ChannelService {
@@ -129,6 +130,10 @@ export class ChannelService {
     try {
       /* Check the password is provided in the DTO for protected chan) */
       this.checkDto(dto);
+      /* Hash the password */
+      dto.passwordHash = await argon2.hash(dto.passwordHash, {
+        type: argon2.argon2id,
+      });
       /* Then try to create a new channel */
       const newChannel: Channel = await this.prisma.channel.create({
         data: {
@@ -141,6 +146,7 @@ export class ChannelService {
           },
         },
       });
+      delete newChannel.passwordHash;
       return res.status(HttpStatus.CREATED).send(newChannel);
     } catch (error) {
       if (error.status === 400) throw new BadRequestException(error);
@@ -180,12 +186,18 @@ export class ChannelService {
     res: Response,
   ) {
     try {
-      /* Check the password is provided in the DTO for protected chan) */
-      this.checkDto(dto);
       /* Check that the user is owner or admin for update rights */
       await this.checkChannelUser(userId, channelId);
+      /* Check the password is provided in the DTO for protected chan) */
+      this.checkDto(dto);
+      /* Check password is different than the one already in database */
+      if (dto.passwordHash) {
+        dto.passwordHash = await argon2.hash(dto.passwordHash, {
+          type: argon2.argon2id,
+        });
+      }
       /* Then, update channel's information */
-      const newChannel: Channel = await this.prisma.channel.update({
+      const updatedChannel: Channel = await this.prisma.channel.update({
         where: {
           id: channelId,
         },
@@ -193,7 +205,8 @@ export class ChannelService {
           ...dto,
         },
       });
-      return res.status(HttpStatus.OK).send(newChannel);
+      delete updatedChannel.passwordHash;
+      return res.status(HttpStatus.OK).send(updatedChannel);
     } catch (error) {
       if (error.status === 400) throw new BadRequestException(error);
       else if (error.status === 404) throw new NotFoundException(error);
@@ -277,6 +290,7 @@ export class ChannelService {
     }
     return channel;
   }
+
   async createChannelWS(
     dto: CreateChannelDto,
     userId: string,
@@ -284,9 +298,13 @@ export class ChannelService {
   ) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-      if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+      if ((dto.type === 'PROTECTED' && !dto.passwordHash) || dto.name === '') {
         return null;
       }
+      /* Hash the password */
+      dto.passwordHash = await argon2.hash(dto.passwordHash, {
+        type: argon2.argon2id,
+      });
       /* Then try to create a new channel */
       //* What if channel name already exists ?
       const newChannel: Channel = await this.prisma.channel.create({
@@ -300,16 +318,20 @@ export class ChannelService {
           },
         },
       });
+      delete newChannel.passwordHash;
       /* create and join room instance */
       clientSocket.join(newChannel.id);
       return newChannel;
     } catch (error) {
+      if (error.code === 'P2002') {
+        return 'alreadyUsed' + error.meta.target[0];
+      }
       return null;
     }
   }
 
   async joinChannelWS(
-    dto: JoinChannelDto,
+    channelDto: JoinChannelDto,
     userId: string,
     clientSocket: Socket,
   ) {
@@ -319,7 +341,7 @@ export class ChannelService {
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
-          id: dto.id,
+          id: channelDto.id,
         },
         data: {
           users: {
@@ -331,7 +353,7 @@ export class ChannelService {
         },
       });
       /* Join socket.io room instance */
-      clientSocket.join(dto.id);
+      clientSocket.join(channelDto.id);
       return joinedChannel;
     } catch (error) {
       //TODO Improve error handling
@@ -368,13 +390,19 @@ export class ChannelService {
   ) {
     try {
       /* Check the password is provided in the DTO for protected chan) */
-      if (dto.type === 'PROTECTED' && !dto.passwordHash) {
+      if ((dto.type === 'PROTECTED' && !dto.passwordHash) || dto.name === '') {
         return null;
       }
       /* Check that the user is owner or admin for update rights */
       const canEdit = await this.hasAdminRights(userId, channelId);
       if (!canEdit) {
         return null;
+      }
+      /* Check password is different than the one already in database */
+      if (dto.passwordHash) {
+        dto.passwordHash = await argon2.hash(dto.passwordHash, {
+          type: argon2.argon2id,
+        });
       }
       /* Then, update channel's information */
       const editedChannel: Channel = await this.prisma.channel.update({
@@ -385,6 +413,7 @@ export class ChannelService {
           ...dto,
         },
       });
+      delete editedChannel.passwordHash;
       return editedChannel;
     } catch (error) {
       return null;
@@ -420,7 +449,6 @@ export class ChannelService {
             id: dto.id,
           },
         });
-        return channel;
       }
       return leavingUser;
     } catch (error) {

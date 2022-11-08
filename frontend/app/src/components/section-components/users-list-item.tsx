@@ -1,5 +1,4 @@
 import DropDownButton from './drop-down-button';
-import NormUrl from '../custom-hooks/norm-url';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
@@ -8,7 +7,7 @@ import type { User } from '../global-components/interface';
 function UserOptions({ nickname }: { nickname: string }) {
   return (
     <div>
-      <Link to={NormUrl('/profile/', nickname)}>
+      <Link to={`/profile/${nickname}`}>
         <p className="text-center hover:underline my-2">Go to profile</p>
       </Link>
       <Link to="/">

@@ -8,7 +8,7 @@ export enum channelType {
 export interface Channel {
   id: string;
   name: string;
-  password?: string;
+  passwordHash?: string;
   type: channelType;
 }
 
@@ -23,7 +23,7 @@ export interface User {
   id: string;
   avatarImg: string;
   nickname: string;
-  eloScore?: number;
+  eloScore: number;
   status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
   twoFactorAuthenticationSet: boolean;
   twoFactorAuthenticationSecret: string;
@@ -38,6 +38,16 @@ export interface UserData {
 export interface Stats {
   numberOfWin: number;
   numberOfLoss: number;
+  ranking: string;
+  eloScore: number;
+}
+
+export interface MatchData {
+  id: string;
+  imageCurrentUser: string;
+  imageOpponent: string;
+  score: string;
+  matchWon: boolean;
 }
 
 export interface TargetInfo {
@@ -46,7 +56,7 @@ export interface TargetInfo {
   avatarImg: string;
   eloScore: number;
   status: string;
-  friendStatus: string;
+  friendStatus?: string;
 }
 
 export enum GameStatus {

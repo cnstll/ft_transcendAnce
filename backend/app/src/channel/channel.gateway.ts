@@ -14,11 +14,9 @@ import { CreateChannelDto, EditChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
-import { Channel } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
-    // origin: '  http://localhost',
     origin: 'http://localhost:8080',
     credentials: true,
   },
@@ -27,6 +25,7 @@ export class ChannelGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly channelService: ChannelService) {}
+
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('connectToRoom')
   async connectToChannel(
@@ -62,10 +61,11 @@ export class ChannelGateway {
       userId,
       clientSocket,
     );
-    channel === null
-      ? this.server.to(clientSocket.id).emit('createRoomFailed')
+    channel === null || typeof channel === 'string'
+      ? this.server.to(clientSocket.id).emit('createRoomFailed', channel)
       : this.server.emit('roomCreated', channel.id);
   }
+
   // When a user join a channel, her ids are added to the users in the corresponding room
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
@@ -84,6 +84,7 @@ export class ChannelGateway {
       ? this.server.to(clientSocket.id).emit('joinRoomFailed')
       : this.server.to(dto.id).emit('roomJoined', joinedRoom);
   }
+
   //   When a user send a message in a channel, all the users within the room receive the message
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messageRoom')
@@ -105,6 +106,7 @@ export class ChannelGateway {
       ? this.server.to(clientSocket.id).emit('messageRoomFailed')
       : clientSocket.to(channelId).emit('incomingMessage', message);
   }
+
   // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room
   @SubscribeMessage('typing')
   someoneIsTyping(
@@ -141,19 +143,14 @@ export class ChannelGateway {
     @ConnectedSocket() clientSocket: Socket,
   ) {
     console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
-    const roomDeleted = await this.channelService.leaveChannelWS(
+    const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
     );
-    function isChannel(obj): obj is Channel {
-      return obj.id !== undefined;
-    }
-    if (roomDeleted == null) {
+    if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
-    } else if (isChannel(roomDeleted)) {
-      this.server.emit('roomDeleted', roomDeleted);
     } else {
-      this.server.emit('roomLeft', roomDeleted);
+      this.server.emit('roomLeft', userLeaving);
     }
   }
 }
