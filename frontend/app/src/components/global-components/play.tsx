@@ -38,14 +38,18 @@ function Play() {
             avatarImg={user.data.avatarImg}
           />
           {gameMode === null &&
-            <div className="flex flex-col h-screen justify-center items-center gap-10">
-              <Button>
+          <div className="flex flex-col h-screen justify-center items-center gap-10">
+            <div onClick={setClassic}>
+              <Button >
                 <button onClick={setClassic}> CLASSIC </button >
               </Button>
+            </div>
+            <div onClick={setMayhem}>
               <Button>
                 <button onClick={setMayhem}> MAYHEM </button >
               </Button>
             </div>
+          </div>
           }
           {gameMode != null &&
             <Game gameMode={gameMode} />
