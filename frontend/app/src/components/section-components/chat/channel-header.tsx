@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
 import CreateChannelForm from './create-channel-form';
 import SearchBoxChannel from '../search-box-channel';
+import LoadingSpinner from '../loading-spinner';
 
 function ChannelHeader() {
   const queryClient = useQueryClient();
@@ -44,11 +45,11 @@ function ChannelHeader() {
         </div>
       </div>
       {!channelsData}
-      {channelsData.isLoading && (
-        <p className="m-4 text-base">Loading channels...</p>
-      )}
+      {channelsData.isLoading && <LoadingSpinner />}
       {channelsData.isError && (
-        <p className="m-4 text-base">Could not fetch channel search</p>
+        <p className="m-4 text-base text-gray-400">
+          We encountered an error 🤷
+        </p>
       )}
       {channelsData.data && channelsData.isSuccess && (
         <SearchBoxChannel

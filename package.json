@@ -61,6 +61,7 @@
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-socket.io": "^9.1.6",
     "@nestjs/websockets": "^9.1.6",
+    "argon2": "^0.30.1",
     "axios": "^1.1.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",

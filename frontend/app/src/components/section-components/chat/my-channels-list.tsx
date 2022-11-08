@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { Channel } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
+import LoadingSpinner from '../loading-spinner';
 
 interface MyChannelsListProps {
   activeChannelId: string;
@@ -27,11 +28,11 @@ function MyChannelsList({
 
   return (
     <>
-      {channelsQueryState?.status === 'loading' && (
-        <p className="m-4 text-base">Loading channels...</p>
-      )}
+      {channelsQueryState?.status === 'loading' && <LoadingSpinner />}
       {channelsQueryState?.status === 'error' && (
-        <p className="m-4 text-base">Could not fetch channels</p>
+        <p className="m-4 text-base text-gray-400">
+          We encountered an error 🤷
+        </p>
       )}
       {channelsQueryState?.status === 'success' && (
         <ChannelsList

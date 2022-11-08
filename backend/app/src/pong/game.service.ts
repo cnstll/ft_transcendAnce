@@ -3,25 +3,16 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
-import { PositionDto } from './dto/position.dto';
-import { Status, Game } from './entities/game.entities';
+import { Status, Game, DoubleKeyMap } from './entities/game.entities';
 
 @Injectable()
 export class GameService {
-  GameMap = new Map<string, Game>();
+  GameMap = new DoubleKeyMap();
 
   constructor(
     private prismaService: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
   ) {}
-
-  join(name: string, client: Socket, id: string, server: Server) {
-    if (name === '') {
-      return this.joinRandom(client, id, server);
-    } else {
-      return this.joinSpecific(name, client, id, server);
-    }
-  }
 
   mutateGameStatus(game: Game, status: Status, server: Server) {
     game.status = status;
@@ -31,50 +22,34 @@ export class GameService {
       winner: '',
     });
   }
-  joinSpecific(name: string, client: Socket, id: string, server: Server) {
-    const game: Game = this.GameMap.get(name);
 
-    if (game.p1id === id) {
-      client.join(name);
-      this.mutateGameStatus(game, game.status, server);
-      if (game.status == Status.PAUSED) {
-        this.deleteTimeout(game.gameRoomId);
-        this.mutateGameStatus(game, Status.PLAYING, server);
-        this.addInterval(game.gameRoomId, 5, server);
-      }
-      return { gameId: game.gameRoomId, playerNumber: 1 };
-    } else if (game.p2id === id) {
-      client.join(name);
-      this.mutateGameStatus(game, game.status, server);
-      if (game.status == Status.PAUSED) {
-        this.deleteTimeout(game.gameRoomId);
-        this.mutateGameStatus(game, Status.PLAYING, server);
-        this.addInterval(game.gameRoomId, 5, server);
-      }
-      return { gameId: game.gameRoomId, playerNumber: 2 };
-    }
-  }
-
-  joinRandom(client: Socket, id: string, server: Server) {
+  join(client: Socket, userId: string, server: Server) {
     let game: Game;
 
-    if (this.GameMap.size === 0) {
-      game = this.createGame(id, null);
+    if (this.GameMap.size == 0) {
+      game = this.createGame(userId);
       client.join(game.gameRoomId);
       this.mutateGameStatus(game, game.status, server);
-      return { gameId: game.gameRoomId, playerNumber: 1 };
+      return { playerNumber: 1 };
     } else {
-      for (const [gameRoomId, game] of this.GameMap) {
-        if (game.p2id === null) {
-          game.p2id = id;
-          client.join(gameRoomId);
+      if ((game = this.GameMap.rejoinGame(userId)) != null) {
+        client.join(game.gameRoomId);
+        if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
-          this.addInterval(gameRoomId, 5, server);
-          return { gameId: gameRoomId, playerNumber: 2 };
+          this.deleteTimeout(game.gameRoomId);
+          this.addInterval(game.gameRoomId, userId, 5, server);
         }
+        if (game.p2id === userId) return { playerNumber: 2 };
+        return { playerNumber: 1 };
       }
-      game = this.createGame(id, null);
-      return { gameId: game.gameRoomId, playerNumber: 1 };
+      if ((game = this.GameMap.matchPlayer(userId))) {
+        client.join(game.gameRoomId);
+        this.mutateGameStatus(game, Status.PLAYING, server);
+        this.addInterval(game.gameRoomId, userId, 5, server);
+        return { playerNumber: 2 };
+      }
+      game = this.createGame(userId);
+      return { playerNumber: 1 };
     }
   }
 
@@ -89,11 +64,11 @@ export class GameService {
     winnerId: string,
   ) {
     const callback = () => {
-      console.log('timeout started, deleting game in 5 seconds');
-      const game = this.GameMap.get(name);
+      console.log('timeout started, deleting game in 10 seconds');
+      const game = this.GameMap.getGame(winnerId);
       this.mutateGameStatus(game, Status.DONE, server);
       game.claimVictory(winnerId, this.prismaService);
-      this.GameMap.delete(name);
+      this.GameMap.delete(winnerId);
     };
 
     const timeout = setTimeout(callback, milliseconds);
@@ -101,56 +76,66 @@ export class GameService {
   }
 
   pause(id: string, server: Server) {
-    for (const [gameRoomId, game] of this.GameMap) {
+    const game = this.GameMap.getGame(id);
+    if (game && game.status == Status.PLAYING) {
       if (game.p1id === id || game.p2id === id) {
-        this.deleteInterval(gameRoomId);
+        this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
         if (id === game.p1id) {
-          this.addTimeout(gameRoomId, 5000, server, game.p2id);
+          this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
         } else {
+          this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
         }
       }
     }
   }
 
-  create(positionDto: PositionDto) {
-    const game: Game = this.GameMap.get(positionDto.room);
+  create(y: number, userId: string) {
+    const game: Game = this.GameMap.getGame(userId);
     if (game !== undefined) {
-      game.movePaddle(positionDto.player, positionDto.y);
+      if (game.p1id === userId) {
+        game.movePaddle(1, y);
+      } else {
+        game.movePaddle(2, y);
+      }
       return game;
     }
     return null;
   }
 
-  moveBall(roomName: string) {
-    const game: Game = this.GameMap.get(roomName);
+  moveBall(id: string) {
+    const game: Game = this.GameMap.getGame(id);
     game.moveBall();
-    return game.returnGameInfo();
+    return game;
+    // TODO i shouldnt have to resend everything here
   }
 
-  createGame(p1: string, p2: string | null) {
+  createGame(p1: string) {
     const game = new Game();
-    this.GameMap.set(game.gameRoomId, game);
-    game.p1id = p1;
-    game.p2id = p2;
+    this.GameMap.setPlayer1(p1, game);
     return game;
   }
 
-  addInterval(name: string, milliseconds: number, server: Server) {
+  addInterval(
+    gameRoomId: string,
+    userId: string,
+    milliseconds: number,
+    server: Server,
+  ) {
     const callback = () => {
-      const message = this.moveBall(name);
+      const message = this.moveBall(userId);
       if (message.p2s >= 10 || message.p1s >= 10) {
-        const game = this.GameMap.get(message.gameRoomId);
+        const game = this.GameMap.getGame(userId);
         this.deleteInterval(message.gameRoomId);
         this.mutateGameStatus(game, Status.DONE, server);
         game.saveGameResults(this.prismaService);
-        this.GameMap.delete(message.gameRoomId);
+        this.GameMap.delete(userId);
       }
       server.to(message.gameRoomId).emit('updatedGameInfo', message);
     };
 
     const interval = setInterval(callback, milliseconds);
-    this.schedulerRegistry.addInterval(name, interval);
+    this.schedulerRegistry.addInterval(gameRoomId, interval);
   }
 
   deleteInterval(name: string) {

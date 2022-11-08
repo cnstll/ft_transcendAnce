@@ -6,7 +6,6 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { PositionDto } from './dto/position.dto';
 import { GameService } from './game.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { UseGuards } from '@nestjs/common';
@@ -25,29 +24,26 @@ export class GameGateway {
 
   constructor(private readonly messagesService: GameService) {}
 
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('updatePaddlePos')
-  async create(@MessageBody() createMessageDto: PositionDto) {
-    const message = this.messagesService.create(createMessageDto);
-    if (message) {
-      this.server.to(createMessageDto.room).emit('updatedGameInfo', message);
-    }
+  async create(
+    @MessageBody('yPos') yPos: number,
+    @GetCurrentUserId() id: string,
+  ) {
+    const message = this.messagesService.create(yPos, id);
     return message;
   }
 
-  @SubscribeMessage('disconnect')
   @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('disconnect')
   handleDisconnect(@ConnectedSocket() client: Socket) {
     this.messagesService.pause(this.socketToId.get(client.id), this.server);
   }
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinGame')
-  joinRoom(
-    @MessageBody('name') name: string,
-    @ConnectedSocket() client: Socket,
-    @GetCurrentUserId() id: string,
-  ) {
+  joinRoom(@ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
     this.socketToId.set(client.id, id);
-    return this.messagesService.join(name, client, id, this.server);
+    return this.messagesService.join(client, id, this.server);
   }
 }
