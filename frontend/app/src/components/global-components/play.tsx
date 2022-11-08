@@ -39,23 +39,27 @@ function Play() {
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
           />
-          {gameMode === null &&
-          <div className="flex flex-col h-screen justify-center items-center gap-10">
-            <div onClick={setClassic}>
-              <Button >
-                <button onClick={setClassic}> CLASSIC </button >
-              </Button>
+          {gameMode === null && (
+            <div className="flex flex-col h-screen justify-center items-center gap-10">
+              <div
+                onClick={setClassic}
+                className="cursor-pointer text-xs sm:text-xs md:text-lg lg:text-2xl"
+              >
+                <Button>
+                  <button> CLASSIC </button>
+                </Button>
+              </div>
+              <div
+                onClick={setMayhem}
+                className="cursor-pointer text-xs sm:text-xs md:text-lg lg:text-2xl"
+              >
+                <Button>
+                  <button> MAYHEM </button>
+                </Button>
+              </div>
             </div>
-            <div onClick={setMayhem}>
-              <Button>
-                <button onClick={setMayhem}> MAYHEM </button >
-              </Button>
-            </div>
-          </div>
-          }
-          {gameMode != null &&
-            <Game gameMode={gameMode} />
-          }
+          )}
+          {gameMode != null && <Game gameMode={gameMode} />}
         </Background>
       </div>
     );
