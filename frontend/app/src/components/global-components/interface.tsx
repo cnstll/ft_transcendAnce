@@ -8,7 +8,7 @@ export enum channelType {
 export interface Channel {
   id: string;
   name: string;
-  password?: string;
+  passwordHash?: string;
   type: channelType;
 }
 

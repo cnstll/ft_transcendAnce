@@ -14,7 +14,6 @@ import { CreateChannelDto, EditChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
-import { Channel } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
@@ -144,19 +143,14 @@ export class ChannelGateway {
     @ConnectedSocket() clientSocket: Socket,
   ) {
     console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
-    const roomDeleted = await this.channelService.leaveChannelWS(
+    const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
     );
-    function isChannel(obj): obj is Channel {
-      return obj.id !== undefined;
-    }
-    if (roomDeleted == null) {
+    if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
-    } else if (isChannel(roomDeleted)) {
-      this.server.emit('roomDeleted', roomDeleted);
     } else {
-      this.server.emit('roomLeft', roomDeleted);
+      this.server.emit('roomLeft', userLeaving);
     }
   }
 }
