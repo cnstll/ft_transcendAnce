@@ -33,12 +33,10 @@ function TheirProfile({ nickname }: { nickname: string }) {
             </div>
             <div className="flex justify-center flex-row mt-2 gap-2 lg:gap-6 text-xs sm:text-xs md:text-xl lg:text-2xl font-bold">
               <p>{user.data.nickname}</p>
-              {user.data.friendStatus && (
-                <FriendStatus
-                  status={user.data.friendStatus}
-                  nickname={user.data.nickname}
-                />
-              )}
+              <FriendStatus
+                status={user.data.friendStatus}
+                nickname={user.data.nickname}
+              />
             </div>
           </SideBox>
         </>
