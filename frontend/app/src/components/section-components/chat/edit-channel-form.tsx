@@ -1,7 +1,7 @@
 import { Dispatch, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { channelType } from "../../global-components/interface";
-import { socket } from "../socket";
+import { socket } from "../../global-components/client-socket";
 import { validateNameInput, validatePwdInput } from "./regex-input-validations";
 
 interface EditChannelFormProps {

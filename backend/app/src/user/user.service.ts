@@ -6,9 +6,10 @@ import {
 import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
-import { StatDto } from './dto/stats.dto';
+import { Stat } from './interfaces/stats.interface';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Response } from 'express';
+import { MatchHistory } from './interfaces/matchHistory.interface';
 
 @Injectable()
 export class UserService {
@@ -56,42 +57,6 @@ export class UserService {
       const nicknames = await this.prismaService.user.findMany({});
       return res.status(200).send(nicknames);
       //TODO select so you don't return unneeded user info
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
-    }
-  }
-
-  async getLeaderboard(res: Response) {
-    try {
-      const nicknames = await this.prismaService.user.findMany({
-        take: 10,
-        orderBy: {
-          eloScore: 'desc',
-        },
-      });
-      //TODO select so you don't return unneeded user info
-      return res.status(200).send(nicknames);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
-    }
-  }
-
-  async getUserRanking(id: string, res: Response) {
-    try {
-      const users = await this.prismaService.user.findMany({
-        orderBy: {
-          eloScore: 'desc',
-        },
-      });
-      //TODO select so you don't return unneeded user info
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].id == id) {
-          return res.status(200).send({ userRank: i + 1 });
-        }
-      }
-      return res.status(500).send();
     } catch (error) {
       console.log(error);
       return res.status(500).send();
@@ -161,10 +126,12 @@ export class UserService {
     return user;
   }
 
-  async findOneFromUserNickname(userId: string): Promise<User | undefined> {
+  async findOneFromUserNickname(
+    userNickname: string,
+  ): Promise<User | undefined> {
     return await this.prismaService.user.findUnique({
       where: {
-        nickname: userId,
+        nickname: userNickname,
       },
     });
   }
@@ -448,10 +415,10 @@ export class UserService {
 
   /** Game management */
 
-  async getUserMatches(userId: string) {
+  async getUserMatches(userNickname: string) {
     const matches = await this.prismaService.user.findUnique({
       where: {
-        id: userId,
+        nickname: userNickname,
       },
       select: {
         playerOneMatch: {},
@@ -475,18 +442,99 @@ export class UserService {
     return matchesList;
   }
 
-  async getUserMatchesStats(userId: string, res: Response) {
-    const stats: StatDto = { numberOfWin: 0, numberOfLoss: 0 };
+  async getUserMatchesStats(userNickname: string, res: Response) {
+    const user = await this.findOneFromUserNickname(userNickname);
+    const ranking = await this.getUserRanking(userNickname);
+    const stats: Stat = {
+      numberOfWin: 0,
+      numberOfLoss: 0,
+      ranking: ranking,
+      eloScore: user.eloScore,
+    };
 
-    const matchesList = await this.getUserMatches(userId);
+    const matchesList = await this.getUserMatches(userNickname);
     for (let i = 0; i < matchesList.length; i++) {
       if (
-        (matchesList[i].playerOneId === userId && matchesList[i].p1s === 10) ||
-        (matchesList[i].playerTwoId === userId && matchesList[i].p2s === 10)
+        (matchesList[i].playerOneId === user.id && matchesList[i].p1s == 10) ||
+        (matchesList[i].playerTwoId === user.id && matchesList[i].p2s == 10)
       )
         stats.numberOfWin++;
     }
     stats.numberOfLoss = matchesList.length - stats.numberOfWin;
     return res.status(200).send(stats);
+  }
+
+  async getLeaderboard(res: Response) {
+    try {
+      const nicknames = await this.prismaService.user.findMany({
+        take: 10,
+        orderBy: {
+          eloScore: 'desc',
+        },
+      });
+      //TODO select so you don't return unneeded user info
+      return res.status(200).send(nicknames);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+  }
+
+  async getUserRanking(userNickname: string) {
+    let userRank = '';
+
+    const users = await this.prismaService.user.findMany({
+      orderBy: {
+        eloScore: 'desc',
+      },
+    });
+    //TODO select so you don't return unneeded user info
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].nickname == userNickname) {
+        const rank = i + 1;
+        userRank = rank.toString() + '/' + users.length.toString();
+        return userRank;
+      }
+    }
+    return userRank;
+  }
+
+  async getUserMatchHistory(userNickname: string, res: Response) {
+    const matchesList = await this.getUserMatches(userNickname);
+    const matchHistory: MatchHistory[] = [];
+    const currentUser = await this.findOneFromUserNickname(userNickname);
+    let opponent: User;
+    let matchWon: boolean;
+    let score: string;
+
+    try {
+      for (let i = 0; i < matchesList.length; i++) {
+        if (matchesList[i].playerOneId === currentUser.id) {
+          opponent = await this.getUserInfo(matchesList[i].playerTwoId);
+          score =
+            matchesList[i].p1s.toString() + '-' + matchesList[i].p2s.toString();
+          if (matchesList[i].p1s == 10) matchWon = true;
+          else matchWon = false;
+        } else {
+          opponent = await this.getUserInfo(matchesList[i].playerOneId);
+          score =
+            matchesList[i].p2s.toString() + '-' + matchesList[i].p1s.toString();
+          if (matchesList[i].p2s == 10) matchWon = true;
+          else matchWon = false;
+        }
+        const imageOpponent = opponent.avatarImg;
+        matchHistory.push({
+          id: matchesList[i].gameId,
+          imageCurrentUser: currentUser.avatarImg,
+          imageOpponent: imageOpponent,
+          score: score,
+          matchWon: matchWon,
+        });
+      }
+      return res.status(200).send(matchHistory);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
   }
 }

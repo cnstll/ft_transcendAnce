@@ -331,7 +331,7 @@ export class ChannelService {
   }
 
   async joinChannelWS(
-    dto: JoinChannelDto,
+    channelDto: JoinChannelDto,
     userId: string,
     clientSocket: Socket,
   ) {
@@ -341,7 +341,7 @@ export class ChannelService {
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
-          id: dto.id,
+          id: channelDto.id,
         },
         data: {
           users: {
@@ -353,7 +353,7 @@ export class ChannelService {
         },
       });
       /* Join socket.io room instance */
-      clientSocket.join(dto.id);
+      clientSocket.join(channelDto.id);
       return joinedChannel;
     } catch (error) {
       //TODO Improve error handling
@@ -449,7 +449,6 @@ export class ChannelService {
             id: dto.id,
           },
         });
-        return channel;
       }
       return leavingUser;
     } catch (error) {

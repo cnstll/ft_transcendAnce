@@ -1,28 +1,45 @@
 import ChannelsList from './channels-list';
-import { useChannelsByUserList } from '../../query-hooks/useGetChannels';
 import { useEffect } from 'react';
-import { UseQueryResult } from 'react-query';
+import { useQueryClient } from 'react-query';
 import { Channel } from '../../global-components/interface';
+import { socket } from '../../global-components/client-socket';
 import LoadingSpinner from '../loading-spinner';
 
-function MyChannelsList() {
-  const channels: UseQueryResult<Channel[] | undefined> =
-    useChannelsByUserList();
+interface MyChannelsListProps {
+  activeChannelId: string;
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+}
+function MyChannelsList({
+  activeChannelId,
+  setActiveChannelId,
+}: MyChannelsListProps) {
+  const queryClient = useQueryClient();
+  const channelsQueryKey = 'channelsByUserList';
+
+  const channelsQueryData = queryClient.getQueryData(channelsQueryKey);
+  const channelsQueryState = queryClient.getQueryState(channelsQueryKey);
 
   useEffect(() => {
-    void channels.refetch();
-  }, [channels]);
+    socket.on('roomJoined', () => queryClient.refetchQueries(channelsQueryKey));
+    return () => {
+      socket.off('roomJoined');
+    };
+  }, []);
 
   return (
     <>
-      {channels.isLoading && (
-        <LoadingSpinner/>
+      {channelsQueryState?.status === 'loading' && <LoadingSpinner />}
+      {channelsQueryState?.status === 'error' && (
+        <p className="m-4 text-base text-gray-400">
+          We encountered an error 🤷
+        </p>
       )}
-      {channels.isError && (
-        <p className="m-4 text-base text-gray-400">We encountered an error 🤷</p>
-      )}
-      {channels.data && channels.isSuccess && (
-        <ChannelsList channels={channels.data} />
+      {channelsQueryState?.status === 'success' && (
+        <ChannelsList
+          activeChannelId={activeChannelId}
+          setActiveChannelId={setActiveChannelId}
+          channels={channelsQueryData as Channel[]}
+        />
       )}
     </>
   );

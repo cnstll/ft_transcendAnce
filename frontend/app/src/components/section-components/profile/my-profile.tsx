@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import SideBox from '../side-box';
 import UploadPicture from './upload-picture';
-import MyMatchHistory from './my-match-history';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
@@ -54,7 +53,6 @@ function MyProfile(props: { user: UseQueryResult<User> }) {
               <TwoFactorAuthentication user={props.user.data} />
             </div>
           </SideBox>
-          <MyMatchHistory user={props.user.data} />
         </>
       )}
       {props.user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
