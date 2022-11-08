@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';
 import MatchHistory from '../section-components/profile/match-history';
+import LoadingSpinner from '../section-components/loading-spinner';
 
 function Profile() {
   const { id } = useParams();
@@ -24,7 +25,8 @@ function Profile() {
 
   return (
     <>
-      {user.isLoading && <p>isLoading...</p>}
+      {user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
+      {user.isLoading && <LoadingSpinner/>}
       {user.isSuccess && (
         <div>
           <Background background={BackgroundGeneral}>

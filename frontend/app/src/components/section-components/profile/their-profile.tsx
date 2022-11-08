@@ -4,6 +4,7 @@ import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
 import { TargetInfo } from '../../global-components/interface';
 import { useEffect } from 'react';
+import LoadingSpinner from '../loading-spinner';
 
 export enum friendshipStatus {
   REQUSTED,
@@ -21,8 +22,8 @@ function TheirProfile({ nickname }: { nickname: string }) {
 
   return (
     <>
-      {user.isError && <p> is error</p>}
-      {user.isLoading && <p> is loading</p>}
+      {user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
+      {user.isLoading && <LoadingSpinner/>}
       {user.isSuccess && (
         <>
           <SideBox>

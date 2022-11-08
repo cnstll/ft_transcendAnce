@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { NumericFormat } from 'react-number-format';
 import useUserStats from 'src/components/query-hooks/useUserStats';
+import LoadingSpinner from '../loading-spinner';
 
 interface DisplayValueProps {
   value: number;
@@ -25,7 +26,8 @@ function StatBox({ nickname }: { nickname: string }) {
 
   return (
     <>
-      {stats.isLoading && <p>isLoading...</p>}
+      {stats.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
+      {stats.isLoading && <LoadingSpinner/>}
       {stats.isSuccess && (
         <div
           className="bg-purple p-2 h-24 text-center text-white m-10 text-xs sm:text-xs md:text-sm lg:text-lg
