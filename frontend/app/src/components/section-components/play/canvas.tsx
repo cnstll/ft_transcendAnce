@@ -36,7 +36,6 @@ function Game({ gameMode }: { gameMode: string }) {
         setGameStatus(GameStatus.PENDING);
       } else if (text.status === 'DONE') {
         setGameStatus(GameStatus.DONE);
-        sessionStorage.clear();
         navigate('/');
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
@@ -48,6 +47,7 @@ function Game({ gameMode }: { gameMode: string }) {
     socket.on('gameStatus', joinListener);
 
     if (canvas !== null) {
+
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       canvas.style.width = `${window.innerWidth}px`;
@@ -63,6 +63,19 @@ function Game({ gameMode }: { gameMode: string }) {
         context.setLineDash([10, 10]);
         context.moveTo(canvas.width / 4, 0);
         context.lineTo(canvas.width / 4, canvas.height);
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, canvas.width / 2, canvas.height);
+        if (gameStatus === GameStatus.PENDING) {
+          context.font = '30px Aldrich';
+          context.fillStyle = 'green';
+          context.fillText('waiting for a partner...',canvas.width / 4 - 150 , canvas.height/ 4);
+        }
+        else if (gameStatus === GameStatus.PAUSED) {
+          context.font = '30px Aldrich';
+          context.fillStyle = 'green';
+          context.fillText('partner got scared...',canvas.width / 4 - 150 , canvas.height/ 4);
+
+        }
 
         const messageListener = (text: GameCoords) => {
           context.fillStyle = text.color;
@@ -113,35 +126,71 @@ function Game({ gameMode }: { gameMode: string }) {
 
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
     const clientY = event.clientY;
-    if (gameStatus === GameStatus.PLAYING && canvasRef.current !== null) {
+
+    if (contextRef.current !== null && canvasRef.current !== null) {
+      //Center vertically
+      contextRef.current.textBaseline = 'middle'; 
+      //Center Horizontally
+      contextRef.current.textAlign = 'center';
+      const size = 0.03 * canvasRef.current.width;
       const rect = canvasRef.current.getBoundingClientRect();
-      const posy =
-        ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
-      socket.emit(
-        'updatePaddlePos',
-        { yPos: posy },
-        (res: GameCoords) => {
-          void res;
-        },
-      );
+      const posy = ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
+      switch (gameStatus) {
+        case GameStatus.PLAYING:
+          socket.emit(
+            'updatePaddlePos',
+            { yPos: posy },
+            (res: GameCoords) => {
+              void res;
+            },
+          );
+          break;
+
+        case GameStatus.PENDING:
+          contextRef.current.fillStyle = 'black';
+          contextRef.current.fillRect(0, 0, canvasRef.current.width / 2, canvasRef.current.height);
+
+          contextRef.current.font = (size.toString()) + 'px Aldrich';
+          contextRef.current.fillStyle = 'green';
+          contextRef.current.fillText('waiting for a partner...',canvasRef.current.width / 4 , canvasRef.current.height/ 4);
+          contextRef.current.fillStyle = 'white';
+          contextRef.current.fillRect(50, clientY -rect.top - (paddleHeight / 2 ), 10, paddleHeight);
+          break;
+
+        case GameStatus.PAUSED:
+          contextRef.current.fillStyle = 'black';
+          contextRef.current.fillRect(0, 0, canvasRef.current.width / 2, canvasRef.current.height);
+          contextRef.current.font = (size.toString()) + 'px Aldrich';
+          // contextRef.current.font = '30px Aldrich';
+          contextRef.current.fillStyle = 'green';
+          contextRef.current.fillText('Opponent has disconnected',canvasRef.current.width / 4, canvasRef.current.height/ 4);
+          contextRef.current.fillText('you will win by default in 10s',canvasRef.current.width / 4, canvasRef.current.height/ 4 + 30);
+          contextRef.current.fillStyle = 'white';
+          contextRef.current.fillRect(50, clientY -rect.top - (paddleHeight / 2 ), 10, paddleHeight);
+          break;
+      }
     }
   }
+   
+
 
   return (
     <>
       {gameStatus === GameStatus.PLAYING && (
-        <canvas onMouseMove={movePaddle} ref={canvasRef} />
+        <canvas onMouseMove={movePaddle} ref={canvasRef} 
+          className='border-solid border-2 border-white'
+          />
       )}
       {gameStatus === GameStatus.DONE && <p> done, you probably lost </p>}
       {gameStatus === GameStatus.PENDING && (
-        <p> Waiting for a dance partner {gameStatus}</p>
+        <canvas onMouseMove={movePaddle} ref={canvasRef} 
+          className='border-solid border-2 border-white'
+          />
       )}
       {gameStatus === GameStatus.PAUSED && (
-        <p>
-          {' '}
-          your partner has disconnected, victory will be yours if he doens't
-          reconnect withing 10 seconds{' '}
-        </p>
+        <canvas onMouseMove={movePaddle} ref={canvasRef} 
+          className='border-solid border-2 border-white'
+          />
       )}
     </>
   );
