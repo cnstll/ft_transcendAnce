@@ -14,7 +14,7 @@ const fetchUserStats = (nickname: string) =>
     .then((response) => response.data);
 
 function useUserStats(nickname: string): UseQueryResult<Stats> {
-  return useQuery(['userStats'], () => fetchUserStats(nickname));
+  return useQuery(['userStats', nickname], () => fetchUserStats(nickname));
 }
 
 export default useUserStats;

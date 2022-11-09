@@ -140,6 +140,7 @@ export class GameService {
         this.GameMap.delete(userId);
       }
       server.to(message.gameRoomId).emit('updatedGameInfo', message);
+      server.emit('matchFinished');
     };
 
     const interval = setInterval(callback, milliseconds);
