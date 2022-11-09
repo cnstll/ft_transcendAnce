@@ -92,14 +92,17 @@ export class Game {
   color = 'black';
 
   moveBall() {
-    if (this.by >= 100) {
+    if (this.by >= 98) {
       this.diry = this.diry * -1;
     }
     if (this['by'] <= 0) {
       this.diry = this.diry * -1;
     }
     if (this['bx'] <= 7 && this['bx'] >= 3) {
-      if (this['by'] >= this['p1y'] && this['by'] <= this['p1y'] + 10) {
+      if (
+        this['by'] >= this['p1y'] - this.paddleSize / 2 &&
+        this['by'] <= this['p1y'] + this.paddleSize / 2
+      ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx > 0) {
@@ -120,11 +123,14 @@ export class Game {
             break;
           }
         }
-        this.diry = (this['by'] - this['p1y'] - 5) / 10;
+        this.diry = (this['by'] - this['p1y']) / 10;
       }
     }
     if (this['bx'] >= 93 && this['bx'] <= 97) {
-      if (this['by'] >= this['p2y'] && this['by'] <= this['p2y'] + 10) {
+      if (
+        this['by'] >= this['p2y'] - this.paddleSize / 2 &&
+        this['by'] <= this['p2y'] + this.paddleSize / 2
+      ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx < 0) {
@@ -145,7 +151,7 @@ export class Game {
             break;
           }
         }
-        this.diry = (this['by'] - this['p2y'] - 5) / 10;
+        this.diry = (this['by'] - this['p2y']) / 10;
       }
     }
     if (this['bx'] <= 0) {
