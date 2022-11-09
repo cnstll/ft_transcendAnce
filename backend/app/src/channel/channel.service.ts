@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Channel, ChannelRole, ChannelUser } from '@prisma/client';
+import { Channel, ChannelRole, ChannelUser, Message } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
@@ -244,6 +244,25 @@ export class ChannelService {
       else throw new ForbiddenException(error);
     }
     return res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  async getMessagesFromChannel(
+    userId: string,
+    channelId: string,
+    res: Response,
+  ) {
+    // Use userId to verify that user requesting message belong to channel or is not banned
+    // Retrieve all messages from channel using its id
+    const objMessages = await this.prisma.channel.findFirst({
+      where: {
+        id: channelId,
+      },
+      select: {
+        messages: true,
+      },
+    });
+    console.log('Messages: ', objMessages.messages);
+    return res.status(HttpStatus.OK).send(objMessages.messages);
   }
 
   //******   CHAT WEBSOCKETS SERVICES *******//

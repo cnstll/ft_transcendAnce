@@ -89,4 +89,13 @@ export class ChannelController {
   deleteChannelById(@Param('id') channelId: string, @Res() res: Response) {
     return this.channelService.deleteChannelById(channelId, res);
   }
+
+  @Get('get-messages-from-channel/:id')
+  getMessagesFromChannel(
+    @GetCurrentUserId() userId: string,
+    @Param('id') channelId: string,
+    @Res() res: Response,
+  ) {
+    return this.channelService.getMessagesFromChannel(userId, channelId, res);
+  }
 }

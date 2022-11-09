@@ -5,7 +5,6 @@ import Navbar from '../section-components/navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
-import Message from '../section-components/chat/message';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
 import UsersList from '../section-components/users-list';
@@ -17,6 +16,7 @@ import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
 import { UseQueryResult } from 'react-query';
+import DisplayMessages from '../section-components/chat/display-messages';
 
 const chanUsersData: User[] = [
   {
@@ -60,7 +60,7 @@ const chanUsersData: User[] = [
 function Chat() {
   const user = useUserInfo();
   const { activeChannel } = useParams();
-  const [activeChannelId, setActiveChannelId] = useState('');
+  const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
 
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
@@ -109,7 +109,10 @@ function Chat() {
                   </DropDownButton>
                 </div>
               </div>
-              <Message />
+              <DisplayMessages
+                userId={user.data.id}
+                channelId={activeChannelId}
+              />
             </div>
           </CenterBox>
           <SideBox>
