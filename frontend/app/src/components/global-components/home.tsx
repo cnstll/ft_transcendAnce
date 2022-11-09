@@ -1,5 +1,6 @@
-import Navbar from '../section-components/navbar';
+import Navbar from './navbar';
 import BackgroundGeneral from '../../img/disco2.png';
+// import Logo from '../../img/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
