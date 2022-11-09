@@ -58,7 +58,6 @@ function Ranking() {
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
-    void leaderboard.refetch();
   });
 
   return (
