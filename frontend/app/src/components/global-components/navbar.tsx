@@ -3,12 +3,12 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import DropDownMenu from '../section-components/drop-down-button';
 import { User } from '../global-components/interface';
 import axios from 'axios';
 import { UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
 import SearchBoxUser from '../section-components/search-box-user';
+import DropDownMenu from '../section-components/drop-down-menu';
 
 interface BannerProps {
   children?: React.ReactNode;
