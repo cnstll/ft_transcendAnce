@@ -405,24 +405,32 @@ export class ChannelService {
       }
       if (dto.passwordHash) {
         /* Get the channel password to verify if the dto's current password is right */
-        const channel: {passwordHash: string} = await this.prisma.channel.findFirst({
-          where: {
-            id: channelId,
-          },
-          select: {
-            passwordHash: true,
-          }
-        });
+        const channel: { passwordHash: string } =
+          await this.prisma.channel.findFirst({
+            where: {
+              id: channelId,
+            },
+            select: {
+              passwordHash: true,
+            },
+          });
         if (channel.passwordHash && dto.currentPasswordHash) {
           /* compare password in database and current password from dto */
-          const pwdMatches = await argon.verify(channel.passwordHash, dto.currentPasswordHash);
+          const pwdMatches = await argon.verify(
+            channel.passwordHash,
+            dto.currentPasswordHash,
+          );
           /* if password incorrect, throw exception */
-          if (!pwdMatches)
-            throw new ValidationError;
+          if (!pwdMatches) throw new ValidationError();
           /* if password correct, can change the password */
-        }
-        else if (channel.passwordHash && dto.currentPasswordHash.length === 0) {
-          console.log('error in length password:', dto.currentPasswordHash.length);
+        } else if (
+          channel.passwordHash &&
+          dto.currentPasswordHash.length === 0
+        ) {
+          console.log(
+            'error in length password:',
+            dto.currentPasswordHash.length,
+          );
         }
         dto.passwordHash = await argon.hash(dto.passwordHash, {
           type: argon.argon2id,
