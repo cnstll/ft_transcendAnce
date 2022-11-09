@@ -10,9 +10,7 @@ const fetchLeaderboard = () =>
     .then((response) => response.data);
 
 function useLeaderboard(): UseQueryResult<RankingData[]> {
-  return useQuery(['leaderboard'], () => fetchLeaderboard(), {
-    refetchInterval: 6000,
-  });
+  return useQuery(['leaderboard'], () => fetchLeaderboard());
 }
 
 export default useLeaderboard;

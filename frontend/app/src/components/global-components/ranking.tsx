@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { RankingData } from './interface';
 import useLeaderboard from '../query-hooks/useLeaderboard';
+import { socket } from './client-socket';
 
 interface RankingDataProps {
   rankingData: RankingData;
@@ -58,6 +59,10 @@ function Ranking() {
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
+
+    socket.on('matchFinished', async function () {
+      await leaderboard.refetch();
+    });
   });
 
   return (
