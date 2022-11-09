@@ -22,7 +22,7 @@ export class GameGateway {
   server: Server;
   socketToId = new Map<string, string>();
 
-  constructor(private readonly messagesService: GameService) {}
+  constructor(private readonly gameService: GameService) {}
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('updatePaddlePos')
@@ -30,26 +30,26 @@ export class GameGateway {
     @MessageBody('yPos') yPos: number,
     @GetCurrentUserId() id: string,
   ) {
-    const message = this.messagesService.create(yPos, id);
+    const message = this.gameService.create(yPos, id);
     return message;
   }
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('disconnect')
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.messagesService.pause(this.socketToId.get(client.id), this.server);
+    this.gameService.pause(this.socketToId.get(client.id), this.server);
   }
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('leaveGame')
   handleAbandon(@ConnectedSocket() client: Socket) {
-    this.messagesService.pause(this.socketToId.get(client.id), this.server);
+    this.gameService.pause(this.socketToId.get(client.id), this.server);
   }
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinGame')
   joinRoom(@ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
     this.socketToId.set(client.id, id);
-    return this.messagesService.join(client, id, this.server);
+    return this.gameService.join(client, id, this.server);
   }
 }
