@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Channel } from '../../global-components/interface';
+import { Channel, channelRole } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
+import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels';
 
 interface ChannelOptions {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
@@ -42,6 +43,8 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
     updatedAt: string;
   }
 
+  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
+
   useEffect(() => {
     socket.on('roomLeft', async (leavingUser: UserChannel) => {
       await queryClient.refetchQueries(channelsQueryKey);
@@ -70,6 +73,8 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
     setShowModal(!showModal);
   }
 
+  console.log("myrole: ", myRole.data?.role);
+
   return (
     <div>
       <Link to="/chat">
@@ -78,7 +83,7 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
           Leave channel
         </p>
       </Link>
-      { channelInfo !== undefined ?
+      {channelInfo !== undefined && myRole.data?.role === channelRole.Owner ?
         <div className="z-index-20">
           <div onClick={handleModal}>
             <p className="text-center hover:underline my-2">

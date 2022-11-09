@@ -54,7 +54,6 @@ export class ChannelController {
     return this.channelService.getUsersOfAChannel(channelId);
   }
 
-  /* Is it possible without routing on id? */
   @Get('get-role-user-channel/:id')
   getRoleOfUserChannel(
     @GetCurrentUserId() userId: string,

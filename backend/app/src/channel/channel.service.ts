@@ -98,7 +98,7 @@ export class ChannelService {
   async getRoleOfUserChannel(userId: string, channelId: string) {
     try {
       await this.checkChannel(channelId);
-      const role = this.prisma.channelUser.findUnique({
+      const role : { role: ChannelRole } = this.prisma.channelUser.findUnique({
         where: {
           userId_channelId: {
             userId: userId,
