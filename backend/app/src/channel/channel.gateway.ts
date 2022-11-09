@@ -131,8 +131,10 @@ export class ChannelGateway {
     );
     roomEdited == null
       ? this.server.to(clientSocket.id).emit('editRoomFailed')
-      // used as an array of sockets to emit to, to be tested if other users of the channel get the update
-      : this.server.to([clientSocket.id, channelId]).emit('roomEdited', channelId);
+      : // used as an array of sockets to emit to, to be tested if other users of the channel get the update
+        this.server
+          .to([clientSocket.id, channelId])
+          .emit('roomEdited', channelId);
   }
 
   //Delete channel

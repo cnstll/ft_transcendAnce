@@ -17,12 +17,12 @@ const defaultFormData = {
 
 function CreateChannelForm(props: CreateChannelFormProps) {
   const [formData, setFormData] = useState(defaultFormData);
-  const [passwordRequired, setPasswordRequired] = useState(false);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, passwordHash } = formData;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const channelsQueryKey = 'channelsByUserList';
+  const specials = "!?@#$%^&*()+./'${\"}{-";
 
   useEffect(() => {
     socket.on('roomCreated', async (channelId: string) => {
@@ -90,8 +90,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   Enter a name:
                 </label>
                 <input
-                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding
-                    border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                  className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
+                  border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                     (inputStatus === 'invalidName' ||
                       inputStatus === 'invalidAlreadyUsedname' ||
                       inputStatus === 'invalidNameLengt')?
@@ -102,7 +102,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   value={name}
                   onChange={onChange}
                   autoComplete="off"
-                  placeholder="The name of your channel" />
+                  placeholder="Name should be between 1 and 21 alphanumeric characters" />
                   {inputStatus === 'invalidAlreadyUsedname' &&
                     <p className="text-red-500 text-xs font-medium">Name already taken</p>}
                   {inputStatus === 'invalidName' &&
@@ -124,15 +124,18 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                     name="type"
                     value={channelType.Public}
                     onChange={onChange}
-                    onClick={() => setPasswordRequired(false)}
                     defaultChecked
                   />
                   <label
                     htmlFor="publicType"
                     className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5"
                   >
-                    Public - everyone can access freely
+                    Public
                   </label>
+                  {formData.type === channelType.Public &&
+                    <p className="text-xs text-gray-400 my-1 font-light italic">
+                      Everyone can access freely
+                    </p>}
                 </div>
                 <div className="m-2">
                   <input
@@ -141,14 +144,17 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                     name="type"
                     value={channelType.Private}
                     onChange={onChange}
-                    onClick={() => setPasswordRequired(false)}
                   />
                   <label
                     htmlFor="privateType"
                     className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5"
                   >
-                    Private - only invited members can join
+                    Private
                   </label>
+                  {formData.type === channelType.Private &&
+                    <p className="text-xs text-gray-400 my-1 font-light italic">
+                      Only invited members can join
+                    </p>}
                 </div>
                 <div className="m-2">
                   <input
@@ -157,17 +163,20 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                     name="type"
                     value={channelType.Protected}
                     onChange={onChange}
-                    onClick={() => setPasswordRequired(true)}
                   />
                   <label
                     htmlFor="protectedType"
                     className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5"
                   >
-                    Protected - a password is required to join
+                    Protected
                   </label>
+                  {formData.type === channelType.Protected &&
+                    <p className="text-xs text-gray-400 my-1 font-light italic">
+                      A password is required to join
+                    </p>}
                 </div>
               </div>
-              {passwordRequired && (
+              {formData.type === channelType.Protected && (
                 <div id="form-channel-creation-password" className="form-group">
                   <label
                     htmlFor="ChannelPassword"
@@ -176,7 +185,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                     Enter a password:
                   </label>
                   <input
-                    className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
+                    className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
+                      border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                       inputStatus === 'invalidPassword' ||
                       inputStatus === 'invalidPasswordLength' ?
                         'border-red-500' : ''
@@ -187,7 +197,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                     value={passwordHash}
                     onChange={onChange}
                     autoComplete="off"
-                    placeholder="The password for your channel"
+                    placeholder={`Between 1 and 32 alphanumeric and ${specials} characters`}
                   />
                   {inputStatus === 'invalidPassword' &&
                     <p className="text-red-500 text-xs font-medium">Invalid password format</p>}
@@ -200,14 +210,13 @@ function CreateChannelForm(props: CreateChannelFormProps) {
                   type="button"
                   onClick={() => props.setShowForm(false)}
                   className="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium
-                    px-5 py-2.5 hover:text-gray-900"
-                >
+                    px-5 py-2.5 hover:text-gray-900">
                   Close
                 </button>
                 <button
                   type="submit"
-                  className="text-white bg-purple-light hover:bg-purple-medium font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
+                  className="text-white bg-purple-light hover:bg-purple-medium font-medium rounded-lg
+                    text-sm px-5 py-2.5 text-center">
                   Create
                 </button>
               </div>
