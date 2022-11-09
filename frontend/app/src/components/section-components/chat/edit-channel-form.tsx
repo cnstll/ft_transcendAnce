@@ -31,9 +31,12 @@ function EditChannelForm(props: EditChannelFormProps) {
       await queryClient.refetchQueries(channelsQueryKey);
       setFormData(defaultFormData);
     });
-    socket.on('editRoomFailed', (channel: null | string) => {
-      if (channel === 'alreadyUsedname') {
+    socket.on('editRoomFailed', (ret: null | string) => {
+      if (ret === 'alreadyUsedname') {
         setInputStatus('invalidAlreadyUsedname');
+      }
+      else if  (ret === 'passwordIncorrect') {
+        setInputStatus('invalidWrongPassword');
       }
     });
     return () => {
@@ -190,7 +193,8 @@ function EditChannelForm(props: EditChannelFormProps) {
                       className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
                         border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                         inputStatus === 'invalidPassword' ||
-                        inputStatus === 'invalidPasswordLength' ?
+                        inputStatus === 'invalidPasswordLength' ||
+                        inputStatus === 'invalidWrongPassword' ?
                         'border-red-500' : ''
                       }`}
                       type="text"
@@ -202,6 +206,8 @@ function EditChannelForm(props: EditChannelFormProps) {
                       placeholder="Current password for your channel"
                     />
                   </div>}
+                  {inputStatus === 'invalidWrongPassword' &&
+                    <p className="text-red-500 text-xs font-medium my-1">Invalid current password</p>}
                   <label
                     htmlFor="ChannelPassword"
                     className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
@@ -212,7 +218,8 @@ function EditChannelForm(props: EditChannelFormProps) {
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
                       border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                       inputStatus === 'invalidPassword' ||
-                      inputStatus === 'invalidPasswordLength' ?
+                      inputStatus === 'invalidPasswordLength' ||
+                      inputStatus === 'invalidSamePassword' ?
                       'border-red-500' : ''
                     }`}
                     type="text"

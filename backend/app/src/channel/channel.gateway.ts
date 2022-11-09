@@ -129,8 +129,8 @@ export class ChannelGateway {
       channelId,
       editChannelDto,
     );
-    roomEdited == null
-      ? this.server.to(clientSocket.id).emit('editRoomFailed')
+    roomEdited === null || typeof roomEdited === 'string'
+      ? this.server.to(clientSocket.id).emit('editRoomFailed', roomEdited)
       : // used as an array of sockets to emit to, to be tested if other users of the channel get the update
         this.server
           .to([clientSocket.id, channelId])

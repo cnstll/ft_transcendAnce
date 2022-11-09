@@ -15,7 +15,6 @@ import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import * as argon from 'argon2';
-import { ValidationError } from 'class-validator';
 
 @Injectable()
 export class ChannelService {
@@ -386,13 +385,38 @@ export class ChannelService {
     }
   }
 
+  async handlePasswords(dto: EditChannelDto, channelId: string) {
+    /* Get the channel password to verify if the dto's current password is right */
+    const channel: { passwordHash: string } =
+      await this.prisma.channel.findFirst({
+        where: {
+          id: channelId,
+        },
+        select: {
+          passwordHash: true,
+        },
+      });
+    if (channel.passwordHash && dto.currentPasswordHash) {
+      /* compare password in database and current password from dto */
+      const pwdMatches = await argon.verify(
+        channel.passwordHash,
+        dto.currentPasswordHash,
+      );
+      /* if password incorrect, throw exception */
+      if (!pwdMatches) throw new Error('passwordIncorrect');
+      /* if password correct, can change the password */
+    } else if (channel.passwordHash && dto.currentPasswordHash.length === 0)
+      throw new Error('passwordIncorrect');
+    dto.passwordHash = await argon.hash(dto.passwordHash, {
+      type: argon.argon2id,
+    });
+  }
+
   async editChannelByIdWS(
     userId: string,
     channelId: string,
     dto: EditChannelDto,
   ) {
-    console.log('currentpwd:', dto.currentPasswordHash);
-    console.log('newPwd', dto.passwordHash);
     try {
       /* Check the password is provided in the DTO for protected chan) */
       if ((dto.type === 'PROTECTED' && !dto.passwordHash) || dto.name === '') {
@@ -404,39 +428,9 @@ export class ChannelService {
         return null;
       }
       if (dto.passwordHash) {
-        /* Get the channel password to verify if the dto's current password is right */
-        const channel: { passwordHash: string } =
-          await this.prisma.channel.findFirst({
-            where: {
-              id: channelId,
-            },
-            select: {
-              passwordHash: true,
-            },
-          });
-        if (channel.passwordHash && dto.currentPasswordHash) {
-          /* compare password in database and current password from dto */
-          const pwdMatches = await argon.verify(
-            channel.passwordHash,
-            dto.currentPasswordHash,
-          );
-          /* if password incorrect, throw exception */
-          if (!pwdMatches) throw new ValidationError();
-          /* if password correct, can change the password */
-        } else if (
-          channel.passwordHash &&
-          dto.currentPasswordHash.length === 0
-        ) {
-          console.log(
-            'error in length password:',
-            dto.currentPasswordHash.length,
-          );
-        }
-        dto.passwordHash = await argon.hash(dto.passwordHash, {
-          type: argon.argon2id,
-        });
+        await this.handlePasswords(dto, channelId);
       }
-      /* Delete current password in the dto to be sent to the database */
+      /* Delete current password in the dto to format it for the database */
       delete dto.currentPasswordHash;
       /* Then, update channel's information */
       const editedChannel: Channel = await this.prisma.channel.update({
@@ -447,11 +441,15 @@ export class ChannelService {
           ...dto,
         },
       });
-      console.log(editedChannel);
       delete editedChannel.passwordHash;
       return editedChannel;
     } catch (error) {
-      console.log(error);
+      if (error.code === 'P2002') {
+        return 'alreadyUsed' + error.meta.target[0];
+      }
+      if (error == 'Error: passwordIncorrect') {
+        return 'passwordIncorrect';
+      }
       return null;
     }
   }
