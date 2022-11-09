@@ -10,6 +10,7 @@ import { GameService } from './game.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
+import { GameMode } from './entities/game.entities';
 
 @WebSocketGateway({
   cors: {
@@ -48,8 +49,12 @@ export class GameGateway {
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinGame')
-  joinRoom(@ConnectedSocket() client: Socket, @GetCurrentUserId() id: string) {
+  joinRoom(
+    @MessageBody('mode') mode: GameMode,
+    @ConnectedSocket() client: Socket,
+    @GetCurrentUserId() id: string,
+  ) {
     this.socketToId.set(client.id, id);
-    return this.gameService.join(client, id, this.server);
+    return this.gameService.join(client, id, this.server, mode);
   }
 }
