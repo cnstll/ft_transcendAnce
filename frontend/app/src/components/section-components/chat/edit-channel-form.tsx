@@ -3,27 +3,32 @@ import { useNavigate } from "react-router-dom";
 import { Channel, channelType } from "../../global-components/interface";
 import { socket } from "../../global-components/client-socket";
 import { validateNameInput, validatePwdInput } from "./regex-input-validations";
+import { useQueryClient } from "react-query";
+
+// find a way to add a default to the type selector with the jsx option defaultChecked
 
 interface EditChannelFormProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
   currentChannel: Channel;
 }
 
-const defaultFormData = {            // get the data from the channel to init the default
-  name: "",
-  type: channelType.Public,
-  passwordHash: "",
-}
-
 function EditChannelForm(props: EditChannelFormProps) {
+  const defaultFormData = {
+    name: props.currentChannel.name,
+    type: props.currentChannel.type,
+    passwordHash: "",
+  }
   const [formData, setFormData] = useState(defaultFormData);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, passwordHash } = formData;
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const myChannelQueryKey = 'channelsByUserList';
 
   useEffect(() => {
     socket.on('roomEdited', (channelId: string) => {
+      queryClient.refetchQueries(myChannelQueryKey);
       props.setShowModal(false);
       setFormData(defaultFormData);
       navigate('../chat/' + channelId);
@@ -88,18 +93,23 @@ function EditChannelForm(props: EditChannelFormProps) {
                 <input
                   className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 text-xs bg-white bg-clip-padding
                     border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                    (inputStatus === 'invalidName' || inputStatus === 'invalidAlreadyUsedname' || inputStatus === 'invalidNameLengt')?
-                      'border-red-500' : ''}`}
+                    (inputStatus === 'invalidName' ||
+                      inputStatus === 'invalidAlreadyUsedname' ||
+                      inputStatus === 'invalidNameLengt')?
+                        'border-red-500' : ''}`}
                   type="text"
                   name="name"
                   id="name"
                   value={name}
                   onChange={onChange}
                   autoComplete="off"
-                  placeholder="The name of your channel" />
-                  {inputStatus === 'invalidAlreadyUsedname' && <p className="text-red-500 text-xs font-medium">Name already taken</p>}
-                  {inputStatus === 'invalidName' && <p className="text-red-500 text-xs font-medium">Invalid name format</p>}
-                  {inputStatus === 'invalidNameLength' && <p className="text-red-500 text-xs font-medium">Name must be less than 22 characters</p>}
+                  placeholder={props.currentChannel.name} />
+                  {inputStatus === 'invalidAlreadyUsedname' &&
+                    <p className="text-red-500 text-xs font-medium">Name already taken</p>}
+                  {inputStatus === 'invalidName' &&
+                    <p className="text-red-500 text-xs font-medium">Invalid name format</p>}
+                  {inputStatus === 'invalidNameLength' &&
+                    <p className="text-red-500 text-xs font-medium">Name must be less than 22 characters</p>}
               </div>
               <div id="form-channel-creation-type"
                 className="form-group mb-3 mt-5">
@@ -108,28 +118,28 @@ function EditChannelForm(props: EditChannelFormProps) {
                 </p>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Public} onChange={onChange}
-                    onClick={() => setPasswordRequired(false)} defaultChecked/>
+                    onClick={() => setPasswordRequired(false)} defaultChecked={props.currentChannel.type === channelType.Public}/>
                   <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
                     Public - everyone can join, no password required
                   </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Private} onChange={onChange}
-                    onClick={() => setPasswordRequired(false)}/>
+                    onClick={() => setPasswordRequired(false)} defaultChecked={props.currentChannel.type === channelType.Private}/>
                   <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
                     Private - only invited members can join
                   </label>
                 </div>
                 <div className="m-2">
                   <input type="radio" id="type" name="type" value={channelType.Protected} onChange={onChange}
-                    onClick={() => setPasswordRequired(true)}/>
+                    onClick={() => setPasswordRequired(true)} defaultChecked={props.currentChannel.type === channelType.Protected}/>
                   <label htmlFor="protectedType" className="text-gray-500 bg-white rounded-lg text-sm text-xs px-5">
                     Protected - add a password to access your channel
                   </label>
                 </div>
               </div>
-              {passwordRequired && (
-                <div id="form-channel-creation-password" className="form-group">
+              {(passwordRequired || props.currentChannel.type === channelType.Protected) &&
+                (<div id="form-channel-creation-password" className="form-group">
                   <label
                     htmlFor="ChannelPassword"
                     className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light my-3 font-bold"
@@ -138,7 +148,9 @@ function EditChannelForm(props: EditChannelFormProps) {
                   </label>
                   <input
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                      inputStatus === 'invalidPassword' || inputStatus === 'invalidPasswordLength' ? 'border-red-500' : ''
+                      inputStatus === 'invalidPassword' ||
+                      inputStatus === 'invalidPasswordLength' ?
+                      'border-red-500' : ''
                     }`}
                     type="text"
                     name="password"

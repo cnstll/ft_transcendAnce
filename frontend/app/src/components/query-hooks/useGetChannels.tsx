@@ -9,8 +9,10 @@ const fetchAllGroupChannels = () =>
     })
     .then((res) => res.data);
 
-export function useGroupChannelsList(): UseQueryResult<Channel[] | undefined> {
-  return useQuery(['groupChannelsList'], fetchAllGroupChannels);
+export function useGroupChannelsList():
+  UseQueryResult<Channel[] | undefined> {
+    return useQuery(['groupChannelsList'],
+    fetchAllGroupChannels);
 }
 
 const fetchAllChannelsByUserId = () =>
@@ -20,6 +22,8 @@ const fetchAllChannelsByUserId = () =>
     })
     .then((res) => res.data);
 
-export function useChannelsByUserList(): UseQueryResult<Channel[] | undefined> {
-  return useQuery('channelsByUserList', fetchAllChannelsByUserId);
+export function useChannelsByUserList():
+  UseQueryResult<Channel[] | undefined> {
+  return useQuery('channelsByUserList',
+    fetchAllChannelsByUserId);
 }

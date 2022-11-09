@@ -82,7 +82,7 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
         <div className="z-index-20">
           <div onClick={handleModal}>
             <p className="text-center hover:underline my-2">
-              Edit your channel
+              Edit channel
             </p>
           </div>
           <div>

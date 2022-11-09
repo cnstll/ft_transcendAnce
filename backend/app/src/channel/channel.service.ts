@@ -302,9 +302,11 @@ export class ChannelService {
         return null;
       }
       /* Hash the password */
-      dto.passwordHash = await argon2.hash(dto.passwordHash, {
-        type: argon2.argon2id,
-      });
+      if (dto.type === 'PROTECTED') {
+        dto.passwordHash = await argon2.hash(dto.passwordHash, {
+          type: argon2.argon2id,
+        });
+      }
       /* Then try to create a new channel */
       //* What if channel name already exists ?
       const newChannel: Channel = await this.prisma.channel.create({
@@ -395,7 +397,6 @@ export class ChannelService {
       }
       /* Check that the user is owner or admin for update rights */
       const canEdit = await this.hasAdminRights(userId, channelId);
-      console.log(canEdit);
       if (!canEdit) {
         return null;
       }
@@ -417,6 +418,7 @@ export class ChannelService {
       delete editedChannel.passwordHash;
       return editedChannel;
     } catch (error) {
+      console.log(error);
       return null;
     }
   }

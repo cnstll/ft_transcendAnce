@@ -9,6 +9,7 @@ interface MyChannelsListProps {
   activeChannelId: string;
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
+
 function MyChannelsList({
   activeChannelId,
   setActiveChannelId,
