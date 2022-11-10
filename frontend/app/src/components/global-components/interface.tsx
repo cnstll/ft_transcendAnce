@@ -29,10 +29,11 @@ export interface User {
   twoFactorAuthenticationSecret: string;
 }
 
-export interface UserData {
-  id?: string;
-  nickName: string;
+export interface RankingData {
+  id: string;
+  nickname: string;
   avatarImg: string;
+  eloScore: number;
 }
 
 export interface Stats {
