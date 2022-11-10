@@ -15,5 +15,7 @@ const getAllMessages = (channelId: string) =>
 export function useGetAllMessages(
   channelId: string,
 ): UseQueryResult<Message[] | undefined> {
-  return useQuery(['todos', channelId], () => getAllMessages(channelId));
+  return useQuery(['getAllMessages', channelId], () =>
+    getAllMessages(channelId),
+  );
 }

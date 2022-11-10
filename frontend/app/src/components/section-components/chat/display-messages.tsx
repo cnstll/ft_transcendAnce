@@ -1,4 +1,6 @@
-import { UseQueryResult } from 'react-query';
+import { useEffect } from 'react';
+import { useQueryClient, UseQueryResult } from 'react-query';
+import { socket } from '../../global-components/client-socket';
 import { Message } from '../../global-components/interface';
 import { useGetAllMessages } from '../../query-hooks/useGetMessages';
 import LoadingSpinner from '../loading-spinner';
@@ -56,6 +58,26 @@ function DisplayMessages({
 }) {
   const messageQuery: UseQueryResult<Message[] | undefined> =
     useGetAllMessages(channelId);
+  const queryClient = useQueryClient();
+  const messageQueryKey = 'getAllMessages';
+
+  useEffect(() => {
+    console.log('Going through useEffect');
+    socket.on('messageRoomFailed', () => {
+      alert('Could not send your message sry ;(');
+    });
+    socket.on('incomingMessage', async () => {
+      await queryClient.invalidateQueries(messageQueryKey);
+    });
+    socket.on('message', (content) => {
+      console.log('message with content: ', content);
+    });
+    return () => {
+      socket.off('messageRoomFailed');
+      socket.off('incomingMessage');
+    };
+  }, [socket, queryClient]);
+
   return (
     <div className="p-5 flex flex-col gap-4">
       {messageQuery.isSuccess &&

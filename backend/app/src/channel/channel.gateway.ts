@@ -11,9 +11,9 @@ import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { CreateChannelDto, EditChannelDto } from './dto';
-import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
+import { IncomingMessageDto } from './dto/incomingMessage.dto';
 
 @WebSocketGateway({
   cors: {
@@ -34,6 +34,7 @@ export class ChannelGateway {
     @MessageBody('channelPassword') channelPassword: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    console.log('Connected to room: ', channelId);
     const channel = await this.channelService.connectToChannel(
       userId,
       channelId,
@@ -90,21 +91,24 @@ export class ChannelGateway {
   @SubscribeMessage('messageRoom')
   async sendMessage(
     @GetCurrentUserId() senderId: string,
-    @MessageBody('channelId') channelId: string,
-    @MessageBody('content') content: string,
+    @MessageBody('messageInfo') messageInfo: IncomingMessageDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const message: UserMessageDto = {
-      content: content,
-      senderId: senderId,
-    };
+    console.log(messageInfo);
+    const sockets = await this.server.fetchSockets();
+    for (const s of sockets) {
+      console.log('id: ', s.id, 'rooms: ', s.rooms, 'data: ', s.data);
+    }
     const messageSaved = await this.channelService.storeMessage(
-      message,
-      channelId,
+      senderId,
+      messageInfo,
     );
-    messageSaved == null
+    console.log('messageSaved: ', messageSaved);
+    messageSaved === null
       ? this.server.to(clientSocket.id).emit('messageRoomFailed')
-      : clientSocket.to(channelId).emit('incomingMessage', message);
+      : this.server
+          .to(messageInfo.channelId)
+          .emit('incomingMessage', messageInfo.content);
   }
 
   // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room

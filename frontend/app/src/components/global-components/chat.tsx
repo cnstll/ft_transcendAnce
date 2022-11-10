@@ -17,6 +17,7 @@ import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
 import { UseQueryResult } from 'react-query';
 import DisplayMessages from '../section-components/chat/display-messages';
+import { socket } from './client-socket';
 
 const chanUsersData: User[] = [
   {
@@ -67,8 +68,19 @@ function Chat() {
     useChannelsByUserList();
 
   useEffect(() => {
-    if (user.isError) navigate('/sign-in');
-  });
+    console.log(activeChannelId);
+    if (user.isError) {
+      navigate('/sign-in');
+    }
+    // Connect to a room before sending any message
+    // TODO : Add a pop up to enter password
+    if (activeChannel) {
+      socket.emit('connectToRoom', {
+        channelId: activeChannelId,
+        channelPassword: '',
+      });
+    }
+  }, [activeChannelId]);
 
   if (user.isSuccess)
     return (
@@ -121,7 +133,7 @@ function Chat() {
           </SideBox>
         </div>
         <div className="flex justify-center">
-          <ChatBox />
+          <ChatBox userId={user.data.id} channelId={activeChannelId} />
         </div>
       </div>
     );

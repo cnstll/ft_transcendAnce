@@ -12,9 +12,9 @@ import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
 import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
-import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import * as argon2 from 'argon2';
+import { IncomingMessageDto } from './dto/incomingMessage.dto';
 
 @Injectable()
 export class ChannelService {
@@ -261,7 +261,6 @@ export class ChannelService {
         messages: true,
       },
     });
-    console.log('Messages: ', objMessages.messages);
     return res.status(HttpStatus.OK).send(objMessages.messages);
   }
 
@@ -305,6 +304,7 @@ export class ChannelService {
         await clientSocket.join(channelId);
       } else {
         //TODO If channel is protected check channelPassword
+        await clientSocket.join(channelId);
       }
     }
     return channel;
@@ -380,23 +380,28 @@ export class ChannelService {
     }
   }
 
-  async storeMessage(dto: UserMessageDto, channelId: string) {
+  async storeMessage(userId: string, messageInfo: IncomingMessageDto) {
     try {
       //TODO Check if user is muted/banned
-      const channel: Channel = await this.prisma.channel.update({
-        where: {
-          id: channelId,
-        },
-        data: {
-          messages: {
-            create: {
-              senderId: dto.senderId,
-              content: dto.content,
+      const messagesObj: { messages: Message[] } =
+        await this.prisma.channel.update({
+          where: {
+            id: messageInfo.channelId,
+          },
+          data: {
+            messages: {
+              create: {
+                senderId: userId,
+                content: messageInfo.content,
+              },
             },
           },
-        },
-      });
-      return channel;
+          select: {
+            messages: true,
+          },
+        });
+      //return last message saved to db
+      return messagesObj.messages[messagesObj.messages.length - 1];
     } catch (error) {
       return null;
     }
