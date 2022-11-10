@@ -16,11 +16,10 @@ function EditChannelForm(props: EditChannelFormProps) {
     name: props.currentChannel.name,
     type: props.currentChannel.type,
     passwordHash: "",
-    currentPasswordHash: "",
   }
   const [formData, setFormData] = useState(defaultFormData);
   const [inputStatus, setInputStatus] = useState<string>('empty');
-  const { name, passwordHash, currentPasswordHash } = formData;
+  const { name, passwordHash } = formData;
   const queryClient = useQueryClient();
   const channelsQueryKey = 'channelsByUserList';
   const specials = "!?@#$%^&*()+./'${\"}{-";
@@ -59,9 +58,6 @@ function EditChannelForm(props: EditChannelFormProps) {
       setInputStatus('invalidPasswordLength');
     else if (e.target.name === 'password' && !validatePwdInput(e.target.value))
       setInputStatus('invalidPassword');
-    else if ((e.target.name === 'password' && e.target.value === formData.currentPasswordHash) ||
-      (e.target.name === 'currentPassword' && e.target.value === formData.passwordHash))
-      setInputStatus('invalidSamePassword');
   }
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -69,14 +65,11 @@ function EditChannelForm(props: EditChannelFormProps) {
     const channelId: string = props.currentChannel.id;
     if (!validateNameInput(formData.name))
       setInputStatus('invalidName');
-    else if (formData.type === channelType.Protected
-      && !validatePwdInput(formData.passwordHash))
+    else if (formData.type === channelType.Protected &&
+      formData.passwordHash.length > 0 &&
+      !validatePwdInput(formData.passwordHash))
         setInputStatus('invalidPassword');
-    else if (formData.type == channelType.Protected
-        && formData.passwordHash === formData.currentPasswordHash )
-      setInputStatus('invalidSamePassword');
     else {
-      console.log('Submit: ', formData);
       socket.emit('editRoom', { channelId , editInfo: formData });
     }
   }
@@ -136,7 +129,6 @@ function EditChannelForm(props: EditChannelFormProps) {
                     name="type"
                     value={channelType.Public}
                     onChange={onChange}
-                    onClick={() => {formData.passwordHash = ''; formData.currentPasswordHash = ''}}
                     defaultChecked={props.currentChannel.type === channelType.Public}/>
                   <label htmlFor="publicType" className="text-gray-500 bg-white rounded-lg text-sm px-5">
                     Public
@@ -152,7 +144,6 @@ function EditChannelForm(props: EditChannelFormProps) {
                     name="type"
                     value={channelType.Private}
                     onChange={onChange}
-                    onClick={() => {formData.passwordHash = ''; formData.currentPasswordHash = ''}}
                     defaultChecked={props.currentChannel.type === channelType.Private}/>
                   <label htmlFor="privateType" className="text-gray-500 bg-white rounded-lg text-sm px-5">
                     Private
@@ -181,45 +172,18 @@ function EditChannelForm(props: EditChannelFormProps) {
         {/* Password section */}
               {formData.type === channelType.Protected &&
                 (<div id="form-channel-creation-password" className="form-group">
-                  {props.currentChannel.type === channelType.Protected &&
-                  <div>
-                    <label
-                      htmlFor="ChannelCurrentPassword"
-                      className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
-                        text-purple-light my-3 font-bold">
-                      Enter the current password:
-                    </label>
-                    <input
-                      className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
-                        border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                        inputStatus === 'invalidPassword' ||
-                        inputStatus === 'invalidPasswordLength' ||
-                        inputStatus === 'invalidWrongPassword' ?
-                        'border-red-500' : ''
-                      }`}
-                      type="text"
-                      name="currentPassword"
-                      id="currentPasswordHash"
-                      value={currentPasswordHash}
-                      onChange={onChange}
-                      autoComplete="off"
-                      placeholder="Current password for your channel"
-                    />
-                  </div>}
-                  {inputStatus === 'invalidWrongPassword' &&
-                    <p className="text-red-500 text-xs font-medium my-1">Invalid current password</p>}
                   <label
                     htmlFor="ChannelPassword"
                     className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
                       text-purple-light my-3 font-bold">
-                    Enter a new password:
+                    {props.currentChannel.passwordHash ? "Change the password: " : "Enter a new password: "}
                   </label>
                   <input
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
                       border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                       inputStatus === 'invalidPassword' ||
                       inputStatus === 'invalidPasswordLength' ||
-                      inputStatus === 'invalidSamePassword' ?
+                      inputStatus === 'invalidWrongPassword' ?
                       'border-red-500' : ''
                     }`}
                     type="text"
@@ -234,8 +198,8 @@ function EditChannelForm(props: EditChannelFormProps) {
                     <p className="text-red-500 text-xs font-medium">Invalid password format</p>}
                   {inputStatus === 'invalidPasswordLength' &&
                     <p className="text-red-500 text-xs font-medium">Password must be less than 33 characters</p>}
-                  {inputStatus === 'invalidSamePassword' &&
-                    <p className="text-red-500 text-xs font-medium">The current and new passwords must be different</p>}
+                  {inputStatus === 'invalidWrongPassword' &&
+                    <p className="text-red-500 text-xs font-medium my-1">A password is mandatory for Protected channel</p>}
                 </div>
               )}
         {/* Buttons section */}

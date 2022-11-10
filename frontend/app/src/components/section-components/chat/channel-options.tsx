@@ -45,8 +45,6 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
     updatedAt: string;
   }
 
-  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
-
   useEffect(() => {
     socket.on('roomLeft', async (leavingUser: UserChannel) => {
       await queryClient.refetchQueries(channelsQueryKey);
@@ -75,35 +73,39 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
     setShowModal(!showModal);
   }
 
-  console.log("myrole: ", myRole.data?.role);
+  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
 
-  return (
-    <div>
-      <Link to="/chat">
-        <p className="text-center hover:underline my-2"
-          onClick={leaveChannelHandler}>
-          Leave channel
-        </p>
-      </Link>
-      {channelInfo !== undefined && myRole.data?.role === channelRole.Owner ?
-        <div className="z-index-20">
-          <div onClick={handleModal}>
-            <p className="text-center hover:underline my-2">
-              Edit channel
-            </p>
+  if (channelInfo !== undefined)
+    return (
+      <div>
+        <Link to="/chat">
+          <p className="text-center hover:underline my-2"
+            onClick={leaveChannelHandler}>
+            Leave channel
+          </p>
+        </Link>
+        {myRole.data?.role === channelRole.Owner ?
+          <div className="z-index-20">
+            <div onClick={handleModal}>
+              <p className="text-center hover:underline my-2">
+                Edit channel
+              </p>
+            </div>
+            <div>
+                {showModal &&
+                <EditChannelForm setShowModal={setShowModal} currentChannel={channelInfo} />}
+            </div>
           </div>
-          <div>
-              {showModal && <EditChannelForm setShowModal={setShowModal} currentChannel={channelInfo} />}
-          </div>
-        </div>
-      : null}
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Invite user</p>
-      </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Ban user</p>
-      </Link>
-    </div>
-  );
+        : null}
+        <Link to="/">
+          <p className="text-center hover:underline my-2">Invite user</p>
+        </Link>
+        <Link to="/">
+          <p className="text-center hover:underline my-2">Ban user</p>
+        </Link>
+      </div>
+    );
+  else
+    return <></>;
 }
 export default ChannelOptions;
