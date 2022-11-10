@@ -95,7 +95,7 @@ function SearchBoxUser({
           />
           <button
             type="submit"
-            className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
+            className="absolute top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
