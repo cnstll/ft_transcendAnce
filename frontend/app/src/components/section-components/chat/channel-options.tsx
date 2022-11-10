@@ -6,6 +6,8 @@ import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
 import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels';
 
+/* review datafetching of role in channel to not refetch multiple times */
+
 interface ChannelOptions {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }

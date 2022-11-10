@@ -4,7 +4,7 @@ import { socket } from "../../global-components/client-socket";
 import { validateNameInput, validatePwdInput } from "./regex-input-validations";
 import { useQueryClient } from "react-query";
 
-// find a way to add a default to the type selector with the jsx option defaultChecked
+/* review emit for other users => they should see edit with changing focus */
 
 interface EditChannelFormProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
