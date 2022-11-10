@@ -36,16 +36,14 @@ function Game({ gameMode }: { gameMode: string }) {
         setGameStatus(GameStatus.PENDING);
       } else if (text.status === 'DONE') {
         setGameStatus(GameStatus.DONE);
-        navigate('/');
+        navigate('/profile');
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
       } else if (text.status === 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
     };
-
     socket.on('gameStatus', joinListener);
-
     if (canvas !== null) {
 
       canvas.width = window.innerWidth;
@@ -55,6 +53,10 @@ function Game({ gameMode }: { gameMode: string }) {
       paddleHeight = canvas.height / 20;
       const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
       if (context !== null) {
+        const size = 0.03 * window.innerWidth;
+        context.textBaseline = 'middle'; 
+        //Center Horizontally
+        context.textAlign = 'center';
         context.scale(2, 2);
         context.lineCap = 'round';
         context.strokeStyle = 'white';
@@ -66,15 +68,15 @@ function Game({ gameMode }: { gameMode: string }) {
         context.fillStyle = 'black';
         context.fillRect(0, 0, canvas.width / 2, canvas.height);
         if (gameStatus === GameStatus.PENDING) {
-          context.font = '30px Aldrich';
+          context.font = (size.toString()) + 'px Aldrich';
           context.fillStyle = 'green';
-          context.fillText('waiting for a partner...',canvas.width / 4 - 150 , canvas.height/ 4);
+          context.fillText('waiting for a partner...',canvas.width / 4 , canvas.height/ 4);
         }
         else if (gameStatus === GameStatus.PAUSED) {
-          context.font = '30px Aldrich';
+          context.font = (size.toString()) + 'px Aldrich';
           context.fillStyle = 'green';
-          context.fillText('partner got scared...',canvas.width / 4 - 150 , canvas.height/ 4);
-
+          context.fillText('Opponent disconnected',window.innerWidth / 4 , canvas.height/ 4 - canvas.height/8);
+          context.fillText('you will win by default in 10s',window.innerWidth / 4, canvas.height/ 4 + canvas.height / 8);
         }
 
         const messageListener = (text: GameCoords) => {
@@ -122,7 +124,7 @@ function Game({ gameMode }: { gameMode: string }) {
       }
     }
     return;
-  }, [window.innerWidth, window.innerHeight, gameStatus]);
+  }, [window.innerWidth, window.innerHeight, gameStatus, window]);
 
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
     const clientY = event.clientY;
@@ -149,7 +151,6 @@ function Game({ gameMode }: { gameMode: string }) {
         case GameStatus.PENDING:
           contextRef.current.fillStyle = 'black';
           contextRef.current.fillRect(0, 0, canvasRef.current.width / 2, canvasRef.current.height);
-
           contextRef.current.font = (size.toString()) + 'px Aldrich';
           contextRef.current.fillStyle = 'green';
           contextRef.current.fillText('waiting for a partner...',canvasRef.current.width / 4 , canvasRef.current.height/ 4);
@@ -161,10 +162,9 @@ function Game({ gameMode }: { gameMode: string }) {
           contextRef.current.fillStyle = 'black';
           contextRef.current.fillRect(0, 0, canvasRef.current.width / 2, canvasRef.current.height);
           contextRef.current.font = (size.toString()) + 'px Aldrich';
-          // contextRef.current.font = '30px Aldrich';
           contextRef.current.fillStyle = 'green';
-          contextRef.current.fillText('Opponent has disconnected',canvasRef.current.width / 4, canvasRef.current.height/ 4);
-          contextRef.current.fillText('you will win by default in 10s',canvasRef.current.width / 4, canvasRef.current.height/ 4 + 30);
+          contextRef.current.fillText('Opponent disconnected',canvasRef.current.width / 4, canvasRef.current.height/ 4 - canvasRef.current.height / 8);
+          contextRef.current.fillText('you will win by default in 10s',canvasRef.current.width / 4, canvasRef.current.height/ 4 + canvasRef.current.height / 8);
           contextRef.current.fillStyle = 'white';
           contextRef.current.fillRect(50, clientY -rect.top - (paddleHeight / 2 ), 10, paddleHeight);
           break;
