@@ -33,7 +33,11 @@ function Navbar({ text, avatarImg }: BannerProps) {
   return (
     <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
       <Link to="/">
-        <h2 className="text-[8px] sm:text-xl md:text-4xl lg:text-5xl text-white font-bold">
+        <h2
+          className={`${
+            typeof text === 'string' ? 'text-[8px] ' : 'text-[18px] '
+          } sm:text-xl md:text-4xl lg:text-5xl text-white font-bold`}
+        >
           {text}
         </h2>
       </Link>
