@@ -275,7 +275,7 @@ export class ChannelService {
       });
     } else {
       /* There is no new password for a Protected type channel */
-      throw new Error('passwordIncorrect')
+      throw new Error('passwordIncorrect');
     }
   }
 
