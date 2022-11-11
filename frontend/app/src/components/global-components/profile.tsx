@@ -1,4 +1,4 @@
-import Navbar from '../section-components/navbar';
+import Navbar from './navbar';
 import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
@@ -25,8 +25,10 @@ function Profile() {
 
   return (
     <>
-      {user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
-      {user.isLoading && <LoadingSpinner/>}
+      {user.isError && (
+        <p className="text-base text-gray-400">We encountered an error 🤷</p>
+      )}
+      {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <div>
           <Background background={BackgroundGeneral}>
