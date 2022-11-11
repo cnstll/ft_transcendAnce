@@ -8,7 +8,7 @@ export enum channelType {
 export interface Channel {
   id: string;
   name: string;
-  password?: string;
+  passwordHash?: string;
   type: channelType;
 }
 
@@ -29,10 +29,11 @@ export interface User {
   twoFactorAuthenticationSecret: string;
 }
 
-export interface UserData {
-  id?: string;
-  nickName: string;
+export interface RankingData {
+  id: string;
+  nickname: string;
   avatarImg: string;
+  eloScore: number;
 }
 
 export interface Stats {
@@ -78,5 +79,6 @@ export interface GameCoords {
   by: number;
   p1s: number;
   p2s: number;
+  color: string;
   paddleSize: number;
 }

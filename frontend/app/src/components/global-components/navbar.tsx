@@ -3,12 +3,12 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import DropDownMenu from './drop-down-menu';
-import SearchBox from './search-box';
 import { User } from '../global-components/interface';
 import axios from 'axios';
 import { UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
+import SearchBoxUser from '../section-components/search-box-user';
+import DropDownMenu from '../section-components/drop-down-menu';
 
 interface BannerProps {
   children?: React.ReactNode;
@@ -31,13 +31,17 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const ref = UseOutsideClick(ClickOutsideHandler);
 
   return (
-    <div className="flex flex-row px-8 py-5 justify-between flex-shrink-0">
+    <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
       <Link to="/">
-        <h2 className="text-sm sm:text-3xl md:text-4xl lg:text-5xl text-white font-bold">
+        <h2
+          className={`${
+            typeof text === 'string' ? 'text-[8px] ' : 'text-[18px] '
+          } sm:text-xl md:text-4xl lg:text-5xl text-white font-bold`}
+        >
           {text}
         </h2>
       </Link>
-      <SearchBox
+      <SearchBoxUser
         height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
         width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
         placeholder="player"

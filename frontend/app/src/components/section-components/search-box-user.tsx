@@ -2,29 +2,27 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { User, Channel } from '../global-components/interface';
-import SearchItem from './search-item';
+import { User } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
+import SearchUserItem from './search-user-item';
 
-interface SearchBoxProps {
+interface SearchBoxUserProps {
   height: string;
   width: string;
   placeholder: string;
-  users?: User[];
-  channels?: Channel[];
+  users: User[] | undefined;
 }
 
 const defaultSearchData = {
   keyword: '',
 };
 
-function SearchBox({
+function SearchBoxUser({
   height,
   width,
   placeholder,
   users,
-  channels,
-}: SearchBoxProps) {
+}: SearchBoxUserProps) {
   const navigate = useNavigate();
   const [isShown, setIsShown] = useState(false);
   const [searchData, setSearchData] = useState(defaultSearchData);
@@ -60,19 +58,6 @@ function SearchBox({
     });
   };
 
-  const filterChannels = (channels: Channel[] | undefined, query: string) => {
-    if (!query) {
-      return channels;
-    }
-    if (!channels) {
-      return [];
-    }
-    return channels.filter((channel) => {
-      const filterChannels = channel.name.toLowerCase();
-      return filterChannels.includes(query.toLowerCase());
-    });
-  };
-
   function OnSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const filteredResults: User[] | undefined = filterUsers(
@@ -84,18 +69,6 @@ function SearchBox({
         const firstResult = filteredResults[0].nickname;
         if (firstResult) {
           navigate('../profile/' + firstResult);
-        }
-      }
-    }
-    const filteredChannels: Channel[] | undefined = filterChannels(
-      channels,
-      searchData.keyword,
-    );
-    if (filteredChannels) {
-      if (filteredChannels[0]) {
-        const firstResult = filteredChannels[0].name;
-        if (firstResult) {
-          navigate('../chat/' + firstResult);
         }
       }
     }
@@ -122,23 +95,18 @@ function SearchBox({
           />
           <button
             type="submit"
-            className="absolute top-1 sm:top-2.5 md:top-3 lg:top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
+            className="absolute top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white rounded-lg text-sm absolute z-20' + width}>
+        <div className={'bg-white rounded-lg text-sm absolute ' + width}>
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
                 ?.slice(0, 5)
                 .map((userItem) => (
-                  <SearchItem key={userItem.id} user={userItem} />
-                ))}
-              {filterChannels(channels, searchData.keyword)
-                ?.slice(0, 5)
-                .map((channelItem) => (
-                  <SearchItem key={channelItem.id} channel={channelItem} />
+                  <SearchUserItem key={userItem.id} user={userItem} />
                 ))}
             </ul>
           )}
@@ -148,4 +116,4 @@ function SearchBox({
   );
 }
 
-export default SearchBox;
+export default SearchBoxUser;

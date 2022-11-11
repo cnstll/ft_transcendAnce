@@ -464,41 +464,6 @@ export class UserService {
     return res.status(200).send(stats);
   }
 
-  async getLeaderboard(res: Response) {
-    try {
-      const nicknames = await this.prismaService.user.findMany({
-        take: 10,
-        orderBy: {
-          eloScore: 'desc',
-        },
-      });
-      //TODO select so you don't return unneeded user info
-      return res.status(200).send(nicknames);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
-    }
-  }
-
-  async getUserRanking(userNickname: string) {
-    let userRank = '';
-
-    const users = await this.prismaService.user.findMany({
-      orderBy: {
-        eloScore: 'desc',
-      },
-    });
-    //TODO select so you don't return unneeded user info
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].nickname == userNickname) {
-        const rank = i + 1;
-        userRank = rank.toString() + '/' + users.length.toString();
-        return userRank;
-      }
-    }
-    return userRank;
-  }
-
   async getUserMatchHistory(userNickname: string, res: Response) {
     const matchesList = await this.getUserMatches(userNickname);
     const matchHistory: MatchHistory[] = [];
@@ -536,5 +501,43 @@ export class UserService {
       console.log(error);
       return res.status(500).send();
     }
+  }
+
+  async getLeaderboard(res: Response) {
+    try {
+      const leaderboard = await this.prismaService.user.findMany({
+        take: 10,
+        orderBy: {
+          eloScore: 'desc',
+        },
+        select: {
+          id: true,
+          nickname: true,
+          avatarImg: true,
+          eloScore: true,
+        },
+      });
+      return res.status(200).send(leaderboard);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+  }
+  async getUserRanking(userNickname: string) {
+    let userRank = '';
+
+    const users = await this.prismaService.user.findMany({
+      orderBy: {
+        eloScore: 'desc',
+      },
+    });
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].nickname == userNickname) {
+        const rank = i + 1;
+        userRank = rank.toString() + '/' + users.length.toString();
+        return userRank;
+      }
+    }
+    return userRank;
   }
 }

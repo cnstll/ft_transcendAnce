@@ -34,9 +34,9 @@ describe('Channel controller (e2e)', () => {
         deleteChannel,
       ])
 
-    await prisma.$disconnect()
-    app.close();
-  });
+      await prisma.$disconnect()
+      app.close();
+    });
 
   let cookieTestA: string;
   let cookieTestB: string;
@@ -95,11 +95,11 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"Channel test 1",
+          "name": "Channel test 1",
         })
         .expect(201)
         .then((response) => {
-          publicChan = response.text.substring(7,32);
+          publicChan = response.text.substring(7, 32);
           expect(response.text).toContain('"name":"Channel test 1"');
           expect(response.text).toContain('"type":"PUBLIC"');
         })
@@ -112,8 +112,8 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"Channel test 2",
-          "type":"PUBLIC"
+          "name": "Channel test 2",
+          "type": "PUBLIC"
         })
         .expect(201)
         .then((response) => {
@@ -129,12 +129,12 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"Channel test 3",
-          "type":"PRIVATE",
+          "name": "Channel test 3",
+          "type": "PRIVATE",
         })
         .expect(201)
         .then((response) => {
-          privateChan = response.text.substring(7,32);
+          privateChan = response.text.substring(7, 32);
           expect(response.text).toContain('"name":"Channel test 3"');
           expect(response.text).toContain('"type":"PRIVATE"');
         })
@@ -147,13 +147,13 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"Channel test 4",
-          "type":"PROTECTED",
-          "passwordHash":"secret"
+          "name": "Channel test 4",
+          "type": "PROTECTED",
+          "passwordHash": "secret"
         })
         .expect(201)
         .then((response) => {
-          protectedChan = response.text.substring(7,32);
+          protectedChan = response.text.substring(7, 32);
           expect(response.text).toContain('"name":"Channel test 4"');
           expect(response.text).toContain('"type":"PROTECTED"');
         })
@@ -166,12 +166,12 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"Channel test 5",
-          "type":"DIRECTMESSAGE",
+          "name": "Channel test 5",
+          "type": "DIRECTMESSAGE",
         })
         .expect(201)
         .then((response) => {
-          directMessage = response.text.substring(7,32);
+          directMessage = response.text.substring(7, 32);
           expect(response.text).toContain('"name":"Channel test 5"');
           expect(response.text).toContain('"type":"DIRECTMESSAGE"');
         })
@@ -197,7 +197,7 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"Channel test 1",
+          "name": "Channel test 1",
         })
         .expect(403)
         .then((response) => {
@@ -212,8 +212,8 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "type":"PROTECTED",
-          "passwordHash":"secret"
+          "type": "PROTECTED",
+          "passwordHash": "secret"
         })
         .expect(400)
         .then((response) => {
@@ -228,8 +228,8 @@ describe('Channel controller (e2e)', () => {
         .post('/channels/create')
         .set('Authorization', bearer)
         .send({
-          "name":"My Protected Channel",
-          "type":"PROTECTED",
+          "name": "My Protected Channel",
+          "type": "PROTECTED",
         })
         .expect(400)
         .then((response) => {
@@ -280,7 +280,7 @@ describe('Channel controller (e2e)', () => {
       await new Promise(process.nextTick);
       let bearer = 'Bearer ' + cookieTestA;
       return request(app.getHttpServer())
-        .get('/channels/get-by-user-id')
+        .get('/channels/get-channel-by-user-id')
         .set('Authorization', bearer)
         .send({})
         .expect(200)
@@ -427,7 +427,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + publicChan)
         .set('Authorization', bearer)
         .send({
-          "name":"Les démons de minuit"
+          "name": "Les démons de minuit"
         })
         .expect(200)
         .then((response) => {
@@ -443,7 +443,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + publicChan)
         .set('Authorization', bearer)
         .send({
-          "type":"PRIVATE"
+          "type": "PRIVATE"
         })
         .expect(200)
         .then((response) => {
@@ -460,7 +460,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "type":"PROTECTED",
+          "type": "PROTECTED",
           "passwordHash": "secret"
         })
         .expect(200)
@@ -477,7 +477,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "name":"",
+          "name": "",
         })
         .expect(400)
         .then((response) => {
@@ -492,7 +492,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "name":"Les démons de minuit",
+          "name": "Les démons de minuit",
         })
         .expect(403)
         .then((response) => {
@@ -507,7 +507,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "type":"",
+          "type": "",
         })
         .expect(403)
     });
@@ -519,25 +519,25 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "type":"NOTATYPE",
+          "type": "NOTATYPE",
         })
         .expect(403)
     });
 
     it('/ [ERROR] user C updates an existing private channel to protected\
       type without a password', async () => {
-        await new Promise(process.nextTick);
-        let bearer = 'Bearer ' + cookieTestA;
-        return request(app.getHttpServer())
-          .patch('/channels/' + privateChan)
-          .set('Authorization', bearer)
-          .send({
-            "type":"PROTECTED",
-          })
-          .expect(400)
-          .then((response) => {
-            expect(response.text).toContain('Protected channel must have a password');
-          })
+      await new Promise(process.nextTick);
+      let bearer = 'Bearer ' + cookieTestA;
+      return request(app.getHttpServer())
+        .patch('/channels/' + privateChan)
+        .set('Authorization', bearer)
+        .send({
+          "type": "PROTECTED",
+        })
+        .expect(400)
+        .then((response) => {
+          expect(response.text).toContain('Protected channel must have a password');
+        })
     });
 
     it('/ [ERROR] user C updates a non existing channel', async () => {
@@ -547,7 +547,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/channel8')
         .set('Authorization', bearer)
         .send({
-          "name":"A channel that doesn't exist",
+          "name": "A channel that doesn't exist",
         })
         .expect(404)
         .then((response) => {
@@ -562,7 +562,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "name":"A channel for which I am not the owner",
+          "name": "A channel for which I am not the owner",
         })
         .expect(404)
         .then((response) => {
@@ -577,7 +577,7 @@ describe('Channel controller (e2e)', () => {
         .patch('/channels/' + privateChan)
         .set('Authorization', bearer)
         .send({
-          "type":"PRIVATE",
+          "type": "PRIVATE",
         })
         .expect(404)
         .then((response) => {
@@ -594,7 +594,7 @@ describe('Channel controller (e2e)', () => {
       await new Promise(process.nextTick);
       let bearer = 'Bearer ' + cookieTestA;
       return request(app.getHttpServer())
-        .delete('/channels/' + publicChan )
+        .delete('/channels/' + publicChan)
         .set('Authorization', bearer)
         .send({})
         .expect(204)
@@ -623,16 +623,16 @@ describe('Channel controller (e2e)', () => {
         })
     });
 
-  /* Shouldn't be unquoted until we make deletion for ChannelUser (a User leaves a channel) */
-  //   it('/ [ERROR] Deletion of a channel where there are still users', async () => {
-  //     await new Promise(process.nextTick);
-  //     let bearer = 'Bearer ' + cookieTestA;
-  //     return request(app.getHttpServer())
-  //       .delete('/channels/' + privateChan)
-  //       .set('Authorization', bearer)
-  //       .send({})
-  //       .expect(204)
-  //   });
+    /* Shouldn't be unquoted until we make deletion for ChannelUser (a User leaves a channel) */
+    //   it('/ [ERROR] Deletion of a channel where there are still users', async () => {
+    //     await new Promise(process.nextTick);
+    //     let bearer = 'Bearer ' + cookieTestA;
+    //     return request(app.getHttpServer())
+    //       .delete('/channels/' + privateChan)
+    //       .set('Authorization', bearer)
+    //       .send({})
+    //       .expect(204)
+    //   });
 
   })
 

@@ -30,7 +30,7 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-by-user-id')
+  @Get('get-channel-by-user-id')
   getChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getChannelsByUserId(userId);
   }
