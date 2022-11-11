@@ -63,8 +63,6 @@ export class DoubleKeyMap {
     this.size--;
   }
 }
- 
-
 
 export class Game {
   constructor(mode: GameMode) {
@@ -102,8 +100,7 @@ export class Game {
     maxSpeed: 3,
     speedIncrease: 0.03,
     initialSpeed: 0.2,
-    
-}
+  };
 
   moveBall() {
     if (this.by >= this.gameConstants.relativeGameWidth) {
@@ -112,7 +109,11 @@ export class Game {
     if (this.by <= 0) {
       this.diry = this.diry * -1;
     }
-    if (this.bx <= this.gameConstants.player1PaddlePosX + this.gameConstants.paddleWidth && this.bx >= this.gameConstants.player1PaddlePosX) {
+    if (
+      this.bx <=
+        this.gameConstants.player1PaddlePosX + this.gameConstants.paddleWidth &&
+      this.bx >= this.gameConstants.player1PaddlePosX
+    ) {
       if (
         this.by >= this.p1y - this.paddleSize / 2 &&
         this.by <= this.p1y + this.paddleSize / 2
@@ -142,7 +143,11 @@ export class Game {
       }
     }
 
-    if (this.bx >= this.gameConstants.player2PaddlePosX - this.gameConstants.paddleWidth && this.bx <= this.gameConstants.player2PaddlePosX) {
+    if (
+      this.bx >=
+        this.gameConstants.player2PaddlePosX - this.gameConstants.paddleWidth &&
+      this.bx <= this.gameConstants.player2PaddlePosX
+    ) {
       if (
         this.by >= this.p2y - this.paddleSize / 2 &&
         this.by <= this.p2y + this.paddleSize / 2
@@ -177,7 +182,7 @@ export class Game {
         case GameMode.CLASSIC: {
           this.dirx = this.gameConstants.initialSpeed;
           this.bx = this.gameConstants.relativeMiddle;
-        // this number stays magic because it actually is magic
+          // this number stays magic because it actually is magic
           this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
@@ -194,7 +199,7 @@ export class Game {
         case GameMode.CLASSIC: {
           this.dirx = -this.gameConstants.initialSpeed;
           this.bx = this.gameConstants.relativeMiddle;
-        // this number stays magic because it actually is magic
+          // this number stays magic because it actually is magic
           this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
