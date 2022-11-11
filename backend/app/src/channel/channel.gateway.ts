@@ -18,11 +18,15 @@ import { LeaveChannelDto } from './dto/leaveChannel.dto';
 @WebSocketGateway({
   cors: {
     origin: [
-      'http://10.81.196.254:8080',
-      'http://10.81.196.254',
-      'http://localhost',
-      'http://localhost:8080',
-      'http://localhost:3000',
+      process.env.FRONTEND_URL,
+      process.env.BACKEND_URL,
+      process.env.DOMAIN,
+      process.env.PUBLIC_URL,
+      // 'http://10.81.196.254:8080',
+      // 'http://10.81.196.254',
+      // 'http://localhost',
+      // 'http://localhost:8080',
+      // 'http://localhost:3000',
     ],
     credentials: true,
   },

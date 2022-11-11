@@ -15,10 +15,18 @@ const queryClient = new QueryClient({
   },
 });
 
+
+// if (process.env.REACT_APP_API_URL === undefined?  process.env.REACT_APP_BACKEND_URL : 'oops');
+
 root.render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <App />
+      { process.env.REACT_APP_BACKEND_URL === undefined && 
+        <p> your env ain't right </p> 
+    }
+      { process.env.REACT_APP_BACKEND_URL !== undefined && 
+        <App />
+    } 
     </BrowserRouter>
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>,

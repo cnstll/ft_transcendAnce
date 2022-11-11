@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import type { MatchData } from '../global-components/interface';
+import { apiUrl, MatchData } from '../global-components/interface';
 
 const fetchUserMatchHistory = (nickname: string) =>
   axios
     .post<MatchData[]>(
-      `http://${process.env.REACT_APP_BACKEND_URL}/user/get-user-match-history`,
+      `http://${apiUrl}/user/get-user-match-history`,
       { userNickname: nickname },
       {
         withCredentials: true,

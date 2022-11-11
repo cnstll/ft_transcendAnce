@@ -1,10 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { useMutation, UseMutationResult } from 'react-query';
+import { apiUrl } from '../global-components/interface';
 
 const putUserNickname = (input: string) =>
   axios
     .put(
-      `http://${process.env.REACT_APP_BACKEND_URL}/user/update-nickname`,
+      `http://${apiUrl}/user/update-nickname`,
       { newNickname: input },
       { withCredentials: true },
     )

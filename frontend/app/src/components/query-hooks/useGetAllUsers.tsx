@@ -1,10 +1,10 @@
 import { useQuery, UseQueryResult } from 'react-query';
-import type { User } from '../global-components/interface';
+import { apiUrl, User } from '../global-components/interface';
 import axios from 'axios';
 
 const fetchAllUsers = () =>
   axios
-    .get<User[]>(`http://${process.env.REACT_APP_BACKEND_URL}/user/get-all-users`, {
+    .get<User[]>(`http://${apiUrl}/user/get-all-users`, {
       withCredentials: true,
     })
     .then((res) => res.data);

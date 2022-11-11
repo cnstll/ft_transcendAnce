@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import { TargetInfo } from '../global-components/interface';
+import { apiUrl, TargetInfo } from '../global-components/interface';
 
 const fetchTargetInfo = (targetNickname: string | undefined) =>
   axios
     .post<TargetInfo>(
-      `http://${process.env.REACT_APP_BACKEND_URL}/user/get-target-info`,
+      `http://${apiUrl}/user/get-target-info`,
       { nickname: targetNickname },
       { withCredentials: true },
     )

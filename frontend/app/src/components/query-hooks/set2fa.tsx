@@ -1,10 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { useMutation, UseMutationResult } from 'react-query';
+import { apiUrl } from '../global-components/interface';
 
 const generate = () =>
   axios
     .post(
-      `http://${process.env.REACT_APP_BACKEND_URL}/2fa/generate`,
+      `http://${apiUrl}/2fa/generate`,
       {},
       {
         withCredentials: true,
@@ -18,7 +19,7 @@ export function generate2fa(): UseMutationResult<AxiosResponse> {
 
 const disable = () =>
   axios
-    .delete(`http://${process.env.REACT_APP_BACKEND_URL}/2fa/disable`, {
+    .delete(`http://${apiUrl}/2fa/disable`, {
       withCredentials: true,
     })
     .then((res) => res);
@@ -30,7 +31,7 @@ export function disable2fa(): UseMutationResult<AxiosResponse> {
 const putValidationCode = (input: string) =>
   axios
     .post(
-      `http://${process.env.REACT_APP_BACKEND_URL}/2fa/validate`,
+      `http://${apiUrl}/2fa/validate`,
       { twoFactorAuthenticationCode: input },
       { withCredentials: true },
     )
@@ -47,7 +48,7 @@ export function validate2faCode(): UseMutationResult<
 const postAuthenticate = (input: string) =>
   axios
     .post(
-      `http://${process.env.REACT_APP_BACKEND_URL}/2fa/authenticate`,
+      `http://${apiUrl}/2fa/authenticate`,
       { twoFactorAuthenticationCode: input },
       { withCredentials: true },
     )

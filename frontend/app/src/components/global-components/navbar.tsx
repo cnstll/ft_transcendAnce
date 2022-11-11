@@ -3,7 +3,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { User } from '../global-components/interface';
+import { apiUrl, User } from '../global-components/interface';
 import axios from 'axios';
 import { UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
@@ -73,7 +73,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
 function UserInfo() {
   const logout = () => {
     axios
-      .get(`http://${process.env.REACT_APP_BACKEND_URL}/user/logout`, {
+      .get(`http://${apiUrl}/user/logout`, {
         withCredentials: true,
       })
       .catch((error) => console.log(error));

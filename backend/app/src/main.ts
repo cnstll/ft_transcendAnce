@@ -4,15 +4,20 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
+  console.log(process.env.FRONTEND_URL);
   const app = await NestFactory.create(AppModule, {
     cors: {
       origin: [
-        'http://10.18.196.254',
-        'http://10.18.196.254:8080',
-        'http://10.18.196.254:3000',
-        'http://localhost',
-        'http://localhost:8080',
-        'http://localhost:3000',
+        process.env.FRONTEND_URL,
+        process.env.BACKEND_URL,
+        process.env.DOMAIN,
+        process.env.PUBLIC_URL,
+        // 'http://10.18.196.254',
+        // 'http://10.18.196.254:8080',
+        // 'http://10.18.196.254:3000',
+        // 'http://localhost',
+        // 'http://localhost:8080',
+        // 'http://localhost:3000',
       ],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE'],
       credentials: true,

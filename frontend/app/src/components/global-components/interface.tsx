@@ -4,6 +4,8 @@ export enum channelType {
   Protected = 'PROTECTED',
   DirectMessage = 'DIRECTMESSAGE',
 }
+ 
+export const apiUrl: string = (process.env.REACT_APP_BACKEND_URL === undefined?  'oops': process.env.REACT_APP_BACKEND_URL);
 
 export interface Channel {
   id: string;
