@@ -167,4 +167,21 @@ export class UserController {
   getLeaderBoard(@Res() res: Response) {
     return this.userService.getLeaderboard(res);
   }
+
+  /** Achievement management */
+
+  @Post('get-achievement')
+  @UseGuards(JwtAuthGuard)
+  getAchievement(@Body() data: { nickname: string }, @Res() res: Response) {
+    return this.userService.getAchievement(data.nickname, res);
+  }
+
+  @Post('set-achievement')
+  @UseGuards(JwtAuthGuard)
+  setAchievement(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { achievementId: string },
+  ) {
+    return this.userService.setAchievement(userId, data.achievementId);
+  }
 }
