@@ -63,6 +63,8 @@ export class DoubleKeyMap {
     this.size--;
   }
 }
+ 
+
 
 export class Game {
   constructor(mode: GameMode) {
@@ -90,109 +92,122 @@ export class Game {
   paddleSize = 10;
   mode: GameMode = GameMode.CLASSIC;
   color = 'black';
+  gameConstants = {
+    relativeGameWidth: 100,
+    relativeMiddle: 50,
+    relativeGameHeight: 100,
+    player1PaddlePosX: 5,
+    player2PaddlePosX: 95,
+    paddleWidth: 5,
+    maxSpeed: 3,
+    speedIncrease: 0.03,
+    initialSpeed: 0.2,
+    
+}
 
   moveBall() {
-    if (this.by >= 98) {
+    if (this.by >= this.gameConstants.relativeGameWidth) {
       this.diry = this.diry * -1;
     }
-    if (this['by'] <= 0) {
+    if (this.by <= 0) {
       this.diry = this.diry * -1;
     }
-    if (this['bx'] <= 7 && this['bx'] >= 3) {
+    if (this.bx <= this.gameConstants.player1PaddlePosX + this.gameConstants.paddleWidth && this.bx >= this.gameConstants.player1PaddlePosX) {
       if (
-        this['by'] >= this['p1y'] - this.paddleSize / 2 &&
-        this['by'] <= this['p1y'] + this.paddleSize / 2
+        this.by >= this.p1y - this.paddleSize / 2 &&
+        this.by <= this.p1y + this.paddleSize / 2
       ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx > 0) {
-              this.dirx = 5;
+              this.dirx = this.gameConstants.maxSpeed;
             } else {
               this.dirx = this.dirx * -1;
-              if (this.dirx < 3) {
-                this.dirx += 0.05;
+              if (this.dirx < this.gameConstants.maxSpeed) {
+                this.dirx += this.gameConstants.speedIncrease;
               }
             }
             break;
           }
           case GameMode.CLASSIC: {
             this.dirx = this.dirx * -1;
-            if (this.dirx < 3) {
-              this.dirx += 0.05;
+            if (this.dirx < this.gameConstants.maxSpeed) {
+              this.dirx += this.gameConstants.speedIncrease;
             }
             break;
           }
         }
-        this.diry = (this['by'] - this['p1y']) / 10;
+        // this number stays magic because it actually is magic
+        this.diry = (this.by - this.p1y) / 10;
       }
     }
-    if (this['bx'] >= 93 && this['bx'] <= 97) {
+
+    if (this.bx >= this.gameConstants.player2PaddlePosX - this.gameConstants.paddleWidth && this.bx <= this.gameConstants.player2PaddlePosX) {
       if (
-        this['by'] >= this['p2y'] - this.paddleSize / 2 &&
-        this['by'] <= this['p2y'] + this.paddleSize / 2
+        this.by >= this.p2y - this.paddleSize / 2 &&
+        this.by <= this.p2y + this.paddleSize / 2
       ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx < 0) {
-              this.dirx = -5;
+              this.dirx = -this.gameConstants.maxSpeed;
             } else {
               this.dirx = this.dirx * -1;
-              if (this.dirx > -3) {
-                this.dirx -= 0.05;
+              if (this.dirx > -this.gameConstants.maxSpeed) {
+                this.dirx -= this.gameConstants.speedIncrease;
               }
             }
             break;
           }
           case GameMode.CLASSIC: {
             this.dirx = this.dirx * -1;
-            if (this.dirx > -2) {
-              this.dirx -= 0.05;
+            if (this.dirx > -this.gameConstants.maxSpeed) {
+              this.dirx -= this.gameConstants.speedIncrease;
             }
             break;
           }
         }
+        // this number stays magic because it actually is magic
         this.diry = (this['by'] - this['p2y']) / 10;
       }
     }
-    if (this['bx'] <= 0) {
+    if (this.bx <= 0) {
+      this.p2s += 1;
       switch (this.mode) {
         case GameMode.CLASSIC: {
-          // this.bx = 0;
-          this.p2s += 1;
-          this.dirx = 0.2;
-          this.bx = 50;
+          this.dirx = this.gameConstants.initialSpeed;
+          this.bx = this.gameConstants.relativeMiddle;
+        // this number stays magic because it actually is magic
           this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
 
         case GameMode.MAYHEM: {
-          this.bx = 0;
-          this.p2s += 1;
-          this.dirx = 0.5;
+          this.dirx = this.gameConstants.initialSpeed;
           break;
         }
       }
     }
-    if (this['bx'] > 100) {
+    if (this.bx > 100) {
+      this.p1s += 1;
       switch (this.mode) {
         case GameMode.CLASSIC: {
-          this.p1s += 1;
-          this.dirx = -0.2;
-          this.bx = 50;
+          this.dirx = -this.gameConstants.initialSpeed;
+          this.bx = this.gameConstants.relativeMiddle;
+        // this number stays magic because it actually is magic
           this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
 
         case GameMode.MAYHEM: {
-          this.bx = 0;
-          this.p1s += 1;
-          this.dirx = 0.2;
+          this.bx = this.gameConstants.relativeGameWidth;
+          this.dirx = -this.gameConstants.initialSpeed;
           break;
         }
       }
     }
-    this['bx'] += this.dirx;
-    this['by'] += this.diry;
+    this.bx += this.dirx;
+    this.by += this.diry;
     return this;
   }
 

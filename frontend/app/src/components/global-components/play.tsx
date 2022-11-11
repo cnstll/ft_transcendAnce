@@ -21,8 +21,6 @@ function Play() {
       'reJoin',
       { mode: gameMode },
       (response:  string | null) => {
-        console.log('here i am ',response);
-        console.debug();
         setGameMode(response);
      },
 
