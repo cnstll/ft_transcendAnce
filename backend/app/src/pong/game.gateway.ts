@@ -14,7 +14,14 @@ import { GameMode } from './entities/game.entities';
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:8080',
+    // origin: 'http://localhost:8080',
+    origin: [
+      'http://10.18.196.254:8080',
+      'http://10.18.196.254',
+      'http://localhost',
+      'http://localhost:8080',
+      'http://localhost:3000',
+    ],
     credentials: true,
   },
 })

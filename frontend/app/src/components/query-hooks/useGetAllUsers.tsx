@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const fetchAllUsers = () =>
   axios
-    .get<User[]>('http://localhost:3000/user/get-all-users', {
+    .get<User[]>(`http://${process.env.REACT_APP_BACKEND_URL}/user/get-all-users`, {
       withCredentials: true,
     })
     .then((res) => res.data);

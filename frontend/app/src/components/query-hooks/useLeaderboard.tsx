@@ -4,7 +4,7 @@ import type { RankingData } from '../global-components/interface';
 
 const fetchLeaderboard = () =>
   axios
-    .get<RankingData[]>('http://localhost:3000/user/get-leaderboard', {
+    .get<RankingData[]>(`http://${process.env.REACT_APP_BACKEND_URL}/user/get-leaderboard`, {
       withCredentials: true,
     })
     .then((response) => response.data);

@@ -73,7 +73,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
 function UserInfo() {
   const logout = () => {
     axios
-      .get('http://localhost:3000/user/logout', {
+      .get(`http://${process.env.REACT_APP_BACKEND_URL}/user/logout`, {
         withCredentials: true,
       })
       .catch((error) => console.log(error));

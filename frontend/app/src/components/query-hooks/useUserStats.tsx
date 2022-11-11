@@ -5,7 +5,7 @@ import type { Stats } from '../global-components/interface';
 const fetchUserStats = (nickname: string) =>
   axios
     .post<Stats>(
-      'http://localhost:3000/user/get-user-matches-stats',
+      `http://${process.env.REACT_APP_BACKEND_URL}/user/get-user-matches-stats`,
       { userNickname: nickname },
       {
         withCredentials: true,

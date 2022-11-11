@@ -5,7 +5,7 @@ import { TargetInfo } from '../global-components/interface';
 const fetchTargetInfo = (targetNickname: string | undefined) =>
   axios
     .post<TargetInfo>(
-      'http://localhost:3000/user/get-target-info',
+      `http://${process.env.REACT_APP_BACKEND_URL}/user/get-target-info`,
       { nickname: targetNickname },
       { withCredentials: true },
     )

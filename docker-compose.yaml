@@ -13,8 +13,19 @@ services:
     networks:
       - frontend
     environment: 
-      - WDS_SOCKET_PORT=0
-
+      WDS_SOCKET_PORT: 0
+      REACT_APP_FRONTEND_URL: 'localhost:8080'
+      REACT_APP_BACKEND_URL: 'localhost:3000'
+  nginx:
+    image: nginx 
+    container_name: nginx 
+    ports:
+      - 8000:80
+    volumes:
+      - ./frontend/app/build/:/usr/share/nginx/html
+    networks:
+      - frontend
+      - backend 
   backend:
     build: ./backend/
     container_name: backend

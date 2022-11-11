@@ -4,11 +4,12 @@ import Background from '../section-components/background';
 import Button from '../section-components/button';
 
 function SignIn() {
+
   return (
     <div>
       <Background background={BackgroundSignin}>
         <div className="flex flex-col h-screen justify-center items-center gap-10">
-          <a href="http://localhost:3000/auth/42/callback">
+          <a href={`http://${process.env.REACT_APP_BACKEND_URL}/auth/42/callback`}>
             <Button>
               <div className="flex flex-row justify-center gap-2">
                 <img src={logo} alt="Logo" className="w-2/12" />

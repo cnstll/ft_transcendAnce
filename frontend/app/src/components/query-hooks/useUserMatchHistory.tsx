@@ -5,7 +5,7 @@ import type { MatchData } from '../global-components/interface';
 const fetchUserMatchHistory = (nickname: string) =>
   axios
     .post<MatchData[]>(
-      'http://localhost:3000/user/get-user-match-history',
+      `http://${process.env.REACT_APP_BACKEND_URL}/user/get-user-match-history`,
       { userNickname: nickname },
       {
         withCredentials: true,

@@ -4,7 +4,7 @@ import { useMutation, UseMutationResult } from 'react-query';
 const putUserNickname = (input: string) =>
   axios
     .put(
-      'http://localhost:3000/user/update-nickname',
+      `http://${process.env.REACT_APP_BACKEND_URL}/user/update-nickname`,
       { newNickname: input },
       { withCredentials: true },
     )

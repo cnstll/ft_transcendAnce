@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev-env:up": "npm run decrypt && docker compose up dev-db frontend backend",
-    "dev-env:down": "docker compose down",
+    "prod-env:up": "npm run decrypt && docker compose up dev-db frontend backend nginx",
+    "ddevev-env:down": "docker compose down",
     "test-env:down": "docker compose down",
     "test-env:up": "npm run decrypt && docker compose --env-file .env.test up test-db frontend backend",
     "lint:back": "eslint backend/app/src/ --ext .ts --config backend/app/.eslintrc.js",

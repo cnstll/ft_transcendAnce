@@ -4,7 +4,7 @@ import type { User } from '../global-components/interface';
 
 const fetchUserFriends = () =>
   axios
-    .get<User[]>('http://localhost:3000/user/get-user-friends', {
+    .get<User[]>(`http://${process.env.REACT_APP_BACKEND_URL}/user/get-user-friends`, {
       withCredentials: true,
     })
     .then((res) => res.data);
