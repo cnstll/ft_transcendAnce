@@ -69,9 +69,6 @@ function DisplayMessages({
     socket.on('incomingMessage', async () => {
       await queryClient.invalidateQueries(messageQueryKey);
     });
-    socket.on('message', (content) => {
-      console.log('message with content: ', content);
-    });
     return () => {
       socket.off('messageRoomFailed');
       socket.off('incomingMessage');

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Channel } from '../../global-components/interface';
+import { Channel, User } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 
 interface ChannelOptions {
@@ -13,12 +13,15 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const channelsQueryKey = 'channelsByUserList';
-
+  const userQueryKey = 'userData';
   const channelsQueryData: Channel[] | undefined =
     queryClient.getQueryData(channelsQueryKey);
+
   const channelInfo = channelsQueryData?.find(
     (channel) => channel.id == activeChannel,
   );
+  const userQueryData: User | undefined =
+    queryClient.getQueryData(userQueryKey);
 
   function leaveChannel(channelInfo: Channel) {
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
@@ -31,31 +34,34 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
       alert('Failed to leave room');
     }
   }
-  interface UserChannel {
-    userId: string;
-    channelId: string;
-    role: string;
-    createdAt: string;
-    updatedAt: string;
-  }
 
   useEffect(() => {
-    socket.on('roomLeft', async (leavingUser: UserChannel) => {
-      await queryClient.refetchQueries(channelsQueryKey);
-      const channelsUpdated: Channel[] | undefined =
-        await queryClient.getQueryData(channelsQueryKey);
-      if (channelsUpdated && channelsUpdated.length > 0) {
-        const deletedChannel = leavingUser.channelId;
-        // Find another existing channel to redirect the user to after leaving current one
-        const nextChannelId =
-          channelsUpdated.find((channel) => channel.id != deletedChannel)?.id ??
-          '';
-        setActiveChannelId(nextChannelId);
-        navigate(`../chat/${nextChannelId}`);
-      } else {
-        navigate('../chat');
-      }
-    });
+    socket.on(
+      'roomLeft',
+      async (leavingInfo: { userId: string; channelId: string }) => {
+        // User receiving the event is the user leaving the room
+        if (userQueryData?.id === leavingInfo.userId) {
+          const channelListDisplayed: Channel[] | undefined =
+            await queryClient.getQueryData(channelsQueryKey);
+          if (channelListDisplayed && channelListDisplayed.length > 0) {
+            const deletedChannel = leavingInfo.channelId;
+            // Find another existing channel to redirect the user to after leaving current one
+            const nextChannelId =
+              channelListDisplayed.find(
+                (channel) => channel.id != deletedChannel,
+              )?.id ?? '';
+            setActiveChannelId(nextChannelId);
+            navigate(`../chat/${nextChannelId}`);
+          } else {
+            setActiveChannelId('');
+            navigate('../chat');
+          }
+        } else {
+          //TODO User still in the room should get notified that a user left
+        }
+        await queryClient.invalidateQueries(channelsQueryKey);
+      },
+    );
     socket.on('leaveRoomFailed', () => alert('Failed to leave room'));
     return () => {
       socket.off('roomLeft');

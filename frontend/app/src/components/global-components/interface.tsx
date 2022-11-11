@@ -19,6 +19,10 @@ export interface Message {
   senderId: string;
   channelId: string;
 }
+export enum AcknoledgementStatus {
+  OK = 'OK',
+  FAILED = 'FAILED',
+}
 
 export enum friendshipStatus {
   REQUSTED,

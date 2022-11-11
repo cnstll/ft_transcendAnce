@@ -61,7 +61,7 @@ const chanUsersData: User[] = [
 function Chat() {
   const user = useUserInfo();
   const { activeChannel } = useParams();
-  const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
+  const [activeChannelId, setActiveChannelId] = useState('');
 
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
@@ -94,7 +94,7 @@ function Chat() {
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
         >
           <SideBox>
-            <ChannelHeader />
+            <ChannelHeader setActiveChannelId={setActiveChannelId} />
             <MyChannelsList
               activeChannelId={activeChannelId}
               setActiveChannelId={setActiveChannelId}

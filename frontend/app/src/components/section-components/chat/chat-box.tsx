@@ -3,7 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { socket } from '../../global-components/client-socket';
-import { Message } from '../../global-components/interface';
+import {
+  AcknoledgementStatus,
+  Message,
+} from '../../global-components/interface';
 
 interface ChatBoxProps {
   userId: string;
@@ -16,23 +19,42 @@ function ChatBox({ userId, channelId }: ChatBoxProps) {
 
   function onSendMessageHandler(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
+    // If user is not trying to send an empty message go forward
     if (messageContent != '') {
-      console.log('submitting msg: ', messageContent);
       const newMessage = {
         channelId: channelId,
         content: messageContent,
       };
-      socket.emit('messageRoom', { messageInfo: newMessage });
       const previousChatState: Message[] | undefined = queryClient.getQueryData(
         ['getAllMessages', channelId],
       );
-      console.log('PreviousChatState: ', previousChatState);
+      //Save messages save in cache before mutating cache
       if (previousChatState) {
         const optimisticChatUpdate = [...previousChatState];
-        optimisticChatUpdate.push({ id: '', ...newMessage, senderId: userId });
+        optimisticChatUpdate.push({
+          id: Math.random().toString().slice(2),
+          ...newMessage,
+          senderId: userId,
+        });
+        //Optimistic update of sender cache
         queryClient.setQueryData(
           ['getAllMessages', channelId],
           optimisticChatUpdate,
+        );
+        //On fail to send rewind to saved cache
+        socket.emit(
+          'messageRoom',
+          { messageInfo: newMessage },
+          (ack: AcknoledgementStatus) => {
+            if (ack === AcknoledgementStatus.FAILED) {
+              queryClient.setQueryData(
+                ['getAllMessages', channelId],
+                previousChatState,
+              );
+            } else {
+              //TODO Checking system like whatzapp
+            }
+          },
         );
         setMessageContent('');
       }

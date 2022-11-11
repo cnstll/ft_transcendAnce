@@ -15,6 +15,11 @@ import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 
+enum acknoledgementStatus {
+  OK = 'OK',
+  FAILED = 'FAILED',
+}
+
 @WebSocketGateway({
   cors: {
     origin: 'http://localhost:8080',
@@ -34,7 +39,6 @@ export class ChannelGateway {
     @MessageBody('channelPassword') channelPassword: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log('Connected to room: ', channelId);
     const channel = await this.channelService.connectToChannel(
       userId,
       channelId,
@@ -75,7 +79,6 @@ export class ChannelGateway {
     @MessageBody('joinInfo') dto: JoinChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log('JOINING: ', userId);
     const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,
@@ -83,7 +86,9 @@ export class ChannelGateway {
     );
     joinedRoom == null
       ? this.server.to(clientSocket.id).emit('joinRoomFailed')
-      : this.server.to(dto.id).emit('roomJoined', joinedRoom);
+      : this.server
+          .to(dto.id)
+          .emit('roomJoined', { userId: userId, channelId: joinedRoom.id });
   }
 
   //   When a user send a message in a channel, all the users within the room receive the message
@@ -94,21 +99,26 @@ export class ChannelGateway {
     @MessageBody('messageInfo') messageInfo: IncomingMessageDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log(messageInfo);
-    const sockets = await this.server.fetchSockets();
-    for (const s of sockets) {
-      console.log('id: ', s.id, 'rooms: ', s.rooms, 'data: ', s.data);
-    }
+    // console.log(messageInfo);
+    // const sockets = await this.server.fetchSockets();
+    // for (const s of sockets) {
+    //   console.log('id: ', s.id, 'rooms: ', s.rooms, 'data: ', s.data);
+    // }
     const messageSaved = await this.channelService.storeMessage(
       senderId,
       messageInfo,
     );
-    console.log('messageSaved: ', messageSaved);
-    messageSaved === null
-      ? this.server.to(clientSocket.id).emit('messageRoomFailed')
-      : this.server
-          .to(messageInfo.channelId)
-          .emit('incomingMessage', messageInfo.content);
+    // console.log('messageSaved: ', messageSaved);
+
+    if (messageSaved === null) {
+      this.server.to(clientSocket.id).emit('messageRoomFailed');
+      return acknoledgementStatus.FAILED;
+    } else {
+      clientSocket
+        .to(messageInfo.channelId)
+        .emit('incomingMessage', messageInfo.content);
+      return acknoledgementStatus.OK;
+    }
   }
 
   // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room
@@ -146,7 +156,7 @@ export class ChannelGateway {
     @MessageBody('leaveInfo') leaveChannelDto: LeaveChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
+    // console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
     const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
@@ -154,7 +164,10 @@ export class ChannelGateway {
     if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
     } else {
-      this.server.emit('roomLeft', userLeaving);
+      this.server
+        .to(leaveChannelDto.id)
+        .emit('roomLeft', { userId: userId, channelId: leaveChannelDto.id });
+      clientSocket.leave(leaveChannelDto.id);
     }
   }
 }
