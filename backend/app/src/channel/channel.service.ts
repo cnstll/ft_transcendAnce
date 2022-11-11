@@ -266,7 +266,8 @@ export class ChannelService {
         },
       });
     if (channel.passwordHash && !dto.passwordHash) {
-      /* There is already a password and no new password provided, we shouldn't remove the pwd in db */
+      /* There is already a password and no new password provided,
+      we shouldn't remove the pwd in db */
       delete dto.passwordHash;
     } else if (dto.passwordHash) {
       /* There is a new password provided, we hash it for the db */

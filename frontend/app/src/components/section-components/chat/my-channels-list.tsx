@@ -9,7 +9,6 @@ interface MyChannelsListProps {
   activeChannelId: string;
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
-
 function MyChannelsList({
   activeChannelId,
   setActiveChannelId,
@@ -22,8 +21,10 @@ function MyChannelsList({
 
   useEffect(() => {
     socket.on('roomJoined', () => queryClient.refetchQueries(channelsQueryKey));
+    socket.on('roomEdited', () => queryClient.refetchQueries(channelsQueryKey));
     return () => {
       socket.off('roomJoined');
+      socket.off('roomEdited');
     };
   }, []);
 

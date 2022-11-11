@@ -130,7 +130,9 @@ export class ChannelGateway {
     );
     roomEdited === null || typeof roomEdited === 'string'
       ? this.server.to(clientSocket.id).emit('editRoomFailed', roomEdited)
-      : this.server.to(channelId).emit('roomEdited', channelId);
+      : this.server
+          .to([clientSocket.id, channelId])
+          .emit('roomEdited', channelId);
   }
 
   //Delete channel

@@ -26,8 +26,8 @@ function EditChannelForm(props: EditChannelFormProps) {
 
   useEffect(() => {
     socket.on('roomEdited', async () => {
-      props.setShowModal(false);
       await queryClient.refetchQueries(channelsQueryKey);
+      props.setShowModal(false);
       setFormData(defaultFormData);
     });
     socket.on('editRoomFailed', (ret: null | string) => {
@@ -39,8 +39,8 @@ function EditChannelForm(props: EditChannelFormProps) {
       }
     });
     return () => {
-      socket.off('roomCreated');
-      socket.off('createRoomFailed');
+      socket.off('roomEdited');
+      socket.off('editRoomFailed');
     };
   }, [formData]);
 
@@ -110,11 +110,14 @@ function EditChannelForm(props: EditChannelFormProps) {
                   autoComplete="off"
                   placeholder={props.currentChannel.name} />
                   {inputStatus === 'invalidAlreadyUsedname' &&
-                    <p className="text-red-500 text-xs font-medium">Name already taken</p>}
+                    <p className="text-red-500 text-xs font-medium">
+                      Name already taken</p>}
                   {inputStatus === 'invalidName' &&
-                    <p className="text-red-500 text-xs font-medium">Invalid name format</p>}
+                    <p className="text-red-500 text-xs font-medium">
+                      Invalid name format</p>}
                   {inputStatus === 'invalidNameLength' &&
-                    <p className="text-red-500 text-xs font-medium">Name must be less than 22 characters</p>}
+                    <p className="text-red-500 text-xs font-medium">
+                      Name must be less than 22 characters</p>}
               </div>
         {/* Type section */}
               <div id="form-channel-creation-type"
@@ -195,11 +198,14 @@ function EditChannelForm(props: EditChannelFormProps) {
                     placeholder={`Between 1 and 32 alphanumeric and ${specials} characters`}
                   />
                   {inputStatus === 'invalidPassword' &&
-                    <p className="text-red-500 text-xs font-medium">Invalid password format</p>}
+                    <p className="text-red-500 text-xs font-medium">
+                      Invalid password format</p>}
                   {inputStatus === 'invalidPasswordLength' &&
-                    <p className="text-red-500 text-xs font-medium">Password must be less than 33 characters</p>}
+                    <p className="text-red-500 text-xs font-medium">
+                      Password must be less than 33 characters</p>}
                   {inputStatus === 'invalidWrongPassword' &&
-                    <p className="text-red-500 text-xs font-medium my-1">A password is mandatory for Protected channel</p>}
+                    <p className="text-red-500 text-xs font-medium my-1">
+                      Password is mandatory for protected channel</p>}
                 </div>
               )}
         {/* Buttons section */}
