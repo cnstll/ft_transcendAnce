@@ -64,7 +64,6 @@ export class UserController {
     this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
-
   @Get('avatar/:fileId')
   async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
     res.sendFile(fileId, { root: 'avatar' });
@@ -172,8 +171,8 @@ export class UserController {
 
   @Post('get-achievement')
   @UseGuards(JwtAuthGuard)
-  getAchievement(@Body() data: { nickname: string }, @Res() res: Response) {
-    return this.userService.getAchievement(data.nickname, res);
+  getAchievement(@Body() data: { userNickname: string }, @Res() res: Response) {
+    return this.userService.getAchievement(data.userNickname, res);
   }
 
   @Post('set-achievement')

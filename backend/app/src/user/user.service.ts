@@ -35,7 +35,7 @@ export class UserService {
       });
       /* Check if the immutable ID are those of Colomban, Constant, Estelle or Lea
        to set achievement builder */
-      if (user.immutableId === '75984')
+      if (user.immutableId === '75984' || user.immutableId === '74707')
         this.setAchievement(user.id, 'achievement7');
       return user;
     } catch (error) {
@@ -135,6 +135,7 @@ export class UserService {
     });
     return user;
   }
+
   async findOneFromUserNickname(
     userNickname: string,
   ): Promise<User | undefined> {
@@ -376,7 +377,7 @@ export class UserService {
       );
     }
     /* Set achievement social animal */
-    if (friendsList.length === 0) this.setAchievement(userId, 'achievement2');
+    if (friendsList.length === 5) this.setAchievement(userId, 'achievement2');
     return res.status(200).send(friendsList);
   }
 
@@ -561,7 +562,7 @@ export class UserService {
   /** Achievement management */
   async getAchievement(nickname: string, res: Response) {
     try {
-      const Userachivements = await this.prismaService.user.findUnique({
+      const UserAchivements = await this.prismaService.user.findUnique({
         where: {
           nickname: nickname,
         },
@@ -570,10 +571,10 @@ export class UserService {
         },
       });
       const achievementList = [];
-      for (let i = 0; i < Userachivements.achievements.length; i++) {
+      for (let i = 0; i < UserAchivements.achievements.length; i++) {
         const achievement = await this.prismaService.achievement.findUnique({
           where: {
-            id: Userachivements.achievements[i].achievementId,
+            id: UserAchivements.achievements[i].achievementId,
           },
         });
         achievementList.push(achievement);

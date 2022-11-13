@@ -10,6 +10,7 @@ import TwoFactorAuthentication from './two-factor-authentication';
 import { UseQueryResult } from 'react-query';
 import { User } from '../../global-components/interface';
 import LoadingSpinner from '../loading-spinner';
+import Achievement from './achievement';
 
 function MyProfile(props: { user: UseQueryResult<User> }) {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -51,12 +52,15 @@ function MyProfile(props: { user: UseQueryResult<User> }) {
             <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
               <UploadPicture />
               <TwoFactorAuthentication user={props.user.data} />
+              <Achievement nickname={props.user.data.nickname} />
             </div>
           </SideBox>
         </>
       )}
-      {props.user.isError && <p className='text-base text-gray-400'>We encountered an error 🤷</p>}
-      {props.user.isLoading && <LoadingSpinner/>}
+      {props.user.isError && (
+        <p className="text-base text-gray-400">We encountered an error 🤷</p>
+      )}
+      {props.user.isLoading && <LoadingSpinner />}
     </>
   );
 }

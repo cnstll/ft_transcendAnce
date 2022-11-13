@@ -179,6 +179,7 @@ async function main() {
       label: 'Who is the boss',
       image:
         'https://images.unsplash.com/photo-1507679799987-c73779587ccf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2342&q=80',
+      description: 'has been leader on the leaderboard',
     },
   });
 
@@ -190,6 +191,7 @@ async function main() {
       label: 'Social animal',
       image:
         'https://images.unsplash.com/photo-1484557985045-edf25e08da73?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1973&q=80',
+      description: 'has at least 5 friends',
     },
   });
 
@@ -201,6 +203,7 @@ async function main() {
       label: 'Serial ponger',
       image:
         'https://images.unsplash.com/photo-1609710228159-0fa9bd7c0827?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80',
+      description: 'has won at least 5 matches',
     },
   });
 
@@ -212,6 +215,7 @@ async function main() {
       label: 'It is the taking part that counts',
       image:
         'https://images.unsplash.com/photo-1527631120902-378417754324?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
+      description: 'has lost at least 5 matches',
     },
   });
 
@@ -223,6 +227,7 @@ async function main() {
       label: 'Security first',
       image:
         'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80',
+      description: 'has set two factor authentication',
     },
   });
 
@@ -234,6 +239,7 @@ async function main() {
       label: 'Gaming mania',
       image:
         'https://images.unsplash.com/photo-1592839719941-8e2651039d01?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1425&q=80',
+      description: 'has played at least 10 pong games',
     },
   });
 
@@ -245,6 +251,7 @@ async function main() {
       label: 'Builder',
       image:
         'https://images.unsplash.com/photo-1621077699198-692f1cc0173d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1885&q=80',
+      description: 'has participated to build this amazing TranscenDance',
     },
   });
 
