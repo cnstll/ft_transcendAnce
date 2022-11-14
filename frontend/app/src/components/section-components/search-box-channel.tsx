@@ -2,12 +2,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { Channel } from '../global-components/interface';
+import { Channel, channelType } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
 import SearchChannelItem from './chat/search-channel-item';
 import { socket } from '../global-components/client-socket';
 import JoinChannel from '../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
+import PasswordModal from './chat/password-modal';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -31,6 +32,8 @@ function SearchBoxChannel({
   const [searchData, setSearchData] = useState(defaultSearchData);
   const { keyword } = searchData;
   const queryClient = useQueryClient();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  let channelToJoin = undefined;
 
   useEffect(() => {
     socket.on('roomJoined', async (channelJoined: Channel) => {
@@ -86,7 +89,11 @@ function SearchBoxChannel({
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
         if (firstResult || firstResult === '') {
-          JoinChannel(filteredChannels[0]);
+          channelToJoin = filteredChannels[0];
+          if (channelToJoin.type != channelType.Protected)
+            JoinChannel(filteredChannels[0]);
+          else
+            setShowModal(true);
         }
       } else {
         alert('No channel found ;(');
@@ -133,6 +140,12 @@ function SearchBoxChannel({
                 ))}
             </ul>
           )}
+        </div>
+        <div className="z-index-20">
+          {showModal &&
+            channelToJoin !== undefined &&
+            <PasswordModal setShowModal={setShowModal} channel={channelToJoin}
+          />}
         </div>
       </div>
     </>

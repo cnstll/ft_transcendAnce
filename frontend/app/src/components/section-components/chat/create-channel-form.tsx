@@ -56,7 +56,6 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
-      console.log(formData);
       if (channel === 'alreadyUsedname') {
         setInputStatus('invalidAlreadyUsedname');
       }

@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Channel, ChannelRole, ChannelUser } from '@prisma/client';
+import { Channel, ChannelRole, ChannelType, ChannelUser } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Response } from 'express';
@@ -14,7 +14,7 @@ import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
-import * as argon2 from 'argon2';
+import * as argon from 'argon2';
 
 @Injectable()
 export class ChannelService {
@@ -131,8 +131,8 @@ export class ChannelService {
       /* Check the password is provided in the DTO for protected chan) */
       this.checkDto(dto);
       /* Hash the password */
-      dto.passwordHash = await argon2.hash(dto.passwordHash, {
-        type: argon2.argon2id,
+      dto.passwordHash = await argon.hash(dto.passwordHash, {
+        type: argon.argon2id,
       });
       /* Then try to create a new channel */
       const newChannel: Channel = await this.prisma.channel.create({
@@ -192,8 +192,8 @@ export class ChannelService {
       this.checkDto(dto);
       /* Check password is different than the one already in database */
       if (dto.passwordHash) {
-        dto.passwordHash = await argon2.hash(dto.passwordHash, {
-          type: argon2.argon2id,
+        dto.passwordHash = await argon.hash(dto.passwordHash, {
+          type: argon.argon2id,
         });
       }
       /* Then, update channel's information */
@@ -302,11 +302,12 @@ export class ChannelService {
         return null;
       }
       /* Hash the password */
-      dto.passwordHash = await argon2.hash(dto.passwordHash, {
-        type: argon2.argon2id,
-      });
+      if (dto.type === 'PROTECTED') {
+        dto.passwordHash = await argon.hash(dto.passwordHash, {
+          type: argon.argon2id,
+        });
+      }
       /* Then try to create a new channel */
-      //* What if channel name already exists ?
       const newChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
@@ -336,8 +337,26 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
-      /* Check the password is provided in the DTO for protected chan) */
-
+      /* Get the channel's password if the type is protected */
+      const channel: { type: ChannelType, passwordHash: string } =
+      await this.prisma.channel.findFirst({
+        where: {
+          id: channelDto.id,
+          type: ChannelType.PROTECTED,
+        },
+        select: {
+          type: true,
+          passwordHash: true,
+        },
+      });
+    /* If there is a channel's password and a password provided */
+    if (channel?.type === ChannelType.PROTECTED && channel.passwordHash && channelDto.passwordHash) {
+      /* Compare passwords */
+      const pwdMatches = await argon.verify(channel.passwordHash, channelDto.passwordHash)
+      /* If passwords don't match, throw error */
+      if (!pwdMatches)
+        throw new Error('InvalidPassword');
+    }
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
@@ -356,7 +375,9 @@ export class ChannelService {
       clientSocket.join(channelDto.id);
       return joinedChannel;
     } catch (error) {
-      //TODO Improve error handling
+      if (error == 'Error: InvalidPassword') {
+        return 'InvalidPassword';
+      }
       return null;
     }
   }
@@ -400,8 +421,8 @@ export class ChannelService {
       }
       /* Check password is different than the one already in database */
       if (dto.passwordHash) {
-        dto.passwordHash = await argon2.hash(dto.passwordHash, {
-          type: argon2.argon2id,
+        dto.passwordHash = await argon.hash(dto.passwordHash, {
+          type: argon.argon2id,
         });
       }
       /* Then, update channel's information */
