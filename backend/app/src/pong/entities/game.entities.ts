@@ -103,10 +103,10 @@ export class Game {
   };
 
   moveBall() {
-    if (this.by >= 100) {
+    if (this.by >= this.gameConstants.relativeGameWidth) {
       this.diry = this.diry * -1;
     }
-    if (this['by'] <= 0) {
+    if (this.by <= 0) {
       this.diry = this.diry * -1;
     }
     if (
@@ -121,24 +121,25 @@ export class Game {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx > 0) {
-              this.dirx = 5;
+              this.dirx = this.gameConstants.maxSpeed;
             } else {
               this.dirx = this.dirx * -1;
-              if (this.dirx < 3) {
-                this.dirx += 0.05;
+              if (this.dirx < this.gameConstants.maxSpeed) {
+                this.dirx += this.gameConstants.speedIncrease;
               }
             }
             break;
           }
           case GameMode.CLASSIC: {
             this.dirx = this.dirx * -1;
-            if (this.dirx < 3) {
-              this.dirx += 0.05;
+            if (this.dirx < this.gameConstants.maxSpeed) {
+              this.dirx += this.gameConstants.speedIncrease;
             }
             break;
           }
         }
-        this.diry = (this['by'] - this['p1y'] - 5) / 10;
+        // this number stays magic because it actually is magic
+        this.diry = (this.by - this.p1y) / 10;
       }
     }
 
@@ -154,27 +155,29 @@ export class Game {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx < 0) {
-              this.dirx = -5;
+              this.dirx = -this.gameConstants.maxSpeed;
             } else {
               this.dirx = this.dirx * -1;
-              if (this.dirx > -3) {
-                this.dirx -= 0.05;
+              if (this.dirx > -this.gameConstants.maxSpeed) {
+                this.dirx -= this.gameConstants.speedIncrease;
               }
             }
             break;
           }
           case GameMode.CLASSIC: {
             this.dirx = this.dirx * -1;
-            if (this.dirx > -2) {
-              this.dirx -= 0.05;
+            if (this.dirx > -this.gameConstants.maxSpeed) {
+              this.dirx -= this.gameConstants.speedIncrease;
             }
             break;
           }
         }
-        this.diry = (this['by'] - this['p2y'] - 5) / 10;
+        // this number stays magic because it actually is magic
+        this.diry = (this['by'] - this['p2y']) / 10;
       }
     }
-    if (this['bx'] <= 0) {
+    if (this.bx <= 0) {
+      this.p2s += 1;
       switch (this.mode) {
         case GameMode.CLASSIC: {
           this.dirx = this.gameConstants.initialSpeed;
@@ -185,14 +188,13 @@ export class Game {
         }
 
         case GameMode.MAYHEM: {
-          this.bx = 0;
-          this.p2s += 1;
-          this.dirx = 0.5;
+          this.dirx = this.gameConstants.initialSpeed;
           break;
         }
       }
     }
-    if (this['bx'] > 100) {
+    if (this.bx > this.gameConstants.relativeGameWidth) {
+      this.p1s += 1;
       switch (this.mode) {
         case GameMode.CLASSIC: {
           this.dirx = -this.gameConstants.initialSpeed;
@@ -203,15 +205,14 @@ export class Game {
         }
 
         case GameMode.MAYHEM: {
-          this.bx = 0;
-          this.p1s += 1;
-          this.dirx = 0.2;
+          this.bx = this.gameConstants.relativeGameWidth;
+          this.dirx = -this.gameConstants.initialSpeed;
           break;
         }
       }
     }
-    this['bx'] += this.dirx;
-    this['by'] += this.diry;
+    this.bx += this.dirx;
+    this.by += this.diry;
     return this;
   }
 

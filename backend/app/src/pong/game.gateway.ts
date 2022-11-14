@@ -57,6 +57,12 @@ export class GameGateway {
   handleAbandon(@ConnectedSocket() client: Socket) {
     this.gameService.pause(this.socketToId.get(client.id), this.server);
   }
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('reJoin')
+  rejoin(@GetCurrentUserId() userId: string) {
+    console.log(userId);
+    return this.gameService.rejoin(userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinGame')
