@@ -12,19 +12,13 @@ import { UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 import { GameMode } from './entities/game.entities';
 
-@WebSocketGateway({
+@WebSocketGateway(3333, {
   cors: {
-    // origin: 'http://localhost:8080',
     origin: [
       process.env.FRONTEND_URL,
       process.env.BACKEND_URL,
       process.env.DOMAIN,
       process.env.PUBLIC_URL,
-      // 'http://10.18.196.254:8080',
-      // 'http://10.18.196.254',
-      // 'http://localhost',
-      // 'http://localhost:8080',
-      // 'http://localhost:3000',
     ],
     credentials: true,
   },

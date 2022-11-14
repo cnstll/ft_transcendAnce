@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
-// import { apiUrl } from './interface';
+import { domain } from './interface';
 
-export const socket = io('transcendance.jcts.io', {
+export const socket = io(`${domain}`, {
   withCredentials: true,
 });
 export let socketID = '';

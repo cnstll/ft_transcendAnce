@@ -96,7 +96,7 @@ export class Game {
     relativeGameHeight: 100,
     player1PaddlePosX: 5,
     player2PaddlePosX: 95,
-    paddleWidth: 5,
+    paddleWidth: 1,
     maxSpeed: 3,
     speedIncrease: 0.03,
     initialSpeed: 0.2,
@@ -115,8 +115,8 @@ export class Game {
       this.bx >= this.gameConstants.player1PaddlePosX
     ) {
       if (
-        this.by >= this.p1y - this.paddleSize / 2 &&
-        this.by <= this.p1y + this.paddleSize / 2
+        this.by >= this.p1y - this.paddleSize / 2 - 3 &&
+        this.by <= this.p1y + this.paddleSize / 2 + 3
       ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
@@ -149,8 +149,8 @@ export class Game {
       this.bx <= this.gameConstants.player2PaddlePosX
     ) {
       if (
-        this.by >= this.p2y - this.paddleSize / 2 &&
-        this.by <= this.p2y + this.paddleSize / 2
+        this.by >= this.p2y - this.paddleSize / 2 - 3 &&
+        this.by <= this.p2y + this.paddleSize / 2 + 3
       ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
@@ -211,8 +211,8 @@ export class Game {
         }
       }
     }
-    this.bx += this.dirx;
-    this.by += this.diry;
+    this.bx += this.dirx * 2;
+    this.by += this.diry * 2;
     return this;
   }
 
@@ -245,20 +245,21 @@ export class Game {
   }
 
   returnGameInfo() {
+    // p1y: number;
+    // p2y: number;
+    // bx: number;
+    // by: number;
+    // p1s: number;
+    // p2s: number;
+    // paddleSize: number;
     return {
-      dirx: this.dirx,
-      diry: this.diry,
-      p1x: this.p1x,
       p1y: this.p1y,
-      p2x: this.p2x,
       p2y: this.p2y,
       bx: this.bx,
       by: this.by,
       p1s: this.p1s,
       p2s: this.p2s,
       paddleSize: this.paddleSize,
-      gameRoomId: this.gameRoomId,
-      color: this.color,
     };
   }
 

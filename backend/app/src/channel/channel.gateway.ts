@@ -15,7 +15,7 @@ import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 
-@WebSocketGateway({
+@WebSocketGateway(3333, {
   cors: {
     origin: [
       process.env.FRONTEND_URL,
