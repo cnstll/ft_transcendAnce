@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { UseOutsideClick } from 'src/components/custom-hooks/use-outside-click';
 import { AchievementData } from 'src/components/global-components/interface';
 import useUserAchievements from 'src/components/query-hooks/useUserAchievements';
 
@@ -12,8 +13,8 @@ function AchievementModal({
   nickname,
 }: AchievementModalProps) {
   return (
-    <div className="fixed z-50 md:inset-0">
-      <div className="relative max-w-md left-1/4 xl:top-28 lg:top-28 md:top-2 -top-10 -translate-x-3/4">
+    <div className="absolute z-50 bottom-[40%] left-1/4">
+      <div className="relative max-w-md -translate-x-3/4">
         <div className="relative bg-white rounded-lg shadow text-black">
           <img
             src={achievementData.image}
@@ -38,21 +39,32 @@ function SelectedAchievement({
 }: AchievementModalProps) {
   const [showModal, setShowModal] = useState<boolean>(false);
 
+  function ShowAchievementInfo() {
+    setShowModal((current) => !current);
+  }
+
+  function ClickOutsideHandler() {
+    setShowModal(false);
+  }
+
+  const ref = UseOutsideClick(ClickOutsideHandler);
+
   return (
-    <div>
+    <div ref={ref}>
       <img
         className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full cursor-pointer"
         src={achievementData.image}
         alt="Rounded achievement"
-        onMouseEnter={() => setShowModal(true)}
-        onMouseLeave={() => setShowModal(false)}
+        onClick={ShowAchievementInfo}
       />
-      {showModal && (
-        <AchievementModal
-          achievementData={achievementData}
-          nickname={nickname}
-        />
-      )}
+      <div>
+        {showModal && (
+          <AchievementModal
+            achievementData={achievementData}
+            nickname={nickname}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -66,7 +78,7 @@ function Achievement({ nickname }: { nickname: string }) {
       {achievementList.isSuccess && (
         <div className="py-10">
           <h3 className="py-4 border-t-2">Achievements</h3>
-          <div className="grid grid-cols-3 ">
+          <div className="grid grid-cols-3 gap-4">
             {achievementList.data.map((achievement) => (
               <div key={achievement.id}>
                 <SelectedAchievement
