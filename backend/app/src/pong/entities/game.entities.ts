@@ -193,7 +193,7 @@ export class Game {
         }
       }
     }
-    if (this.bx > 100) {
+    if (this.bx > this.gameConstants.relativeGameWidth) {
       this.p1s += 1;
       switch (this.mode) {
         case GameMode.CLASSIC: {
