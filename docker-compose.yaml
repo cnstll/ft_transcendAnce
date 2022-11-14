@@ -15,7 +15,7 @@ services:
     environment: 
       WDS_SOCKET_PORT: 0
       REACT_APP_FRONTEND_URL: 'localhost:8080'
-      REACT_APP_BACKEND_URL: 'https://localhost:3333'
+      REACT_APP_BACKEND_URL: 'https://transcendance.jcts.io'
   nginx:
     build: ./nginx/
     container_name: nginx 
