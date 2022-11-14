@@ -52,7 +52,11 @@ function MyProfile(props: { user: UseQueryResult<User> }) {
             <div className="flex flex-col flex-wrap gap-2 lg:gap-6 mt-2 lg:mt-20 text-[10px] sm:text-xs md:text-sm lg:text-base">
               <UploadPicture />
               <TwoFactorAuthentication user={props.user.data} />
-              <Achievement nickname={props.user.data.nickname} />
+              <Achievement
+                nickname={props.user.data.nickname}
+                eloScore={props.user.data.eloScore}
+                twoFaSet={props.user.data.twoFactorAuthenticationSet}
+              />
             </div>
           </SideBox>
         </>

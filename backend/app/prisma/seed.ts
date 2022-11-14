@@ -191,7 +191,7 @@ async function main() {
       label: 'Social animal',
       image:
         'https://images.unsplash.com/photo-1484557985045-edf25e08da73?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1973&q=80',
-      description: 'has at least 5 friends',
+      description: 'has at least 1 friend',
     },
   });
 

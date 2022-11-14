@@ -377,7 +377,7 @@ export class UserService {
       );
     }
     /* Set achievement social animal */
-    if (friendsList.length === 5) this.setAchievement(userId, 'achievement2');
+    if (friendsList.length === 1) this.setAchievement(userId, 'achievement2');
     return res.status(200).send(friendsList);
   }
 
