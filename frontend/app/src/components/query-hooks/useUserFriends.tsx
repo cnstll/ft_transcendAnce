@@ -4,7 +4,7 @@ import { apiUrl, User } from '../global-components/interface';
 
 const fetchUserFriends = () =>
   axios
-    .get<User[]>(`http://${apiUrl}/user/get-user-friends`, {
+    .get<User[]>(`${apiUrl}/user/get-user-friends`, {
       withCredentials: true,
     })
     .then((res) => res.data);

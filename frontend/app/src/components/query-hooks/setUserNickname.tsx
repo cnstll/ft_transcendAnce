@@ -5,7 +5,7 @@ import { apiUrl } from '../global-components/interface';
 const putUserNickname = (input: string) =>
   axios
     .put(
-      `http://${apiUrl}/user/update-nickname`,
+      `${apiUrl}/user/update-nickname`,
       { newNickname: input },
       { withCredentials: true },
     )

@@ -73,7 +73,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
 function UserInfo() {
   const logout = () => {
     axios
-      .get(`http://${apiUrl}/user/logout`, {
+      .get(`${apiUrl}/user/logout`, {
         withCredentials: true,
       })
       .catch((error) => console.log(error));

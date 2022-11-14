@@ -22,7 +22,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
     if (selectedFile) {
       formData.append('file', selectedFile);
       fileName =
-        `http://${apiUrl}/user/avatar/` +
+        `${apiUrl}/user/avatar/` +
         selectedFile.name.replace(/\s/g, '');
     }
     avatarImgMutation.mutate(formData, {

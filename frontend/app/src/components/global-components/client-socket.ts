@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
+import { apiUrl } from './interface';
 
-export const socket = io(`http://${process.env.REACT_APP_BACKEND_URL}`, {
+export const socket = io(`${apiUrl}`, {
   withCredentials: true,
 });
 export let socketID = '';

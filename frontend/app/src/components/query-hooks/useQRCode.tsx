@@ -4,7 +4,7 @@ import { apiUrl } from '../global-components/interface';
 
 const generateQRCode = () =>
   axios
-    .get<string>(`http://${apiUrl}/2fa/generate-qr-code`, {
+    .get<string>(`${apiUrl}/2fa/generate-qr-code`, {
       withCredentials: true,
     })
     .then((response) => response.data);

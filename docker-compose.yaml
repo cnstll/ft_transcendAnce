@@ -15,14 +15,18 @@ services:
     environment: 
       WDS_SOCKET_PORT: 0
       REACT_APP_FRONTEND_URL: 'localhost:8080'
-      REACT_APP_BACKEND_URL: 'localhost:3000'
+      REACT_APP_BACKEND_URL: 'https://localhost:3333'
   nginx:
-    image: nginx 
+    build: ./nginx/
     container_name: nginx 
     ports:
-      - 8000:80
+      - 80:80
+      - 443:443
+      - 3333:3333
     volumes:
       - ./frontend/app/build/:/usr/share/nginx/html
+      - ./nginx/conf/:/etc/nginx/conf.d
+      - ./nginx/certificates/:/etc/certs/
     networks:
       - frontend
       - backend 
@@ -35,6 +39,7 @@ services:
       - 5556:5556
     volumes:
       - ./backend/app:/home/app
+      - ./nginx/certificates/:/home/certs
       - ${ENTRYPOINT_PATH}:/home/entrypoint_scripts
     entrypoint: /home/entrypoint_scripts/start.sh
     networks:

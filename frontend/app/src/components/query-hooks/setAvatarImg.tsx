@@ -1,9 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 import { useMutation, UseMutationResult } from 'react-query';
+import { apiUrl } from '../global-components/interface';
 
 const putAvatarImg = (input: FormData) =>
   axios
-    .put(`http:///user/update-avatarImg`, input, {
+    .put(`${apiUrl}/user/update-avatarImg`, input, {
       withCredentials: true,
     })
     .then((res) => res);

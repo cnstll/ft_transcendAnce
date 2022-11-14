@@ -5,7 +5,7 @@ import { apiUrl, MatchData } from '../global-components/interface';
 const fetchUserMatchHistory = (nickname: string) =>
   axios
     .post<MatchData[]>(
-      `http://${apiUrl}/user/get-user-match-history`,
+      `${apiUrl}/user/get-user-match-history`,
       { userNickname: nickname },
       {
         withCredentials: true,

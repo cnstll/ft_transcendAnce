@@ -5,7 +5,7 @@ import { apiUrl, Stats } from '../global-components/interface';
 const fetchUserStats = (nickname: string) =>
   axios
     .post<Stats>(
-      `http://${apiUrl}/user/get-user-matches-stats`,
+      `${apiUrl}/user/get-user-matches-stats`,
       { userNickname: nickname },
       {
         withCredentials: true,

@@ -5,7 +5,7 @@ import { apiUrl, TargetInfo } from '../global-components/interface';
 const fetchTargetInfo = (targetNickname: string | undefined) =>
   axios
     .post<TargetInfo>(
-      `http://${apiUrl}/user/get-target-info`,
+      `${apiUrl}/user/get-target-info`,
       { nickname: targetNickname },
       { withCredentials: true },
     )

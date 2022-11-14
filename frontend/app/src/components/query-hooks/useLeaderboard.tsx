@@ -4,7 +4,7 @@ import { apiUrl, RankingData } from '../global-components/interface';
 
 const fetchLeaderboard = () =>
   axios
-    .get<RankingData[]>(`http://${apiUrl}/user/get-leaderboard`, {
+    .get<RankingData[]>(`${apiUrl}/user/get-leaderboard`, {
       withCredentials: true,
     })
     .then((response) => response.data);

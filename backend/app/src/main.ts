@@ -1,7 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+// import * as fs from 'fs';
 import * as cookieParser from 'cookie-parser';
+
+// const httpsOptions = {
+//   key: fs.readFileSync('/home/certs/transcendance.key'),
+//   cert: fs.readFileSync('/home/certs/transcendance.crt'),
+// };
 
 async function bootstrap() {
   console.log(process.env.FRONTEND_URL);
@@ -12,16 +18,12 @@ async function bootstrap() {
         process.env.BACKEND_URL,
         process.env.DOMAIN,
         process.env.PUBLIC_URL,
-        // 'http://10.18.196.254',
-        // 'http://10.18.196.254:8080',
-        // 'http://10.18.196.254:3000',
-        // 'http://localhost',
-        // 'http://localhost:8080',
-        // 'http://localhost:3000',
       ],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE'],
       credentials: true,
     },
+    logger: ['debug', 'verbose', 'log', 'warn', 'error'],
+    // httpsOptions,
   });
   app.useGlobalPipes(
     new ValidationPipe({

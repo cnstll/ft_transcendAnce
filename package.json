@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev-env:up": "npm run decrypt && docker compose up dev-db frontend backend",
-    "prod-env:up": "npm run decrypt && docker compose up dev-db frontend backend nginx",
+    "prod-env:up": "npm run decrypt && docker compose up dev-db backend nginx",
     "ddevev-env:down": "docker compose down",
     "test-env:down": "docker compose down",
     "test-env:up": "npm run decrypt && docker compose --env-file .env.test up test-db frontend backend",
@@ -24,6 +24,7 @@
     "cleanup:network": "docker network rm $(docker network ls -q) 2>/dev/null;",
     "cleanup": "npm run cleanup:stop; npm run cleanup:containers ; npm run cleanup:images ; npm run cleanup:volumes ; npm run cleanup:network",
     "prisma:studio:dev": "docker exec backend npx prisma studio",
+    "nginx:reload": "docker exec -it nginx nginx -s reload",
     "prisma:db:seed": "docker exec backend npx prisma db seed",
     "prisma:studio:test": "docker exec -it backend npx dotenv -e .env.test -- prisma studio",
     "prisma:migrate": "docker exec -it backend npx prisma migrate dev",
