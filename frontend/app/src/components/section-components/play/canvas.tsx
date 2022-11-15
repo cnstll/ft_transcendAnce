@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
 import { GameCoords, GameStatus } from '../../global-components/interface';
 
@@ -8,9 +9,10 @@ let paddleHeight = 50;
 interface GameProps {
   gameMode: string;
   avatarImg: string;
+  userId: string;
 }
 
-function Game({ gameMode, avatarImg }: GameProps) {
+function Game({ gameMode, avatarImg, userId }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ function Game({ gameMode, avatarImg }: GameProps) {
   const [playerNumber, setPlayerNumber] = useState<number | undefined>(
     undefined,
   );
+  const [playerOneId, setPlayerOneId] = useState<string | undefined>(undefined);
+  const [playerTwoId, setPlayerTwoId] = useState<string | undefined>(undefined);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
 
   useEffect(() => {
@@ -116,6 +120,8 @@ function Game({ gameMode, avatarImg }: GameProps) {
           context.fillRect(posx, posy - paddleHeight / 2, 10, paddleHeight);
           context.font = '30px Aldrich';
           setPlayerOneScore(text.p1s);
+          setPlayerOneId(text.p1s);
+          setPlayerTwoId(text.p1s);
           if (playerNumber === 1) {
             context.font = '30px Aldrich';
             context.fillStyle = 'green';
@@ -266,6 +272,10 @@ function Game({ gameMode, avatarImg }: GameProps) {
       }
     }
   }
+  // let opponent: <TargetInfo | undefined>;
+
+  // if (playerOneId === userId) opponent = useOpponentInfo(playerTwoId);
+  // else opponent = useOpponentInfo(playerTwoId);
 
   return (
     <>

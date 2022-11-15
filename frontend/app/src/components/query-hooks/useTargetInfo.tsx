@@ -11,7 +11,7 @@ const fetchTargetInfo = (targetNickname: string | undefined) =>
     )
     .then((res) => res.data);
 
-function useTargetInfo(
+export function useTargetInfo(
   targetNickname: string | undefined,
 ): UseQueryResult<TargetInfo> {
   return useQuery(['targetInfo', targetNickname], () =>
@@ -19,4 +19,17 @@ function useTargetInfo(
   );
 }
 
-export default useTargetInfo;
+const fetchOpponentInfo = (userId: string | undefined) =>
+  axios
+    .post<TargetInfo>(
+      'http://localhost:3000/user/get-user-info',
+      { userId: userId },
+      { withCredentials: true },
+    )
+    .then((res) => res.data);
+
+export function useOpponentInfo(
+  userId: string | undefined,
+): UseQueryResult<TargetInfo> {
+  return useQuery(['opponentInfo', userId], () => fetchOpponentInfo(userId));
+}

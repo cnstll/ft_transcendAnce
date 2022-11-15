@@ -76,6 +76,8 @@ export enum GameStatus {
 
 export interface GameCoords {
   gameRoom: string;
+  p1id: string;
+  p2id: string;
   dirx: number;
   diry: number;
   p1x: number;
