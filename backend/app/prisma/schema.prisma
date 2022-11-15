@@ -71,7 +71,8 @@ model Achievement {
   id          String            @id @default(cuid())
   achievement UserAchievement[] @relation("userAchievement")
   label       String
-  image       String?
+  description String
+  image       String
 
   @@map("achievements")
 }
