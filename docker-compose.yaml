@@ -16,7 +16,7 @@ services:
       WDS_SOCKET_PORT: 0
       REACT_APP_FRONTEND_URL: 'localhost:8080'
       REACT_APP_BACKEND_URL: 'http://localhost:3000'
-      REACT_APP_DOMAIN: 'localhost:3000'
+      REACT_APP_DOMAIN: 'localhost:3333'
   nginx:
     build: ./nginx/
     container_name: nginx 
@@ -30,16 +30,27 @@ services:
     networks:
       - frontend
       - backend 
-  backend:
+  prod-backend:
     build: ./backend/
-    container_name: backend
+    container_name: prod-backend
+    volumes:
+      - ./backend/app:/home/app
+      - ./nginx/certificates/:/home/certs
+      - ${ENTRYPOINT_PATH}:/home/entrypoint_scripts
+    entrypoint: /home/entrypoint_scripts/start.sh
+    networks:
+      - backend
+      - frontend
+  dev-backend:
+    build: ./backend/
+    container_name: dev-backend
     ports:
       - 3000:3000
+      - 3333:3333
       - 5555:5555
       - 5556:5556
     volumes:
       - ./backend/app:/home/app
-      - ./nginx/certificates/:/home/certs
       - ${ENTRYPOINT_PATH}:/home/entrypoint_scripts
     entrypoint: /home/entrypoint_scripts/start.sh
     networks:
