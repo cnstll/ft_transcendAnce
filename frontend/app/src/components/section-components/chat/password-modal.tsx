@@ -1,16 +1,7 @@
 import { Dispatch, useEffect, useState } from "react";
-// import { useQueryClient } from "react-query";
-// import { useNavigate } from "react-router-dom";
 import JoinChannel from "src/components/custom-hooks/emit-join-channel";
 import { socket } from "src/components/global-components/client-socket";
 import { Channel } from "src/components/global-components/interface";
-
-/* Tester quel objet channel je récupère quand on est dans le search
-(est-ce que l'objet contient le hashpassword?
-ca devrait pas => a enlever dans la condition
-de l'edition qui dit si j'ai un password
-j'affiche changer et sinon ajouter) */
-
 
 interface PwdModalProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
@@ -74,7 +65,7 @@ function PasswordModal(props: PwdModalProps) {
                     value={formData}
                     onChange={onChange}
                     autoComplete="off"
-                    placeholder={`Enter the channel's password`}
+                    placeholder={`Enter channel's password`}
                   />
                   {inputStatus === 'invalidPassword' &&
                     <p className="text-red-500 text-xs font-medium my-1">

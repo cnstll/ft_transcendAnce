@@ -132,14 +132,15 @@ function SearchBoxChannel({
               {filterChannels(channels, searchData.keyword)
                 ?.slice(0, 5)
                 .map((channelItem) => (
-                  <div>
+                  <div key={channelItem.id}>
                     <SearchChannelItem
-                      key={channelItem.id}
                       channel={channelItem}
                     />
                     <div className="z-index-20">
                       {showModal &&
-                        <PasswordModal setShowModal={setShowModal} channel={channelItem}/>
+                        <PasswordModal
+                          setShowModal={setShowModal}
+                          channel={channelItem}/>
                       }
                     </div>
                   </div>
