@@ -37,7 +37,7 @@ export class GameService {
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
-          this.addInterval(game.gameRoomId, userId, 10, server);
+          this.addInterval(game.gameRoomId, userId, 30, server);
         }
         if (game.p2id === userId) return { playerNumber: 2 };
         return { playerNumber: 1 };
@@ -45,7 +45,7 @@ export class GameService {
       if ((game = this.GameMap.matchPlayer(userId))) {
         client.join(game.gameRoomId);
         this.mutateGameStatus(game, Status.PLAYING, server);
-        this.addInterval(game.gameRoomId, userId, 10, server);
+        this.addInterval(game.gameRoomId, userId, 30, server);
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
@@ -124,14 +124,6 @@ export class GameService {
     return game;
   }
 
-  // endGame(userId: string) {
-  //       const game = this.GameMap.getGame(userId);
-  //       this.deleteInterval(game.gameRoomId);
-  //       this.mutateGameStatus(game, Status.DONE, server);
-  //       game.saveGameResults(this.prismaService);
-  //       this.GameMap.delete(game.p1id);
-  // }
-
   addInterval(
     gameRoomId: string,
     userId: string,
@@ -147,7 +139,6 @@ export class GameService {
         game.saveGameResults(this.prismaService);
         this.GameMap.delete(userId);
       }
-      // TODO this needs to be replaced by an actual mechanic
       server.to(gameRoomId).emit('updatedGameInfo', message);
       server.emit('matchFinished');
     };
