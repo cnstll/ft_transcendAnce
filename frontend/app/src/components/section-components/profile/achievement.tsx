@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { UseOutsideClick } from 'src/components/custom-hooks/use-outside-click';
 import { AchievementData } from 'src/components/global-components/interface';
 import useUserAchievements from 'src/components/query-hooks/useUserAchievements';
+import LoadingSpinner from '../loading-spinner';
 
 interface AchievementModalProps {
   achievementData: AchievementData;
@@ -81,7 +82,12 @@ function Achievement({ nickname, eloScore, twoFaSet }: AchievementProps) {
 
   return (
     <>
-      {achievementList.isLoading && <p>isLoading...</p>}
+      {achievementList.isLoading && <LoadingSpinner />}
+      {achievementList.isError && (
+        <p className="m-4 text-base text-gray-400">
+          We encountered an error 🤷
+        </p>
+      )}
       {achievementList.isSuccess && (
         <div className="py-10">
           <h3 className="py-4 border-t-2 text-[10px] sm:text-xs md:text-sm lg:text-base">

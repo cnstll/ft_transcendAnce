@@ -3,13 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import {
-  User,
-  FriendshipStatus,
-  UserStatus,
-  Match,
-  Achievement,
-} from '@prisma/client';
+import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { Stat } from './interfaces/stats.interface';
