@@ -71,9 +71,7 @@ export enum GameStatus {
 }
 
 export interface GameCoords {
-  // p1x: number;
   p1y: number;
-  // p2x: number;
   p2y: number;
   bx: number;
   by: number;

@@ -46,8 +46,8 @@ function Game({ gameMode }: { gameMode: string }) {
     socket.on('gameStatus', joinListener);
     if (canvas !== null) {
 
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth ;
+      canvas.height = window.innerHeight / 2;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight / 2 + 5}px`;
       paddleHeight = canvas.height / 20;
@@ -79,52 +79,34 @@ function Game({ gameMode }: { gameMode: string }) {
           context.fillText('you will win by default in 10s',window.innerWidth / 4, canvas.height/ 4 + canvas.height / 8);
         }
 
-        const paddleWidth = window.innerWidth * 0.01;
-        const heightScalar = canvas.height / (2 * 100);
-        const widthScalar = canvas.width/ (2 * 100);
-        const p1x = widthScalar * 5;
-        const p2x = widthScalar * 95;
+        const paddleWidth = window.innerWidth * 0.003;
+        const heightScalar = canvas.height / (2 * 1000);
+        const widthScalar = canvas.width / (2 * 1000);
+        const p1x = widthScalar * 80 - paddleWidth;
+        const p2x = widthScalar * 920;
+        const ballWidth = widthScalar * 5;
+
         const messageListener = (text: GameCoords) => {
+          // refreshing the canvas
           context.fillStyle = 'black';
           context.fillRect(0, 0, canvas.width / 2, canvas.height);
+
+          // drawing the net
           context.fillStyle = 'white';
           context.stroke();
-          let posy = heightScalar * text.p1y;
-          // let posx = widthScalar * text.p1x;
 
-          // let posy = (canvas.height / 2) * (text.p1y / 100);
-          // let posx = (canvas.width / 2) * (text.p1x / 100);
+          // drawing the paddles
+          context.fillRect(p1x, heightScalar * text.p1y - (paddleHeight / 2 ), paddleWidth, paddleHeight);
+          context.fillRect(p2x, heightScalar * text.p2y - (paddleHeight/2), paddleWidth, paddleHeight);
 
-          // drawing the paddle
-          context.fillRect(p1x, posy - (paddleHeight / 2 ), paddleWidth, paddleHeight);
-
-          posy = heightScalar * text.p2y;
-          // posx = widthScalar * text.p2x;
-
-          context.fillRect(p2x, posy - (paddleHeight/2), paddleWidth, paddleHeight);
-
-          // if (player === 1) {
+          // Writing scores
           context.font = '30px Aldrich';
-          // context.fillStyle = 'green';
           context.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
-          // context.font = '30px Aldrich';
-          // context.fillStyle = 'red';
           context.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
-          // } else {
-          //   context.font = '30px Aldrich';
-          //   context.fillStyle = 'red';
-          //   context.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
-          //   context.font = '30px Aldrich';
-          //   context.fillStyle = 'green';
-          //   context.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
-          // }
 
+          //drawing the ball
           context.fillStyle = 'yellow';
-          posy = heightScalar * text.by;
-          const posx = widthScalar * text.bx;
-          // posy = (canvas.height / 2) * (text.by / 100);
-          // posx = (canvas.width / 2) * (text.bx / 100);
-          context.fillRect(posx - 5 , posy, 10, 10);
+          context.fillRect(widthScalar * (text.bx - ballWidth / 2) , heightScalar * text.by, ballWidth, ballWidth);
         };
 
         socket.on('updatedGameInfo', messageListener);
@@ -138,7 +120,7 @@ function Game({ gameMode }: { gameMode: string }) {
   }, [window.innerWidth, window.innerHeight, gameStatus, window]);
 
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
-    const clientY = event.clientY;
+    const clientY = event.clientY ;
 
     if (contextRef.current !== null && canvasRef.current !== null) {
       //Center vertically
@@ -147,12 +129,12 @@ function Game({ gameMode }: { gameMode: string }) {
       contextRef.current.textAlign = 'center';
       const size = 0.03 * canvasRef.current.width;
       const rect = canvasRef.current.getBoundingClientRect();
-      const posy = ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
+      const posy = ((clientY - rect.top) / (canvasRef.current.height / 2)) * 1000;
       switch (gameStatus) {
         case GameStatus.PLAYING:
           socket.emit(
             'updatePaddlePos',
-            { yPos: posy },
+            { yPos: posy / 2 },
             (res: GameCoords) => {
               void res;
             },
@@ -177,7 +159,7 @@ function Game({ gameMode }: { gameMode: string }) {
           contextRef.current.fillText('Opponent disconnected',canvasRef.current.width / 4, canvasRef.current.height/ 4 - canvasRef.current.height / 8);
           contextRef.current.fillText('you will win by default in 10s',canvasRef.current.width / 4, canvasRef.current.height/ 4 + canvasRef.current.height / 8);
           contextRef.current.fillStyle = 'white';
-          contextRef.current.fillRect(50, clientY -rect.top - (paddleHeight / 2 ), 10, paddleHeight);
+          contextRef.current.fillRect(50, (clientY -rect.top) / 2 - (paddleHeight / 2 ), 10, paddleHeight);
           break;
       }
     }
