@@ -1,6 +1,6 @@
 import { Dispatch, useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
-import { useNavigate } from "react-router-dom";
+// import { useQueryClient } from "react-query";
+// import { useNavigate } from "react-router-dom";
 import JoinChannel from "src/components/custom-hooks/emit-join-channel";
 import { socket } from "src/components/global-components/client-socket";
 import { Channel } from "src/components/global-components/interface";
@@ -20,26 +20,15 @@ interface PwdModalProps {
 function PasswordModal(props: PwdModalProps) {
   const [formData, setFormData] = useState('');
   const [inputStatus, setInputStatus] = useState<string>('empty');
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const channelsQueryKey = 'channelsByUserList';
-
 
   useEffect(() => {
-    socket.on('roomJoined', () => {
-      props.setShowModal(false);
-      queryClient.refetchQueries(channelsQueryKey);
-      setFormData('');
-      navigate('../chat/' + props.channel.id);
-    });
-
-    socket.on('JoinRoomWrongPWD', (channel: null | string) => {
+    socket.on('joinRoomPWDFailed', (channel: null | string) => {
       if (channel === 'InvalidPassword') {
         setInputStatus('invalidPassword');
       }
     });
     return () => {
-      socket.off('roomJoined');
+      socket.off('joinRoomPWDFailed');
     };
   }, [formData]);
 

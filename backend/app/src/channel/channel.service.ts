@@ -338,25 +338,31 @@ export class ChannelService {
   ) {
     try {
       /* Get the channel's password if the type is protected */
-      const channel: { type: ChannelType, passwordHash: string } =
-      await this.prisma.channel.findFirst({
-        where: {
-          id: channelDto.id,
-          type: ChannelType.PROTECTED,
-        },
-        select: {
-          type: true,
-          passwordHash: true,
-        },
-      });
-    /* If there is a channel's password and a password provided */
-    if (channel?.type === ChannelType.PROTECTED && channel.passwordHash && channelDto.passwordHash) {
-      /* Compare passwords */
-      const pwdMatches = await argon.verify(channel.passwordHash, channelDto.passwordHash)
-      /* If passwords don't match, throw error */
-      if (!pwdMatches)
-        throw new Error('InvalidPassword');
-    }
+      const channel: { type: ChannelType; passwordHash: string } =
+        await this.prisma.channel.findFirst({
+          where: {
+            id: channelDto.id,
+            type: ChannelType.PROTECTED,
+          },
+          select: {
+            type: true,
+            passwordHash: true,
+          },
+        });
+      /* If there is a channel's password and a password provided */
+      if (
+        channel?.type === ChannelType.PROTECTED &&
+        channel.passwordHash &&
+        channelDto.passwordHash
+      ) {
+        /* Compare passwords */
+        const pwdMatches = await argon.verify(
+          channel.passwordHash,
+          channelDto.passwordHash,
+        );
+        /* If passwords don't match, throw error */
+        if (!pwdMatches) throw new Error('InvalidPassword');
+      }
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {

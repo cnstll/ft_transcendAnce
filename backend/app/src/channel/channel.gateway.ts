@@ -79,11 +79,11 @@ export class ChannelGateway {
       userId,
       clientSocket,
     );
-    typeof joinedRoom === 'string' ?
-      this.server.to(clientSocket.id).emit('JoinRoomWrongPWD', joinedRoom) :
-      (typeof joinedRoom === null)
-      ? this.server.to(clientSocket.id).emit('joinRoomFailed') :
-        this.server.to(dto.id).emit('roomJoined', joinedRoom);
+    typeof joinedRoom === 'string'
+      ? this.server.to(clientSocket.id).emit('joinRoomPWDFailed', joinedRoom)
+      : typeof joinedRoom === null
+      ? this.server.to(clientSocket.id).emit('joinRoomFailed')
+      : this.server.to(dto.id).emit('roomJoined', joinedRoom);
   }
 
   //   When a user send a message in a channel, all the users within the room receive the message

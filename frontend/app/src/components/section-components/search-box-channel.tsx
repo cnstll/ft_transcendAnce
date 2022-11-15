@@ -33,12 +33,12 @@ function SearchBoxChannel({
   const { keyword } = searchData;
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState<boolean>(false);
-  let channelToJoin = undefined;
 
   useEffect(() => {
     socket.on('roomJoined', async (channelJoined: Channel) => {
       await queryClient.refetchQueries('channelsByUserList');
       setIsShown(false);
+      setShowModal(false);
       navigate(`../chat/${channelJoined.id}`);
     });
     socket.on('joinRoomFailed', () => {
@@ -89,11 +89,10 @@ function SearchBoxChannel({
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
         if (firstResult || firstResult === '') {
-          channelToJoin = filteredChannels[0];
-          if (channelToJoin.type != channelType.Protected)
-            JoinChannel(filteredChannels[0]);
-          else
+          if (filteredChannels[0].type === channelType.Protected)
             setShowModal(true);
+          else
+            JoinChannel(filteredChannels[0]);
         }
       } else {
         alert('No channel found ;(');
@@ -133,19 +132,21 @@ function SearchBoxChannel({
               {filterChannels(channels, searchData.keyword)
                 ?.slice(0, 5)
                 .map((channelItem) => (
-                  <SearchChannelItem
-                    key={channelItem.id}
-                    channel={channelItem}
-                  />
-                ))}
+                  <div>
+                    <SearchChannelItem
+                      key={channelItem.id}
+                      channel={channelItem}
+                    />
+                    <div className="z-index-20">
+                      {showModal &&
+                        <PasswordModal setShowModal={setShowModal} channel={channelItem}/>
+                      }
+                    </div>
+                  </div>
+                )
+                )}
             </ul>
           )}
-        </div>
-        <div className="z-index-20">
-          {showModal &&
-            channelToJoin !== undefined &&
-            <PasswordModal setShowModal={setShowModal} channel={channelToJoin}
-          />}
         </div>
       </div>
     </>
