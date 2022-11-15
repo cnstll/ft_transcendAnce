@@ -18,18 +18,3 @@ export function useTargetInfo(
     fetchTargetInfo(targetNickname),
   );
 }
-
-const fetchOpponentInfo = (userId: string | undefined) =>
-  axios
-    .post<TargetInfo>(
-      'http://localhost:3000/user/get-user-info',
-      { userId: userId },
-      { withCredentials: true },
-    )
-    .then((res) => res.data);
-
-export function useOpponentInfo(
-  userId: string | undefined,
-): UseQueryResult<TargetInfo> {
-  return useQuery(['opponentInfo', userId], () => fetchOpponentInfo(userId));
-}

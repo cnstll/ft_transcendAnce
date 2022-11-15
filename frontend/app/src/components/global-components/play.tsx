@@ -60,11 +60,7 @@ function Play() {
             </div>
           )}
           {gameMode != null && (
-            <Game
-              gameMode={gameMode}
-              avatarImg={user.data.avatarImg}
-              userId={user.data.id}
-            />
+            <Game gameMode={gameMode} avatarImg={user.data.avatarImg} />
           )}
         </Background>
       </div>
