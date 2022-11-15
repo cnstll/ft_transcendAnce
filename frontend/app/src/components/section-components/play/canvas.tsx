@@ -99,31 +99,6 @@ function Game({ gameMode, avatarImg }: GameProps) {
             window.innerWidth / 4,
             canvas.height / 4 + canvas.height / 8,
           );
-        } else if (gameStatus === GameStatus.OVER) {
-          context.fillStyle = 'black';
-          context.fillRect(0, 0, canvas.width / 2, canvas.height);
-          context.font = size.toString() + 'px Aldrich';
-          if (playerOneScore === 10 && playerNumber === 1) {
-            context.fillStyle = 'green';
-            context.fillText(
-              'Congratulations, you won!',
-              canvas.width / 4,
-              canvas.height / 4 - canvas.height / 8,
-            );
-          } else {
-            context.fillStyle = 'red';
-            context.fillText(
-              'Sorry, you lost!',
-              canvas.width / 4,
-              canvas.height / 4 - canvas.height / 8,
-            );
-          }
-          context.fillText(
-            'Sorry, you lost!',
-            canvas.width / 4,
-            canvas.height / 4 + canvas.height / 8,
-          );
-          context.fillStyle = 'red';
         }
 
         const messageListener = (text: GameCoords) => {
@@ -140,6 +115,7 @@ function Game({ gameMode, avatarImg }: GameProps) {
           posx = (canvas.width / 2) * (text.p2x / 100);
           context.fillRect(posx, posy - paddleHeight / 2, 10, paddleHeight);
           context.font = '30px Aldrich';
+          setPlayerOneScore(text.p1s);
           if (playerNumber === 1) {
             context.font = '30px Aldrich';
             context.fillStyle = 'green';
@@ -155,7 +131,6 @@ function Game({ gameMode, avatarImg }: GameProps) {
               canvas.width / 4 + 100,
               50,
             );
-            setPlayerOneScore(text.p1s);
           } else {
             context.font = '30px Aldrich';
             context.fillStyle = 'red';
@@ -218,7 +193,7 @@ function Game({ gameMode, avatarImg }: GameProps) {
           contextRef.current.font = size.toString() + 'px Aldrich';
           contextRef.current.fillStyle = 'green';
           contextRef.current.fillText(
-            'waiting for a partner...',
+            'Waiting for a partner...',
             canvasRef.current.width / 4,
             canvasRef.current.height / 4,
           );
@@ -269,28 +244,24 @@ function Game({ gameMode, avatarImg }: GameProps) {
             canvasRef.current.height,
           );
           contextRef.current.font = size.toString() + 'px Aldrich';
-          if (playerOneScore === 10 && playerNumber === 1) {
+          if (
+            (playerOneScore === 10 && playerNumber === 1) ||
+            (playerOneScore !== 10 && playerNumber === 2)
+          ) {
             contextRef.current.fillStyle = 'green';
             contextRef.current.fillText(
-              'Congratulations, you won',
+              'Congratulations, you won!',
               canvasRef.current.width / 4,
-              canvasRef.current.height / 4 - canvasRef.current.height / 8,
+              canvasRef.current.height / 4,
             );
           } else {
             contextRef.current.fillStyle = 'red';
             contextRef.current.fillText(
-              'Sorry, you lost',
+              'Sorry, you lost!',
               canvasRef.current.width / 4,
-              canvasRef.current.height / 4 - canvasRef.current.height / 8,
+              canvasRef.current.height / 4,
             );
           }
-          contextRef.current.fillStyle = 'white';
-          contextRef.current.fillRect(
-            50,
-            clientY - rect.top - paddleHeight / 2,
-            10,
-            paddleHeight,
-          );
           break;
       }
     }
