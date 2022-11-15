@@ -3,24 +3,29 @@ import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import Game from '../section-components/play/canvas';
 import Button from '../section-components/button';
+import { socket } from '../global-components/client-socket';
 
 function Play() {
-  const { id } = useParams();
   const user = useUserInfo();
   const navigate = useNavigate();
   const [gameMode, setGameMode] = useState<string | null>(null);
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
-    if (id) {
-      localStorage.setItem('gameId', id);
-    }
-  });
+    socket.emit(
+      'reJoin',
+      { mode: gameMode },
+      (response:  string | null) => {
+        setGameMode(response);
+     },
+
+    );
+  }, []);
 
   const setMayhem = () => {
     setGameMode('MAYHEM');
