@@ -16,6 +16,7 @@ function Game({ gameMode }: { gameMode: string }) {
     socket.emit(
       'joinGame',
       { mode: gameMode },
+      // if we want to do conditional elements based on player number we will need this
       // (response: { playerNumber: number }) => {
       //   player = response.playerNumber;
       // },
@@ -49,7 +50,7 @@ function Game({ gameMode }: { gameMode: string }) {
       canvas.width = window.innerWidth ;
       canvas.height = window.innerHeight / 2;
       canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight / 2 + 5}px`;
+      canvas.style.height = `${window.innerHeight / 2}px`;
       paddleHeight = canvas.height / 20;
       const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
       if (context !== null) {

@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev-env:up": "npm run decrypt && docker compose up dev-db frontend dev-backend",
-    "prod-env:up": "npm run decrypt && docker compose --env-file .env.prod up dev-db prod-backend nginx",
+    "prod-env:up": "npm run decrypt && npm --prefix ./frontend/app run build && docker compose --env-file .env.prod up dev-db prod-backend nginx",
     "backend:rebuild": "docker exec prod-backend npm run build",
     "dev-env:down": "docker compose down",
     "test-env:down": "docker compose down",

@@ -94,7 +94,7 @@ export class Game {
     player2PaddlePosX: 920,
     paddleWidth: 10,
     ballHeight: 30,
-    maxSpeed: 7,
+    maxSpeed: 8,
     speedIncrease: 1,
     initialSpeed: 2,
   };
@@ -213,8 +213,8 @@ export class Game {
       }
     }
 
-    this.bx += this.dirx * 2;
-    this.by += this.diry * 2;
+    this.bx += this.dirx;
+    this.by += this.diry;
     return this;
   }
 
@@ -247,13 +247,6 @@ export class Game {
   }
 
   returnGameInfo() {
-    // p1y: number;
-    // p2y: number;
-    // bx: number;
-    // by: number;
-    // p1s: number;
-    // p2s: number;
-    // paddleSize: number;
     return {
       p1y: this.p1y,
       p2y: this.p2y,
@@ -261,7 +254,6 @@ export class Game {
       by: this.by,
       p1s: this.p1s,
       p2s: this.p2s,
-      paddleSize: this.paddleSize,
     };
   }
 

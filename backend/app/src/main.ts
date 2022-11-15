@@ -1,13 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-// import * as fs from 'fs';
 import * as cookieParser from 'cookie-parser';
-
-// const httpsOptions = {
-//   key: fs.readFileSync('/home/certs/transcendance.key'),
-//   cert: fs.readFileSync('/home/certs/transcendance.crt'),
-// };
 
 async function bootstrap() {
   console.log(process.env.FRONTEND_URL);
@@ -22,8 +16,6 @@ async function bootstrap() {
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE'],
       credentials: true,
     },
-    logger: ['debug', 'verbose', 'log', 'warn', 'error'],
-    // httpsOptions,
   });
   app.useGlobalPipes(
     new ValidationPipe({

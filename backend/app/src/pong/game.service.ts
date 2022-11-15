@@ -132,6 +132,7 @@ export class GameService {
   ) {
     const callback = () => {
       const message = this.moveBall(userId);
+      //  I want to change this to make the game more blazingly fast
       if (message.p2s >= 10 || message.p1s >= 10) {
         const game = this.GameMap.getGame(userId);
         this.deleteInterval(gameRoomId);
