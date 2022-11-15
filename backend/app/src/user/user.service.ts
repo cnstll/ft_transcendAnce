@@ -10,6 +10,7 @@ import { Stat } from './interfaces/stats.interface';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Response } from 'express';
 import { MatchHistory } from './interfaces/matchHistory.interface';
+import { HttpStatusCode } from 'axios';
 
 @Injectable()
 export class UserService {
@@ -25,6 +26,7 @@ export class UserService {
           immutableId: dto.immutableId.toString(),
           passwordHash: dto.passwordHash,
           avatarImg: dto.avatarImg,
+          status: UserStatus.ONLINE,
         },
       });
       return user;
@@ -144,8 +146,21 @@ export class UserService {
     });
   }
 
-  logout(res: Response) {
-    return res.clearCookie('jwtToken', { httpOnly: true });
+  async logout(res: Response, userId: string) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          status: UserStatus.OFFLINE,
+        },
+      });
+      return res.status(200).clearCookie('jwtToken', { httpOnly: true }).send();
+    } catch (error) {
+      //UserId was not found
+      return res.status(401).send();
+    }
   }
 
   /** Friendship management */
@@ -366,6 +381,7 @@ export class UserService {
         await this.getInfo(userId, friends.friendsRequester[i].addresseeId),
       );
     }
+    console.log(friendsList);
     return res.status(200).send(friendsList);
   }
 
