@@ -29,7 +29,12 @@ export class UserService {
       });
       /* Check if the immutable ID are those of Colomban, Constant, Estelle or Lea
        to set achievement builder */
-      if (user.immutableId === '75984' || user.immutableId === '74707')
+      if (
+        user.immutableId === '74627' ||
+        user.immutableId === '74707' ||
+        user.immutableId === '76076' ||
+        user.immutableId === '75984'
+      )
         this.setAchievement(user.id, 'achievement7');
       return user;
     } catch (error) {
