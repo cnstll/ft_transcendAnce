@@ -49,6 +49,13 @@ export interface Stats {
   eloScore: number;
 }
 
+export interface AchievementData {
+  id: string;
+  label: string;
+  description: string;
+  image: string;
+}
+
 export interface MatchData {
   id: string;
   imageCurrentUser: string;
