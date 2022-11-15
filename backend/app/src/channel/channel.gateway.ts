@@ -153,7 +153,7 @@ export class ChannelGateway {
     if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
     } else {
-      this.server.emit('roomLeft', userLeaving);
+      this.server.to([clientSocket.id, leaveChannelDto.id]).emit('roomLeft', userLeaving);
     }
   }
 }

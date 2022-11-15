@@ -145,16 +145,18 @@ export class ChannelService {
     channelPassword: string,
     clientSocket: Socket,
   ) {
+    /* Instead, it should check if UserChannel exist */
     const channel: Channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
       },
     });
+    /* then reconnect to the channel regardless of its type */
     if (channel != null) {
       if (channel.type == 'PUBLIC') {
         await clientSocket.join(channelId);
       } else {
-        //TODO If channel is protected check channelPassword
+        //not do it by type of channel
       }
     }
     delete channel.passwordHash;
