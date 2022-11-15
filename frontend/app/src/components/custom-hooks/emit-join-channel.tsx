@@ -2,6 +2,7 @@ import { Channel, channelType } from '../global-components/interface';
 import { socket } from '../global-components/client-socket';
 
 function JoinChannel(channelInfo: Channel) {
+
   switch (channelInfo.type) {
     case channelType.Public:
       socket.emit('joinRoom', {
@@ -18,9 +19,9 @@ function JoinChannel(channelInfo: Channel) {
         },
       });
       break;
-    default:
-      console.log('NOT IMPLEMENTED ATM');
-      break;
-  }
+      default:
+        console.log('NOT IMPLEMENTED ATM');
+        break;
+      }
 }
 export default JoinChannel;

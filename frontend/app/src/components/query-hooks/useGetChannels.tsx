@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import { apiUrl, Channel } from '../global-components/interface';
+import {apiUrl, Channel, channelRole } from '../global-components/interface';
 
 const fetchAllGroupChannels = () =>
   axios
@@ -9,8 +9,10 @@ const fetchAllGroupChannels = () =>
     })
     .then((res) => res.data);
 
-export function useGroupChannelsList(): UseQueryResult<Channel[] | undefined> {
-  return useQuery(['groupChannelsList'], fetchAllGroupChannels);
+export function useGroupChannelsList():
+  UseQueryResult<Channel[] | undefined> {
+    return useQuery(['groupChannelsList'],
+    fetchAllGroupChannels);
 }
 
 const fetchAllChannelsByUserId = () =>
@@ -20,6 +22,21 @@ const fetchAllChannelsByUserId = () =>
     })
     .then((res) => res.data);
 
-export function useChannelsByUserList(): UseQueryResult<Channel[] | undefined> {
-  return useQuery('channelsByUserList', fetchAllChannelsByUserId);
+export function useChannelsByUserList():
+  UseQueryResult<Channel[] | undefined> {
+  return useQuery('channelsByUserList',
+    fetchAllChannelsByUserId);
+}
+
+const fetchMyRoleInChannel = (channelId: string) =>
+  axios
+    .get<Channel>('http://localhost:3000/channels/get-role-user-channel/' + channelId, {
+      withCredentials: true,
+  }).then((res) => res.data);
+
+// Had to define channelId as string or undefined because it's the return of useParams which is defined as such
+export function useMyChannelByUserId(channelId: string):
+  UseQueryResult< { role: channelRole } | undefined > {
+  return useQuery(['myRoleInChannel', channelId], () =>
+    fetchMyRoleInChannel(channelId));
 }

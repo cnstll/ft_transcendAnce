@@ -8,6 +8,12 @@ export enum channelType {
 export const apiUrl: string = (process.env.REACT_APP_BACKEND_URL === undefined?  'oops': process.env.REACT_APP_BACKEND_URL);
 export const domain: string = (process.env.REACT_APP_DOMAIN=== undefined?  'oops': process.env.REACT_APP_DOMAIN);
 
+export enum channelRole {
+  User = 'USER',
+  Admin = 'ADMIN',
+  Owner = 'OWNER',
+}
+
 export interface Channel {
   id: string;
   name: string;
