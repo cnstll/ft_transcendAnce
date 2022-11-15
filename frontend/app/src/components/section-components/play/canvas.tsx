@@ -13,11 +13,14 @@ interface GameProps {
 function Game({ gameMode, avatarImg }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+  const navigate = useNavigate();
+  const [playerOneScore, setPlayerOneScore] = useState<number | undefined>(
+    undefined,
+  );
   const [playerNumber, setPlayerNumber] = useState<number | undefined>(
     undefined,
   );
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
-  const navigate = useNavigate();
 
   useEffect(() => {
     socket.emit(
@@ -33,7 +36,6 @@ function Game({ gameMode, avatarImg }: GameProps) {
   }, []);
 
   useEffect(() => {
-    console.log(playerNumber);
     const canvas = canvasRef.current;
     const joinListener = (text: {
       gameId: string;
@@ -45,6 +47,8 @@ function Game({ gameMode, avatarImg }: GameProps) {
       } else if (text.status === 'DONE') {
         setGameStatus(GameStatus.DONE);
         navigate('/profile');
+      } else if (text.status === 'OVER') {
+        setGameStatus(GameStatus.OVER);
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
       } else if (text.status === 'PAUSED') {
@@ -95,6 +99,31 @@ function Game({ gameMode, avatarImg }: GameProps) {
             window.innerWidth / 4,
             canvas.height / 4 + canvas.height / 8,
           );
+        } else if (gameStatus === GameStatus.OVER) {
+          context.fillStyle = 'black';
+          context.fillRect(0, 0, canvas.width / 2, canvas.height);
+          context.font = size.toString() + 'px Aldrich';
+          if (playerOneScore === 10 && playerNumber === 1) {
+            context.fillStyle = 'green';
+            context.fillText(
+              'Congratulations, you won!',
+              canvas.width / 4,
+              canvas.height / 4 - canvas.height / 8,
+            );
+          } else {
+            context.fillStyle = 'red';
+            context.fillText(
+              'Sorry, you lost!',
+              canvas.width / 4,
+              canvas.height / 4 - canvas.height / 8,
+            );
+          }
+          context.fillText(
+            'Sorry, you lost!',
+            canvas.width / 4,
+            canvas.height / 4 + canvas.height / 8,
+          );
+          context.fillStyle = 'red';
         }
 
         const messageListener = (text: GameCoords) => {
@@ -126,6 +155,7 @@ function Game({ gameMode, avatarImg }: GameProps) {
               canvas.width / 4 + 100,
               50,
             );
+            setPlayerOneScore(text.p1s);
           } else {
             context.font = '30px Aldrich';
             context.fillStyle = 'red';
@@ -229,6 +259,39 @@ function Game({ gameMode, avatarImg }: GameProps) {
             paddleHeight,
           );
           break;
+
+        case GameStatus.OVER:
+          contextRef.current.fillStyle = 'black';
+          contextRef.current.fillRect(
+            0,
+            0,
+            canvasRef.current.width / 2,
+            canvasRef.current.height,
+          );
+          contextRef.current.font = size.toString() + 'px Aldrich';
+          if (playerOneScore === 10 && playerNumber === 1) {
+            contextRef.current.fillStyle = 'green';
+            contextRef.current.fillText(
+              'Congratulations, you won',
+              canvasRef.current.width / 4,
+              canvasRef.current.height / 4 - canvasRef.current.height / 8,
+            );
+          } else {
+            contextRef.current.fillStyle = 'red';
+            contextRef.current.fillText(
+              'Sorry, you lost',
+              canvasRef.current.width / 4,
+              canvasRef.current.height / 4 - canvasRef.current.height / 8,
+            );
+          }
+          contextRef.current.fillStyle = 'white';
+          contextRef.current.fillRect(
+            50,
+            clientY - rect.top - paddleHeight / 2,
+            10,
+            paddleHeight,
+          );
+          break;
       }
     }
   }
@@ -242,7 +305,16 @@ function Game({ gameMode, avatarImg }: GameProps) {
           className="border-solid border-2 border-white"
         />
       )}
-      {gameStatus === GameStatus.DONE && <p> done, you probably lost </p>}
+      {gameStatus === GameStatus.DONE && (
+        <p className="text-white"> The game is over, you probably lost </p>
+      )}
+      {gameStatus === GameStatus.OVER && (
+        <canvas
+          onMouseMove={movePaddle}
+          ref={canvasRef}
+          className="border-solid border-2 border-white"
+        />
+      )}
       {gameStatus === GameStatus.PENDING && (
         <canvas
           onMouseMove={movePaddle}

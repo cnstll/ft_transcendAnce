@@ -74,7 +74,7 @@ export class GameService {
     const callback = () => {
       console.log('timeout started, deleting game in 10 seconds');
       const game = this.GameMap.getGame(winnerId);
-      this.mutateGameStatus(game, Status.DONE, server);
+      this.mutateGameStatus(game, Status.OVER, server);
       game.claimVictory(winnerId, this.prismaService);
       this.GameMap.delete(winnerId);
     };
@@ -135,7 +135,7 @@ export class GameService {
       if (message.p2s >= 10 || message.p1s >= 10) {
         const game = this.GameMap.getGame(userId);
         this.deleteInterval(message.gameRoomId);
-        this.mutateGameStatus(game, Status.DONE, server);
+        this.mutateGameStatus(game, Status.OVER, server);
         game.saveGameResults(this.prismaService);
         this.GameMap.delete(userId);
       }
