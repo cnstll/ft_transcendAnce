@@ -27,7 +27,7 @@ export class TwoFactorAuthenticationService {
       this.configService.get('TranscenDance'),
       user.twoFactorAuthenticationSecret,
     );
-    const qrCode = await QRCode.toDataURL(otpauthURL);
+    const qrCode = QRCode.toDataURL(otpauthURL);
     return qrCode;
   }
 

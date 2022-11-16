@@ -59,6 +59,8 @@ function TwoFaModal({
     });
   }
 
+  console.log(qrCode);
+
   return (
     <>
       {showModal && getQRCode.isSuccess && (
