@@ -222,11 +222,8 @@ export class ChannelService {
           },
         });
       /* If there is a channel's password and a password provided */
-      if (
-        channel?.type === ChannelType.PROTECTED &&
-        channel.passwordHash &&
-        channelDto.passwordHash
-      ) {
+      if (channel?.type === ChannelType.PROTECTED) {
+        if (!channelDto.passwordHash) throw new Error('PasswordRequired');
         /* Compare passwords */
         const pwdMatches = await argon.verify(
           channel.passwordHash,
@@ -254,7 +251,9 @@ export class ChannelService {
       delete joinedChannel.passwordHash;
       return joinedChannel;
     } catch (error) {
-      if (error == 'Error: InvalidPassword') {
+      if (error == 'Error: PasswordRequired') {
+        return 'PasswordRequired';
+      } else if (error == 'Error: InvalidPassword') {
         return 'InvalidPassword';
       }
       return null;

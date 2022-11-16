@@ -14,8 +14,12 @@ function PasswordModal(props: PwdModalProps) {
 
   useEffect(() => {
     socket.on('joinRoomPWDFailed', (channel: null | string) => {
+      console.log(channel);
       if (channel === 'InvalidPassword') {
         setInputStatus('invalidPassword');
+      }
+      else if (channel === 'PasswordRequired') {
+        setInputStatus('passwordRequired');
       }
     });
     return () => {
@@ -56,7 +60,8 @@ function PasswordModal(props: PwdModalProps) {
                   <input
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
                       border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                      inputStatus === 'invalidPassword' ?
+                      inputStatus === 'invalidPassword' ||
+                      inputStatus === 'passwordRequired' ?
                       'border-red-500' : ''
                     }`}
                     type="text"
@@ -71,6 +76,10 @@ function PasswordModal(props: PwdModalProps) {
                     <p className="text-red-500 text-xs font-medium my-1">
                       Password is mandatory to enter
                       {props.channel.name}
+                      </p>}
+                  {inputStatus === 'passwordRequired' &&
+                    <p className="text-red-500 text-xs font-medium my-1">
+                      A password is required
                       </p>}
                 </div>
         {/* Buttons section */}
