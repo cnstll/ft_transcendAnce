@@ -5,7 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Channel, ChannelRole, ChannelType, ChannelUser } from '@prisma/client';
+import {
+  Channel,
+  ChannelRole,
+  ChannelType,
+  ChannelUser,
+  User,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Socket } from 'socket.io';
@@ -115,6 +121,29 @@ export class ChannelService {
     }
   }
 
+  async getInvitesOfAChannel(channelId: string) {
+    try {
+      await this.checkChannel(channelId);
+      const invitesList: { invites: User[] } =
+        await this.prisma.channel.findUnique({
+          where: {
+            id: channelId,
+          },
+          select: {
+            invites: true,
+          },
+        });
+      const invites: User[] = [];
+      for (let i = 0; i < invitesList.invites.length; i++) {
+        invites.push(invitesList.invites[i]);
+      }
+      return invites;
+    } catch (error) {
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
+  }
+
   //******   CHAT WEBSOCKETS SERVICES *******//
 
   async hasAdminRights(userId: string, channelId: string) {
@@ -168,7 +197,7 @@ export class ChannelService {
     try {
       /* Check the password is provided in the DTO for protected chan) */
       if ((dto.type === 'PROTECTED' && !dto.passwordHash) || dto.name === '') {
-        return null;
+        throw new Error('WrongData');
       }
       /* Hash the password */
       if (dto.type === 'PROTECTED') {
@@ -197,7 +226,34 @@ export class ChannelService {
       if (error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
       }
+      if (error == 'Error: WrongData') {
+        return 'WrongData';
+      }
       return null;
+    }
+  }
+
+  async isInvitedInAChannel(userId: string, channelId: string) {
+    try {
+      const isInvited = await this.prisma.channel.findUnique({
+        where: {
+          id: channelId,
+        },
+        select: {
+          invites: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      return isInvited.invites.find((value) => {
+        return value.id === userId;
+      })
+        ? true
+        : false;
+    } catch (error) {
+      return error;
     }
   }
 
@@ -209,6 +265,11 @@ export class ChannelService {
     try {
       /* Check the password is provided in the DTO for protected chan) */
 
+      /** If private channel, check the invitation to the channel */
+      if (channelDto.type === ChannelType.PRIVATE) {
+        const isInvited = await this.isInvitedInAChannel(userId, channelDto.id);
+        if (!isInvited) throw new Error('errorNotInvited');
+      }
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
@@ -227,8 +288,10 @@ export class ChannelService {
       clientSocket.join(channelDto.id);
       return joinedChannel;
     } catch (error) {
-      //TODO Improve error handling
-      return null;
+      if (error == 'Error: errorNotInvited') {
+        return 'errorNotInvited';
+      }
+      return 'errorJoinChannel';
     }
   }
 

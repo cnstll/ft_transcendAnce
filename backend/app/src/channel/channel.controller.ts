@@ -28,7 +28,6 @@ export class ChannelController {
     return this.channelService.getChannelById(channelId);
   }
 
-  /* Is this getter useful? */
   @Get('get-user-channel/:id')
   getChannelByUserId(
     @GetCurrentUserId() userId: string,
@@ -48,5 +47,18 @@ export class ChannelController {
     @Param('id') channelId: string,
   ) {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
+  }
+
+  @Get('get-invites/:id')
+  getInvitesOfAChannel(@Param('id') channelId: string) {
+    return this.channelService.getInvitesOfAChannel(channelId);
+  }
+
+  @Get('get-invite/:id')
+  isInvitedInAChannel(
+    @GetCurrentUserId() userId: string,
+    @Param('id') channelId: string,
+  ) {
+    return this.channelService.isInvitedInAChannel(userId, channelId);
   }
 }

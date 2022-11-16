@@ -34,7 +34,6 @@ const fetchMyRoleInChannel = (channelId: string) =>
       withCredentials: true,
   }).then((res) => res.data);
 
-// Had to define channelId as string or undefined because it's the return of useParams which is defined as such
 export function useMyChannelByUserId(channelId: string):
   UseQueryResult< { role: channelRole } | undefined > {
   return useQuery(['myRoleInChannel', channelId], () =>

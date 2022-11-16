@@ -183,4 +183,11 @@ export class UserController {
   ) {
     return this.userService.setAchievement(userId, data.achievementId);
   }
+
+  /** Channel invitations */
+  @Get('get-channel-invites')
+  @UseGuards(JwtAuthGuard)
+  getChannelInvites(@GetCurrentUserId() userId: string) {
+    return this.userService.getChannelInvites(userId);
+  }
 }

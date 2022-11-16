@@ -99,6 +99,9 @@ async function main() {
       users: {
         create: [{ userId: 'user1' }, { userId: 'user2', role: 'ADMIN' }],
       },
+      invites: {
+        create: [{id: 'user5', immutableId: '76078', nickname: 'new user', passwordHash: 'hashpassword'}],
+      }
     },
   });
 
@@ -138,35 +141,6 @@ async function main() {
       type: 'DIRECTMESSAGE',
       users: {
         create: [{ userId: 'user1' }, { userId: 'user3' }],
-      },
-    },
-  });
-
-  const channelPublic2 = await prisma.channel.upsert({
-    where: { id: 'channel4' },
-    update: {},
-    create: {
-      id: 'channel1',
-      name: 'Channel test 4',
-      users: {
-        create: [
-          { userId: 'user1', role: 'ADMIN' },
-          { userId: 'user2' },
-          { userId: 'user3' },
-        ],
-      },
-    },
-  });
-
-  const channelPrivate2 = await prisma.channel.upsert({
-    where: { id: 'channel5' },
-    update: {},
-    create: {
-      id: 'channel2',
-      name: 'Channel test 5',
-      type: 'PRIVATE',
-      users: {
-        create: [{ userId: 'user1' }, { userId: 'user2', role: 'ADMIN' }],
       },
     },
   });
@@ -265,8 +239,6 @@ async function main() {
     channelProtected,
     directMessage1,
     directMessage2,
-    channelPublic2,
-    channelPrivate2,
     Achievement1,
     Achievement2,
     Achievement3,

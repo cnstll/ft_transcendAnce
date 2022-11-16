@@ -154,4 +154,15 @@ export class ChannelGateway {
       this.server.emit('roomLeft', userLeaving);
     }
   }
+
+  // Invite other users to a private channel
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('inviteToChannel')
+  async inviteToChannel(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('leaveInfo') leaveChannelDto: LeaveChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const inviteToChannel = await this.channelService.inviteToChannelWS(userId);
+  }
 }

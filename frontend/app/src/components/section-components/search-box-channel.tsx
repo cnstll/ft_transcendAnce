@@ -8,6 +8,7 @@ import SearchChannelItem from './chat/search-channel-item';
 import { socket } from '../global-components/client-socket';
 import JoinChannel from '../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
+// import { getChannelInvites } from '../query-hooks/getChannelInvites';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -76,6 +77,11 @@ function SearchBoxChannel({
     });
   };
 
+  // const channelInvites = getChannelInvites();
+  // const isInvited = channelInvites.data?.find((value) => {
+  //   return (value.id === firstResult);
+  // })? true : false;
+
   function OnSubmitChannelQuery(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const filteredChannels: Channel[] | undefined = filterChannels(
@@ -124,8 +130,7 @@ function SearchBoxChannel({
           {isShown && (
             <ul>
               {filterChannels(channels, searchData.keyword)
-                ?.slice(0, 5)
-                .map((channelItem) => (
+                ?.map((channelItem) => (
                   <SearchChannelItem
                     key={channelItem.id}
                     channel={channelItem}

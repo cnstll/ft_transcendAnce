@@ -104,8 +104,7 @@ function SearchBoxUser({
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
-                ?.slice(0, 5)
-                .map((userItem) => (
+                ?.map((userItem) => (
                   <SearchUserItem key={userItem.id} user={userItem} />
                 ))}
             </ul>
