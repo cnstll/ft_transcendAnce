@@ -19,6 +19,7 @@ import { JoinChannelDto } from './dto/joinChannel.dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import * as argon from 'argon2';
+import { InviteChannelDto } from './dto/inviteChannel.dto';
 
 @Injectable()
 export class ChannelService {
@@ -416,6 +417,32 @@ export class ChannelService {
       return leavingUser;
     } catch (error) {
       return null;
+    }
+  }
+
+  async inviteToChannelWS(userId: string, channelDto: InviteChannelDto) {
+    if (channelDto.type === ChannelType.PRIVATE) {
+      try {
+        const isInvited = await this.isInvitedInAChannel(userId, channelDto.id);
+        if (isInvited)
+          throw new Error('alreadyInvited');
+        const channelInvite: Channel = await this.prisma.channel.update({
+          where: {
+            id: channelDto.id,
+          },
+          data: {
+            invites: {
+              set: { id: channelDto.invitedId },
+            }
+          }
+        });
+        return channelInvite;
+      } catch (error) {
+        if (error == 'Error: alreadyInvited') {
+          return 'alreadyInvited';
+        }
+        console.log(error);
+      }
     }
   }
 }

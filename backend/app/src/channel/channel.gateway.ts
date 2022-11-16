@@ -14,6 +14,7 @@ import { CreateChannelDto, EditChannelDto } from './dto';
 import { UserMessageDto } from './dto/userMessage.dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
+import { InviteChannelDto } from './dto/inviteChannel.dto';
 
 @WebSocketGateway({
   cors: {
@@ -160,9 +161,14 @@ export class ChannelGateway {
   @SubscribeMessage('inviteToChannel')
   async inviteToChannel(
     @GetCurrentUserId() userId: string,
-    @MessageBody('leaveInfo') leaveChannelDto: LeaveChannelDto,
+    @MessageBody('inviteToChannel') inviteChannelDto: InviteChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const inviteToChannel = await this.channelService.inviteToChannelWS(userId);
+    const inviteToChannel = await this.channelService.inviteToChannelWS(userId, inviteChannelDto);
+    if (inviteChannelDto == null) {
+      this.server.to(clientSocket.id).emit('invitationFailed');
+    } else {
+      this.server.to([clientSocket.id, inviteChannelDto.id]).emit('invitationSent', inviteToChannel);
+    }
   }
 }

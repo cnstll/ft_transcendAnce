@@ -77,11 +77,6 @@ function SearchBoxChannel({
     });
   };
 
-  // const channelInvites = getChannelInvites();
-  // const isInvited = channelInvites.data?.find((value) => {
-  //   return (value.id === firstResult);
-  // })? true : false;
-
   function OnSubmitChannelQuery(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const filteredChannels: Channel[] | undefined = filterChannels(
