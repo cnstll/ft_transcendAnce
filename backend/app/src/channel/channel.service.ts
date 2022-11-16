@@ -85,10 +85,19 @@ export class ChannelService {
           channelId: channelId,
         },
         select: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              avatarImg: true,
+            },
+          },
         },
       });
-      return users;
+      const flattenUsers = [];
+      for (let index = 0; index < users.length; index++) {
+        flattenUsers.push(users[index].user);
+      }
+      return flattenUsers;
     } catch (error) {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
@@ -468,7 +477,7 @@ export class ChannelService {
       /* Then, delete channel */
       // If user is the last one delete the channel
       if (channelUsers.users.length == 0) {
-        const channel = await this.prisma.channel.delete({
+        await this.prisma.channel.delete({
           where: {
             id: dto.id,
           },

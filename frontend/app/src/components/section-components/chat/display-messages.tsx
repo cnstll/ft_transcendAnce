@@ -1,18 +1,15 @@
 import { useEffect } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { socket } from '../../global-components/client-socket';
-import { Message } from '../../global-components/interface';
+import { Message, User } from '../../global-components/interface';
+import { useChannelUsers } from '../../query-hooks/useGetChannelUsers';
 import { useGetAllMessages } from '../../query-hooks/useGetMessages';
 import LoadingSpinner from '../loading-spinner';
 
-const mockupImage =
-  'https://flowbite.com/docs/images/people/profile-picture-2.jpg';
-
 interface UserMessagesProps {
   content: string;
-  image: string;
+  image: string | undefined;
 }
-
 function OtherUserMessage({ content, image }: UserMessagesProps) {
   return (
     <div className="flex flex-row items-center gap-4">
@@ -58,11 +55,14 @@ function DisplayMessages({
 }) {
   const messageQuery: UseQueryResult<Message[] | undefined> =
     useGetAllMessages(channelId);
+
+  const channelUsersQuery: UseQueryResult<User[] | undefined> =
+    useChannelUsers(channelId);
+
   const queryClient = useQueryClient();
   const messageQueryKey = 'getAllMessages';
 
   useEffect(() => {
-    console.log('Going through useEffect');
     socket.on('messageRoomFailed', () => {
       alert('Could not send your message sry ;(');
     });
@@ -78,6 +78,8 @@ function DisplayMessages({
   return (
     <div className="p-5 flex flex-col gap-4">
       {messageQuery.isSuccess &&
+        channelUsersQuery.isSuccess &&
+        channelUsersQuery.data &&
         messageQuery.data &&
         messageQuery.data.length > 0 &&
         messageQuery.data.map((message) =>
@@ -85,13 +87,21 @@ function DisplayMessages({
             <CurrentUserMessage
               key={message.id}
               content={message.content}
-              image={mockupImage}
+              image={
+                channelUsersQuery.data?.filter(
+                  (user) => user.id === message.senderId,
+                )[0].avatarImg
+              }
             />
           ) : (
             <OtherUserMessage
               key={message.id}
               content={message.content}
-              image={mockupImage}
+              image={
+                channelUsersQuery.data?.filter(
+                  (user) => user.id === message.senderId,
+                )[0].avatarImg
+              }
             />
           ),
         )}
@@ -101,7 +111,7 @@ function DisplayMessages({
           <div>No message in this channel yet! Don't be shy, send one!</div>
         )}
       {messageQuery.isLoading && <LoadingSpinner />}
-      {messageQuery.isError && <div>Woops could not your messages :( </div>}
+      {messageQuery.isError && <div>Woops could not find any messages :( </div>}
     </div>
   );
 }
