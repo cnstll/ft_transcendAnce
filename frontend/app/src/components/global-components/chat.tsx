@@ -61,7 +61,7 @@ const chanUsersData: User[] = [
 function Chat() {
   const user = useUserInfo();
   const { activeChannel } = useParams();
-  const [activeChannelId, setActiveChannelId] = useState('');
+  const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
 
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =

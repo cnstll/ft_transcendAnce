@@ -6,6 +6,7 @@ import { channelType } from '../../global-components/interface';
 
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const defaultFormData = {
@@ -53,6 +54,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       props.setShowForm(false);
       await queryClient.refetchQueries(channelsQueryKey);
       setFormData(defaultFormData);
+      props.setActiveChannelId(channelId);
       navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
