@@ -87,7 +87,7 @@ function EditChannelForm(props: EditChannelFormProps) {
               <div id="form-channel-creation-name"
                 className="form-group my-3 ">
                 <label htmlFor="ChannelName" className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
-                  text-purple-light font-medium my-3 font-bold">
+                  text-purple-light my-3 font-bold">
                   Enter a name:
                 </label>
                 <p className="text-xs text-gray-400 my-1 font-light italic">
@@ -121,7 +121,7 @@ function EditChannelForm(props: EditChannelFormProps) {
               <div id="form-channel-creation-type"
                 className="form-group mb-3 mt-5">
                 <p className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
-                  text-purple-light font-medium my-2 font-bold">
+                  text-purple-light my-2 font-bold">
                   Select a type:
                 </p>
                 <div className="m-2">
