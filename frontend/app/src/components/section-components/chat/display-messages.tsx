@@ -61,6 +61,7 @@ function DisplayMessages({
 
   const queryClient = useQueryClient();
   const messageQueryKey = 'getAllMessages';
+  const channelUsersQueryKey = 'channelUsers';
 
   useEffect(() => {
     socket.on('messageRoomFailed', () => {
@@ -68,6 +69,9 @@ function DisplayMessages({
     });
     socket.on('incomingMessage', async () => {
       await queryClient.invalidateQueries(messageQueryKey);
+    });
+    socket.on('roomJoined', async () => {
+      await queryClient.invalidateQueries(channelUsersQueryKey);
     });
     return () => {
       socket.off('messageRoomFailed');
@@ -90,7 +94,7 @@ function DisplayMessages({
               image={
                 channelUsersQuery.data?.filter(
                   (user) => user.id === message.senderId,
-                )[0].avatarImg
+                )[0]?.avatarImg
               }
             />
           ) : (
@@ -100,7 +104,7 @@ function DisplayMessages({
               image={
                 channelUsersQuery.data?.filter(
                   (user) => user.id === message.senderId,
-                )[0].avatarImg
+                )[0]?.avatarImg
               }
             />
           ),
