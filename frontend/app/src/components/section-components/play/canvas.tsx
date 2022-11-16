@@ -217,7 +217,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
           if (text.p2s === 10) {
             context.font = '30px Aldrich';
             context.fillStyle = 'white';
-            context.fillText(text.p1s.toString(), canvas.width / 4 + 100, 50);
+            context.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
           }
           context.fillStyle = 'yellow';
           posy = (canvas.height / 2) * (text.by / 100);
