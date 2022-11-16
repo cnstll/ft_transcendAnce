@@ -20,6 +20,8 @@ export class GameService {
       gameId: game.gameRoomId,
       status: game.status,
       winner: '',
+      player1id: game.p1id,
+      player2id: game.p2id,
     });
   }
 

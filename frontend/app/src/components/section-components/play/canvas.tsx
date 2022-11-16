@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
 import { GameCoords, GameStatus } from '../../global-components/interface';
 
@@ -8,19 +9,61 @@ let paddleHeight = 50;
 interface GameProps {
   gameMode: string;
   avatarImg: string;
+  userId: string;
 }
 
-function Game({ gameMode, avatarImg }: GameProps) {
+interface PlayerAvatarProps {
+  currentPlayerAvatar: string;
+  opponentAvatar: string;
+  playerNumber: number;
+}
+
+function PlayerAvatar({
+  currentPlayerAvatar,
+  opponentAvatar,
+  playerNumber,
+}: PlayerAvatarProps) {
+  return (
+    <>
+      {playerNumber === 1 ? (
+        <div className="flex flex-row justify-between mt-4">
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={currentPlayerAvatar}
+          />
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={opponentAvatar}
+          />
+        </div>
+      ) : (
+        <div className="flex flex-row justify-between mt-4">
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={opponentAvatar}
+          />
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={currentPlayerAvatar}
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+function Game({ gameMode, avatarImg, userId }: GameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const navigate = useNavigate();
   const [playerOneScore, setPlayerOneScore] = useState<number | undefined>(
     undefined,
   );
-
   const [playerNumber, setPlayerNumber] = useState<number | undefined>(
     undefined,
   );
+  const [playerOneId, setPlayerOneId] = useState<string | undefined>(undefined);
+  const [playerTwoId, setPlayerTwoId] = useState<string | undefined>(undefined);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
 
   useEffect(() => {
@@ -42,6 +85,8 @@ function Game({ gameMode, avatarImg }: GameProps) {
       gameId: string;
       status: string;
       winner: string;
+      player1id: string;
+      player2id: string;
     }) => {
       if (text.status === 'PENDING') {
         setGameStatus(GameStatus.PENDING);
@@ -52,6 +97,8 @@ function Game({ gameMode, avatarImg }: GameProps) {
         setGameStatus(GameStatus.OVER);
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
+        setPlayerOneId(text.player1id);
+        setPlayerTwoId(text.player2id);
       } else if (text.status === 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
@@ -292,6 +339,12 @@ function Game({ gameMode, avatarImg }: GameProps) {
     }
   }
 
+  let opponentId: string | undefined = userId;
+  if (playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
+  else if (playerNumber === 2 && playerOneId) opponentId = playerOneId;
+
+  const opponent = useOpponentInfo(opponentId);
+
   return (
     <div className="fixed top-1/4">
       <div>
@@ -326,19 +379,15 @@ function Game({ gameMode, avatarImg }: GameProps) {
             className="border-solid border-2 border-white"
           />
         )}
-        {playerNumber === 1 ? (
-          <img
-            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full mt-4"
-            src={avatarImg}
-          />
-        ) : (
-          <div className="flex justify-end">
-            <img
-              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full mt-4"
-              src={avatarImg}
+        {gameStatus === GameStatus.PLAYING &&
+          opponent.isSuccess &&
+          playerNumber !== undefined && (
+            <PlayerAvatar
+              currentPlayerAvatar={avatarImg}
+              opponentAvatar={opponent.data.avatarImg}
+              playerNumber={playerNumber}
             />
-          </div>
-        )}
+          )}
       </div>
     </div>
   );
