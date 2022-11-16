@@ -1,19 +1,8 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
-import { CreateChannelDto, EditChannelDto } from './dto';
-import { Response } from 'express';
 
 @UseGuards(JwtAuthGuard)
 @Controller('channels')
@@ -54,40 +43,12 @@ export class ChannelController {
     return this.channelService.getUsersOfAChannel(channelId);
   }
 
-  /* Is it possible without routing on id? */
   @Get('get-role-user-channel/:id')
   getRoleOfUserChannel(
     @GetCurrentUserId() userId: string,
     @Param('id') channelId: string,
   ) {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
-  }
-
-  // Create channel
-  @Post('create')
-  createChannel(
-    @GetCurrentUserId() userId: string,
-    @Body() dto: CreateChannelDto,
-    @Res() res: Response,
-  ) {
-    return this.channelService.createChannel(userId, dto, res);
-  }
-
-  // Update channel
-  @Patch(':id')
-  editChannelById(
-    @GetCurrentUserId() userId: string,
-    @Param('id') channelId: string,
-    @Body() dto: EditChannelDto,
-    @Res() res: Response,
-  ) {
-    return this.channelService.editChannelById(userId, channelId, dto, res);
-  }
-
-  // Delete channel
-  @Delete(':id')
-  deleteChannelById(@Param('id') channelId: string, @Res() res: Response) {
-    return this.channelService.deleteChannelById(channelId, res);
   }
 
   @Get('get-messages-from-channel/:id')
