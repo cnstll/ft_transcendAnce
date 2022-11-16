@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { User } from '../global-components/interface';
@@ -21,6 +21,7 @@ interface BannerProps {
 function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
+  const currentLocation = useLocation();
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -32,13 +33,10 @@ function Navbar({ text, avatarImg }: BannerProps) {
 
   const ref = UseOutsideClick(ClickOutsideHandler);
   useEffect(() => {
-    socket.on('userDisconnected', () => {
-      console.log('User disconnected!');
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+    if (currentLocation.pathname != '/play') {
+      socket.emit('connectUser');
+    }
+  }, [socket]);
 
   return (
     <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">

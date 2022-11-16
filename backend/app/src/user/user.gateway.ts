@@ -1,11 +1,15 @@
+import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { UserStatus } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
+import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
+import { UserService } from './user.service';
 
 @WebSocketGateway({
   cors: {
@@ -13,31 +17,41 @@ import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorato
     credentials: true,
   },
 })
+@UseGuards(JwtAuthGuard)
 export class UserGateway {
   @WebSocketServer()
   server: Server;
+  constructor(private readonly userService: UserService) {}
 
   @SubscribeMessage('connectUser')
-  userConnect(
+  async userConnect(
     @GetCurrentUserId() userId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    this.server.emit('userConnected');
+    await this.userService.updateConnectionStatus(userId, UserStatus.ONLINE);
+    clientSocket.broadcast.emit('userConnected');
   }
 
   @SubscribeMessage('disconnectUser')
-  userDisconnect() {
-    console.log('User is disconnecting');
-    this.server.emit('userDisconnected');
+  userDisconnect(@ConnectedSocket() clientSocket: Socket) {
+    clientSocket.broadcast.emit('userDisconnected');
   }
 
-  @SubscribeMessage('inGame')
-  userInGame() {
-    this.server.emit('userInGame');
+  @SubscribeMessage('joinGame')
+  async userInGame(
+    @ConnectedSocket() clientSocket: Socket,
+    @GetCurrentUserId() userId: string,
+  ) {
+    await this.userService.updateConnectionStatus(userId, UserStatus.PLAYING);
+    clientSocket.broadcast.emit('userInGame');
   }
 
-  @SubscribeMessage('gameEnded')
-  gameEnded() {
-    this.server.emit('userGameEnded');
+  @SubscribeMessage('leaveGame')
+  async gameEnded(
+    @ConnectedSocket() clientSocket: Socket,
+    @GetCurrentUserId() userId: string,
+  ) {
+    await this.userService.updateConnectionStatus(userId, UserStatus.ONLINE);
+    clientSocket.broadcast.emit('userGameEnded');
   }
 }

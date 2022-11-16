@@ -381,7 +381,6 @@ export class UserService {
         await this.getInfo(userId, friends.friendsRequester[i].addresseeId),
       );
     }
-    console.log(friendsList);
     return res.status(200).send(friendsList);
   }
 
@@ -555,5 +554,20 @@ export class UserService {
       }
     }
     return userRank;
+  }
+  async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
+    try {
+      const user = await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          status: connectionStatus,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

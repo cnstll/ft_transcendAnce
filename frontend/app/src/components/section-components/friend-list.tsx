@@ -12,6 +12,24 @@ function FriendsList() {
     socket.on('userDisconnected', async () => {
       await queryClient.invalidateQueries('friendsList');
     });
+    socket.on('userConnected', async () => {
+      console.log('PROFILE - USER CONNECTED');
+      await queryClient.invalidateQueries('friendsList');
+    });
+    socket.on('userInGame', async () => {
+      console.log('PROFILE - USER IN GAME');
+      await queryClient.invalidateQueries('friendsList');
+    });
+    socket.on('userGameEnded', async () => {
+      console.log('PROFILE - USER GAME ENDED');
+      await queryClient.invalidateQueries('friendsList');
+    });
+    return () => {
+      socket.off('userDisconnected');
+      socket.off('userConnected');
+      socket.off('userInGame');
+      socket.off('userGameEnded');
+    };
   }, []);
 
   return (
