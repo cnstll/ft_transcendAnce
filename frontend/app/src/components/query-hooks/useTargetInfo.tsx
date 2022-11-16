@@ -14,7 +14,9 @@ const fetchTargetInfo = (targetNickname: string | undefined) =>
 function useTargetInfo(
   targetNickname: string | undefined,
 ): UseQueryResult<TargetInfo> {
-  return useQuery(['targetInfo'], () => fetchTargetInfo(targetNickname));
+  return useQuery(['targetInfo', targetNickname], () =>
+    fetchTargetInfo(targetNickname),
+  );
 }
 
 export default useTargetInfo;

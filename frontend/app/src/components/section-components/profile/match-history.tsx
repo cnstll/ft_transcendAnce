@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { MatchData } from 'src/components/global-components/interface';
 import useUserMatchHistory from 'src/components/query-hooks/useUserMatchHistory';
 import CenterBox from '../center-box';
@@ -75,10 +74,6 @@ function MatchHistoryComponent({ matchData }: { matchData: MatchData[] }) {
 
 function MatchHistory({ nickname }: { nickname: string }) {
   const matchData = useUserMatchHistory(nickname);
-
-  useEffect(() => {
-    void matchData.refetch();
-  }, [nickname]);
 
   return (
     <>

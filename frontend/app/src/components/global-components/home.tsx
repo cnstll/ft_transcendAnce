@@ -1,10 +1,10 @@
-import Navbar from '../section-components/navbar';
 import BackgroundGeneral from '../../img/disco2.png';
 import { Link, useNavigate } from 'react-router-dom';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
+import Navbar from './navbar';
 
 function Home() {
   const user = useUserInfo();
