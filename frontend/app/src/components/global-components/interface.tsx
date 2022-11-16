@@ -17,6 +17,18 @@ export interface Channel {
   passwordHash?: string;
   type: channelType;
 }
+export interface Message {
+  id: string;
+  content: string;
+  createdAt?: string;
+  updatedAt?: string;
+  senderId: string;
+  channelId: string;
+}
+export enum AcknoledgementStatus {
+  OK = 'OK',
+  FAILED = 'FAILED',
+}
 
 export enum friendshipStatus {
   REQUSTED,

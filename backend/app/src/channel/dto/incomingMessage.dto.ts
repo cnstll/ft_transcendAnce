@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UserMessageDto {
+export class IncomingMessageDto {
   @IsString()
   @IsNotEmpty()
-  senderId: string;
+  channelId: string;
 
   @IsString()
   @IsNotEmpty()
