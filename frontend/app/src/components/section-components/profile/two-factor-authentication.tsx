@@ -220,7 +220,7 @@ function Disable2fa({
 function Toggle({ toggleValue, setShowModal, setToggleValue }: ToggleProps) {
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden w-20">
-      <label className="absolute cursor-pointer">
+      <label className="relative cursor-pointer">
         <input
           type="checkbox"
           className="sr-only peer"

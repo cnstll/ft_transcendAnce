@@ -4,7 +4,7 @@ import {
   faCommentDots as faMessage,
 } from '@fortawesome/free-solid-svg-icons';
 import { Channel, channelType } from '../../global-components/interface';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface ChannelsListProps {
   channelItem: Channel;
@@ -14,21 +14,18 @@ interface ChannelsListProps {
 
 function ChannelsListItem(p: ChannelsListProps) {
   const navigate = useNavigate();
+  const { activeChannel } = useParams();
 
   function onClickHandler() {
     p.setActiveChannel(p.channelItem.id);
     navigate(`../chat/${p.channelItem.id}`);
   }
 
-  const isActiveChannel = () => {
-    return p.activeChannel === p.channelItem.id;
-  };
-
   return (
     <div onClick={onClickHandler}>
       <div
         className={
-          isActiveChannel()
+          (activeChannel !== undefined && activeChannel === p.channelItem.id)
             ? 'bg-purple-light flex items-center justify-start'
             : 'flex items-center justify-start'
         }
