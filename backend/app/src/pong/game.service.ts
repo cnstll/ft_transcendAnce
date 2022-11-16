@@ -53,6 +53,14 @@ export class GameService {
     }
   }
 
+  rejoin(userId: string) {
+    let game: Game;
+    if ((game = this.GameMap.getGame(userId))) {
+      return game.mode;
+    }
+    return null;
+  }
+
   deleteTimeout(name: string) {
     this.schedulerRegistry.deleteTimeout(name);
   }

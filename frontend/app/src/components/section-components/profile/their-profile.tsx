@@ -17,10 +17,6 @@ function TheirProfile({ nickname }: { nickname: string }) {
 
   return (
     <>
-      {user.isError && (
-        <p className="text-base text-gray-400">We encountered an error 🤷</p>
-      )}
-      {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <>
           <SideBox>
@@ -41,6 +37,10 @@ function TheirProfile({ nickname }: { nickname: string }) {
           </SideBox>
         </>
       )}
+      {user.isError && (
+        <p className="text-base text-gray-400">We encountered an error 🤷</p>
+      )}
+      {user.isLoading && <LoadingSpinner />}
     </>
   );
 }

@@ -5,6 +5,12 @@ export enum channelType {
   DirectMessage = 'DIRECTMESSAGE',
 }
 
+export enum channelRole {
+  User = 'USER',
+  Admin = 'ADMIN',
+  Owner = 'OWNER',
+}
+
 export interface Channel {
   id: string;
   name: string;
@@ -41,6 +47,13 @@ export interface Stats {
   numberOfLoss: number;
   ranking: string;
   eloScore: number;
+}
+
+export interface AchievementData {
+  id: string;
+  label: string;
+  description: string;
+  image: string;
 }
 
 export interface MatchData {

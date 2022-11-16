@@ -27,6 +27,15 @@ export class UserService {
           avatarImg: dto.avatarImg,
         },
       });
+      /* Check if the immutable ID are those of Colomban, Constant, Estelle or Lea
+       to set achievement builder */
+      if (
+        user.immutableId === '74627' ||
+        user.immutableId === '74707' ||
+        user.immutableId === '76076' ||
+        user.immutableId === '75984'
+      )
+        this.setAchievement(user.id, 'achievement7');
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -366,6 +375,8 @@ export class UserService {
         await this.getInfo(userId, friends.friendsRequester[i].addresseeId),
       );
     }
+    /* Set achievement social animal */
+    if (friendsList.length === 1) this.setAchievement(userId, 'achievement2');
     return res.status(200).send(friendsList);
   }
 
@@ -389,7 +400,7 @@ export class UserService {
           twoFactorAuthenticationSet: false,
         },
       });
-      return res.status(201).send();
+      return res.status(200).send();
     } catch (error) {
       console.log(error);
     }
@@ -406,7 +417,9 @@ export class UserService {
           twoFactorAuthenticationSet: true,
         },
       });
-      return res.status(201).send();
+      /* Set achievement security first */
+      this.setAchievement(userId, 'achievement5');
+      return res.status(200).send();
     } catch (error) {
       console.log(error);
     }
@@ -461,6 +474,7 @@ export class UserService {
         stats.numberOfWin++;
     }
     stats.numberOfLoss = matchesList.length - stats.numberOfWin;
+    this.setMatchAchievement(user.id, stats.numberOfWin, stats.numberOfLoss);
     return res.status(200).send(stats);
   }
 
@@ -523,6 +537,7 @@ export class UserService {
       return res.status(500).send();
     }
   }
+
   async getUserRanking(userNickname: string) {
     let userRank = '';
 
@@ -535,9 +550,77 @@ export class UserService {
       if (users[i].nickname == userNickname) {
         const rank = i + 1;
         userRank = rank.toString() + '/' + users.length.toString();
+        /* Set achievement who is the boss if the user is a leader */
+        if (rank === 1) this.setAchievement(users[i].id, 'achievement1');
         return userRank;
       }
     }
     return userRank;
+  }
+
+  /** Achievement management */
+  async getAchievement(nickname: string, res: Response) {
+    try {
+      const UserAchivements = await this.prismaService.user.findUnique({
+        where: {
+          nickname: nickname,
+        },
+        select: {
+          achievements: true,
+        },
+      });
+      const achievementList = [];
+      for (let i = 0; i < UserAchivements.achievements.length; i++) {
+        const achievement = await this.prismaService.achievement.findUnique({
+          where: {
+            id: UserAchivements.achievements[i].achievementId,
+          },
+        });
+        achievementList.push(achievement);
+      }
+      return res.status(200).send(achievementList);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+  }
+
+  async setAchievement(userId: string, achievementId: string) {
+    try {
+      const achievement = await this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          achievements: {
+            where: { achievementId: achievementId },
+          },
+        },
+      });
+      if (achievement.achievements.length === 0)
+        await this.prismaService.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            achievements: {
+              create: [{ achievementId: achievementId }],
+            },
+          },
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  setMatchAchievement(
+    userId: string,
+    numberOfWin: number,
+    numberOfLoss: number,
+  ) {
+    if (numberOfWin + numberOfLoss === 10)
+      this.setAchievement(userId, 'achievement6');
+    if (numberOfLoss === 5) this.setAchievement(userId, 'achievement4');
+    if (numberOfWin === 5) this.setAchievement(userId, 'achievement3');
   }
 }
