@@ -14,7 +14,6 @@ function PasswordModal(props: PwdModalProps) {
 
   useEffect(() => {
     socket.on('joinRoomPWDFailed', (channel: null | string) => {
-      console.log(channel);
       if (channel === 'InvalidPassword') {
         setInputStatus('invalidPassword');
       }
