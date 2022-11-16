@@ -138,15 +138,24 @@ export class ChannelService {
   ) {
     // Use userId to verify that user requesting message belong to channel or is not banned
     // Retrieve all messages from channel using its id
-    const objMessages = await this.prisma.channel.findFirst({
-      where: {
-        id: channelId,
-      },
-      select: {
-        messages: true,
-      },
-    });
-    return res.status(200).send(objMessages.messages);
+    try {
+      const objMessages = await this.prisma.channel.findFirst({
+        where: {
+          id: channelId,
+        },
+        select: {
+          messages: true,
+        },
+      });
+      if (objMessages) {
+        return res.status(200).send(objMessages.messages);
+      } else {
+        return res.status(500).send();
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
   }
 
   //******   CHAT WEBSOCKETS SERVICES *******//
