@@ -19,8 +19,8 @@ function OtherUserMessage({ content, image }: UserMessagesProps) {
         alt="Rounded avatar"
       />
       <div
-        className="w-2/6 max-w-[30rem] min-w-[150px] min-h-[2rem]
-                p-2 bg-gray-300 rounded-2xl text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm text-black"
+        className="break-words w-2/6 max-w-[30rem] min-w-[150px] min-h-[2rem]
+                p-4 bg-gray-300 rounded-2xl text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm text-black"
       >
         {content}
       </div>
@@ -32,8 +32,8 @@ function CurrentUserMessage({ content, image }: UserMessagesProps) {
   return (
     <div className="flex flex-row justify-end items-center gap-4">
       <div
-        className="w-2/6 h-1/6 min-w-[150px] min-h-[2rem]
-                p-2 bg-blue rounded-2xl text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm"
+        className="break-words w-2/6 h-1/6 min-w-[150px] min-h-[2rem]
+                p-4 bg-blue rounded-2xl text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm"
       >
         {content}
       </div>
