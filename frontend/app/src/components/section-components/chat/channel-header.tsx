@@ -8,13 +8,15 @@ import CreateChannelForm from './create-channel-form';
 import SearchBoxChannel from '../search-box-channel';
 import LoadingSpinner from '../loading-spinner';
 
-function ChannelHeader() {
+function ChannelHeader({
+  setActiveChannelId,
+}: {
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const queryClient = useQueryClient();
   const channelsQueryKey = 'channelsByUserList';
-
   const myChannelsQueryData: Channel[] | undefined =
     queryClient.getQueryData(channelsQueryKey);
-  //   const channelsQueryState = queryClient.getQueryState(channelsQueryKey);
 
   const channelsData: UseQueryResult<Channel[] | undefined> =
     useGroupChannelsList();
@@ -33,7 +35,12 @@ function ChannelHeader() {
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
           <div className="z-index-20">
-            {showForm && <CreateChannelForm setShowForm={setShowForm} />}
+            {showForm && (
+              <CreateChannelForm
+                setShowForm={setShowForm}
+                setActiveChannelId={setActiveChannelId}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -49,6 +56,7 @@ function ChannelHeader() {
           height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 "
           width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
           placeholder="channel"
+          setActiveChannelId={setActiveChannelId}
           channels={channelsData.data.filter(
             (channel) =>
               !myChannelsQueryData
