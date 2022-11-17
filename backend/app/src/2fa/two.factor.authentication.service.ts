@@ -17,17 +17,18 @@ export class TwoFactorAuthenticationService {
     res: Response,
   ) {
     const secret: string = authenticator.generateSecret();
-    await this.userService.toggleTwoFactorAuthentication(secret, userId, res);
+    return this.userService.toggleTwoFactorAuthentication(secret, userId, res);
   }
 
   public async generateQRCode(userId: string) {
     const user = await this.userService.getUserInfo(userId);
+    console.log(user.twoFactorAuthenticationSecret);
     const otpauthURL = authenticator.keyuri(
       userId,
       this.configService.get('TranscenDance'),
       user.twoFactorAuthenticationSecret,
     );
-    const qrCode = QRCode.toDataURL(otpauthURL);
+    const qrCode = await QRCode.toDataURL(otpauthURL);
     return qrCode;
   }
 

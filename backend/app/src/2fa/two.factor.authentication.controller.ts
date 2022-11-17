@@ -93,6 +93,6 @@ export class TwoFactorAuthenticationController {
   @Delete('disable')
   @UseGuards(JwtAuthGuard)
   toggle(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    this.userService.toggleTwoFactorAuthentication('', userId, res);
+    return this.userService.toggleTwoFactorAuthentication('', userId, res);
   }
 }
