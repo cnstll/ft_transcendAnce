@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { Channel, channelType } from '../global-components/interface';
+import { Channel, channelType, User } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
 import SearchChannelItem from './chat/search-channel-item';
 import { socket } from '../global-components/client-socket';
@@ -15,6 +15,7 @@ interface SearchBoxChannelProps {
   width: string;
   placeholder: string;
   channels: Channel[] | undefined;
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const defaultSearchData = {
@@ -26,21 +27,33 @@ function SearchBoxChannel({
   width,
   placeholder,
   channels,
+  setActiveChannelId,
 }: SearchBoxChannelProps) {
   const navigate = useNavigate();
   const [isShown, setIsShown] = useState(false);
   const [searchData, setSearchData] = useState(defaultSearchData);
   const { keyword } = searchData;
   const queryClient = useQueryClient();
+  const userQueryKey = 'userData';
+  const userQueryData: User | undefined =
+    queryClient.getQueryData(userQueryKey);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
-    socket.on('roomJoined', async (channelJoined: Channel) => {
-      await queryClient.refetchQueries('channelsByUserList');
-      setIsShown(false);
-      setShowModal(false);
-      navigate(`../chat/${channelJoined.id}`);
-    });
+    socket.on(
+      'roomJoined',
+      async (joiningInfo: { userId: string; channelId: string }) => {
+        await queryClient.invalidateQueries('channelsByUserList');
+        //User joining the channel will navigate to this channel
+        if (userQueryData?.id.toString() == joiningInfo.userId) {
+          setIsShown(false);
+          setShowModal(false);
+          navigate(`../chat/${joiningInfo.channelId}`);
+          setActiveChannelId(joiningInfo.channelId);
+        } else {
+          //TODO notify other users that a new user joined
+        }
+      });
     socket.on('joinRoomFailed', () => {
       alert('Failed to join room, sorry');
     });
@@ -108,7 +121,8 @@ function SearchBoxChannel({
             className={
               height +
               width +
-              ' bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative'
+              ' bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs\
+               lg:text-sm focus:outline-none relative'
             }
             type="text"
             name="search"
