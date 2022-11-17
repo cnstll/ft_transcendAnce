@@ -1,19 +1,20 @@
 import axios, { AxiosResponse } from 'axios';
-import { useMutation, UseMutationResult } from 'react-query';
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  UseQueryResult,
+} from 'react-query';
 
 const generate = () =>
   axios
-    .post(
-      'http://localhost:3000/2fa/generate',
-      {},
-      {
-        withCredentials: true,
-      },
-    )
-    .then((res) => res);
+    .get<string>('http://localhost:3000/2fa/generate', {
+      withCredentials: true,
+    })
+    .then((response) => response.data);
 
-export function generate2fa(): UseMutationResult<AxiosResponse> {
-  return useMutation(generate);
+export function generate2fa(): UseQueryResult<string> {
+  return useQuery('QRCode', generate);
 }
 
 const disable = () =>

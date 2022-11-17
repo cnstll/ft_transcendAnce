@@ -25,19 +25,13 @@ export class TwoFactorAuthenticationController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post('generate')
+  @Get('generate')
   @UseGuards(JwtAuthGuard)
   register(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
+    return this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(
       userId,
       res,
     );
-  }
-
-  @Get('generate-qr-code')
-  @UseGuards(JwtAuthGuard)
-  generateQRCode(@GetCurrentUserId() userId: string) {
-    return this.twoFactorAuthenticationService.generateQRCode(userId);
   }
 
   @Post('validate')
@@ -61,7 +55,7 @@ export class TwoFactorAuthenticationController {
       throw new UnauthorizedException('Wrong authentication code');
     }
     this.userService.enableTwoFactorAuthentication(userId, res);
-    res.status(201).send();
+    return res.status(201).send();
   }
 
   @Post('authenticate')
@@ -87,12 +81,12 @@ export class TwoFactorAuthenticationController {
     const token = this.authService.login2FA(user);
     res.clearCookie('temporaryToken', { httpOnly: true });
     res.cookie('jwtToken', `${token}`, { httpOnly: true });
-    res.status(201).send();
+    return res.status(201).send();
   }
 
   @Delete('disable')
   @UseGuards(JwtAuthGuard)
-  toggle(@GetCurrentUserId() userId: string, @Res() res: Response) {
-    return this.userService.toggleTwoFactorAuthentication('', userId, res);
+  toggle(@GetCurrentUserId() userId: string) {
+    return this.userService.toggleTwoFactorAuthentication('', userId);
   }
 }

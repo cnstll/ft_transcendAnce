@@ -385,11 +385,7 @@ export class UserService {
    *  2FA functions
    */
 
-  async toggleTwoFactorAuthentication(
-    secret: string,
-    userId: string,
-    res: Response,
-  ) {
+  async toggleTwoFactorAuthentication(secret: string, userId: string) {
     try {
       await this.prismaService.user.update({
         where: {
@@ -400,10 +396,8 @@ export class UserService {
           twoFactorAuthenticationSet: false,
         },
       });
-      return res.status(200).send();
     } catch (error) {
       console.log(error);
-      return res.status(500).send();
     }
     return;
   }

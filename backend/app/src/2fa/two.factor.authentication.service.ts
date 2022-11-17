@@ -16,20 +16,20 @@ export class TwoFactorAuthenticationService {
     userId: string,
     res: Response,
   ) {
-    const secret: string = authenticator.generateSecret();
-    return this.userService.toggleTwoFactorAuthentication(secret, userId, res);
-  }
-
-  public async generateQRCode(userId: string) {
-    const user = await this.userService.getUserInfo(userId);
-    console.log(user.twoFactorAuthenticationSecret);
-    const otpauthURL = authenticator.keyuri(
-      userId,
-      this.configService.get('TranscenDance'),
-      user.twoFactorAuthenticationSecret,
-    );
-    const qrCode = await QRCode.toDataURL(otpauthURL);
-    return qrCode;
+    try {
+      const secret: string = authenticator.generateSecret();
+      await this.userService.toggleTwoFactorAuthentication(secret, userId);
+      const otpauthURL = authenticator.keyuri(
+        userId,
+        this.configService.get('TranscenDance'),
+        secret,
+      );
+      const qrCode = await QRCode.toDataURL(otpauthURL);
+      return res.status(201).send(qrCode);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
   }
 
   async isTwoFactorAuthenticationCodeValid(

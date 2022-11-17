@@ -5,18 +5,20 @@ import {
   disable2fa,
   validate2faCode,
 } from '../../query-hooks/set2fa';
-import useQRCode from '../../query-hooks/useQRCode';
+import LoadingSpinner from '../loading-spinner';
 
 interface ToggleProps {
   toggleValue: boolean;
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
   setToggleValue: Dispatch<React.SetStateAction<boolean>>;
+  setQRCode: Dispatch<React.SetStateAction<string>>;
 }
 
 interface TwoFaModalProps {
   showModal: boolean;
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
   setToggleValue: Dispatch<React.SetStateAction<boolean>>;
+  qrCode: string;
 }
 
 /**
@@ -29,9 +31,8 @@ function TwoFaModal({
   showModal,
   setShowModal,
   setToggleValue,
+  qrCode,
 }: TwoFaModalProps) {
-  const getQRCode = useQRCode();
-  const qrCode = getQRCode.data;
   const disable2faMutation = disable2fa();
   const validate2faMutation = validate2faCode();
   const verficationCodeRef = useRef<HTMLInputElement>(null);
@@ -63,7 +64,7 @@ function TwoFaModal({
 
   return (
     <>
-      {showModal && getQRCode.isSuccess && (
+      {showModal && (
         <div className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0 h-modal h-full bg-[#222] bg-opacity-50">
           <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
             <div className="relative bg-white rounded-lg shadow text-black p-6">
@@ -88,10 +89,14 @@ function TwoFaModal({
                 Scan QR Code
               </h4>
               <div className="flex justify-center">
-                <img
-                  className="block lg:w-64 md:w-40 sm:w-32 w-24 lg:h-64 md:h-40 sm:h-32 h-24 object-contain"
-                  src={qrCode}
-                />
+                {qrCode ? (
+                  <img
+                    className="block lg:w-64 md:w-40 sm:w-32 w-24 lg:h-64 md:h-40 sm:h-32 h-24 object-contain"
+                    src={qrCode}
+                  />
+                ) : (
+                  <LoadingSpinner />
+                )}
               </div>
               <div>
                 <h4 className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs text-purple-light font-medium border-b my-2">
@@ -149,15 +154,16 @@ function Generate2fa({
   toggleValue,
   setShowModal,
   setToggleValue,
+  setQRCode,
 }: ToggleProps) {
-  const generate2faMutation = generate2fa();
+  const getQRCode = generate2fa();
 
   /* Generate 2FA Secret */
 
   function on2faActivation() {
     setToggleValue(true);
     setShowModal(true);
-    generate2faMutation.mutate({}, {});
+    if (getQRCode.isSuccess) setQRCode(getQRCode.data);
   }
 
   return (
@@ -219,7 +225,12 @@ function Disable2fa({
  *
  */
 
-function Toggle({ toggleValue, setShowModal, setToggleValue }: ToggleProps) {
+function Toggle({
+  toggleValue,
+  setShowModal,
+  setToggleValue,
+  setQRCode,
+}: ToggleProps) {
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden w-20">
       <label className="relative cursor-pointer">
@@ -234,12 +245,14 @@ function Toggle({ toggleValue, setShowModal, setToggleValue }: ToggleProps) {
             toggleValue={toggleValue}
             setShowModal={setShowModal}
             setToggleValue={setToggleValue}
+            setQRCode={setQRCode}
           />
         ) : (
           <Generate2fa
             toggleValue={toggleValue}
             setShowModal={setShowModal}
             setToggleValue={setToggleValue}
+            setQRCode={setQRCode}
           />
         )}
       </label>
@@ -249,6 +262,7 @@ function Toggle({ toggleValue, setShowModal, setToggleValue }: ToggleProps) {
 
 function TwoFactorAuthentication({ user }: { user: User }) {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [qrCode, setQRCode] = useState<string>('');
   const [toggleValue, setToggleValue] = useState<boolean>(
     user.twoFactorAuthenticationSet,
   );
@@ -260,12 +274,14 @@ function TwoFactorAuthentication({ user }: { user: User }) {
         toggleValue={toggleValue}
         setShowModal={setShowModal}
         setToggleValue={setToggleValue}
+        setQRCode={setQRCode}
       />
       {showModal && (
         <TwoFaModal
           showModal={showModal}
           setShowModal={setShowModal}
           setToggleValue={setToggleValue}
+          qrCode={qrCode}
         />
       )}
     </div>
