@@ -2,12 +2,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { Channel, User } from '../global-components/interface';
+import { Channel, channelType, User } from '../global-components/interface';
 import { useNavigate } from 'react-router-dom';
 import SearchChannelItem from './chat/search-channel-item';
 import { socket } from '../global-components/client-socket';
 import JoinChannel from '../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
+import PasswordModal from './chat/password-modal';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -36,6 +37,8 @@ function SearchBoxChannel({
   const userQueryKey = 'userData';
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
+  const [showModal, setShowModal] = useState<boolean>(false);
+
   useEffect(() => {
     socket.on(
       'roomJoined',
@@ -44,13 +47,13 @@ function SearchBoxChannel({
         //User joining the channel will navigate to this channel
         if (userQueryData?.id.toString() == joiningInfo.userId) {
           setIsShown(false);
+          setShowModal(false);
           navigate(`../chat/${joiningInfo.channelId}`);
           setActiveChannelId(joiningInfo.channelId);
         } else {
           //TODO notify other users that a new user joined
         }
-      },
-    );
+      });
     socket.on('joinRoomFailed', () => {
       alert('Failed to join room, sorry');
     });
@@ -99,7 +102,10 @@ function SearchBoxChannel({
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
         if (firstResult || firstResult === '') {
-          JoinChannel(filteredChannels[0]);
+          if (filteredChannels[0].type === channelType.Protected)
+            setShowModal(true);
+          else
+            JoinChannel(filteredChannels[0]);
         }
       } else {
         alert('No channel found ;(');
@@ -115,7 +121,8 @@ function SearchBoxChannel({
             className={
               height +
               width +
-              ' bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs lg:text-sm focus:outline-none relative'
+              ' bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs\
+               lg:text-sm focus:outline-none relative'
             }
             type="text"
             name="search"
@@ -139,11 +146,20 @@ function SearchBoxChannel({
               {filterChannels(channels, searchData.keyword)
                 ?.slice(0, 5)
                 .map((channelItem) => (
-                  <SearchChannelItem
-                    key={channelItem.id}
-                    channel={channelItem}
-                  />
-                ))}
+                  <div key={channelItem.id}>
+                    <SearchChannelItem
+                      channel={channelItem}
+                    />
+                    <div className="z-index-20">
+                      {showModal &&
+                        <PasswordModal
+                          setShowModal={setShowModal}
+                          channel={channelItem}/>
+                      }
+                    </div>
+                  </div>
+                )
+                )}
             </ul>
           )}
         </div>
