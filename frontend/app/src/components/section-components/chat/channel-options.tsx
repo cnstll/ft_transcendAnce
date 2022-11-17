@@ -29,18 +29,6 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
 
-  function leaveChannel(channelInfo: Channel) {
-    socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
-  }
-
-  function leaveChannelHandler() {
-    if (channelInfo != undefined) {
-      leaveChannel(channelInfo);
-    } else {
-      alert('Failed to leave room');
-    }
-  }
-
   useEffect(() => {
     socket.on(
       'roomLeft',
@@ -74,6 +62,19 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
       socket.off('leaveRoomFailed');
     };
   }, []);
+
+  function leaveChannel(channelInfo: Channel) {
+    console.log("checkpoint emit leaveRoom");
+    socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
+  }
+
+  function leaveChannelHandler() {
+    if (channelInfo != undefined) {
+      leaveChannel(channelInfo);
+    } else {
+      alert('Failed to leave room');
+    }
+  }
 
   function handleModal() {
     setShowModal(!showModal);

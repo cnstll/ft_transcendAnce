@@ -84,7 +84,9 @@ export class ChannelGateway {
       userId,
       clientSocket,
     );
-    joinedRoom == null
+    typeof joinedRoom === 'string'
+      ? this.server.to(clientSocket.id).emit('joinRoomPWDFailed', joinedRoom)
+      : typeof joinedRoom === null
       ? this.server.to(clientSocket.id).emit('joinRoomFailed')
       : this.server
           .to(dto.id)

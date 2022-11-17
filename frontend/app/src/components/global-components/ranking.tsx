@@ -95,7 +95,7 @@ function Ranking() {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard.data.map((user, index) => (
+                    {leaderboard.data.map((user: RankingData, index: number) => (
                       <RankingList
                         key={user.id}
                         rankingData={user}
