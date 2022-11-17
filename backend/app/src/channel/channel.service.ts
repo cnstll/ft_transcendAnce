@@ -424,8 +424,7 @@ export class ChannelService {
     if (channelDto.type === ChannelType.PRIVATE) {
       try {
         const isInvited = await this.isInvitedInAChannel(userId, channelDto.id);
-        if (isInvited)
-          throw new Error('alreadyInvited');
+        if (isInvited) throw new Error('alreadyInvited');
         const channelInvite: Channel = await this.prisma.channel.update({
           where: {
             id: channelDto.id,
@@ -433,8 +432,8 @@ export class ChannelService {
           data: {
             invites: {
               set: { id: channelDto.invitedId },
-            }
-          }
+            },
+          },
         });
         return channelInvite;
       } catch (error) {

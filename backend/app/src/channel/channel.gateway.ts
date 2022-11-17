@@ -164,11 +164,16 @@ export class ChannelGateway {
     @MessageBody('inviteToChannel') inviteChannelDto: InviteChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const inviteToChannel = await this.channelService.inviteToChannelWS(userId, inviteChannelDto);
+    const inviteToChannel = await this.channelService.inviteToChannelWS(
+      userId,
+      inviteChannelDto,
+    );
     if (inviteChannelDto == null) {
       this.server.to(clientSocket.id).emit('invitationFailed');
     } else {
-      this.server.to([clientSocket.id, inviteChannelDto.id]).emit('invitationSent', inviteToChannel);
+      this.server
+        .to([clientSocket.id, inviteChannelDto.id])
+        .emit('invitationSent', inviteToChannel);
     }
   }
 }
