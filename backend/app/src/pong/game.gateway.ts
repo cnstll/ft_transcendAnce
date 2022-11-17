@@ -22,6 +22,7 @@ import { GameMode } from './entities/game.entities';
     ],
     credentials: true,
   },
+  parser: require('socket.io-msgpack-parser'),
 })
 export class GameGateway {
   @WebSocketServer()

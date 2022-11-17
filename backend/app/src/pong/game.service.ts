@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
+import { Root } from 'protobufjs';
 
 @Injectable()
 export class GameService {
   GameMap = new DoubleKeyMap();
+  gameInfo = this.protobuf.lookupType('userpackage.GameInfo');
 
   constructor(
+    @Inject('PROTOBUFROOT') private protobuf: Root,
     private prismaService: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
   ) {}
@@ -20,10 +23,12 @@ export class GameService {
       gameId: game.gameRoomId,
       status: game.status,
       winner: '',
+      playerOne: game.p1id,
+      playerTwo: game.p2id,
     });
   }
 
-  join(client: Socket, userId: string, server: Server, mode: GameMode) {
+  async join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
     if (this.GameMap.size === 0) {
@@ -37,7 +42,7 @@ export class GameService {
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
-          this.addInterval(game.gameRoomId, userId, 30, server);
+          this.addInterval(game.gameRoomId, userId, 19, server);
         }
         if (game.p2id === userId) return { playerNumber: 2 };
         return { playerNumber: 1 };
@@ -45,7 +50,7 @@ export class GameService {
       if ((game = this.GameMap.matchPlayer(userId))) {
         client.join(game.gameRoomId);
         this.mutateGameStatus(game, Status.PLAYING, server);
-        this.addInterval(game.gameRoomId, userId, 30, server);
+        this.addInterval(game.gameRoomId, userId, 19, server);
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
@@ -111,11 +116,10 @@ export class GameService {
     return null;
   }
 
-  moveBall(id: string) {
+  moveBall(id: string, server: Server) {
     const game: Game = this.GameMap.getGame(id);
-    game.moveBall();
+    game.moveBall(this, server);
     return game.returnGameInfo();
-    // TODO i shouldnt have to resend everything here
   }
 
   createGame(p1: string, mode: GameMode) {
@@ -123,7 +127,12 @@ export class GameService {
     this.GameMap.setPlayer1(p1, game);
     return game;
   }
-
+  winGame(game: Game, server: Server) {
+    this.deleteInterval(game.gameRoomId);
+    this.mutateGameStatus(game, Status.DONE, server);
+    game.saveGameResults(this.prismaService);
+    this.GameMap.delete(game.p1id);
+  }
   addInterval(
     gameRoomId: string,
     userId: string,
@@ -131,17 +140,11 @@ export class GameService {
     server: Server,
   ) {
     const callback = () => {
-      const message = this.moveBall(userId);
-      //  I want to change this to make the game more blazingly fast
-      if (message.p2s >= 10 || message.p1s >= 10) {
-        const game = this.GameMap.getGame(userId);
-        this.deleteInterval(gameRoomId);
-        this.mutateGameStatus(game, Status.DONE, server);
-        game.saveGameResults(this.prismaService);
-        this.GameMap.delete(userId);
-      }
-      server.to(gameRoomId).emit('updatedGameInfo', message);
-      server.emit('matchFinished');
+      const payload = this.moveBall(userId, server);
+      this.gameInfo.verify(payload);
+      const message = this.gameInfo.create(payload);
+      const encoded = this.gameInfo.encode(message).finish();
+      server.to(gameRoomId).emit('GI', encoded);
     };
 
     const interval = setInterval(callback, milliseconds);

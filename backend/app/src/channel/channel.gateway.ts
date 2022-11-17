@@ -25,6 +25,7 @@ import { LeaveChannelDto } from './dto/leaveChannel.dto';
     ],
     credentials: true,
   },
+  parser: require('socket.io-msgpack-parser'),
 })
 export class ChannelGateway {
   @WebSocketServer()

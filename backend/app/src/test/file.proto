@@ -1,0 +1,6 @@
+package userpackage;
+syntax = "proto3";
+
+message MyMessage{
+  required string title= 1;
+}

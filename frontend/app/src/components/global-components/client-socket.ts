@@ -1,9 +1,16 @@
 import { io } from 'socket.io-client';
 import { domain } from './interface';
+// import myParser from '../../proto/myParser'
 
 export const socket = io(`${domain}`, {
   withCredentials: true,
+  parser: require("socket.io-msgpack-parser"),
 });
+
+// export const customSocket = io( `${domain}`, {
+//   withCredentials: true,
+//   parser: myParser,
+// });
 export let socketID = '';
 socket.on('connect', () => {
   socketID = socket.id;

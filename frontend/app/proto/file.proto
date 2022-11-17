@@ -1,0 +1,14 @@
+syntax = "proto3";
+package userpackage;
+
+message User{
+  string title= 1;
+}
+message GameInfo {
+    int32 p1y= 1;
+    int32 p2y= 2;
+    int32 bx= 3;
+    int32 by= 4;
+    int32 p1s= 5;
+    int32 p2s= 6;
+}
