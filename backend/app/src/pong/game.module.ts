@@ -6,7 +6,7 @@ import { GameService } from './game.service';
 const ProtoBufProvider = {
   provide: 'PROTOBUFROOT',
   useFactory: async () => {
-    const protobufRoot = await loadProtobuf('./proto/file.proto');
+    const protobufRoot = await loadProtobuf('./src/proto/file.proto');
     return protobufRoot;
   },
 };
