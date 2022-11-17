@@ -5,14 +5,21 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Channel, ChannelRole, ChannelType, ChannelUser } from '@prisma/client';
+import {
+  Channel,
+  ChannelRole,
+  ChannelUser,
+  Message,
+  ChannelType,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
-import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import * as argon from 'argon2';
+import { IncomingMessageDto } from './dto/incomingMessage.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class ChannelService {
@@ -83,10 +90,19 @@ export class ChannelService {
           channelId: channelId,
         },
         select: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              avatarImg: true,
+            },
+          },
         },
       });
-      return users;
+      const flattenUsers = [];
+      for (let index = 0; index < users.length; index++) {
+        flattenUsers.push(users[index].user);
+      }
+      return flattenUsers;
     } catch (error) {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
@@ -112,6 +128,33 @@ export class ChannelService {
     } catch (error) {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
+    }
+  }
+
+  async getMessagesFromChannel(
+    userId: string,
+    channelId: string,
+    res: Response,
+  ) {
+    // Use userId to verify that user requesting message belong to channel or is not banned
+    // Retrieve all messages from channel using its id
+    try {
+      const objMessages = await this.prisma.channel.findFirst({
+        where: {
+          id: channelId,
+        },
+        select: {
+          messages: true,
+        },
+      });
+      if (objMessages) {
+        return res.status(200).send(objMessages.messages);
+      } else {
+        return res.status(500).send();
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
     }
   }
 
@@ -145,18 +188,17 @@ export class ChannelService {
     channelPassword: string,
     clientSocket: Socket,
   ) {
+    /* TO-DO Instead, it should check if UserChannel exist */
     const channel: Channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
       },
     });
+    /* then reconnect to the channel regardless of its type */
     if (channel != null) {
-      if (channel.type == 'PUBLIC') {
-        await clientSocket.join(channelId);
-      } else {
-        //TODO If channel is protected check channelPassword
-      }
+      await clientSocket.join(channelId);
     }
+    delete channel.passwordHash;
     return channel;
   }
 
@@ -177,8 +219,7 @@ export class ChannelService {
         });
       }
       /* Then try to create a new channel */
-      //* What if channel name already exists ?
-      const newChannel: Channel = await this.prisma.channel.create({
+      const createdChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
           users: {
@@ -189,10 +230,10 @@ export class ChannelService {
           },
         },
       });
-      delete newChannel.passwordHash;
+      delete createdChannel.passwordHash;
       /* create and join room instance */
-      clientSocket.join(newChannel.id);
-      return newChannel;
+      clientSocket.join(createdChannel.id);
+      return createdChannel;
     } catch (error) {
       if (error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
@@ -207,8 +248,29 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
-      /* Check the password is provided in the DTO for protected chan) */
-
+      /* Get the channel's password if the type is protected */
+      const channel: { type: ChannelType; passwordHash: string } =
+        await this.prisma.channel.findFirst({
+          where: {
+            id: channelDto.id,
+            type: ChannelType.PROTECTED,
+          },
+          select: {
+            type: true,
+            passwordHash: true,
+          },
+        });
+      /* If there is a channel's password and a password provided */
+      if (channel?.type === ChannelType.PROTECTED) {
+        if (!channelDto.passwordHash) throw new Error('PasswordRequired');
+        /* Compare passwords */
+        const pwdMatches = await argon.verify(
+          channel.passwordHash,
+          channelDto.passwordHash,
+        );
+        /* If passwords don't match, throw error */
+        if (!pwdMatches) throw new Error('InvalidPassword');
+      }
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
@@ -225,30 +287,40 @@ export class ChannelService {
       });
       /* Join socket.io room instance */
       clientSocket.join(channelDto.id);
+      delete joinedChannel.passwordHash;
       return joinedChannel;
     } catch (error) {
-      //TODO Improve error handling
+      if (error == 'Error: PasswordRequired') {
+        return 'PasswordRequired';
+      } else if (error == 'Error: InvalidPassword') {
+        return 'InvalidPassword';
+      }
       return null;
     }
   }
 
-  async storeMessage(dto: UserMessageDto, channelId: string) {
+  async storeMessage(userId: string, messageInfo: IncomingMessageDto) {
     try {
       //TODO Check if user is muted/banned
-      const channel: Channel = await this.prisma.channel.update({
-        where: {
-          id: channelId,
-        },
-        data: {
-          messages: {
-            create: {
-              senderId: dto.senderId,
-              content: dto.content,
+      const messagesObj: { messages: Message[] } =
+        await this.prisma.channel.update({
+          where: {
+            id: messageInfo.channelId,
+          },
+          data: {
+            messages: {
+              create: {
+                senderId: userId,
+                content: messageInfo.content,
+              },
             },
           },
-        },
-      });
-      return channel;
+          select: {
+            messages: true,
+          },
+        });
+      //return last message saved to db
+      return messagesObj.messages[messagesObj.messages.length - 1];
     } catch (error) {
       return null;
     }

@@ -46,6 +46,12 @@ export class UserController {
     return this.userService.getUserInfo(userId);
   }
 
+  @Post('get-user-by-id')
+  @UseGuards(JwtAuthGuard)
+  getUserById(@Body() data: { userId: string }) {
+    return this.userService.getUserInfo(data.userId);
+  }
+
   @Get('get-all-users')
   @UseGuards(JwtAuthGuard)
   getAllUsers(@Res() res: Response) {
@@ -64,7 +70,6 @@ export class UserController {
     this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
-
   @Get('avatar/:fileId')
   async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
     res.sendFile(fileId, { root: 'avatar' });
@@ -166,5 +171,22 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   getLeaderBoard(@Res() res: Response) {
     return this.userService.getLeaderboard(res);
+  }
+
+  /** Achievement management */
+
+  @Post('get-achievement')
+  @UseGuards(JwtAuthGuard)
+  getAchievement(@Body() data: { userNickname: string }, @Res() res: Response) {
+    return this.userService.getAchievement(data.userNickname, res);
+  }
+
+  @Post('set-achievement')
+  @UseGuards(JwtAuthGuard)
+  setAchievement(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { achievementId: string },
+  ) {
+    return this.userService.setAchievement(userId, data.achievementId);
   }
 }

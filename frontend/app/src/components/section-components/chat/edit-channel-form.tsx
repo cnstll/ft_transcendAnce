@@ -4,8 +4,6 @@ import { socket } from "../../global-components/client-socket";
 import { validateNameInput, validatePwdInput } from "./regex-input-validations";
 import { useQueryClient } from "react-query";
 
-/* review emit for other users => they should see edit with changing focus */
-
 interface EditChannelFormProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
   currentChannel: Channel;
@@ -89,7 +87,7 @@ function EditChannelForm(props: EditChannelFormProps) {
               <div id="form-channel-creation-name"
                 className="form-group my-3 ">
                 <label htmlFor="ChannelName" className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
-                  text-purple-light font-medium my-3 font-bold">
+                  text-purple-light my-3 font-bold">
                   Enter a name:
                 </label>
                 <p className="text-xs text-gray-400 my-1 font-light italic">
@@ -123,7 +121,7 @@ function EditChannelForm(props: EditChannelFormProps) {
               <div id="form-channel-creation-type"
                 className="form-group mb-3 mt-5">
                 <p className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
-                  text-purple-light font-medium my-2 font-bold">
+                  text-purple-light my-2 font-bold">
                   Select a type:
                 </p>
                 <div className="m-2">
@@ -179,7 +177,9 @@ function EditChannelForm(props: EditChannelFormProps) {
                     htmlFor="ChannelPassword"
                     className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
                       text-purple-light my-3 font-bold">
-                    {props.currentChannel.passwordHash ? "Change the password: " : "Enter a new password: "}
+                    {props.currentChannel.type === channelType.Protected
+                      ? "Change the password: "
+                      : "Enter a new password: "}
                   </label>
                   <input
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding

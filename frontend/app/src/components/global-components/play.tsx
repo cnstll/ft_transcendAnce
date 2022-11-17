@@ -17,14 +17,9 @@ function Play() {
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
-    socket.emit(
-      'reJoin',
-      { mode: gameMode },
-      (response:  string | null) => {
-        setGameMode(response);
-     },
-
-    );
+    socket.emit('reJoin', { mode: gameMode }, (response: string | null) => {
+      setGameMode(response);
+    });
   }, []);
 
   const setMayhem = () => {
@@ -64,7 +59,13 @@ function Play() {
               </div>
             </div>
           )}
-          {gameMode != null && <Game gameMode={gameMode} />}
+          {gameMode != null && (
+            <Game
+              gameMode={gameMode}
+              avatarImg={user.data.avatarImg}
+              userId={user.data.id}
+            />
+          )}
         </Background>
       </div>
     );

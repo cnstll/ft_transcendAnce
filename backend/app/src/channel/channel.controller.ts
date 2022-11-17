@@ -1,4 +1,5 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
@@ -48,5 +49,14 @@ export class ChannelController {
     @Param('id') channelId: string,
   ) {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
+  }
+
+  @Get('get-messages-from-channel/:id')
+  getMessagesFromChannel(
+    @GetCurrentUserId() userId: string,
+    @Param('id') channelId: string,
+    @Res() res: Response,
+  ) {
+    return this.channelService.getMessagesFromChannel(userId, channelId, res);
   }
 }

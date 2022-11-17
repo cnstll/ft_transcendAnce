@@ -1,5 +1,5 @@
 import SideBox from '../side-box';
-import useTargetInfo from '../../query-hooks/useTargetInfo';
+import { useTargetInfo } from '../../query-hooks/useTargetInfo';
 import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
 import { TargetInfo } from '../../global-components/interface';
@@ -17,10 +17,6 @@ function TheirProfile({ nickname }: { nickname: string }) {
 
   return (
     <>
-      {user.isError && (
-        <p className="text-base text-gray-400">We encountered an error 🤷</p>
-      )}
-      {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <>
           <SideBox>
@@ -41,6 +37,10 @@ function TheirProfile({ nickname }: { nickname: string }) {
           </SideBox>
         </>
       )}
+      {user.isError && (
+        <p className="text-base text-gray-400">We encountered an error 🤷</p>
+      )}
+      {user.isLoading && <LoadingSpinner />}
     </>
   );
 }

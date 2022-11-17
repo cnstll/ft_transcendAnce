@@ -55,7 +55,6 @@ export class GameGateway {
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('reJoin')
   rejoin(@GetCurrentUserId() userId: string) {
-    console.log(userId);
     return this.gameService.rejoin(userId);
   }
 
