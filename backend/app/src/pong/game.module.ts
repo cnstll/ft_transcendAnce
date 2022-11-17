@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { loadProtobuf } from 'src/test/protobuf';
+import { loadProtobuf } from 'src/proto/protobuf';
 import { GameGateway } from './game.gateway';
 import { GameService } from './game.service';
 
