@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class InviteChannelDto {
   @IsString()
   @IsNotEmpty()
-  id: string;
+  channelId: string;
 
   @IsString()
   @IsNotEmpty()

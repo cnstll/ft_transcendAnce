@@ -1,38 +1,37 @@
 import { Dispatch, useEffect, useState } from "react";
-import { useQueryClient, UseQueryResult } from "react-query";
-import JoinChannel from "src/components/custom-hooks/emit-join-channel";
+import { useQueryClient } from "react-query";
 import { socket } from "src/components/global-components/client-socket";
 import { Channel, User } from "src/components/global-components/interface";
 import { useInvitesOfAChannel } from "src/components/query-hooks/getChannelInvites";
+import UsersListItem from "../users-list-item";
 
-interface PwdModalProps {
+interface InviteModalProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
   channel: Channel;
 }
 
-function InviteModal(props: PwdModalProps) {
+/** A gerer :
+ * 1 - ne pas s'inviter soi-meme,
+ * 2 - ne pas re-inviter quelqu'un deja invité,
+ * 3 - ne pas inviter un membre du channel (deja invité sauf owner?)
+ * 4 - enlever une invitation ? */
+
+function InviteModal(props: InviteModalProps) {
   const [formData, setFormData] = useState('');
   const [inputStatus, setInputStatus] = useState<string>('empty');
-  const channelsQueryKey = 'invitesOfAChannel';
+  const channelInvitesQueryKey = 'invitesOfAChannel';
   const queryClient = useQueryClient();
-
-  const channelInvites: UseQueryResult<User[] | undefined> =
-    useInvitesOfAChannel(props.channel.id);
+  const invites = useInvitesOfAChannel(props.channel.id);
 
   useEffect(() => {
-    socket.on('invitationSent', async (channel) => {
-      console.log(channel);
-      props.setShowModal(false);
-      await queryClient.refetchQueries(channelsQueryKey);
+    socket.on('inviteSucceeded', async (channel) => {
+      console.log("success ", channel);
+      await queryClient.refetchQueries(channelInvitesQueryKey);
       setFormData('');
     })
-    socket.on('invitationFailed', (channel: null | string) => {
-
-      if (channel === 'InvalidPassword') {
-        setInputStatus('invalidPassword');
-      }
-      else if (channel === 'PasswordRequired') {
-        setInputStatus('passwordRequired');
+    socket.on('inviteFailed', (inviteToChannel: null | string) => {
+      if (inviteToChannel === 'alreadyInvited') {
+        setInputStatus('alreadyInvited');
       }
     });
     return () => {
@@ -48,8 +47,14 @@ function InviteModal(props: PwdModalProps) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    props.channel.passwordHash = formData;
-    JoinChannel(props.channel);
+    console.log("data : ", props.channel.id, formData, props.channel.type);
+    socket.emit('inviteToChannel', {
+      inviteInfo: {
+        channelId: props.channel.id,
+        invitedId: formData,
+        type: props.channel.type,
+      },
+    });
   }
 
   return (
@@ -62,32 +67,48 @@ function InviteModal(props: PwdModalProps) {
                 p-4 border-b">
                 Invite members to {props.channel.name}
               </h3>
-              <form onSubmit={onSubmit}>
         {/* Invited members - to do */}
+        <div className="my-4">
+        <h4 className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
+                      text-purple-light my-3 font-bold">
+               Already invited to your channel:
+          </h4>
+          {invites.data?.length ?
+            <ul className="grid gap-y-4 grid-cols-2"> {invites.data?.map((invitedUser: User) => (
+                      <UsersListItem
+                        key={invitedUser.id}
+                        user={invitedUser}
+                      />
+                  )
+              )}
+            </ul>
+            : <p className="text-gray-400 font-normal text-center">Invite someone to dance with 💃</p>
+            }
+        </div>
         {/* Search for a user section */}
-                <div id="form-channel-creation-password" className="form-group mt-4">
+              <form onSubmit={onSubmit}>
+                <div id="form-channel-invite" className="form-group mt-4">
                   <label
-                    htmlFor="ChannelPassword"
+                    htmlFor="ChannelInvite"
                     className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
                       text-purple-light my-3 font-bold">
-                    Search for a user:
+                    Search for a user to invite:
                   </label>
                   <input
                     className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
                       border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                      inputStatus === '' ||
-                      inputStatus === '' ?
+                      inputStatus === 'alreadyInvited' ?
                       'border-red-500' : ''
                     }`}
                     type="text"
-                    name="password"
-                    id="passwordHash"
+                    name="invite"
+                    id="invitedId"
                     value={formData}
                     onChange={onChange}
                     autoComplete="off"
-                    placeholder="Enter user's name"
+                    placeholder="Enter the name of the user to invite"
                   />
-                  {inputStatus === '' &&
+                  {inputStatus === 'alreadyInvited' &&
                     <p className="text-red-500 text-xs font-medium my-1">
                       This member is already invited!
                       </p>}

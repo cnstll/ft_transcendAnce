@@ -11,15 +11,17 @@ import {
   ChannelType,
   ChannelUser,
   User,
+  Message,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
-import { UserMessageDto } from './dto/userMessage.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import * as argon from 'argon2';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
+import { IncomingMessageDto } from './dto/incomingMessage.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class ChannelService {
@@ -72,7 +74,7 @@ export class ChannelService {
   }
 
   async checkChannel(channelId: string) {
-    const channel: Channel = await this.prisma.channel.findUnique({
+    const channel: Channel = await this.prisma.channel.findFirst({
       where: {
         id: channelId,
       },
@@ -90,10 +92,19 @@ export class ChannelService {
           channelId: channelId,
         },
         select: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              avatarImg: true,
+            },
+          },
         },
       });
-      return users;
+      const flattenUsers = [];
+      for (let index = 0; index < users.length; index++) {
+        flattenUsers.push(users[index].user);
+      }
+      return flattenUsers;
     } catch (error) {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
@@ -145,6 +156,33 @@ export class ChannelService {
     }
   }
 
+  async getMessagesFromChannel(
+    userId: string,
+    channelId: string,
+    res: Response,
+  ) {
+    // Use userId to verify that user requesting message belong to channel or is not banned
+    // Retrieve all messages from channel using its id
+    try {
+      const objMessages = await this.prisma.channel.findFirst({
+        where: {
+          id: channelId,
+        },
+        select: {
+          messages: true,
+        },
+      });
+      if (objMessages) {
+        return res.status(200).send(objMessages.messages);
+      } else {
+        return res.status(500).send();
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send();
+    }
+  }
+
   //******   CHAT WEBSOCKETS SERVICES *******//
 
   async hasAdminRights(userId: string, channelId: string) {
@@ -175,18 +213,17 @@ export class ChannelService {
     channelPassword: string,
     clientSocket: Socket,
   ) {
+    /* TO-DO Instead, it should check if UserChannel exist */
     const channel: Channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
       },
     });
+    /* then reconnect to the channel regardless of its type */
     if (channel != null) {
-      if (channel.type == 'PUBLIC') {
-        await clientSocket.join(channelId);
-      } else {
-        //TODO If channel is protected check channelPassword
-      }
+      await clientSocket.join(channelId);
     }
+    delete channel.passwordHash;
     return channel;
   }
 
@@ -207,8 +244,7 @@ export class ChannelService {
         });
       }
       /* Then try to create a new channel */
-      //* What if channel name already exists ?
-      const newChannel: Channel = await this.prisma.channel.create({
+      const createdChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
           users: {
@@ -219,10 +255,10 @@ export class ChannelService {
           },
         },
       });
-      delete newChannel.passwordHash;
+      delete createdChannel.passwordHash;
       /* create and join room instance */
-      clientSocket.join(newChannel.id);
-      return newChannel;
+      clientSocket.join(createdChannel.id);
+      return createdChannel;
     } catch (error) {
       if (error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
@@ -271,6 +307,29 @@ export class ChannelService {
         const isInvited = await this.isInvitedInAChannel(userId, channelDto.id);
         if (!isInvited) throw new Error('errorNotInvited');
       }
+      /* If there is a channel's password and a password provided */
+      if (channelDto.type === ChannelType.PROTECTED) {
+        /* Get the channel's password if the type is protected */
+        const channel: { type: ChannelType; passwordHash: string } =
+          await this.prisma.channel.findFirst({
+            where: {
+              id: channelDto.id,
+              type: ChannelType.PROTECTED,
+            },
+            select: {
+              type: true,
+              passwordHash: true,
+            },
+          });
+        if (!channelDto.passwordHash) throw new Error('PasswordRequired');
+        /* Compare passwords */
+        const pwdMatches = await argon.verify(
+          channel.passwordHash,
+          channelDto.passwordHash,
+        );
+        /* If passwords don't match, throw error */
+        if (!pwdMatches) throw new Error('InvalidPassword');
+      }
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
@@ -287,32 +346,42 @@ export class ChannelService {
       });
       /* Join socket.io room instance */
       clientSocket.join(channelDto.id);
+      delete joinedChannel.passwordHash;
       return joinedChannel;
     } catch (error) {
       if (error == 'Error: errorNotInvited') {
-        return 'errorNotInvited';
+        return 'notInvited';
+      } else if (error == 'Error: PasswordRequired') {
+        return 'PasswordRequired';
+      } else if (error == 'Error: InvalidPassword') {
+        return 'InvalidPassword';
       }
       return 'errorJoinChannel';
     }
   }
 
-  async storeMessage(dto: UserMessageDto, channelId: string) {
+  async storeMessage(userId: string, messageInfo: IncomingMessageDto) {
     try {
       //TODO Check if user is muted/banned
-      const channel: Channel = await this.prisma.channel.update({
-        where: {
-          id: channelId,
-        },
-        data: {
-          messages: {
-            create: {
-              senderId: dto.senderId,
-              content: dto.content,
+      const messagesObj: { messages: Message[] } =
+        await this.prisma.channel.update({
+          where: {
+            id: messageInfo.channelId,
+          },
+          data: {
+            messages: {
+              create: {
+                senderId: userId,
+                content: messageInfo.content,
+              },
             },
           },
-        },
-      });
-      return channel;
+          select: {
+            messages: true,
+          },
+        });
+      //return last message saved to db
+      return messagesObj.messages[messagesObj.messages.length - 1];
     } catch (error) {
       return null;
     }
@@ -420,28 +489,40 @@ export class ChannelService {
     }
   }
 
-  async inviteToChannelWS(userId: string, channelDto: InviteChannelDto) {
-    if (channelDto.type === ChannelType.PRIVATE) {
-      try {
-        const isInvited = await this.isInvitedInAChannel(userId, channelDto.id);
-        if (isInvited) throw new Error('alreadyInvited');
-        const channelInvite: Channel = await this.prisma.channel.update({
-          where: {
-            id: channelDto.id,
+  async inviteToChannelWS(userId: string, inviteDto: InviteChannelDto) {
+    if (!inviteDto.type || inviteDto.type !== ChannelType.PRIVATE)
+      return 'notPrivateChannel';
+    else if (!inviteDto.channelId || !inviteDto.invitedId)
+      return 'missingDtoData';
+    const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+      userId,
+      inviteDto.channelId,
+    );
+    if (userRole.role < ChannelRole.ADMIN) {
+      return 'noEligibleRights';
+    }
+    try {
+      const isInvited = await this.isInvitedInAChannel(
+        inviteDto.invitedId,
+        inviteDto.channelId,
+      );
+      if (isInvited) throw new Error('alreadyInvited');
+      const channelInvite: Channel = await this.prisma.channel.update({
+        where: {
+          id: inviteDto.channelId,
+        },
+        data: {
+          invites: {
+            connect: { id: inviteDto.invitedId },
           },
-          data: {
-            invites: {
-              set: { id: channelDto.invitedId },
-            },
-          },
-        });
-        return channelInvite;
-      } catch (error) {
-        if (error == 'Error: alreadyInvited') {
-          return 'alreadyInvited';
-        }
-        console.log(error);
+        },
+      });
+      return channelInvite;
+    } catch (error) {
+      if (error == 'Error: alreadyInvited') {
+        return 'alreadyInvited';
       }
+      console.log(error);
     }
   }
 }
