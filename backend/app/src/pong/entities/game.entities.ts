@@ -372,6 +372,7 @@ export class Game {
 export enum Status {
   PLAYING = 'PLAYING',
   DONE = 'DONE',
+  OVER = 'OVER',
   PAUSED = 'PAUSED',
   PENDING = 'PENDING',
 }

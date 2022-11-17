@@ -46,6 +46,12 @@ export class UserController {
     return this.userService.getUserInfo(userId);
   }
 
+  @Post('get-user-by-id')
+  @UseGuards(JwtAuthGuard)
+  getUserById(@Body() data: { userId: string }) {
+    return this.userService.getUserInfo(data.userId);
+  }
+
   @Get('get-all-users')
   @UseGuards(JwtAuthGuard)
   getAllUsers(@Res() res: Response) {

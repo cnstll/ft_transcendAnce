@@ -1,5 +1,5 @@
 import SideBox from '../side-box';
-import useTargetInfo from '../../query-hooks/useTargetInfo';
+import { useTargetInfo } from '../../query-hooks/useTargetInfo';
 import FriendStatus from '../friend-status';
 import { UseQueryResult } from 'react-query';
 import { TargetInfo } from '../../global-components/interface';
