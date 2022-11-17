@@ -107,9 +107,9 @@ async function main() {
     update: {},
     create: {
       id: 'channel3',
-      name: 'You shall not pass',
+      name: 'You shall not pass: hello',
       type: 'PROTECTED',
-      passwordHash: 'security',
+      passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$u7C7YawZ2zrB8EMSxbnneg$R2p8E8EKJu7mr5TNRK8gmSipfZzfh2LvnM61CiCRdqY',
       users: {
         create: [{ userId: 'user1', role: 'ADMIN' }, { userId: 'user3' }],
       },

@@ -188,19 +188,17 @@ export class ChannelService {
     channelPassword: string,
     clientSocket: Socket,
   ) {
+    /* TO-DO Instead, it should check if UserChannel exist */
     const channel: Channel = await this.prisma.channel.findUnique({
       where: {
         id: channelId,
       },
     });
+    /* then reconnect to the channel regardless of its type */
     if (channel != null) {
-      if (channel.type == 'PUBLIC') {
-        await clientSocket.join(channelId);
-      } else {
-        //TODO If channel is protected check channelPassword
-        await clientSocket.join(channelId);
-      }
+      await clientSocket.join(channelId);
     }
+    delete channel.passwordHash;
     return channel;
   }
 
@@ -221,8 +219,7 @@ export class ChannelService {
         });
       }
       /* Then try to create a new channel */
-      //* What if channel name already exists ?
-      const newChannel: Channel = await this.prisma.channel.create({
+      const createdChannel: Channel = await this.prisma.channel.create({
         data: {
           ...dto,
           users: {
@@ -233,10 +230,10 @@ export class ChannelService {
           },
         },
       });
-      delete newChannel.passwordHash;
+      delete createdChannel.passwordHash;
       /* create and join room instance */
-      clientSocket.join(newChannel.id);
-      return newChannel;
+      clientSocket.join(createdChannel.id);
+      return createdChannel;
     } catch (error) {
       if (error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
@@ -251,8 +248,29 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
-      /* Check the password is provided in the DTO for protected chan) */
-
+      /* Get the channel's password if the type is protected */
+      const channel: { type: ChannelType; passwordHash: string } =
+        await this.prisma.channel.findFirst({
+          where: {
+            id: channelDto.id,
+            type: ChannelType.PROTECTED,
+          },
+          select: {
+            type: true,
+            passwordHash: true,
+          },
+        });
+      /* If there is a channel's password and a password provided */
+      if (channel?.type === ChannelType.PROTECTED) {
+        if (!channelDto.passwordHash) throw new Error('PasswordRequired');
+        /* Compare passwords */
+        const pwdMatches = await argon.verify(
+          channel.passwordHash,
+          channelDto.passwordHash,
+        );
+        /* If passwords don't match, throw error */
+        if (!pwdMatches) throw new Error('InvalidPassword');
+      }
       /* Then, join channel */
       const joinedChannel: Channel = await this.prisma.channel.update({
         where: {
@@ -269,9 +287,14 @@ export class ChannelService {
       });
       /* Join socket.io room instance */
       clientSocket.join(channelDto.id);
+      delete joinedChannel.passwordHash;
       return joinedChannel;
     } catch (error) {
-      //TODO Improve error handling
+      if (error == 'Error: PasswordRequired') {
+        return 'PasswordRequired';
+      } else if (error == 'Error: InvalidPassword') {
+        return 'InvalidPassword';
+      }
       return null;
     }
   }
