@@ -1,6 +1,3 @@
-import { Socket } from 'socket.io';
-import { JwtPayload } from '../auth/types';
-
 export class SocketToUserIdStorage {
   socketToUserId = new Map<string, string>();
 
