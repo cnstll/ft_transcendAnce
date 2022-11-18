@@ -22,7 +22,7 @@ export function useTargetInfo(
 const fetchOpponentInfo = (userId: string | undefined) =>
   axios
     .post<TargetInfo>(
-      'http://localhost:3000/user/get-user-by-id',
+      '${apiUrl}/user/get-user-by-id',
       { userId: userId },
       { withCredentials: true },
     )

@@ -33,7 +33,7 @@
     "dev:db:rm": "docker compose rm dev-db -s -f -v",
     "dev:db:up": "docker compose up dev-db -d",
     "db:dev:restart": "npm run dev:db:rm && npm run dev:db:up",
-    "backend:rm": "docker compose rm deb-backend -s -f -v",
+    "backend:rm": "docker compose rm dev-backend -s -f -v",
     "backend:up": "docker compose up dev-backend -d",
     "backend:restart": "npm run dev-backend:rm && npm run backend:up",
     "test:db:rm": "docker compose rm test-db -s -f -v",

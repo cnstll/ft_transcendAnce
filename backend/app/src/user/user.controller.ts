@@ -66,7 +66,7 @@ export class UserController {
     @Res() res: Response,
     @GetCurrentUserId() userId: string,
   ) {
-    const filename = 'http://localhost:3000/user/' + file.path;
+    const filename = `${process.env.PUBLIC_URL}/user/` + file.path;
     this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
