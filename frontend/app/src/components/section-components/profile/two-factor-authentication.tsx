@@ -60,7 +60,7 @@ function TwoFaModal({
     });
   }
 
-  console.log(qrCode);
+  // console.log(qrCode);
 
   return (
     <>
@@ -119,6 +119,7 @@ function TwoFaModal({
                   name="code"
                   placeholder="Authentication Code"
                   ref={verficationCodeRef}
+                  onInput={() => setValidCode(true)}
                 />
                 <div className=" items-center py-2 space-x-2">
                   <button
@@ -156,14 +157,13 @@ function Generate2fa({
   setToggleValue,
   setQRCode,
 }: ToggleProps) {
+  /* Generate 2FA Secret */
   const getQRCode = generate2fa();
 
-  /* Generate 2FA Secret */
-
   function on2faActivation() {
+    if (getQRCode.data) setQRCode(getQRCode.data);
     setToggleValue(true);
     setShowModal(true);
-    if (getQRCode.isSuccess) setQRCode(getQRCode.data);
   }
 
   return (
@@ -194,28 +194,31 @@ function Disable2fa({
   toggleValue,
   setShowModal,
   setToggleValue,
+  setQRCode,
 }: ToggleProps) {
   const disable2faMutation = disable2fa();
 
   function on2faDelete() {
     setToggleValue(false);
     setShowModal(false);
-    disable2faMutation.mutate({}, {});
+    disable2faMutation.mutate({}, { onSuccess: () => setQRCode('') });
   }
 
   return (
-    <div
-      onClick={on2faDelete}
-      className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-green-300  peer-checked:after:translate-x-full
+    <>
+      <div
+        onClick={on2faDelete}
+        className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-green-300  peer-checked:after:translate-x-full
           peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300
           after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"
-    >
-      {toggleValue ? (
-        <span className="ml-1 font-bold text-[9px]">ON</span>
-      ) : (
-        <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
-      )}
-    </div>
+      >
+        {toggleValue ? (
+          <span className="ml-1 font-bold text-[9px]">ON</span>
+        ) : (
+          <span className="ml-6 font-bold text-[9px] text-black">OFF</span>
+        )}
+      </div>
+    </>
   );
 }
 
