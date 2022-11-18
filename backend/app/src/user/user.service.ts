@@ -165,10 +165,7 @@ export class UserService {
         },
       });
       return res.status(200).clearCookie('jwtToken', { httpOnly: true }).send();
-    } catch (error) {
-      //UserId was not found
-      return res.status(401).send();
-    }
+    } catch (error) {}
   }
 
   /** Friendship management */
