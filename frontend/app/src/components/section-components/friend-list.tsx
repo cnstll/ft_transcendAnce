@@ -8,21 +8,19 @@ import UsersList from './users-list';
 function FriendsList() {
   const friends = useUserFriends();
   const queryClient = useQueryClient();
+  const friendsListQueryKey = 'friendsList';
   useEffect(() => {
-    socket.on('userDisconnected', async () => {
-      await queryClient.invalidateQueries('friendsList');
+    socket.on('userDisconnected', () => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
     });
-    socket.on('userConnected', async () => {
-      console.log('PROFILE - USER CONNECTED');
-      await queryClient.invalidateQueries('friendsList');
+    socket.on('userConnected', () => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
     });
-    socket.on('userInGame', async () => {
-      console.log('PROFILE - USER IN GAME');
-      await queryClient.invalidateQueries('friendsList');
+    socket.on('userInGame', () => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
     });
-    socket.on('userGameEnded', async () => {
-      console.log('PROFILE - USER GAME ENDED');
-      await queryClient.invalidateQueries('friendsList');
+    socket.on('userGameEnded', () => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
     });
     return () => {
       socket.off('userDisconnected');

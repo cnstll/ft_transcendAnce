@@ -10,7 +10,6 @@ import { Stat } from './interfaces/stats.interface';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Response } from 'express';
 import { MatchHistory } from './interfaces/matchHistory.interface';
-import { HttpStatusCode } from 'axios';
 
 @Injectable()
 export class UserService {
@@ -574,7 +573,7 @@ export class UserService {
   }
   async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
     try {
-      const user = await this.prismaService.user.update({
+      await this.prismaService.user.update({
         where: {
           id: userId,
         },
@@ -582,7 +581,6 @@ export class UserService {
           status: connectionStatus,
         },
       });
-      return user;
     } catch (error) {
       console.log(error);
     }
