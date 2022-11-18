@@ -25,6 +25,7 @@ export class UserService {
           immutableId: dto.immutableId.toString(),
           passwordHash: dto.passwordHash,
           avatarImg: dto.avatarImg,
+          status: UserStatus.ONLINE,
         },
       });
       /* Check if the immutable ID are those of Colomban, Constant, Estelle or Lea
@@ -153,8 +154,18 @@ export class UserService {
     });
   }
 
-  logout(res: Response) {
-    return res.clearCookie('jwtToken', { httpOnly: true });
+  async logout(res: Response, userId: string) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          status: UserStatus.OFFLINE,
+        },
+      });
+      return res.status(200).clearCookie('jwtToken', { httpOnly: true }).send();
+    } catch (error) {}
   }
 
   /** Friendship management */
@@ -556,6 +567,20 @@ export class UserService {
       }
     }
     return userRank;
+  }
+  async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          status: connectionStatus,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   /** Achievement management */
