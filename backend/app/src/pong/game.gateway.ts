@@ -37,7 +37,6 @@ export class GameGateway {
     @MessageBody() encoded: Uint8Array,
     @GetCurrentUserId() id: string,
   ) {
-    
     this.gameService.create(encoded, id);
     // return message;
   }

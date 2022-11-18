@@ -13,7 +13,7 @@ export class GameService {
   playerInfo = this.protobuf.lookupType('userpackage.PlayerInfo');
   buf: Buffer;
   timestamp: any;
-  previousTimeStamp: any = 0;// this is for debug purposes
+  previousTimeStamp: any = 0; // this is for debug purposes
 
   constructor(
     @Inject('PROTOBUFROOT') private protobuf: Root,
@@ -130,8 +130,8 @@ export class GameService {
   }
 
   create(encoded: Uint8Array, userId: string) {
-    let decoded = this.playerInfo.decode(encoded).toJSON();
-    let y = decoded.yPos;
+    const decoded = this.playerInfo.decode(encoded).toJSON();
+    const y = decoded.yPos;
     const game: Game = this.GameMap.getGame(userId);
     if (game !== undefined) {
       if (game.p1id === userId) {
@@ -172,12 +172,12 @@ export class GameService {
       this.gameInfo.verify(payload);
       const message = this.gameInfo.create(payload);
       const encoded = this.gameInfo.encode(message).finish();
-          // this.timestamp = Date.now();
-          // // if (start === undefined) {
-          // //   start = timestamp;
-          // // }
-          // console.log(this.timestamp - this.previousTimeStamp);
-          // this.previousTimeStamp = this.timestamp;
+      // this.timestamp = Date.now();
+      // // if (start === undefined) {
+      // //   start = timestamp;
+      // // }
+      // console.log(this.timestamp - this.previousTimeStamp);
+      // this.previousTimeStamp = this.timestamp;
       server.to(gameRoomId).volatile.emit('GI', encoded);
     };
 
