@@ -12,6 +12,11 @@ interface PictureData {
   imageOpponent: string;
 }
 
+interface MatchHistoryProps {
+  nickname: string;
+  avatarImg: string;
+}
+
 function VersusComponent({ imageCurrentUser, imageOpponent }: PictureData) {
   return (
     <div className="flex flex-row gap-2">
@@ -72,8 +77,8 @@ function MatchHistoryComponent({ matchData }: { matchData: MatchData[] }) {
   );
 }
 
-function MatchHistory({ nickname }: { nickname: string }) {
-  const matchData = useUserMatchHistory(nickname);
+function MatchHistory({ nickname, avatarImg }: MatchHistoryProps) {
+  const matchData = useUserMatchHistory(nickname, avatarImg);
 
   return (
     <>

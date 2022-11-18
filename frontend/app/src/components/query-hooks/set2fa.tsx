@@ -8,9 +8,13 @@ import {
 
 const generate = () =>
   axios
-    .get<string>('http://localhost:3000/2fa/generate', {
-      withCredentials: true,
-    })
+    .post<string>(
+      'http://localhost:3000/2fa/generate',
+      {},
+      {
+        withCredentials: true,
+      },
+    )
     .then((response) => response.data);
 
 export function generate2fa(): UseQueryResult<string> {
