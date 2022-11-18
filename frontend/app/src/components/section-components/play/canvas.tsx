@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
+import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
 import {  GameCoords, GameStatus } from '../../global-components/interface';
 import {GameInfo, PlayerInfo} from '../../../proto/file_pb'
@@ -12,47 +12,47 @@ interface GameProps {
   userId: string;
 }
 
-// interface PlayerAvatarProps {
-//   currentPlayerAvatar: string;
-//   opponentAvatar: string;
-//   playerNumber: number;
-// }
+interface PlayerAvatarProps {
+  currentPlayerAvatar: string;
+  opponentAvatar: string;
+  playerNumber: number;
+}
 
-// function PlayerAvatar({
-//   currentPlayerAvatar,
-//   opponentAvatar,
-//   playerNumber,
-// }: PlayerAvatarProps) {
-//   return (
-//     <>
-//       {playerNumber === 1 ? (
-//         <div className="flex flex-row justify-between mt-4">
-//           <img
-//             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-//             src={currentPlayerAvatar}
-//             />
-//           <img
-//             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-//             src={opponentAvatar}
-//             />
-//         </div>
-//       ) : (
-//           <div className="flex flex-row justify-between mt-4">
-//             <img
-//               className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-//               src={opponentAvatar}
-//               />
-//             <img
-//               className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-//               src={currentPlayerAvatar}
-//               />
-//           </div>
-//         )}
-//       </>
-//   );
-// }
+function PlayerAvatar({
+  currentPlayerAvatar,
+  opponentAvatar,
+  playerNumber,
+}: PlayerAvatarProps) {
+  return (
+    <>
+      {playerNumber === 1 ? (
+        <div className="flex flex-row justify-between mt-4">
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={currentPlayerAvatar}
+            />
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={opponentAvatar}
+            />
+        </div>
+      ) : (
+          <div className="flex flex-row justify-between mt-4">
+            <img
+              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+              src={opponentAvatar}
+              />
+            <img
+              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+              src={currentPlayerAvatar}
+              />
+          </div>
+        )}
+      </>
+  );
+}
 
-function Game ({ gameMode/*, avatarImg, userId*/}: GameProps) {
+function Game ({ gameMode, avatarImg, userId}: GameProps) {
   const message = new PlayerInfo();
   let encodedMessage;
   let gameCoordinates: GameCoords;
@@ -84,8 +84,8 @@ function Game ({ gameMode/*, avatarImg, userId*/}: GameProps) {
   const [playerNumber, setPlayerNumber] = useState<number | undefined>(
     undefined,
   );
-  // const [playerOneId, setPlayerOneId] = useState<string | undefined>(undefined);
-  // const [playerTwoId, setPlayerTwoId] = useState<string | undefined>(undefined);
+  const [playerOneId, setPlayerOneId] = useState<string | undefined>(undefined);
+  const [playerTwoId, setPlayerTwoId] = useState<string | undefined>(undefined);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
 
   useEffect(() => {
@@ -120,8 +120,8 @@ function Game ({ gameMode/*, avatarImg, userId*/}: GameProps) {
         setGameStatus(GameStatus.OVER);
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
-        // setPlayerOneId(text.player1id);
-        // setPlayerTwoId(text.player2id);
+        setPlayerOneId(text.player1id);
+        setPlayerTwoId(text.player2id);
       } else if (text.status === 'PAUSED') {
         setGameStatus(GameStatus.PAUSED);
       }
@@ -395,11 +395,11 @@ function Game ({ gameMode/*, avatarImg, userId*/}: GameProps) {
     }
   }
 
-  // let opponentId: string | undefined = userId;
-  // if (playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
-  // else if (playerNumber === 2 && playerOneId) opponentId = playerOneId;
+  let opponentId: string | undefined = userId;
+  if (playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
+  else if (playerNumber === 2 && playerOneId) opponentId = playerOneId;
 
-  // const opponent = useOpponentInfo(opponentId);
+  const opponent = useOpponentInfo(opponentId);
 
   return (
     <div className="fixed top-1/4">
@@ -435,15 +435,15 @@ function Game ({ gameMode/*, avatarImg, userId*/}: GameProps) {
             className="border-solid border-2 border-white"
             />
         )}
-        {/* {gameStatus === GameStatus.PLAYING && */}
-        {/*   opponent.isSuccess && */}
-        {/*   playerNumber !== undefined && ( */}
-        {/*     <PlayerAvatar */}
-        {/*       currentPlayerAvatar={avatarImg} */}
-        {/*       opponentAvatar={opponent.data.avatarImg} */}
-        {/*       playerNumber={playerNumber} */}
-        {/*       /> */}
-        {/*   )} */}
+        {gameStatus === GameStatus.PLAYING &&
+          opponent.isSuccess &&
+          playerNumber !== undefined && (
+            <PlayerAvatar
+              currentPlayerAvatar={avatarImg}
+              opponentAvatar={opponent.data.avatarImg}
+              playerNumber={playerNumber}
+              />
+          )}
       </div>
     </div>
   );
