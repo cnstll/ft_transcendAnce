@@ -32,13 +32,14 @@ export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
   @UseGuards(JwtAuthGuard)
-  @SubscribeMessage('updatePaddlePos')
+  @SubscribeMessage('PP')
   async create(
-    @MessageBody('yPos') yPos: number,
+    @MessageBody() encoded: Uint8Array,
     @GetCurrentUserId() id: string,
   ) {
-    const message = this.gameService.create(yPos, id);
-    return message;
+    
+    this.gameService.create(encoded, id);
+    // return message;
   }
 
   @UseGuards(JwtAuthGuard)

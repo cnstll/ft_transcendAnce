@@ -3,26 +3,6 @@
 
 import * as jspb from "google-protobuf";
 
-export class User extends jspb.Message {
-  getTitle(): string;
-  setTitle(value: string): void;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): User.AsObject;
-  static toObject(includeInstance: boolean, msg: User): User.AsObject;
-  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-  static serializeBinaryToWriter(message: User, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): User;
-  static deserializeBinaryFromReader(message: User, reader: jspb.BinaryReader): User;
-}
-
-export namespace User {
-  export type AsObject = {
-    title: string,
-  }
-}
-
 export class GameInfo extends jspb.Message {
   getP1y(): number;
   setP1y(value: number): void;
@@ -60,6 +40,26 @@ export namespace GameInfo {
     by: number,
     p1s: number,
     p2s: number,
+  }
+}
+
+export class PlayerInfo extends jspb.Message {
+  getYpos(): number;
+  setYpos(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PlayerInfo.AsObject;
+  static toObject(includeInstance: boolean, msg: PlayerInfo): PlayerInfo.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: PlayerInfo, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PlayerInfo;
+  static deserializeBinaryFromReader(message: PlayerInfo, reader: jspb.BinaryReader): PlayerInfo;
+}
+
+export namespace PlayerInfo {
+  export type AsObject = {
+    ypos: number,
   }
 }
 

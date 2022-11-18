@@ -4,12 +4,16 @@ import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
-import { Root } from 'protobufjs';
+import { BufferReader, Root } from 'protobufjs';
 
 @Injectable()
 export class GameService {
   GameMap = new DoubleKeyMap();
   gameInfo = this.protobuf.lookupType('userpackage.GameInfo');
+  playerInfo = this.protobuf.lookupType('userpackage.PlayerInfo');
+  buf: Buffer;
+  timestamp: any;
+  previousTimeStamp: any = 0;// this is for debug purposes
 
   constructor(
     @Inject('PROTOBUFROOT') private protobuf: Root,
@@ -42,7 +46,7 @@ export class GameService {
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
-          this.addInterval(game.gameRoomId, userId, 19, server);
+          this.addInterval(game.gameRoomId, userId, 16, server);
         }
         if (game.p2id === userId) return { playerNumber: 2 };
         return { playerNumber: 1 };
@@ -50,7 +54,7 @@ export class GameService {
       if ((game = this.GameMap.matchPlayer(userId))) {
         client.join(game.gameRoomId);
         this.mutateGameStatus(game, Status.PLAYING, server);
-        this.addInterval(game.gameRoomId, userId, 19, server);
+        this.addInterval(game.gameRoomId, userId, 16, server);
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
@@ -110,40 +114,6 @@ export class GameService {
     this.schedulerRegistry.addTimeout(name, timeout);
   }
 
-  // addInterval(
-  //   gameRoomId: string,
-  //   userId: string,
-  //   milliseconds: number,
-  //   server: Server,
-  // ) {
-  //   const callback = () => {
-  //     const message = this.moveBall(userId);
-  //     if (message.p2s >= 10 || message.p1s >= 10) {
-  //       const game = this.GameMap.getGame(userId);
-  //       this.deleteInterval(message.gameRoomId);
-  //       this.mutateGameStatus(game, Status.OVER, server);
-  //       if (message.p1s === 10)
-  //         this.addWinningTimeout(gameRoomId, 5000, server, message.p1id);
-  //       else if (message.p2s === 10)
-  //         this.addWinningTimeout(gameRoomId, 5000, server, message.p2id);
-  //     }
-  //     server.to(message.gameRoomId).emit('updatedGameInfo', message);
-  //     server.emit('matchFinished');
-  //   };
-
-  //   const interval = setInterval(callback, milliseconds);
-  //   this.schedulerRegistry.addInterval(gameRoomId, interval);
-  // }
-
-  // deleteInterval(name: string) {
-  //   this.schedulerRegistry.deleteInterval(name);
-  // }
-
-  // getInterval(name: string) {
-  //   const interval = this.schedulerRegistry.getInterval(name);
-  //   return interval;
-  // }
-
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
     if (game && game.status === Status.PLAYING) {
@@ -159,7 +129,9 @@ export class GameService {
     }
   }
 
-  create(y: number, userId: string) {
+  create(encoded: Uint8Array, userId: string) {
+    let decoded = this.playerInfo.decode(encoded).toJSON();
+    let y = decoded.yPos;
     const game: Game = this.GameMap.getGame(userId);
     if (game !== undefined) {
       if (game.p1id === userId) {
@@ -167,9 +139,7 @@ export class GameService {
       } else {
         game.movePaddle(2, y);
       }
-      return game;
     }
-    return null;
   }
 
   moveBall(id: string, server: Server) {
@@ -183,6 +153,7 @@ export class GameService {
     this.GameMap.setPlayer1(p1, game);
     return game;
   }
+
   winGame(game: Game, server: Server) {
     this.deleteInterval(game.gameRoomId);
     this.mutateGameStatus(game, Status.DONE, server);
@@ -201,7 +172,13 @@ export class GameService {
       this.gameInfo.verify(payload);
       const message = this.gameInfo.create(payload);
       const encoded = this.gameInfo.encode(message).finish();
-      server.to(gameRoomId).emit('GI', encoded);
+          // this.timestamp = Date.now();
+          // // if (start === undefined) {
+          // //   start = timestamp;
+          // // }
+          // console.log(this.timestamp - this.previousTimeStamp);
+          // this.previousTimeStamp = this.timestamp;
+      server.to(gameRoomId).volatile.emit('GI', encoded);
     };
 
     const interval = setInterval(callback, milliseconds);

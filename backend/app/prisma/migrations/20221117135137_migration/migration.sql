@@ -20,7 +20,7 @@ CREATE TABLE "users" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "status" "UserStatus" NOT NULL DEFAULT 'OFFLINE',
     "avatarImg" TEXT,
-    "eloScore" INTEGER NOT NULL DEFAULT 0,
+    "eloScore" INTEGER NOT NULL DEFAULT 1000,
     "twoFactorAuthenticationSet" BOOLEAN NOT NULL DEFAULT false,
     "twoFactorAuthenticationSecret" TEXT NOT NULL DEFAULT '',
 
@@ -39,30 +39,24 @@ CREATE TABLE "friendships" (
 );
 
 -- CreateTable
-CREATE TABLE "matches" (
-    "id" TEXT NOT NULL,
+CREATE TABLE "Match" (
+    "gameId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "p1s" INTEGER NOT NULL,
+    "p2s" INTEGER NOT NULL,
+    "playerOneId" TEXT NOT NULL,
+    "playerTwoId" TEXT NOT NULL,
 
-    CONSTRAINT "matches_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "user_matches" (
-    "playerId" TEXT NOT NULL,
-    "matchId" TEXT NOT NULL,
-    "score" JSONB NOT NULL DEFAULT '{"myself" : 0, "opponent" : 0}',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "user_matches_pkey" PRIMARY KEY ("playerId","matchId")
+    CONSTRAINT "Match_pkey" PRIMARY KEY ("gameId")
 );
 
 -- CreateTable
 CREATE TABLE "achievements" (
     "id" TEXT NOT NULL,
     "label" TEXT NOT NULL,
-    "image" TEXT,
+    "description" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
 
     CONSTRAINT "achievements_pkey" PRIMARY KEY ("id")
 );
@@ -133,9 +127,6 @@ CREATE UNIQUE INDEX "users_nickname_key" ON "users"("nickname");
 CREATE UNIQUE INDEX "friendships_requesterId_addresseeId_key" ON "friendships"("requesterId", "addresseeId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "user_matches_playerId_matchId_key" ON "user_matches"("playerId", "matchId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "user_achievements_userId_achievementId_key" ON "user_achievements"("userId", "achievementId");
 
 -- CreateIndex
@@ -151,10 +142,10 @@ ALTER TABLE "friendships" ADD CONSTRAINT "friendships_requesterId_fkey" FOREIGN 
 ALTER TABLE "friendships" ADD CONSTRAINT "friendships_addresseeId_fkey" FOREIGN KEY ("addresseeId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_matches" ADD CONSTRAINT "user_matches_playerId_fkey" FOREIGN KEY ("playerId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Match" ADD CONSTRAINT "Match_playerOneId_fkey" FOREIGN KEY ("playerOneId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_matches" ADD CONSTRAINT "user_matches_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "matches"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Match" ADD CONSTRAINT "Match_playerTwoId_fkey" FOREIGN KEY ("playerTwoId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "user_achievements" ADD CONSTRAINT "user_achievements_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
