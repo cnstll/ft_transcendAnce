@@ -1,10 +1,7 @@
+import axios from 'axios';
 import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { User } from '../../global-components/interface';
-import {
-  generate2fa,
-  disable2fa,
-  validate2faCode,
-} from '../../query-hooks/set2fa';
+import { validate2faCode } from '../../query-hooks/set2fa';
 import LoadingSpinner from '../loading-spinner';
 
 interface ToggleProps {
@@ -19,6 +16,7 @@ interface TwoFaModalProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
   setToggleValue: Dispatch<React.SetStateAction<boolean>>;
   qrCode: string;
+  setQRCode: Dispatch<React.SetStateAction<string>>;
 }
 
 /**
@@ -32,16 +30,21 @@ function TwoFaModal({
   setShowModal,
   setToggleValue,
   qrCode,
+  setQRCode,
 }: TwoFaModalProps) {
-  const disable2faMutation = disable2fa();
   const validate2faMutation = validate2faCode();
   const verficationCodeRef = useRef<HTMLInputElement>(null);
   const [validCode, setValidCode] = useState<boolean>(true);
 
   function closeModal() {
+    void axios
+      .delete('http://localhost:3000/2fa/disable', {
+        withCredentials: true,
+      })
+      .then((res) => res);
+    setQRCode('');
     setShowModal(false);
     setToggleValue(false);
-    disable2faMutation.mutate({}, {});
   }
 
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -59,8 +62,6 @@ function TwoFaModal({
       },
     });
   }
-
-  // console.log(qrCode);
 
   return (
     <>
@@ -158,10 +159,17 @@ function Generate2fa({
   setQRCode,
 }: ToggleProps) {
   /* Generate 2FA Secret */
-  const getQRCode = generate2fa();
 
   function on2faActivation() {
-    if (getQRCode.data) setQRCode(getQRCode.data);
+    void axios
+      .post<string>(
+        'http://localhost:3000/2fa/generate',
+        {},
+        {
+          withCredentials: true,
+        },
+      )
+      .then((response) => setQRCode(response.data));
     setToggleValue(true);
     setShowModal(true);
   }
@@ -196,12 +204,15 @@ function Disable2fa({
   setToggleValue,
   setQRCode,
 }: ToggleProps) {
-  const disable2faMutation = disable2fa();
-
   function on2faDelete() {
+    void axios
+      .delete('http://localhost:3000/2fa/disable', {
+        withCredentials: true,
+      })
+      .then((res) => res);
+    setQRCode('');
     setToggleValue(false);
     setShowModal(false);
-    disable2faMutation.mutate({}, { onSuccess: () => setQRCode('') });
   }
 
   return (
@@ -285,6 +296,7 @@ function TwoFactorAuthentication({ user }: { user: User }) {
           setShowModal={setShowModal}
           setToggleValue={setToggleValue}
           qrCode={qrCode}
+          setQRCode={setQRCode}
         />
       )}
     </div>

@@ -43,7 +43,6 @@ export class TwoFactorAuthenticationController {
     /* Check that the user has a valid 2fa secret */
     const user: User = await this.userService.getUserInfo(userId);
     if (!user.twoFactorAuthenticationSecret) {
-      console.log('no secret');
       throw new UnauthorizedException('The user does not have a 2fa secret');
     }
 
@@ -53,7 +52,6 @@ export class TwoFactorAuthenticationController {
         userId,
       );
     if (!isCodeValid) {
-      console.log('code not valid');
       throw new UnauthorizedException('Wrong authentication code');
     }
     this.userService.enableTwoFactorAuthentication(userId, res);
