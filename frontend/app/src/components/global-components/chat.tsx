@@ -25,6 +25,7 @@ function Chat() {
   const user = useUserInfo();
   const { activeChannel } = useParams();
   const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
+  const [isShown, setIsShown] = useState(false);
 
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
@@ -108,8 +109,11 @@ function Chat() {
                   </h2>
                 </div>
                 <div className="p-5 flex justify-center">
-                  <DropDownButton>
-                    <ChannelOptions setActiveChannelId={setActiveChannelId} />
+                  <DropDownButton setIsShown={setIsShown} isShown={isShown}>
+                    <ChannelOptions
+                      setActiveChannelId={setActiveChannelId}
+                      setIsShown={setIsShown}
+                    />
                   </DropDownButton>
                 </div>
               </div>

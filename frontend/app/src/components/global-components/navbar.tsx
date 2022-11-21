@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { User } from '../global-components/interface';
 import axios from 'axios';
@@ -9,6 +9,8 @@ import { UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
 import SearchBoxUser from '../section-components/search-box-user';
 import DropDownMenu from '../section-components/drop-down-menu';
+import { socket } from './client-socket';
+// import { socket } from './client-socket';
 
 interface BannerProps {
   children?: React.ReactNode;
@@ -19,6 +21,7 @@ interface BannerProps {
 function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
+  const currentLocation = useLocation();
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -29,6 +32,11 @@ function Navbar({ text, avatarImg }: BannerProps) {
   }
 
   const ref = UseOutsideClick(ClickOutsideHandler);
+  useEffect(() => {
+    if (currentLocation.pathname != '/play') {
+      socket.emit('connectUser');
+    }
+  }, [socket]);
 
   return (
     <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
@@ -71,13 +79,14 @@ function Navbar({ text, avatarImg }: BannerProps) {
 }
 
 function UserInfo() {
-  const logout = () => {
+  function logoutHandler() {
+    socket.emit('disconnectUser');
     axios
       .get('http://localhost:3000/user/logout', {
         withCredentials: true,
       })
       .catch((error) => console.log(error));
-  };
+  }
 
   return (
     <div>
@@ -88,7 +97,7 @@ function UserInfo() {
         <p className="text-center hover:underline my-2">Ranking</p>
       </Link>
       <Link to="/sign-in">
-        <p className="text-center hover:underline my-2" onClick={logout}>
+        <p className="text-center hover:underline my-2" onClick={logoutHandler}>
           Log out
         </p>
       </Link>
