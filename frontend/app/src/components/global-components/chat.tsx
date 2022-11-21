@@ -127,7 +127,7 @@ function Chat() {
             <h2 className="flex justify-center font-bold">MEMBERS</h2>
             {channelUsers.isSuccess && channelUsers.data && (
               <UsersList
-                users={channelUsers.data?.filter(
+                users={channelUsers.data.filter(
                   (channelUser) => channelUser.id != user.data.id,
                 )}
               />
