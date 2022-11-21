@@ -72,7 +72,7 @@ export class UserController {
   }
   @Get('avatar/:fileId')
   async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
-    res.sendFile(fileId, { root: 'avatar' });
+    return res.sendFile(fileId, { root: 'avatar' });
   }
 
   @Put('update-nickname')

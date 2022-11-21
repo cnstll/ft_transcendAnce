@@ -40,7 +40,10 @@ function Profile() {
               <ProfileBox nickname={id} currentUser={user} />
               {!id || user.data.nickname === id ? (
                 <>
-                  <MatchHistory nickname={user.data.nickname} />
+                  <MatchHistory
+                    nickname={user.data.nickname}
+                    avatarImg={user.data.avatarImg}
+                  />
                   <SideBox>
                     <h2 className="flex justify-center font-bold break-all">
                       FRIENDS
@@ -49,7 +52,7 @@ function Profile() {
                   </SideBox>
                 </>
               ) : (
-                <MatchHistory nickname={id} />
+                <MatchHistory nickname={id} avatarImg={user.data.avatarImg} />
               )}
             </div>
             <div className="flex justify-center">
