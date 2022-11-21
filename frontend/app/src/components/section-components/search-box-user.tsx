@@ -67,7 +67,7 @@ function SearchBoxUser({
     if (filteredResults) {
       if (filteredResults[0]) {
         const firstResult = filteredResults[0].nickname;
-        if (firstResult) {
+        if (firstResult && searchData.keyword) {
           navigate('../profile/' + firstResult);
         }
       }
