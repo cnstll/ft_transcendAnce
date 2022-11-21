@@ -87,9 +87,8 @@ export class UserController {
 
   @Get('logout')
   @UseGuards(JwtAuthGuard)
-  logout(@Res() res: Response) {
-    this.userService.logout(res);
-    return res.status(200).send();
+  logout(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.logout(res, userId);
   }
 
   @Delete('delete')

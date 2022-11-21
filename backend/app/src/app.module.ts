@@ -8,6 +8,7 @@ import { ChannelModule } from './channel/channel.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { TwoFactorAuthenticationModule } from './2fa/two.factor.authentication.module';
+import { UserGateway } from './user/user.gateway';
 
 @Module({
   imports: [
@@ -24,5 +25,6 @@ import { TwoFactorAuthenticationModule } from './2fa/two.factor.authentication.m
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
+  providers: [UserGateway],
 })
 export class AppModule {}
