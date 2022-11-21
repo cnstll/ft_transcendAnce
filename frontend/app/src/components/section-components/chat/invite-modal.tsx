@@ -74,7 +74,7 @@ function InviteModal(props: InviteModalProps) {
                Already invited to your channel:
           </h4>
           {invites.data?.length ?
-            <ul className="grid gap-y-4 grid-cols-2"> {invites.data?.map((invitedUser: User) => (
+            <ul className="grid gap-y-4 grid-cols-2"> {invites.data.map((invitedUser: User) => (
                       <UsersListItem
                         key={invitedUser.id}
                         user={invitedUser}
