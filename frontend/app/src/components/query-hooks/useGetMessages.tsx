@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import { Message } from '../global-components/interface';
+import { apiUrl, Message } from '../global-components/interface';
 
 const getAllMessages = (channelId: string) =>
   axios
     .get<Message[]>(
-      `http://localhost:3000/channels/get-messages-from-channel/${channelId}`,
+      `${apiUrl}/channels/get-messages-from-channel/${channelId}`,
       {
         withCredentials: true,
       },

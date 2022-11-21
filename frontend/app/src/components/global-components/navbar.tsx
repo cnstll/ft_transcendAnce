@@ -3,7 +3,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { User } from '../global-components/interface';
+import { apiUrl, User } from '../global-components/interface';
 import axios from 'axios';
 import { UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
@@ -82,7 +82,7 @@ function UserInfo() {
   function logoutHandler() {
     socket.emit('disconnectUser');
     axios
-      .get('http://localhost:3000/user/logout', {
+      .get(`${apiUrl}/user/logout`, {
         withCredentials: true,
       })
       .catch((error) => console.log(error));

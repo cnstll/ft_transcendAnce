@@ -15,7 +15,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watchAll",
@@ -25,6 +25,9 @@
     "test:e2e:coverage": "jest --config ./test/jest-e2e.json --collectCoverage"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.7.3",
+    "@grpc/proto-loader": "^0.7.3",
+    "@msgpack/msgpack": "^2.8.0",
     "@nestjs/axios": "^0.1.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
@@ -40,7 +43,9 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
     "i": "^0.3.7",
+    "nestjs-proto-gen-ts": "^1.0.21",
     "npm": "^8.19.2",
     "otplib": "^12.0.1",
     "passport": "^0.6.0",
@@ -49,11 +54,14 @@
     "passport-jwt": "^4.0.0",
     "passport-oauth": "^1.0.0",
     "passport-oauth2": "^1.6.1",
+    "protobufjs": "^7.1.2",
     "qrcode": "^1.5.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "socket.io": "^4.5.3"
+    "sizeof": "^1.0.0",
+    "socket.io": "^4.5.3",
+    "socket.io-msgpack-parser": "^3.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -95,5 +103,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.7",
+    "utf-8-validate": "^5.0.10"
   }
 }
