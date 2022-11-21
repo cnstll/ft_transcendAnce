@@ -9,7 +9,6 @@ import {
   FriendshipStatus,
   UserStatus,
   Match,
-  Channel,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
