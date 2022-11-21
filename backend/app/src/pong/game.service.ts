@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
-import { BufferReader, Root } from 'protobufjs';
+import { Root } from 'protobufjs';
 
 @Injectable()
 export class GameService {
@@ -12,8 +12,6 @@ export class GameService {
   gameInfo = this.protobuf.lookupType('userpackage.GameInfo');
   playerInfo = this.protobuf.lookupType('userpackage.PlayerInfo');
   buf: Buffer;
-  timestamp: any;
-  previousTimeStamp: any = 0; // this is for debug purposes
 
   constructor(
     @Inject('PROTOBUFROOT') private protobuf: Root,
@@ -172,12 +170,6 @@ export class GameService {
       this.gameInfo.verify(payload);
       const message = this.gameInfo.create(payload);
       const encoded = this.gameInfo.encode(message).finish();
-      // this.timestamp = Date.now();
-      // // if (start === undefined) {
-      // //   start = timestamp;
-      // // }
-      // console.log(this.timestamp - this.previousTimeStamp);
-      // this.previousTimeStamp = this.timestamp;
       server.to(gameRoomId).volatile.emit('GI', encoded);
     };
 
