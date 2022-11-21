@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import { User } from '../global-components/interface';
+import { apiUrl, User } from '../global-components/interface';
 
 const fetchChannelUsers = (channelId: string) =>
   axios
     .get<User[]>(
-      `http://localhost:3000/channels/get-users-of-a-channel/${channelId}`,
+      `${apiUrl}/channels/get-users-of-a-channel/${channelId}`,
       {
         withCredentials: true,
       },

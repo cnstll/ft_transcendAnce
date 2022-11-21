@@ -1,10 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { useMutation, UseMutationResult } from 'react-query';
+import { apiUrl } from '../global-components/interface';
 
 const putValidationCode = (input: string) =>
   axios
     .post(
-      'http://localhost:3000/2fa/validate',
+      `${apiUrl}/2fa/validate`,
       { twoFactorAuthenticationCode: input },
       { withCredentials: true },
     )
@@ -21,7 +22,7 @@ export function validate2faCode(): UseMutationResult<
 const postAuthenticate = (input: string) =>
   axios
     .post(
-      'http://localhost:3000/2fa/authenticate',
+      `${apiUrl}/2fa/authenticate`,
       { twoFactorAuthenticationCode: input },
       { withCredentials: true },
     )

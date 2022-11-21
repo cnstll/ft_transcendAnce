@@ -1,10 +1,10 @@
+import React from 'react';
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
-import { GameCoords, GameStatus } from '../../global-components/interface';
-
-let paddleHeight = 50;
+import {  GameCoords, GameStatus } from '../../global-components/interface';
+import {GameInfo, PlayerInfo} from '../../../proto/file_pb'
 
 interface GameProps {
   gameMode: string;
@@ -30,32 +30,54 @@ function PlayerAvatar({
           <img
             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
             src={currentPlayerAvatar}
-          />
+            />
           <img
             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
             src={opponentAvatar}
-          />
+            />
         </div>
       ) : (
-        <div className="flex flex-row justify-between mt-4">
-          <img
-            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-            src={opponentAvatar}
-          />
-          <img
-            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-            src={currentPlayerAvatar}
-          />
-        </div>
-      )}
-    </>
+          <div className="flex flex-row justify-between mt-4">
+            <img
+              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+              src={opponentAvatar}
+              />
+            <img
+              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+              src={currentPlayerAvatar}
+              />
+          </div>
+        )}
+      </>
   );
 }
 
-function Game({ gameMode, avatarImg, userId }: GameProps) {
+function Game ({ gameMode, avatarImg, userId}: GameProps) {
+  const message = new PlayerInfo();
+  let encodedMessage;
+  let gameCoordinates: GameCoords;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const navigate = useNavigate();
+  let heightScalar: number;  
+  let widthScalar: number ; 
+  let p1x: number;
+  let p2x: number;
+  let ballWidth: number;
+  let paddleWidth: number;
+  let paddleHeight: number;
+  const gameConstants = {
+    relativeGameWidth: 1000,
+    relativeMiddle: 500,
+    relativeGameHeight: 1000,
+    player1PaddlePosX: 80,
+    player2PaddlePosX: 920,
+    paddleWidth: 10,
+    paddleHeight: 100,
+    ballHeight: 10,
+  };
+  // const cacheCanvasRef= useRef<HTMLCanvasElement>(null);
+  let cacheCanvas: OffscreenCanvas;
   const [playerOneScore, setPlayerOneScore] = useState<number | undefined>(
     undefined,
   );
@@ -81,6 +103,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+
     const joinListener = (text: {
       gameId: string;
       status: string;
@@ -103,27 +126,47 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         setGameStatus(GameStatus.PAUSED);
       }
     };
+
     socket.on('gameStatus', joinListener);
+
     if (canvas !== null) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth ;
+      canvas.height = window.innerHeight / 2;
       canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight / 2 + 5}px`;
-      paddleHeight = canvas.height / 20;
+      canvas.style.height = `${window.innerHeight / 2}px`;
+
+      // this canvas is used for static elements so as to not have to repeat these operations every frame
+      cacheCanvas = new OffscreenCanvas(canvas.width, canvas.height); 
+      const cacheContext = cacheCanvas.getContext('2d');
+      if (cacheContext){
+        cacheContext.fillStyle = 'black';
+        cacheContext.fillRect(0 , 0,canvas.width, canvas.height);
+        cacheContext.strokeStyle = 'white';
+        cacheContext.setLineDash([10, 10]);
+        cacheContext.moveTo(canvas.width / 2, 0);
+        cacheContext.lineTo(canvas.width / 2, canvas.height);
+        cacheContext.stroke();
+      }
+
+      heightScalar = window.innerHeight / (2 * gameConstants.relativeGameHeight);
+      widthScalar = window.innerWidth / (gameConstants.relativeGameWidth);
+      paddleWidth = widthScalar * gameConstants.paddleWidth;
+      p1x = widthScalar * gameConstants.player1PaddlePosX - paddleWidth;
+      p2x = widthScalar * gameConstants.player2PaddlePosX;
+      ballWidth = widthScalar * gameConstants.ballHeight;
+      paddleHeight = heightScalar * gameConstants.paddleHeight;
       const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
       if (context !== null) {
+        // this size is used to have a relative font size
         const size = 0.03 * window.innerWidth;
         context.textBaseline = 'middle';
         //Center Horizontally
         context.textAlign = 'center';
-        context.scale(2, 2);
-        context.lineCap = 'round';
-        context.strokeStyle = 'white';
-        context.fillStyle = 'white';
         contextRef.current = context;
+        context.drawImage(cacheCanvas,0,0);
         context.setLineDash([10, 10]);
-        context.moveTo(canvas.width / 4, 0);
-        context.lineTo(canvas.width / 4, canvas.height);
+        context.moveTo(canvas.width / 2, 0);
+        context.lineTo(canvas.width / 2, canvas.height);
         context.fillStyle = 'black';
         context.fillRect(0, 0, canvas.width / 2, canvas.height);
 
@@ -133,8 +176,8 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
             context.fillStyle = 'green';
             context.fillText(
               'Waiting for a partner...',
-              canvas.width / 4,
-              canvas.height / 4,
+              canvas.width / 2,
+              canvas.height / 2,
             );
             break;
 
@@ -143,13 +186,13 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
             context.fillStyle = 'green';
             context.fillText(
               'Opponent disconnected',
-              window.innerWidth / 4,
-              canvas.height / 4 - canvas.height / 8,
+              window.innerWidth / 2,
+              canvas.height / 2 - canvas.height / 8,
             );
             context.fillText(
               'You will win by default in 10s',
-              window.innerWidth / 4,
-              canvas.height / 4 + canvas.height / 8,
+              window.innerWidth / 2,
+              canvas.height / 2 + canvas.height / 8,
             );
             break;
 
@@ -157,86 +200,103 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
             context.font = size.toString() + 'px Aldrich';
             if (
               (playerOneScore === 10 && playerNumber === 1) ||
-              (playerOneScore !== 10 && playerNumber === 2)
+                (playerOneScore !== 10 && playerNumber === 2)
             ) {
               contextRef.current.fillStyle = 'green';
               contextRef.current.fillText(
                 'Congratulations, you won!',
-                canvas.width / 4,
-                canvas.height / 4,
+                canvas.width / 2,
+                canvas.height / 2,
               );
             } else {
               contextRef.current.fillStyle = 'red';
               contextRef.current.fillText(
                 'Sorry, you lost!',
-                canvas.width / 4,
-                canvas.height / 4,
+                canvas.width / 2,
+                canvas.height / 2,
               );
             }
             break;
         }
 
-        const messageListener = (text: GameCoords) => {
-          context.fillStyle = text.color;
-          context.fillRect(0, 0, canvas.width / 2, canvas.height);
-          context.fillStyle = 'white';
-          context.stroke();
-          let posy = (canvas.height / 2) * (text.p1y / 100);
-          let posx = (canvas.width / 2) * (text.p1x / 100);
-
-          // drawing the paddle
-          context.fillRect(posx, posy - paddleHeight / 2, 10, paddleHeight);
-          posy = (canvas.height / 2) * (text.p2y / 100);
-          posx = (canvas.width / 2) * (text.p2x / 100);
-          context.fillRect(posx, posy - paddleHeight / 2, 10, paddleHeight);
-          context.font = '30px Aldrich';
-          setPlayerOneScore(text.p1s);
-          if (text.p1s < 10) {
-            context.font = '30px Aldrich';
-            context.fillStyle = 'white';
-            context.fillText(
-              '0' + text.p1s.toString(),
-              canvas.width / 4 - 100,
-              50,
-            );
+        const messageListener = (encoded: Uint8Array) => {
+          // timestamp = window.performance.now();
+          // if (start === undefined) {
+          //   start = timestamp;
+          // }
+          //
+          try {
+          gameCoordinates =  GameInfo.deserializeBinary(encoded).toObject();
+        //   if (timestamp - previousTimeStamp > 30 )
+        // {
+        //     console.log(timestamp - previousTimeStamp)
+        //   }
+        //   previousTimeStamp = timestamp;
+          window.requestAnimationFrame(draw);
+          } catch (e) {
+            
+            console.log(e);
           }
-          if (text.p2s < 10) {
-            context.font = '30px Aldrich';
-            context.fillStyle = 'white';
-            context.fillText(
-              '0' + text.p2s.toString(),
-              canvas.width / 4 + 100,
-              50,
-            );
-          }
-          if (text.p1s === 10) {
-            context.font = '30px Aldrich';
-            context.fillStyle = 'white';
-            context.fillText(text.p1s.toString(), canvas.width / 4 - 100, 50);
-          }
-          if (text.p2s === 10) {
-            context.font = '30px Aldrich';
-            context.fillStyle = 'white';
-            context.fillText(text.p2s.toString(), canvas.width / 4 + 100, 50);
-          }
-          context.fillStyle = 'yellow';
-          posy = (canvas.height / 2) * (text.by / 100);
-          posx = (canvas.width / 2) * (text.bx / 100);
-          context.fillRect(posx - 5, posy, 10, 10);
         };
 
-        socket.on('updatedGameInfo', messageListener);
+        socket.on('GI', messageListener);
 
         return () => {
-          socket.off('updatedGameInfo', messageListener);
+          socket.off('GI', messageListener);
         };
       }
     }
     return;
-  }, [window.innerWidth, window.innerHeight, gameStatus, window]);
+  }, [window.innerWidth, window.innerHeight, gameStatus ]);
 
+          function draw() {
+            if (contextRef.current && canvasRef.current) {
+              contextRef.current.drawImage(cacheCanvas, 0,0);
+
+              // drawing the paddles
+              contextRef.current.fillStyle = 'white';
+              contextRef.current.fillRect(p1x, heightScalar * gameCoordinates.p1y - (paddleHeight / 2 ), paddleWidth, paddleHeight);
+              contextRef.current.fillRect(p2x, heightScalar * gameCoordinates.p2y - (paddleHeight/2), paddleWidth, paddleHeight);
+
+              if (gameCoordinates.p1s == 10 || gameCoordinates.p2s == 10) {
+                setPlayerOneScore(gameCoordinates.p1s);
+              } 
+
+              if (gameCoordinates.p1s < 10) {
+                contextRef.current.font = '30px Aldrich';
+                contextRef.current.fillStyle = 'white';
+                contextRef.current.fillText(
+                  '0' + gameCoordinates.p1s.toString(),
+                  canvasRef.current.width / 2 - 100,
+                  50,
+                );
+              }
+              if (gameCoordinates.p2s < 10) {
+                contextRef.current.font = '30px Aldrich';
+                contextRef.current.fillStyle = 'white';
+                contextRef.current.fillText(
+                  '0' + gameCoordinates.p2s.toString(),
+                  canvasRef.current.width / 2 + 100,
+                  50,
+                );
+              }
+              if (gameCoordinates.p1s === 10) {
+                contextRef.current.font = '30px Aldrich';
+                contextRef.current.fillStyle = 'white';
+                contextRef.current.fillText(gameCoordinates.p1s.toString(), canvasRef.current.width / 2 - 100, 50);
+              }
+              if (gameCoordinates.p2s === 10) {
+                contextRef.current.font = '30px Aldrich';
+                contextRef.current.fillStyle = 'white';
+                contextRef.current.fillText(gameCoordinates.p2s.toString(), canvasRef.current.width / 2 + 100, 50);
+              }
+              //drawing the ball
+              contextRef.current.fillStyle = 'yellow';
+              contextRef.current.fillRect(widthScalar * (gameCoordinates.bx - ballWidth / 2) , heightScalar * gameCoordinates.by, ballWidth, ballWidth);
+            }
+          }
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
-    const clientY = event.clientY;
+    const clientY = event.clientY ;
 
     if (contextRef.current !== null && canvasRef.current !== null) {
       //Center vertically
@@ -245,13 +305,15 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
       contextRef.current.textAlign = 'center';
       const size = 0.03 * canvasRef.current.width;
       const rect = canvasRef.current.getBoundingClientRect();
-      const posy =
-        ((clientY - rect.top) / (canvasRef.current.height / 2)) * 100;
+      const posy: number = Math.round(((clientY - rect.top) / (canvasRef.current.height )) * gameConstants.relativeGameWidth) ;
       switch (gameStatus) {
+
         case GameStatus.PLAYING:
-          socket.emit('updatePaddlePos', { yPos: posy }, (res: GameCoords) => {
-            void res;
-          });
+          // message = new PlayerInfo();
+          message.setYpos(posy);
+          encodedMessage = message.serializeBinary();
+          // console.log('hi im here', encodedMessage)
+          socket.volatile.emit('PP', encodedMessage.buffer); 
           break;
 
         case GameStatus.PENDING:
@@ -266,8 +328,8 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
           contextRef.current.fillStyle = 'green';
           contextRef.current.fillText(
             'Waiting for a partner...',
-            canvasRef.current.width / 4,
-            canvasRef.current.height / 4,
+            canvasRef.current.width / 2,
+            canvasRef.current.height / 2,
           );
           contextRef.current.fillStyle = 'white';
           contextRef.current.fillRect(
@@ -290,13 +352,13 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
           contextRef.current.fillStyle = 'green';
           contextRef.current.fillText(
             'Opponent disconnected',
-            canvasRef.current.width / 4,
-            canvasRef.current.height / 4 - canvasRef.current.height / 8,
+            canvasRef.current.width / 2,
+            canvasRef.current.height / 2 - canvasRef.current.height / 8,
           );
           contextRef.current.fillText(
             'You will win by default in 10s',
-            canvasRef.current.width / 4,
-            canvasRef.current.height / 4 + canvasRef.current.height / 8,
+            canvasRef.current.width / 2,
+            canvasRef.current.height / 2 + canvasRef.current.height / 8,
           );
           contextRef.current.fillStyle = 'white';
           contextRef.current.fillRect(
@@ -318,20 +380,20 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
           contextRef.current.font = size.toString() + 'px Aldrich';
           if (
             (playerOneScore === 10 && playerNumber === 1) ||
-            (playerOneScore !== 10 && playerNumber === 2)
+              (playerOneScore !== 10 && playerNumber === 2)
           ) {
             contextRef.current.fillStyle = 'green';
             contextRef.current.fillText(
               'Congratulations, you won!',
-              canvasRef.current.width / 4,
-              canvasRef.current.height / 4,
+              canvasRef.current.width / 2,
+              canvasRef.current.height / 2,
             );
           } else {
             contextRef.current.fillStyle = 'red';
             contextRef.current.fillText(
               'Sorry, you lost!',
-              canvasRef.current.width / 4,
-              canvasRef.current.height / 4,
+              canvasRef.current.width / 2,
+              canvasRef.current.height / 2,
             );
           }
           break;
@@ -353,7 +415,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-          />
+            />
         )}
         {gameStatus === GameStatus.DONE && (
           <p className="text-white"> The game is over, you probably lost </p>
@@ -363,21 +425,21 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-          />
+            />
         )}
         {gameStatus === GameStatus.PENDING && (
           <canvas
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-          />
+            />
         )}
         {gameStatus === GameStatus.PAUSED && (
           <canvas
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-          />
+            />
         )}
         {gameStatus === GameStatus.PLAYING &&
           opponent.isSuccess &&
@@ -386,11 +448,11 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
               currentPlayerAvatar={avatarImg}
               opponentAvatar={opponent.data.avatarImg}
               playerNumber={playerNumber}
-            />
+              />
           )}
       </div>
     </div>
   );
 }
 
-export default Game;
+export default React.memo(Game);
