@@ -1,12 +1,20 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import React from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import DropDownMenu from './drop-down-menu';
 
-function DropDownButton({ children }: { children: React.ReactNode }) {
-  const [isShown, setIsShown] = useState(false);
+interface DropDownButtonProps {
+  children: React.ReactNode;
+  setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  isShown: boolean;
+}
 
+function DropDownButton({
+  children,
+  setIsShown,
+  isShown,
+}: DropDownButtonProps) {
   function ShowInfo() {
     setIsShown((current) => !current);
   }
