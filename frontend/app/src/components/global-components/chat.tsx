@@ -18,6 +18,7 @@ import MyChannelsList from '../section-components/chat/my-channels-list';
 import { UseQueryResult } from 'react-query';
 import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
+import LoadingSpinner from '../section-components/loading-spinner';
 
 const chanUsersData: User[] = [
   {
@@ -68,7 +69,6 @@ function Chat() {
     useChannelsByUserList();
 
   useEffect(() => {
-    console.log(activeChannelId);
     if (user.isError) {
       navigate('/sign-in');
     }
@@ -80,65 +80,67 @@ function Chat() {
         channelPassword: '',
       });
     }
-  }, [activeChannelId]);
+  }, [activeChannelId, user]);
 
-  if (user.isSuccess)
-    return (
-      <div className="h-full min-h-screen bg-black">
-        <Navbar
-          text={<FontAwesomeIcon icon={faHouse} />}
-          avatarImg={user.data.avatarImg}
-        />
-        <div
-          className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+  return (
+    <>
+      {user.isLoading && <LoadingSpinner />}
+      {user.isSuccess && (
+        <div className="h-full min-h-screen bg-black">
+          <Navbar
+            text={<FontAwesomeIcon icon={faHouse} />}
+            avatarImg={user.data.avatarImg}
+          />
+          <div
+            className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
-        >
-          <SideBox>
-            <ChannelHeader setActiveChannelId={setActiveChannelId} />
-            <MyChannelsList
-              activeChannelId={activeChannelId}
-              setActiveChannelId={setActiveChannelId}
-            />
-          </SideBox>
-          <CenterBox>
-            <div
-              className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
-              style={{ backgroundImage: `url(${BackgroundGeneral})` }}
-            >
-              <div className="flex">
-                <div className="flex-1">
-                  <h2 className="flex justify-center p-5 font-bold">
-                    {channels.isSuccess &&
-                      channels.data &&
-                      channels.data.find(
-                        (channel) => channel.id === activeChannel,
-                      )?.name}
-                  </h2>
-                </div>
-                <div className="p-5 flex justify-center">
-                  <DropDownButton>
-                    <ChannelOptions setActiveChannelId={setActiveChannelId} />
-                  </DropDownButton>
-                </div>
-              </div>
-              <DisplayMessages
-                userId={user.data.id}
-                channelId={activeChannelId}
+          >
+            <SideBox>
+              <ChannelHeader setActiveChannelId={setActiveChannelId} />
+              <MyChannelsList
+                activeChannelId={activeChannelId}
+                setActiveChannelId={setActiveChannelId}
               />
-            </div>
-          </CenterBox>
-          <SideBox>
-            <h2 className="flex justify-center font-bold">MEMBERS</h2>
-            <UsersList users={chanUsersData} />
-          </SideBox>
+            </SideBox>
+            <CenterBox>
+              <div
+                className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
+                style={{ backgroundImage: `url(${BackgroundGeneral})` }}
+              >
+                <div className="flex">
+                  <div className="flex-1">
+                    <h2 className="flex justify-center p-5 font-bold">
+                      {channels.isSuccess &&
+                        channels.data &&
+                        channels.data.find(
+                          (channel) => channel.id === activeChannel,
+                        )?.name}
+                    </h2>
+                  </div>
+                  <div className="p-5 flex justify-center">
+                    <DropDownButton>
+                      <ChannelOptions setActiveChannelId={setActiveChannelId} />
+                    </DropDownButton>
+                  </div>
+                </div>
+                <DisplayMessages
+                  userId={user.data.id}
+                  channelId={activeChannelId}
+                />
+              </div>
+            </CenterBox>
+            <SideBox>
+              <h2 className="flex justify-center font-bold">MEMBERS</h2>
+              <UsersList users={chanUsersData} />
+            </SideBox>
+          </div>
+          <div className="flex justify-center">
+            <ChatBox userId={user.data.id} channelId={activeChannelId} />
+          </div>
         </div>
-        <div className="flex justify-center">
-          <ChatBox userId={user.data.id} channelId={activeChannelId} />
-        </div>
-      </div>
-    );
-
-  return <></>;
+      )}
+    </>
+  );
 }
 
 export default Chat;

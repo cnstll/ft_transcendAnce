@@ -25,9 +25,6 @@ function Profile() {
 
   return (
     <>
-      {user.isError && (
-        <p className="text-base text-gray-400">We encountered an error 🤷</p>
-      )}
       {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <div>
