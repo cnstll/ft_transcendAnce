@@ -224,6 +224,8 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
           // if (start === undefined) {
           //   start = timestamp;
           // }
+          //
+          try {
           gameCoordinates =  GameInfo.deserializeBinary(encoded).toObject();
         //   if (timestamp - previousTimeStamp > 30 )
         // {
@@ -231,6 +233,10 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
         //   }
         //   previousTimeStamp = timestamp;
           window.requestAnimationFrame(draw);
+          } catch (e) {
+            
+            console.log(e);
+          }
         };
 
         socket.on('GI', messageListener);
