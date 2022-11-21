@@ -2,7 +2,7 @@ import { Dispatch, useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
 import { socket } from "src/components/global-components/client-socket";
 import { Channel, User } from "src/components/global-components/interface";
-import { useInvitesOfAChannel } from "src/components/query-hooks/getChannelInvites";
+import { getInvitableUsers, useInvitesOfAChannel } from "src/components/query-hooks/getChannelInvites";
 import LoadingSpinner from "../loading-spinner";
 import UsersListItem from "../users-list-item";
 
@@ -21,15 +21,17 @@ function InviteModal(props: InviteModalProps) {
   const [formData, setFormData] = useState('');
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const channelInvitesQueryKey = 'invitesOfAChannel';
-
   const queryClient = useQueryClient();
   const invites = useInvitesOfAChannel(props.channel.id);
+  const invitableUsersKey = 'invitableUsers';
+  const invitableUsers = getInvitableUsers(props.channel.id);
 
 
   useEffect(() => {
     socket.on('inviteSucceeded', async (channel) => {
       console.log("success ", channel);
       await queryClient.refetchQueries(channelInvitesQueryKey);
+      await queryClient.refetchQueries(invitableUsersKey);
       setFormData('');
     })
     socket.on('inviteFailed', (inviteToChannel: null | string) => {
@@ -41,7 +43,7 @@ function InviteModal(props: InviteModalProps) {
       socket.off('invitationSent');
       socket.off('invitationFailed');
     };
-  }, [formData]);
+  }, [formData, invitableUsers]);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setInputStatus('editing');
@@ -50,7 +52,6 @@ function InviteModal(props: InviteModalProps) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log("data : ", props.channel.id, formData, props.channel.type);
     socket.emit('inviteToChannel', {
       inviteInfo: {
         channelId: props.channel.id,
@@ -59,6 +60,8 @@ function InviteModal(props: InviteModalProps) {
       },
     });
   }
+
+  console.log(invitableUsers.data);
 
   return (
     <>
@@ -99,22 +102,28 @@ function InviteModal(props: InviteModalProps) {
                     htmlFor="ChannelInvite"
                     className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
                       text-purple-light my-3 font-bold">
-                    Search for a user to invite:
+                    Invite new members:
                   </label>
-                  <input
-                    className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
-                      border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
-                      inputStatus === 'alreadyInvited' ?
-                      'border-red-500' : ''
-                    }`}
-                    type="text"
-                    name="invite"
-                    id="invitedId"
-                    value={formData}
-                    onChange={onChange}
-                    autoComplete="off"
-                    placeholder="Enter the name of the user to invite"
-                  />
+                  {invitableUsers.isSuccess ?
+                    (invitableUsers.data?.length ?
+                    <ul className="grid gap-y-4 grid-cols-1 m-2"> {invitableUsers.data.map((invitedUser: User) => (
+                              <div className="flex items-center gap-4 my-1" key={invitedUser.id}>
+                                <input type={"radio"}
+                                  name="invite"
+                                  id="invitedId"
+                                  value={invitedUser.id}
+                                  onChange={onChange}
+                                />
+                                <UsersListItem user={invitedUser} />
+                              </div>
+                          )
+                      )}
+                    </ul>
+                    : <p className="text-gray-400 font-normal text-center">No one to invite 😞</p>)
+                    : invitableUsers.isLoading ?
+                    <LoadingSpinner />
+                    : <p className="text-base text-gray-400">We encountered an error 🤷</p>
+                  }
                   {inputStatus === 'alreadyInvited' &&
                     <p className="text-red-500 text-xs font-medium my-1">
                       This member is already invited!
@@ -133,7 +142,7 @@ function InviteModal(props: InviteModalProps) {
                   type="submit"
                   className="text-white bg-purple-light hover:bg-purple-medium font-medium rounded-lg
                     text-sm px-5 py-2.5 text-center">
-                  Enter
+                  Invite
                 </button>
               </div>
             </form>

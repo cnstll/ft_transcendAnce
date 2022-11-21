@@ -156,44 +156,63 @@ export class ChannelService {
     }
   }
 
-  async getInvitableUsers(channelId: string) {
+  async getInvitableUsers(userId: string, channelId: string) {
     try {
       await this.checkChannel(channelId);
-      const invitedUsers: { invites: User[] } =
+      const invitedUsers: { invites: { id: string }[] } =
         await this.prisma.channel.findUnique({
           where: {
             id: channelId,
           },
           select: {
-            invites: true,
-          },
-        });
-      const membersOfChannel: { members: User[] } =
-        await this.prisma.channelUser.findMany({
-          where: {
-            channelId: channelId,
-          },
-          select: {
-            user: {
+            invites: {
               select: {
                 id: true,
-                avatarImg: true,
               },
             },
           },
         });
-      const allUsers: { users: User[] } = await this.prisma.user.findMany({});
-      const invitableUsers: User[] = [];
-      for (let i = 0; i < allUsers.users.length; i++) {
+      const membersOfChannel: { users: { userId: string }[] } =
+        await this.prisma.channel.findUnique({
+          where: {
+            id: channelId,
+          },
+          select: {
+            users: {
+              select: {
+                userId: true,
+              },
+            },
+          },
+        });
+      const allUsers: { id: string; nickname: string; avatarImg: string }[] =
+        await this.prisma.user.findMany({
+          select: {
+            id: true,
+            nickname: true,
+            avatarImg: true,
+          },
+        });
+      const invitableUsers: {
+        id: string;
+        nickname: string;
+        avatarImg: string;
+      }[] = [];
+      for (let i = 0; i < allUsers.length; i++) {
         if (
-          !invitedUsers.invites.find(allUsers.users[i]) &&
-          !membersOfChannel.members.find(allUsers.users[i])
-        )
-          invitableUsers.push(allUsers.users[i]);
+          !(
+            invitedUsers.invites.find((user) => user.id === allUsers[i].id) ||
+            membersOfChannel.users.find(
+              (user) => user.userId === allUsers[i].id,
+            )
+          ) &&
+          userId !== allUsers[i].id
+        ) {
+          invitableUsers.push(allUsers[i]);
+        }
       }
       return invitableUsers;
     } catch (error) {
-      console.log(error);
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
     }
@@ -312,7 +331,7 @@ export class ChannelService {
     }
   }
 
-  async isInvitedInAChannel(userId: string, channelId: string) {
+  async getIsInvitedInAChannel(userId: string, channelId: string) {
     try {
       const isInvited = await this.prisma.channel.findUnique({
         where: {
@@ -346,7 +365,10 @@ export class ChannelService {
 
       /** If private channel, check the invitation to the channel */
       if (channelDto.type === ChannelType.PRIVATE) {
-        const isInvited = await this.isInvitedInAChannel(userId, channelDto.id);
+        const isInvited = await this.getIsInvitedInAChannel(
+          userId,
+          channelDto.id,
+        );
         if (!isInvited) throw new Error('errorNotInvited');
       }
       /* If there is a channel's password and a password provided */
@@ -544,7 +566,7 @@ export class ChannelService {
       return 'noEligibleRights';
     }
     try {
-      const isInvited = await this.isInvitedInAChannel(
+      const isInvited = await this.getIsInvitedInAChannel(
         inviteDto.invitedId,
         inviteDto.channelId,
       );

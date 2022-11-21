@@ -26,3 +26,18 @@ export function getChannelInvites():
 UseQueryResult<{id: string}[] | undefined> {
   return useQuery(['channelInvites'], fetchChannelInvites);
 }
+
+
+const fetchInvitableUsers = (channelId: string) =>
+axios
+  .get<User[]>('http://localhost:3000/channels/get-invitable-users/'+ channelId,{
+    withCredentials: true,
+  })
+  .then((res) => res.data);
+
+export function getInvitableUsers(channelId: string):
+UseQueryResult<User[] | undefined> {
+  return useQuery(['invitableUsers', channelId], () =>
+  fetchInvitableUsers(channelId));
+}
+
