@@ -1,15 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
+import { Root } from 'protobufjs';
 
 @Injectable()
 export class GameService {
   GameMap = new DoubleKeyMap();
+  gameInfo = this.protobuf.lookupType('userpackage.GameInfo');
+  playerInfo = this.protobuf.lookupType('userpackage.PlayerInfo');
+  buf: Buffer;
 
   constructor(
+    @Inject('PROTOBUFROOT') private protobuf: Root,
     private prismaService: PrismaService,
     private schedulerRegistry: SchedulerRegistry,
   ) {}
@@ -25,7 +30,7 @@ export class GameService {
     });
   }
 
-  join(client: Socket, userId: string, server: Server, mode: GameMode) {
+  async join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
     if (this.GameMap.size === 0) {
@@ -39,7 +44,7 @@ export class GameService {
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
-          this.addInterval(game.gameRoomId, userId, 5, server);
+          this.addInterval(game.gameRoomId, userId, 16, server);
         }
         if (game.p2id === userId) return { playerNumber: 2 };
         return { playerNumber: 1 };
@@ -47,7 +52,7 @@ export class GameService {
       if ((game = this.GameMap.matchPlayer(userId))) {
         client.join(game.gameRoomId);
         this.mutateGameStatus(game, Status.PLAYING, server);
-        this.addInterval(game.gameRoomId, userId, 5, server);
+        this.addInterval(game.gameRoomId, userId, 16, server);
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
@@ -75,15 +80,15 @@ export class GameService {
   ) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
-      const message = this.moveBall(winnerId);
+      const message = this.moveBall(winnerId, server);
 
       this.mutateGameStatus(game, Status.OVER, server);
-      if (winnerId === message.p1id) message.p1s = 10;
+      if (winnerId === game.p1id) message.p1s = 10;
       else message.p2s = 10;
       this.deleteInterval(name);
       this.addWinningTimeout(name, 5000, server, winnerId);
       server.emit('matchFinished');
-      server.to(message.gameRoomId).emit('updatedGameInfo', message);
+      server.to(game.gameRoomId).emit('updatedGameInfo', message);
     };
 
     const timeout = setInterval(callback, milliseconds);
@@ -107,40 +112,6 @@ export class GameService {
     this.schedulerRegistry.addTimeout(name, timeout);
   }
 
-  addInterval(
-    gameRoomId: string,
-    userId: string,
-    milliseconds: number,
-    server: Server,
-  ) {
-    const callback = () => {
-      const message = this.moveBall(userId);
-      if (message.p2s >= 10 || message.p1s >= 10) {
-        const game = this.GameMap.getGame(userId);
-        this.deleteInterval(message.gameRoomId);
-        this.mutateGameStatus(game, Status.OVER, server);
-        if (message.p1s === 10)
-          this.addWinningTimeout(gameRoomId, 5000, server, message.p1id);
-        else if (message.p2s === 10)
-          this.addWinningTimeout(gameRoomId, 5000, server, message.p2id);
-      }
-      server.to(message.gameRoomId).emit('updatedGameInfo', message);
-      server.emit('matchFinished');
-    };
-
-    const interval = setInterval(callback, milliseconds);
-    this.schedulerRegistry.addInterval(gameRoomId, interval);
-  }
-
-  deleteInterval(name: string) {
-    this.schedulerRegistry.deleteInterval(name);
-  }
-
-  getInterval(name: string) {
-    const interval = this.schedulerRegistry.getInterval(name);
-    return interval;
-  }
-
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
     if (game && game.status === Status.PLAYING) {
@@ -156,7 +127,9 @@ export class GameService {
     }
   }
 
-  create(y: number, userId: string) {
+  create(encoded: Uint8Array, userId: string) {
+    const decoded = this.playerInfo.decode(encoded).toJSON();
+    const y = decoded.yPos;
     const game: Game = this.GameMap.getGame(userId);
     if (game !== undefined) {
       if (game.p1id === userId) {
@@ -164,21 +137,52 @@ export class GameService {
       } else {
         game.movePaddle(2, y);
       }
-      return game;
     }
-    return null;
   }
 
-  moveBall(id: string) {
+  moveBall(id: string, server: Server) {
     const game: Game = this.GameMap.getGame(id);
-    game.moveBall();
-    return game;
-    // TODO i shouldnt have to resend everything here
+    game.moveBall(this, server);
+    return game.returnGameInfo();
   }
 
   createGame(p1: string, mode: GameMode) {
     const game = new Game(mode);
     this.GameMap.setPlayer1(p1, game);
     return game;
+  }
+
+  winGame(game: Game, server: Server) {
+    this.deleteInterval(game.gameRoomId);
+    this.mutateGameStatus(game, Status.DONE, server);
+    game.saveGameResults(this.prismaService);
+    this.GameMap.delete(game.p1id);
+  }
+
+  addInterval(
+    gameRoomId: string,
+    userId: string,
+    milliseconds: number,
+    server: Server,
+  ) {
+    const callback = () => {
+      const payload = this.moveBall(userId, server);
+      this.gameInfo.verify(payload);
+      const message = this.gameInfo.create(payload);
+      const encoded = this.gameInfo.encode(message).finish();
+      server.to(gameRoomId).volatile.emit('GI', encoded);
+    };
+
+    const interval = setInterval(callback, milliseconds);
+    this.schedulerRegistry.addInterval(gameRoomId, interval);
+  }
+
+  deleteInterval(name: string) {
+    this.schedulerRegistry.deleteInterval(name);
+  }
+
+  getInterval(name: string) {
+    const interval = this.schedulerRegistry.getInterval(name);
+    return interval;
   }
 }
