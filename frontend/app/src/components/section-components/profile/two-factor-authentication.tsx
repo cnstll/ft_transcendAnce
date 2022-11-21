@@ -3,6 +3,7 @@ import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { User } from '../../global-components/interface';
 import { validate2faCode } from '../../query-hooks/set2fa';
 import LoadingSpinner from '../loading-spinner';
+import { apiUrl } from '../../global-components/interface';
 
 interface ToggleProps {
   toggleValue: boolean;
@@ -38,7 +39,7 @@ function TwoFaModal({
 
   function closeModal() {
     void axios
-      .delete('http://localhost:3000/2fa/disable', {
+      .delete(`${apiUrl}/2fa/disable`, {
         withCredentials: true,
       })
       .then((res) => res);
@@ -163,7 +164,7 @@ function Generate2fa({
   function on2faActivation() {
     void axios
       .post<string>(
-        'http://localhost:3000/2fa/generate',
+        `${apiUrl}/2fa/generate`,
         {},
         {
           withCredentials: true,
@@ -206,7 +207,7 @@ function Disable2fa({
 }: ToggleProps) {
   function on2faDelete() {
     void axios
-      .delete('http://localhost:3000/2fa/disable', {
+      .delete(`${apiUrl}/2fa/disable`, {
         withCredentials: true,
       })
       .then((res) => res);
