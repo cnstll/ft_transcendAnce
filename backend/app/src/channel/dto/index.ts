@@ -1,2 +1,2 @@
-export * from './createchannel.dto';
-export * from './editchannel.dto';
+export * from './createChannel.dto';
+export * from './editChannel.dto';

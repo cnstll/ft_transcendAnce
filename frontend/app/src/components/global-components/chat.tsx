@@ -126,7 +126,11 @@ function Chat() {
           <SideBox>
             <h2 className="flex justify-center font-bold">MEMBERS</h2>
             {channelUsers.isSuccess && channelUsers.data && (
-              <UsersList users={channelUsers.data} />
+              <UsersList
+                users={channelUsers.data?.filter(
+                  (channelUser) => channelUser.id != user.data.id,
+                )}
+              />
             )}{' '}
             {channelUsers.isLoading && <LoadingSpinner />}
             {channelUsers.isError && <div>Woops somethin went wrong here</div>}
