@@ -1,6 +1,7 @@
 import { MatchData } from 'src/components/global-components/interface';
 import useUserMatchHistory from 'src/components/query-hooks/useUserMatchHistory';
 import CenterBox from '../center-box';
+import LoadingSpinner from '../loading-spinner';
 
 interface StatusData {
   score: string;
@@ -10,6 +11,11 @@ interface StatusData {
 interface PictureData {
   imageCurrentUser: string;
   imageOpponent: string;
+}
+
+interface MatchHistoryProps {
+  nickname: string;
+  avatarImg: string;
 }
 
 function VersusComponent({ imageCurrentUser, imageOpponent }: PictureData) {
@@ -72,12 +78,12 @@ function MatchHistoryComponent({ matchData }: { matchData: MatchData[] }) {
   );
 }
 
-function MatchHistory({ nickname }: { nickname: string }) {
-  const matchData = useUserMatchHistory(nickname);
+function MatchHistory({ nickname, avatarImg }: MatchHistoryProps) {
+  const matchData = useUserMatchHistory(nickname, avatarImg);
 
   return (
     <>
-      {matchData.isLoading && <p>isLoading...</p>}
+      {matchData.isLoading && <LoadingSpinner />}
       {matchData.isSuccess && (
         <CenterBox>
           <div className="h-full overflow-y-auto">
