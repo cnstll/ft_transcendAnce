@@ -10,9 +10,10 @@ import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels'
 
 interface ChannelOptions {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+  setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
+function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const { activeChannel } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
   }, []);
 
   function leaveChannel(channelInfo: Channel) {
-    console.log("checkpoint emit leaveRoom");
+    console.log('checkpoint emit leaveRoom');
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
   }
 
@@ -103,6 +104,7 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
                 <EditChannelForm
                   setShowModal={setShowModal}
                   currentChannel={channelInfo}
+                  setIsShown={setIsShown}
                 />
               )}
             </div>
