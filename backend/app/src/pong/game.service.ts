@@ -114,15 +114,21 @@ export class GameService {
 
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
-    if (game && game.status === Status.PLAYING) {
-      if (game.p1id === id || game.p2id === id) {
-        this.deleteInterval(game.gameRoomId);
-        this.mutateGameStatus(game, Status.PAUSED, server);
-        if (id === game.p1id) {
-          this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
-        } else {
-          this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
-        }
+    if (game) {
+      switch (game.status) {
+        case Status.PLAYING:
+          this.deleteInterval(game.gameRoomId);
+          this.mutateGameStatus(game, Status.PAUSED, server);
+          if (id === game.p1id) {
+            this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
+          } else {
+            this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
+          }
+          break;
+
+        case Status.PENDING:
+          this.GameMap.delete(id);
+          break;
       }
     }
   }
