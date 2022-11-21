@@ -13,8 +13,11 @@ const fetchUserMatchHistory = (nickname: string) =>
     )
     .then((response) => response.data);
 
-function useUserMatchHistory(nickname: string): UseQueryResult<MatchData[]> {
-  return useQuery(['userMatchHistory', nickname], () =>
+function useUserMatchHistory(
+  nickname: string,
+  avatarImg: string,
+): UseQueryResult<MatchData[]> {
+  return useQuery(['userMatchHistory', nickname, avatarImg], () =>
     fetchUserMatchHistory(nickname),
   );
 }
