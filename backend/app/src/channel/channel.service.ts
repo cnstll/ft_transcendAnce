@@ -223,7 +223,6 @@ export class ChannelService {
     if (channel != null) {
       await clientSocket.join(channelId);
     }
-    delete channel.passwordHash;
     return channel;
   }
 
