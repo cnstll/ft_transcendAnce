@@ -15,49 +15,11 @@ import { useChannelsByUserList } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
-import { UseQueryResult } from 'react-query';
+import { useQueryClient, UseQueryResult } from 'react-query';
 import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
+import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
-
-const chanUsersData: User[] = [
-  {
-    id: '123e4567e89b1',
-    nickname: 'Alexandra',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-4.jpg',
-    status: 'OFFLINE',
-    twoFactorAuthenticationSecret: '',
-    twoFactorAuthenticationSet: false,
-    eloScore: 1000,
-  },
-  {
-    id: '123e4567e89b2',
-    nickname: 'Alexandre',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-2.jpg',
-    status: 'ONLINE',
-    twoFactorAuthenticationSecret: '',
-    twoFactorAuthenticationSet: false,
-    eloScore: 1500,
-  },
-  {
-    id: '123e4567e89b3',
-    nickname: 'Alexandrinedrinedrine',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-3.jpg',
-    status: 'PLAYING',
-    twoFactorAuthenticationSecret: '',
-    twoFactorAuthenticationSet: false,
-    eloScore: 1000,
-  },
-  {
-    id: '123e4567e89b4',
-    nickname: 'Alexandro',
-    avatarImg: 'https://flowbite.com/docs/images/people/profile-picture-1.jpg',
-    status: 'PLAYING',
-    twoFactorAuthenticationSecret: '',
-    twoFactorAuthenticationSet: false,
-    eloScore: 1500,
-  },
-];
 
 function Chat() {
   const user = useUserInfo();
@@ -68,6 +30,13 @@ function Chat() {
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
+
+  const channelUsers: UseQueryResult<User[] | undefined> =
+    useChannelUsers(activeChannelId);
+
+  const queryClient = useQueryClient();
+  const channelUsersQueryKey = 'channelUsers';
+  const friendsListQueryKey = 'friendsList';
 
   useEffect(() => {
     if (user.isError) {
@@ -81,7 +50,29 @@ function Chat() {
         channelPassword: '',
       });
     }
-  }, [activeChannelId, user]);
+    socket.on('roomLeft', () => {
+      void queryClient.invalidateQueries(channelUsersQueryKey);
+    });
+    socket.on('userDisconnected', () => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    socket.on('userConnected', (): void => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    socket.on('userInGame', (): void => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    socket.on('userGameEnded', (): void => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    return () => {
+      socket.off('userDisconnected');
+      socket.off('userConnected');
+      socket.off('userInGame');
+      socket.off('userGameEnded');
+      socket.off('roomLeft');
+    };
+  }, [activeChannelId, socket, user]);
 
   return (
     <>
@@ -135,7 +126,17 @@ function Chat() {
             </CenterBox>
             <SideBox>
               <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              <UsersList users={chanUsersData} />
+              {channelUsers.isSuccess && channelUsers.data && (
+                <UsersList
+                  users={channelUsers.data.filter(
+                    (channelUser) => channelUser.id != user.data.id,
+                  )}
+                />
+              )}{' '}
+              {channelUsers.isLoading && <LoadingSpinner />}
+              {channelUsers.isError && (
+                <div>Woops somethin went wrong here</div>
+              )}
             </SideBox>
           </div>
           <div className="flex justify-center">
@@ -143,6 +144,7 @@ function Chat() {
           </div>
         </div>
       )}
+      ;
     </>
   );
 }
