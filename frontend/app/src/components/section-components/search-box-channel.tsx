@@ -72,6 +72,7 @@ function SearchBoxChannel({
   }
 
   const ref = UseOutsideClick(ClickOutsideHandler);
+
   function OnChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchData((prevState) => ({
       ...prevState,

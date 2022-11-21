@@ -156,6 +156,49 @@ export class ChannelService {
     }
   }
 
+  async getInvitableUsers(channelId: string) {
+    try {
+      await this.checkChannel(channelId);
+      const invitedUsers: { invites: User[] } =
+        await this.prisma.channel.findUnique({
+          where: {
+            id: channelId,
+          },
+          select: {
+            invites: true,
+          },
+        });
+      const membersOfChannel: { members: User[] } =
+        await this.prisma.channelUser.findMany({
+          where: {
+            channelId: channelId,
+          },
+          select: {
+            user: {
+              select: {
+                id: true,
+                avatarImg: true,
+              },
+            },
+          },
+        });
+      const allUsers: { users: User[] } = await this.prisma.user.findMany({});
+      const invitableUsers: User[] = [];
+      for (let i = 0; i < allUsers.users.length; i++) {
+        if (
+          !invitedUsers.invites.find(allUsers.users[i]) &&
+          !membersOfChannel.members.find(allUsers.users[i])
+        )
+          invitableUsers.push(allUsers.users[i]);
+      }
+      return invitableUsers;
+    } catch (error) {
+      console.log(error);
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
+  }
+
   async getMessagesFromChannel(
     userId: string,
     channelId: string,

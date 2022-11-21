@@ -3,6 +3,7 @@ import { useQueryClient } from "react-query";
 import { socket } from "src/components/global-components/client-socket";
 import { Channel, User } from "src/components/global-components/interface";
 import { useInvitesOfAChannel } from "src/components/query-hooks/getChannelInvites";
+import LoadingSpinner from "../loading-spinner";
 import UsersListItem from "../users-list-item";
 
 interface InviteModalProps {
@@ -20,8 +21,10 @@ function InviteModal(props: InviteModalProps) {
   const [formData, setFormData] = useState('');
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const channelInvitesQueryKey = 'invitesOfAChannel';
+
   const queryClient = useQueryClient();
   const invites = useInvitesOfAChannel(props.channel.id);
+
 
   useEffect(() => {
     socket.on('inviteSucceeded', async (channel) => {
@@ -73,7 +76,8 @@ function InviteModal(props: InviteModalProps) {
                       text-purple-light my-3 font-bold">
                Already invited to your channel:
           </h4>
-          {invites.data?.length ?
+          {invites.isSuccess ?
+            (invites.data?.length ?
             <ul className="grid gap-y-4 grid-cols-2"> {invites.data.map((invitedUser: User) => (
                       <UsersListItem
                         key={invitedUser.id}
@@ -82,7 +86,10 @@ function InviteModal(props: InviteModalProps) {
                   )
               )}
             </ul>
-            : <p className="text-gray-400 font-normal text-center">Invite someone to dance with 💃</p>
+            : <p className="text-gray-400 font-normal text-center">Invite someone to dance with 💃</p>)
+            : invites.isLoading ?
+            <LoadingSpinner />
+            : <p className="text-base text-gray-400">We encountered an error 🤷</p>
             }
         </div>
         {/* Search for a user section */}
