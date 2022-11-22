@@ -54,6 +54,11 @@ export class DoubleKeyMap {
     this.size++;
   }
 
+  setPlayer2(player2Id: string, game: Game) {
+    game.p2id = player2Id;
+    this.playerMap.set(player2Id, game);
+  }
+
   delete(userId: string) {
     const game = this.playerMap.get(userId);
     if (game.p1id === userId) {
@@ -68,6 +73,7 @@ export class DoubleKeyMap {
 
 export class Game {
   constructor(mode: GameMode) {
+    this.status = Status.PENDING;
     this.gameRoomId = this.makeid(5);
     this.mode = mode;
   }

@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
-import { UseGuards } from '@nestjs/common';
+import { Body, UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 import { GameMode } from './entities/game.entities';
 
@@ -19,6 +19,7 @@ import { GameMode } from './entities/game.entities';
       process.env.BACKEND_URL,
       process.env.DOMAIN,
       process.env.PUBLIC_URL,
+      'http://localhost',
     ],
     credentials: true,
   },
@@ -38,7 +39,6 @@ export class GameGateway {
     @GetCurrentUserId() id: string,
   ) {
     this.gameService.create(encoded, id);
-    // return message;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -56,6 +56,34 @@ export class GameGateway {
   @SubscribeMessage('reJoin')
   rejoin(@GetCurrentUserId() userId: string) {
     return this.gameService.rejoin(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('refuseInvite')
+  refuseGameInvite(
+    @Body() challenger: any,
+    @ConnectedSocket() client: Socket,
+    @GetCurrentUserId() playerOneId: string,
+  ) {
+    this.gameService.cancelInvite(client, challenger.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('createInvitationGame')
+  createInvitationGame(
+    @MessageBody('mode') mode: GameMode,
+    @MessageBody('opponent') playerTwoId: GameMode,
+    @ConnectedSocket() client: Socket,
+    @GetCurrentUserId() playerOneId: string,
+  ) {
+    this.socketToId.set(client.id, playerOneId);
+    this.gameService.createInvitationGame(
+      client,
+      this.server,
+      playerOneId,
+      playerTwoId,
+      mode,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

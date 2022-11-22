@@ -10,7 +10,7 @@ import { Server, Socket } from 'socket.io';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { JwtPayload } from '../auth/types';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
-import { SocketToUserIdStorage } from './socketToUserIdStorage.service';
+import { socketToUserId } from './socketToUserIdStorage.service';
 import { UserService } from './user.service';
 
 @WebSocketGateway(3333, {
@@ -31,8 +31,7 @@ export class UserGateway {
   @WebSocketServer()
   server: Server;
   constructor(
-    private readonly userService: UserService,
-    private readonly socketToIdService: SocketToUserIdStorage,
+    private readonly userService: UserService, // private readonly socketToIdService: SocketToUserIdStorage,
   ) {}
 
   @SubscribeMessage('connectUser')
@@ -74,16 +73,19 @@ export class UserGateway {
       const user: JwtPayload = JSON.parse(
         payloadBuffer.toString(),
       ) as JwtPayload;
-      this.socketToIdService.set(clientSocket.id, user.id);
+      // this.socketToIdService.set(clientSocket.id, user.id);
+      socketToUserId.set(clientSocket.id, user.id);
       clientSocket.emit('userConnected');
     }
   }
 
   @SubscribeMessage('disconnect')
   handleDisconnect(@ConnectedSocket() clientSocket: Socket) {
-    const userId = this.socketToIdService.get(clientSocket.id);
+    // const userId = this.socketToIdService.get(clientSocket.id);
+    const userId = socketToUserId.get(clientSocket.id);
     this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
-    this.socketToIdService.delete(clientSocket.id);
+    // this.socketToIdService.delete(clientSocket.id);
+    socketToUserId.delete(clientSocket.id);
     clientSocket.broadcast.emit('userDisconnected');
   }
 }

@@ -5,10 +5,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
 import { Root } from 'protobufjs';
+import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 
 @Injectable()
 export class GameService {
   GameMap = new DoubleKeyMap();
+
   gameInfo = this.protobuf.lookupType('userpackage.GameInfo');
   playerInfo = this.protobuf.lookupType('userpackage.PlayerInfo');
   buf: Buffer;
@@ -30,6 +32,40 @@ export class GameService {
     });
   }
 
+  cancelInvite(client: Socket, userId: string) {
+    const challengerSocket = socketToUserId.getFromUserId(userId);
+    client.to(challengerSocket).emit('inviteRefused');
+    this.GameMap.delete(userId);
+  }
+
+  async createInvitationGame(
+    client: Socket,
+    server: Server,
+    p1id: string,
+    p2id: string,
+    gameMode: GameMode,
+  ) {
+    const challenger = await this.prismaService.user.findUnique({
+      where: {
+        id: p1id,
+      },
+      select: {
+        id: true,
+        avatarImg: true,
+        nickname: true,
+        eloScore: true,
+        status: true,
+        twoFactorAuthenticationSet: true,
+        twoFactorAuthenticationSecret: true,
+      },
+    });
+
+    this.createGame(p1id, gameMode, p2id);
+    this.join(client, p1id, server, gameMode);
+    const opponentSocket = socketToUserId.getFromUserId(p2id);
+    client.to(opponentSocket).emit('invitedToGame', challenger);
+  }
+
   async join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
@@ -44,6 +80,9 @@ export class GameService {
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
+          this.addInterval(game.gameRoomId, userId, 16, server);
+        } else if (game.status === Status.PENDING && game.p2id === userId) {
+          this.mutateGameStatus(game, Status.PLAYING, server);
           this.addInterval(game.gameRoomId, userId, 16, server);
         }
         if (game.p2id === userId) return { playerNumber: 2 };
@@ -146,9 +185,12 @@ export class GameService {
     return game.returnGameInfo();
   }
 
-  createGame(p1: string, mode: GameMode) {
+  createGame(p1: string, mode: GameMode, p2?: string) {
     const game = new Game(mode);
     this.GameMap.setPlayer1(p1, game);
+    if (p2) {
+      this.GameMap.setPlayer2(p2, game);
+    }
     return game;
   }
 
