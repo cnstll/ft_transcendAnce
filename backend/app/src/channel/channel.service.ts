@@ -180,21 +180,21 @@ export class ChannelService {
   async connectToChannel(
     userId: string,
     channelId: string,
-    channelPassword: string,
     clientSocket: Socket,
   ) {
-    /* TO-DO Instead, it should check if UserChannel exist */
-    const channel: Channel = await this.prisma.channel.findUnique({
+    const userOnChannel: ChannelUser = await this.prisma.channelUser.findUnique({
       where: {
-        id: channelId,
+        userId_channelId: {
+          userId: userId,
+          channelId: channelId,
+        },
       },
     });
     /* then reconnect to the channel regardless of its type */
-    if (channel != null) {
+    if (userOnChannel != null) {
       await clientSocket.join(channelId);
     }
-    delete channel.passwordHash;
-    return channel;
+    return userOnChannel;
   }
 
   async createChannelWS(

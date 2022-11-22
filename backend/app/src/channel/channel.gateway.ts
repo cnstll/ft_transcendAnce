@@ -42,13 +42,11 @@ export class ChannelGateway {
   async connectToChannel(
     @GetCurrentUserId() userId: string,
     @MessageBody('channelId') channelId: string,
-    @MessageBody('channelPassword') channelPassword: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
     const channel = await this.channelService.connectToChannel(
       userId,
       channelId,
-      channelPassword,
       clientSocket,
     );
     channel === null
@@ -107,16 +105,10 @@ export class ChannelGateway {
     @MessageBody('messageInfo') messageInfo: IncomingMessageDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    // console.log(messageInfo);
-    // const sockets = await this.server.fetchSockets();
-    // for (const s of sockets) {
-    //   console.log('id: ', s.id, 'rooms: ', s.rooms, 'data: ', s.data);
-    // }
     const messageSaved = await this.channelService.storeMessage(
       senderId,
       messageInfo,
     );
-    // console.log('messageSaved: ', messageSaved);
 
     if (messageSaved === null) {
       this.server.to(clientSocket.id).emit('messageRoomFailed');
