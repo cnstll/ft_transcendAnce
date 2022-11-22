@@ -35,9 +35,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
 
   const ref = UseOutsideClick(ClickOutsideHandler);
   useEffect(() => {
-    console.log('Location: ', currentLocation.pathname);
     if (currentLocation.pathname != '/play') {
-      console.log('USER CONNECTED - ', currentLocation.pathname);
       socket.emit('connectUser');
     }
     socket.on('userDisconnected', () => {
