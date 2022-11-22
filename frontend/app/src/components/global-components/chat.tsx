@@ -7,7 +7,6 @@ import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import UsersList from '../section-components/users-list';
 import { Channel, User } from '../global-components/interface';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
@@ -20,6 +19,7 @@ import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
 import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
+import MembersList from '../section-components/chat/members-list';
 
 function Chat() {
   const user = useUserInfo();
@@ -127,10 +127,9 @@ function Chat() {
             <SideBox>
               <h2 className="flex justify-center font-bold">MEMBERS</h2>
               {channelUsers.isSuccess && channelUsers.data && (
-                <UsersList
-                  users={channelUsers.data.filter(
-                    (channelUser) => channelUser.id != user.data.id,
-                  )}
+                <MembersList
+                  channelUsers={channelUsers.data}
+                  user={user.data}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}

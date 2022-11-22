@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
-import { socket } from '../global-components/client-socket';
-import useUserFriends from '../query-hooks/useUserFriends';
-import LoadingSpinner from './loading-spinner';
-import UsersList from './users-list';
+import { socket } from '../../global-components/client-socket';
+import { UserListType } from '../../global-components/interface';
+import useUserFriends from '../../query-hooks/useUserFriends';
+import LoadingSpinner from '../loading-spinner';
+import UsersList from '../users-list';
 
 function FriendsList() {
   const friends = useUserFriends();
@@ -36,7 +37,9 @@ function FriendsList() {
         <p className="text-base text-gray-400">We encountered an error 🤷</p>
       )}
       {friends.isLoading && <LoadingSpinner />}
-      {friends.isSuccess && <UsersList users={friends.data} />}
+      {friends.isSuccess && (
+        <UsersList users={friends.data} userListType={UserListType.FRIENDS} />
+      )}
     </>
   );
 }
