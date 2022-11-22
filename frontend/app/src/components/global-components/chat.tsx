@@ -36,7 +36,6 @@ function Chat() {
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
-  const friendsListQueryKey = 'friendsList';
 
   useEffect(() => {
     if (user.isError) {
@@ -53,23 +52,7 @@ function Chat() {
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
-    socket.on('userDisconnected', () => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
-    socket.on('userConnected', (): void => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
-    socket.on('userInGame', (): void => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
-    socket.on('userGameEnded', (): void => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
     return () => {
-      socket.off('userDisconnected');
-      socket.off('userConnected');
-      socket.off('userInGame');
-      socket.off('userGameEnded');
       socket.off('roomLeft');
     };
   }, [activeChannelId, socket, user]);
