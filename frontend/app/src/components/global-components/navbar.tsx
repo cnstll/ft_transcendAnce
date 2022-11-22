@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { apiUrl, User } from '../global-components/interface';
 import axios from 'axios';
-import { UseQueryResult } from 'react-query';
+import { useQueryClient, UseQueryResult } from 'react-query';
 import useGetAllUsers from '../query-hooks/useGetAllUsers';
 import SearchBoxUser from '../section-components/search-box-user';
 import DropDownMenu from '../section-components/drop-down-menu';
@@ -22,6 +22,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
   const currentLocation = useLocation();
+  const queryClient = useQueryClient();
+  const friendsListQueryKey = 'friendsList';
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -33,9 +35,29 @@ function Navbar({ text, avatarImg }: BannerProps) {
 
   const ref = UseOutsideClick(ClickOutsideHandler);
   useEffect(() => {
+    console.log('Location: ', currentLocation.pathname);
     if (currentLocation.pathname != '/play') {
+      console.log('USER CONNECTED - ', currentLocation.pathname);
       socket.emit('connectUser');
     }
+    socket.on('userDisconnected', () => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    socket.on('userConnected', (): void => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    socket.on('userInGame', (): void => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    socket.on('userGameEnded', (): void => {
+      void queryClient.invalidateQueries(friendsListQueryKey);
+    });
+    return () => {
+      socket.off('userDisconnected');
+      socket.off('userConnected');
+      socket.off('userInGame');
+      socket.off('userGameEnded');
+    };
   }, [socket]);
 
   return (
