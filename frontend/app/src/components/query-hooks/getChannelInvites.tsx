@@ -15,19 +15,6 @@ UseQueryResult<User[] | undefined> {
   fetchInvitesOfAChannel(channelId));
 }
 
-const fetchChannelInvites = () =>
-axios
-  .get<{id: string}[]>('http://localhost:3000/user/get-channel-invites', {
-    withCredentials: true,
-  })
-  .then((res) => res.data);
-
-export function getChannelInvites():
-UseQueryResult<{id: string}[] | undefined> {
-  return useQuery(['channelInvites'], fetchChannelInvites);
-}
-
-
 const fetchInvitableUsers = (channelId: string) =>
 axios
   .get<User[]>('http://localhost:3000/channels/get-invitable-users/'+ channelId,{
