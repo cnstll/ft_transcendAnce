@@ -20,6 +20,7 @@ import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
 import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
+import PageNotFound from './page-not-found';
 
 function Chat() {
   const user = useUserInfo();
@@ -50,6 +51,7 @@ function Chat() {
         channelPassword: '',
       });
     }
+
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
@@ -73,6 +75,14 @@ function Chat() {
       socket.off('roomLeft');
     };
   }, [activeChannelId, socket, user]);
+
+  if (activeChannel) {
+    if (channels.data &&
+      !channels.data.find(
+        (channel) => channel.id === activeChannel,
+      ))
+      return <PageNotFound />;
+  }
 
   return (
     <>
