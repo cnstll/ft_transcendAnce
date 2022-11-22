@@ -11,12 +11,6 @@ interface InviteModalProps {
   channel: Channel;
 }
 
-/** A gerer :
- * 1 - ne pas s'inviter soi-meme,
- * 2 - ne pas re-inviter quelqu'un deja invité,
- * 3 - ne pas inviter un membre du channel (deja invité sauf owner?)
- * 4 - enlever une invitation ? */
-
 function InviteModal(props: InviteModalProps) {
   const [formData, setFormData] = useState('');
   const [inputStatus, setInputStatus] = useState<string>('empty');
@@ -26,10 +20,8 @@ function InviteModal(props: InviteModalProps) {
   const invitableUsersKey = 'invitableUsers';
   const invitableUsers = getInvitableUsers(props.channel.id);
 
-
   useEffect(() => {
-    socket.on('inviteSucceeded', async (channel) => {
-      console.log("success ", channel);
+    socket.on('inviteSucceeded', async () => {
       await queryClient.refetchQueries(channelInvitesQueryKey);
       await queryClient.refetchQueries(invitableUsersKey);
       setFormData('');
@@ -60,8 +52,6 @@ function InviteModal(props: InviteModalProps) {
       },
     });
   }
-
-  console.log(invitableUsers.data);
 
   return (
     <>
@@ -108,7 +98,7 @@ function InviteModal(props: InviteModalProps) {
                     (invitableUsers.data?.length ?
                     <ul className="grid gap-y-4 grid-cols-1 m-2"> {invitableUsers.data.map((invitedUser: User) => (
                               <div className="flex items-center gap-4 my-1" key={invitedUser.id}>
-                                <input type={"radio"}
+                                <input type="radio"
                                   name="invite"
                                   id="invitedId"
                                   value={invitedUser.id}

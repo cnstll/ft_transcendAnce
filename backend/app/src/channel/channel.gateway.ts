@@ -108,16 +108,10 @@ export class ChannelGateway {
     @MessageBody('messageInfo') messageInfo: IncomingMessageDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    // console.log(messageInfo);
-    // const sockets = await this.server.fetchSockets();
-    // for (const s of sockets) {
-    //   console.log('id: ', s.id, 'rooms: ', s.rooms, 'data: ', s.data);
-    // }
     const messageSaved = await this.channelService.storeMessage(
       senderId,
       messageInfo,
     );
-    // console.log('messageSaved: ', messageSaved);
 
     if (messageSaved === null) {
       this.server.to(clientSocket.id).emit('messageRoomFailed');
@@ -167,7 +161,6 @@ export class ChannelGateway {
     @MessageBody('leaveInfo') leaveChannelDto: LeaveChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    // console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
     const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
