@@ -42,14 +42,25 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
-    // Connect to a room before sending any message
-    // TODO : Add a pop up to enter password
+
     if (activeChannel) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
         channelPassword: '',
       });
     }
+    else if (channels.data !== undefined) {
+        const redirectToChannel = channels.data.at(0);
+        if (redirectToChannel) {
+          setActiveChannelId(redirectToChannel.id)
+          socket.emit('connectToRoom', {
+            channelId: redirectToChannel.id,
+            channelPassword: '',
+          });
+          navigate('../chat/' + redirectToChannel.id);
+        }
+    }
+
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
@@ -110,12 +121,13 @@ function Chat() {
                     </h2>
                   </div>
                   <div className="p-5 flex justify-center">
-                    <DropDownButton isShown={isShown} setIsShown={setIsShown}>
+                    {activeChannel? <DropDownButton isShown={isShown} setIsShown={setIsShown}>
                       <ChannelOptions
                         setActiveChannelId={setActiveChannelId}
                         setIsShown={setIsShown}
                       />
-                    </DropDownButton>
+                    </DropDownButton> : <div/>
+                    }
                   </div>
                 </div>
                 <DisplayMessages
