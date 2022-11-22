@@ -21,8 +21,8 @@ export class AuthController {
   @UseFilters(Api42Filter)
   @Get('/42/callback')
   async loginIntra(@Res() res, @Req() req): Promise<void> {
-    const url = new URL('http://localhost:8080/');
-    const url2FA = new URL('http://localhost:8080/2fa-sign-in');
+    const url = new URL(process.env.DOMAIN);
+    const url2FA = new URL(`${process.env.DOMAIN}/2fa-sign-in`);
     const token = this.authService.login(req.user);
     const user = req.user;
     if (user.twoFactorAuthenticationSet) {

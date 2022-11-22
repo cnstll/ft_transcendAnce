@@ -1,3 +1,4 @@
 backend/app/.env
 backend/app/.env.dev
+backend/app/.env.prod
 backend/app/.env.test
