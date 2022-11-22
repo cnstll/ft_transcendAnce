@@ -13,10 +13,20 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';
 import MatchHistory from '../section-components/profile/match-history';
 import LoadingSpinner from '../section-components/loading-spinner';
+import { UseQueryResult } from 'react-query';
+import { Channel } from './interface';
+import { useChannelsByUserList } from '../query-hooks/useGetChannels';
 
 function Profile() {
   const { id } = useParams();
   const user = useUserInfo();
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
+
+  let activeChannel = '';
+  if (channels.isSuccess && channels.data && channels.data.length > 0)
+    activeChannel = channels.data[0].id;
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +42,7 @@ function Profile() {
             <Navbar
               text={<FontAwesomeIcon icon={faHouse} />}
               avatarImg={user.data.avatarImg}
+              activeChannel={activeChannel}
             />
             <div
               className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap

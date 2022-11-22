@@ -16,9 +16,10 @@ interface BannerProps {
   children?: React.ReactNode;
   text: JSX.Element | string;
   avatarImg: string;
+  activeChannel: string;
 }
 
-function Navbar({ text, avatarImg }: BannerProps) {
+function Navbar({ text, avatarImg, activeChannel }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
   const currentLocation = useLocation();
@@ -69,7 +70,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
         {isShown && (
           <div className="top-20">
             <DropDownMenu>
-              <UserInfo />
+              <UserInfo activeChannel={activeChannel} />
             </DropDownMenu>
           </div>
         )}
@@ -78,7 +79,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
   );
 }
 
-function UserInfo() {
+function UserInfo({ activeChannel }: { activeChannel: string }) {
   function logoutHandler() {
     socket.emit('disconnectUser');
     axios
@@ -92,6 +93,9 @@ function UserInfo() {
     <div>
       <Link to="/profile">
         <p className="text-center hover:underline my-2">Profile</p>
+      </Link>
+      <Link to={`/chat/${activeChannel}`}>
+        <p className="text-center hover:underline my-2">Chat</p>
       </Link>
       <Link to="/ranking">
         <p className="text-center hover:underline my-2">Ranking</p>

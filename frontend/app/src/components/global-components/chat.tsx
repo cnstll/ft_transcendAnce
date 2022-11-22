@@ -29,16 +29,8 @@ function Chat() {
   const navigate = useNavigate();
 
   let { activeChannel } = useParams();
-  if (
-    channels.isSuccess &&
-    channels.data &&
-    channels.data.length > 0 &&
-    !activeChannel
-  ) {
-    activeChannel = channels.data[0].id;
-    navigate(`../chat/${activeChannel}`);
-  }
-  const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
+  if (!activeChannel) activeChannel = '';
+  const [activeChannelId, setActiveChannelId] = useState(activeChannel);
   const [isShown, setIsShown] = useState(false);
 
   const channelUsers: UseQueryResult<User[] | undefined> =
@@ -92,6 +84,7 @@ function Chat() {
           <Navbar
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
+            activeChannel={activeChannel}
           />
           <div
             className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap

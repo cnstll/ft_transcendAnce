@@ -8,9 +8,11 @@ import { NumericFormat } from 'react-number-format';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import { RankingData } from './interface';
+import { Channel, RankingData } from './interface';
 import useLeaderboard from '../query-hooks/useLeaderboard';
 import { socket } from './client-socket';
+import { useChannelsByUserList } from '../query-hooks/useGetChannels';
+import { UseQueryResult } from 'react-query';
 
 interface RankingDataProps {
   rankingData: RankingData;
@@ -55,6 +57,13 @@ function RankingList({ rankingData, position }: RankingDataProps) {
 function Ranking() {
   const user = useUserInfo();
   const leaderboard = useLeaderboard();
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
+
+  let activeChannel = '';
+  if (channels.isSuccess && channels.data && channels.data.length > 0)
+    activeChannel = channels.data[0].id;
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,6 +86,7 @@ function Ranking() {
             <Navbar
               text={<FontAwesomeIcon icon={faHouse} />}
               avatarImg={user.data.avatarImg}
+              activeChannel={activeChannel}
             />
             <div className="flex justify-center mt-6">
               <OneBox>
@@ -95,13 +105,15 @@ function Ranking() {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard.data.map((user: RankingData, index: number) => (
-                      <RankingList
-                        key={user.id}
-                        rankingData={user}
-                        position={index + 1}
-                      />
-                    ))}
+                    {leaderboard.data.map(
+                      (user: RankingData, index: number) => (
+                        <RankingList
+                          key={user.id}
+                          rankingData={user}
+                          position={index + 1}
+                        />
+                      ),
+                    )}
                   </tbody>
                 </table>
               </OneBox>
