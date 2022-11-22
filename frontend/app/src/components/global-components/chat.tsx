@@ -23,17 +23,26 @@ import LoadingSpinner from '../section-components/loading-spinner';
 
 function Chat() {
   const user = useUserInfo();
-  const { activeChannel } = useParams();
-  const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
-  const [isShown, setIsShown] = useState(false);
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
 
   const navigate = useNavigate();
 
+  let { activeChannel } = useParams();
+  if (
+    channels.isSuccess &&
+    channels.data &&
+    channels.data.length > 0 &&
+    !activeChannel
+  ) {
+    activeChannel = channels.data[0].id;
+    navigate(`../chat/${activeChannel}`);
+  }
+  const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
+  const [isShown, setIsShown] = useState(false);
+
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
-
-  const channels: UseQueryResult<Channel[] | undefined> =
-    useChannelsByUserList();
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
