@@ -6,3 +6,4 @@ node_modules
 /backend/app/.env.test
 /backend/app/.env.dev
 .DS_Store
+/backend/app/.env.prod
