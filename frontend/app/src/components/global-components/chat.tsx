@@ -28,11 +28,12 @@ function Chat() {
   const [isShown, setIsShown] = useState(false);
 
   const navigate = useNavigate();
-  const channels: UseQueryResult<Channel[] | undefined> =
-    useChannelsByUserList();
 
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
+
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
@@ -107,6 +108,9 @@ function Chat() {
                         channels.data.find(
                           (channel) => channel.id === activeChannel,
                         )?.name}
+                      {channels.isSuccess &&
+                        channels.data?.length === 0 &&
+                        'No channel joined yet 😇'}
                     </h2>
                   </div>
                   <div className="p-5 flex justify-center">
