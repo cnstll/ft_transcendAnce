@@ -92,12 +92,7 @@ export class ChannelService {
           channelId: channelId,
         },
         select: {
-          user: {
-            select: {
-              id: true,
-              avatarImg: true,
-            },
-          },
+          user: true,
         },
       });
       const flattenUsers = [];

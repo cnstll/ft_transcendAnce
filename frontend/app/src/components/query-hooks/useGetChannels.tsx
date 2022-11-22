@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import { Channel, channelRole } from '../global-components/interface';
+import {apiUrl, Channel, channelRole } from '../global-components/interface';
 
 const fetchAllGroupChannels = () =>
   axios
-    .get<Channel[]>('http://localhost:3000/channels/get-group-channels', {
+    .get<Channel[]>(`${apiUrl}/channels/get-group-channels`, {
       withCredentials: true,
     })
     .then((res) => res.data);
@@ -17,7 +17,7 @@ export function useGroupChannelsList():
 
 const fetchAllChannelsByUserId = () =>
   axios
-    .get<Channel[]>('http://localhost:3000/channels/get-channel-by-user-id', {
+    .get<Channel[]>(`${apiUrl}/channels/get-channel-by-user-id`, {
       withCredentials: true,
     })
     .then((res) => res.data);
@@ -30,7 +30,7 @@ export function useChannelsByUserList():
 
 const fetchMyRoleInChannel = (channelId: string) =>
   axios
-    .get<Channel>('http://localhost:3000/channels/get-role-user-channel/' + channelId, {
+    .get<Channel>(`${apiUrl}/channels/get-role-user-channel/` + channelId, {
       withCredentials: true,
   }).then((res) => res.data);
 

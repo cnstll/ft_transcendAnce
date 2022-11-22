@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import type { Stats } from '../global-components/interface';
+import { apiUrl, Stats } from '../global-components/interface';
 
 const fetchUserStats = (nickname: string) =>
   axios
     .post<Stats>(
-      'http://localhost:3000/user/get-user-matches-stats',
+      `${apiUrl}/user/get-user-matches-stats`,
       { userNickname: nickname },
       {
         withCredentials: true,

@@ -66,13 +66,13 @@ export class UserController {
     @Res() res: Response,
     @GetCurrentUserId() userId: string,
   ) {
-    const filename = 'http://localhost:3000/user/' + file.path;
+    const filename = `${process.env.PUBLIC_URL}/user/` + file.path;
     this.userService.updateAvatarImg(userId, filename, res);
     return res.status(200).send();
   }
   @Get('avatar/:fileId')
   async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
-    res.sendFile(fileId, { root: 'avatar' });
+    return res.sendFile(fileId, { root: 'avatar' });
   }
 
   @Put('update-nickname')
@@ -87,9 +87,8 @@ export class UserController {
 
   @Get('logout')
   @UseGuards(JwtAuthGuard)
-  logout(@Res() res: Response) {
-    this.userService.logout(res);
-    return res.status(200).send();
+  logout(@Res() res: Response, @GetCurrentUserId() userId: string) {
+    return this.userService.logout(res, userId);
   }
 
   @Delete('delete')

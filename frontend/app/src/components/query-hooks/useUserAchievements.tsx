@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
 import type { AchievementData } from '../global-components/interface';
+import { apiUrl } from '../global-components/interface';
 
 const fetchUserAchievements = (nickname: string) =>
   axios
     .post<AchievementData[]>(
-      'http://localhost:3000/user/get-achievement',
+      `${apiUrl}/user/get-achievement`,
       { userNickname: nickname },
       {
         withCredentials: true,

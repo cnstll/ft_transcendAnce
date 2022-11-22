@@ -2,7 +2,7 @@ import React, { ChangeEvent, Dispatch, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import setAvatarImg from '../../query-hooks/setAvatarImg';
 import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
-import { User } from '../../global-components/interface';
+import { apiUrl, User } from '../../global-components/interface';
 
 interface AvatarImgFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
@@ -22,7 +22,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
     if (selectedFile) {
       formData.append('file', selectedFile);
       fileName =
-        'http://localhost:3000/user/avatar/' +
+        `${apiUrl}/user/avatar/` +
         selectedFile.name.replace(/\s/g, '');
     }
     avatarImgMutation.mutate(formData, {

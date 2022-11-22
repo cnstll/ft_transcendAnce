@@ -3,8 +3,29 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
 import type { User } from '../global-components/interface';
+import { useState } from 'react';
 
-function UserOptions({ nickname }: { nickname: string }) {
+interface UserOptionsProps {
+  nickname: string;
+  setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function BlockUser({ nickname, setIsShown }: UserOptionsProps) {
+  const onBlock = () => {
+    setIsShown(false);
+  };
+
+  return (
+    <p
+      className="text-center hover:underline my-2 truncate cursor-pointer"
+      onClick={onBlock}
+    >
+      Block {nickname}
+    </p>
+  );
+}
+
+function UserOptions({ nickname, setIsShown }: UserOptionsProps) {
   return (
     <div>
       <Link to={`/profile/${nickname}`}>
@@ -13,16 +34,7 @@ function UserOptions({ nickname }: { nickname: string }) {
       <Link to="/">
         <p className="text-center hover:underline my-2">Invite to play</p>
       </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2 truncate">
-          Block {nickname}
-        </p>
-      </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2 truncate">
-          Ban {nickname}
-        </p>
-      </Link>
+      <BlockUser nickname={nickname} setIsShown={setIsShown} />
     </div>
   );
 }
@@ -32,6 +44,8 @@ interface UsersListItemProps {
 }
 
 function UsersListItem({ user }: UsersListItemProps) {
+  const [isShown, setIsShown] = useState(false);
+
   return (
     <div className="flex items-center justify-center">
       <div className="flex items-center justify-center mr-2">
@@ -56,8 +70,8 @@ function UsersListItem({ user }: UsersListItemProps) {
         <p className="ml-3 truncate">{user.nickname}</p>
       </div>
       <div className="content-center mx-2 mt-1">
-        <DropDownButton>
-          <UserOptions nickname={user.nickname} />
+        <DropDownButton setIsShown={setIsShown} isShown={isShown}>
+          <UserOptions nickname={user.nickname} setIsShown={setIsShown} />
         </DropDownButton>
       </div>
     </div>

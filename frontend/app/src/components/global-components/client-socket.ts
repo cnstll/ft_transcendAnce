@@ -1,9 +1,9 @@
+// import { createContext } from 'react';
 import { io } from 'socket.io-client';
+import { domain } from './interface';
+// import myParser from '../../proto/myParser'
 
-export const socket = io('http://localhost:3000', {
+export const socket = io(`${domain}`, {
   withCredentials: true,
-});
-export let socketID = '';
-socket.on('connect', () => {
-  socketID = socket.id;
+  parser: require("socket.io-msgpack-parser"),
 });

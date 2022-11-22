@@ -11,9 +11,10 @@ import InviteModal from './invite-modal';
 
 interface ChannelOptions {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+  setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
+function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const { activeChannel } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -108,6 +109,7 @@ function ChannelOptions({ setActiveChannelId }: ChannelOptions) {
                 <EditChannelForm
                   setShowModal={setShowEditModal}
                   currentChannel={channelInfo}
+                  setIsShown={setIsShown}
                 />
               )}
             </div>

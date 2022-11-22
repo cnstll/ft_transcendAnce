@@ -53,7 +53,8 @@ function SearchBoxChannel({
         } else {
           //TODO notify other users that a new user joined
         }
-      });
+      },
+    );
     socket.on('joinRoomFailed', () => {
       alert('Failed to join room, sorry');
     });
@@ -102,11 +103,10 @@ function SearchBoxChannel({
     if (filteredChannels) {
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
-        if (firstResult || firstResult === '') {
+        if (firstResult && searchData.keyword) {
           if (filteredChannels[0].type === channelType.Protected)
             setShowModal(true);
-          else
-            JoinChannel(filteredChannels[0]);
+          else JoinChannel(filteredChannels[0]);
         }
       } else {
         alert('No channel found ;(');
@@ -123,7 +123,7 @@ function SearchBoxChannel({
               height +
               width +
               ' bg-white px-2 py-2 pr-6 rounded-lg text-[8px] sm:text-xs md:text-xs\
-               lg:text-sm focus:outline-none relative'
+               lg:text-sm focus:outline-none relative font-normal'
             }
             type="text"
             name="search"
@@ -136,7 +136,7 @@ function SearchBoxChannel({
           />
           <button
             type="submit"
-            className="absolute top-4 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
+            className="absolute lg:top-4 md:top-3 sm:top-2 top-1 right-2 text-[8px] sm:text-xs md:text-xs lg:text-sm text-black"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
@@ -147,19 +147,17 @@ function SearchBoxChannel({
               {filterChannels(channels, searchData.keyword)
                 ?.map((channelItem) => (
                   <div key={channelItem.id}>
-                    <SearchChannelItem
-                      channel={channelItem}
-                    />
+                    <SearchChannelItem channel={channelItem} />
                     <div className="z-index-20">
-                      {showModal &&
+                      {showModal && (
                         <PasswordModal
                           setShowModal={setShowModal}
-                          channel={channelItem}/>
-                      }
+                          channel={channelItem}
+                        />
+                      )}
                     </div>
                   </div>
-                )
-                )}
+                ))}
             </ul>
           )}
         </div>
