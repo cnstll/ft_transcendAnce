@@ -25,21 +25,6 @@ function BlockUser({ nickname, setIsShown }: UserOptionsProps) {
   );
 }
 
-function BanUser({ nickname, setIsShown }: UserOptionsProps) {
-  const onBlock = () => {
-    setIsShown(false);
-  };
-
-  return (
-    <p
-      className="text-center hover:underline my-2 truncate cursor-pointer"
-      onClick={onBlock}
-    >
-      Ban {nickname}
-    </p>
-  );
-}
-
 function UserOptions({ nickname, setIsShown }: UserOptionsProps) {
   return (
     <div>
@@ -50,7 +35,6 @@ function UserOptions({ nickname, setIsShown }: UserOptionsProps) {
         <p className="text-center hover:underline my-2">Invite to play</p>
       </Link>
       <BlockUser nickname={nickname} setIsShown={setIsShown} />
-      <BanUser nickname={nickname} setIsShown={setIsShown} />
     </div>
   );
 }
