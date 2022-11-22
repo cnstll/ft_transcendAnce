@@ -1,3 +1,4 @@
+import React from 'react'
 import Navbar from './navbar';
 import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -72,4 +73,4 @@ function Play() {
   return <></>;
 }
 
-export default Play;
+export default React.memo(Play);

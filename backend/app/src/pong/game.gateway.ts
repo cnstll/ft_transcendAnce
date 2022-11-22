@@ -12,11 +12,17 @@ import { UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 import { GameMode } from './entities/game.entities';
 
-@WebSocketGateway({
+@WebSocketGateway(3333, {
   cors: {
-    origin: 'http://localhost:8080',
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.BACKEND_URL,
+      process.env.DOMAIN,
+      process.env.PUBLIC_URL,
+    ],
     credentials: true,
   },
+  parser: require('socket.io-msgpack-parser'),
 })
 export class GameGateway {
   @WebSocketServer()
@@ -26,13 +32,13 @@ export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
   @UseGuards(JwtAuthGuard)
-  @SubscribeMessage('updatePaddlePos')
+  @SubscribeMessage('PP')
   async create(
-    @MessageBody('yPos') yPos: number,
+    @MessageBody() encoded: Uint8Array,
     @GetCurrentUserId() id: string,
   ) {
-    const message = this.gameService.create(yPos, id);
-    return message;
+    this.gameService.create(encoded, id);
+    // return message;
   }
 
   @UseGuards(JwtAuthGuard)

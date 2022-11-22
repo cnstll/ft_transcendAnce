@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { useQuery, UseQueryResult } from 'react-query';
-import type { User } from '../global-components/interface';
+import { apiUrl, User } from '../global-components/interface';
 
 const fetchUserFriends = () =>
   axios
-    .get<User[]>('http://localhost:3000/user/get-user-friends', {
+    .get<User[]>(`${apiUrl}/user/get-user-friends`, {
       withCredentials: true,
     })
     .then((res) => res.data);

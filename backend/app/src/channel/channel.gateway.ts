@@ -20,11 +20,17 @@ enum acknoledgementStatus {
   FAILED = 'FAILED',
 }
 
-@WebSocketGateway({
+@WebSocketGateway(3333, {
   cors: {
-    origin: 'http://localhost:8080',
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.BACKEND_URL,
+      process.env.DOMAIN,
+      process.env.PUBLIC_URL,
+    ],
     credentials: true,
   },
+  parser: require('socket.io-msgpack-parser'),
 })
 export class ChannelGateway {
   @WebSocketServer()

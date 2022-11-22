@@ -1,5 +1,7 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
+import { GameService } from '../game.service';
+import { Server } from 'socket.io';
 
 export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
@@ -68,55 +70,56 @@ export class Game {
   constructor(mode: GameMode) {
     this.gameRoomId = this.makeid(5);
     this.mode = mode;
-    if (this.mode === GameMode.MAYHEM) {
-      this.color = 'black';
-    }
   }
 
+  gameConstants = {
+    relativeGameWidth: 1000,
+    relativeMiddle: 500,
+    relativeGameHeight: 1000,
+    player1PaddlePosX: 80,
+    player2PaddlePosX: 920,
+    paddleWidth: 10,
+    ballHeight: 30,
+    maxSpeed: 6,
+    speed: 0,
+    speeds: [7, 8, 10, 12, 14, 15, 20],
+    // speedIncrease: 4,
+  };
   gameRoomId: string;
   p1id: string = null;
   p2id: string = null;
   status: Status;
-  dirx = 0.3;
+  dirx = this.gameConstants.speeds[0];
   diry = 0.0;
   p1x = 5;
   p1y = 50;
   p2x = 95;
   p2y = 50;
-  bx = 50;
+  bx = 500;
   by = 55;
   p1s = 0;
   p2s = 0;
-  paddleSize = 10;
+  paddleSize = 100;
   mode: GameMode = GameMode.CLASSIC;
-  color = 'black';
-  gameConstants = {
-    relativeGameWidth: 100,
-    relativeMiddle: 50,
-    relativeGameHeight: 100,
-    player1PaddlePosX: 5,
-    player2PaddlePosX: 95,
-    paddleWidth: 5,
-    maxSpeed: 3,
-    speedIncrease: 0.03,
-    initialSpeed: 0.2,
-  };
 
-  moveBall() {
-    if (this.by >= this.gameConstants.relativeGameWidth) {
+  moveBall(gameService: GameService, server: Server) {
+    if (
+      this.by + this.gameConstants.ballHeight >=
+      this.gameConstants.relativeGameHeight
+    ) {
+      this.by =
+        this.gameConstants.relativeGameHeight - this.gameConstants.ballHeight;
       this.diry = this.diry * -1;
     }
     if (this.by <= 0) {
+      this.by = 0;
       this.diry = this.diry * -1;
     }
-    if (
-      this.bx <=
-        this.gameConstants.player1PaddlePosX + this.gameConstants.paddleWidth &&
-      this.bx >= this.gameConstants.player1PaddlePosX
-    ) {
+    if (this.bx == this.gameConstants.player1PaddlePosX) {
       if (
-        this.by >= this.p1y - this.paddleSize / 2 &&
-        this.by <= this.p1y + this.paddleSize / 2
+        this.by + this.gameConstants.ballHeight >=
+          this.p1y - this.paddleSize / 2 - 3 &&
+        this.by <= this.p1y + this.paddleSize / 2 + 3
       ) {
         switch (this.mode) {
           case GameMode.MAYHEM: {
@@ -124,32 +127,32 @@ export class Game {
               this.dirx = this.gameConstants.maxSpeed;
             } else {
               this.dirx = this.dirx * -1;
-              if (this.dirx < this.gameConstants.maxSpeed) {
-                this.dirx += this.gameConstants.speedIncrease;
+              if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+                // this.dirx += this.gameConstants.speedIncrease;
+                this.dirx =
+                  this.gameConstants.speeds[this.gameConstants.speed++];
               }
             }
             break;
           }
           case GameMode.CLASSIC: {
             this.dirx = this.dirx * -1;
-            if (this.dirx < this.gameConstants.maxSpeed) {
-              this.dirx += this.gameConstants.speedIncrease;
+            if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+              // this.dirx += this.gameConstants.speedIncrease;
+              this.dirx = this.gameConstants.speeds[this.gameConstants.speed++];
             }
             break;
           }
         }
         // this number stays magic because it actually is magic
-        this.diry = (this.by - this.p1y) / 10;
+        this.diry = (this.by - this.p1y) / 2;
       }
     }
 
-    if (
-      this.bx >=
-        this.gameConstants.player2PaddlePosX - this.gameConstants.paddleWidth &&
-      this.bx <= this.gameConstants.player2PaddlePosX
-    ) {
+    if (this.bx == this.gameConstants.player2PaddlePosX) {
       if (
-        this.by >= this.p2y - this.paddleSize / 2 &&
+        this.by + this.gameConstants.ballHeight >=
+          this.p2y - this.paddleSize / 2 &&
         this.by <= this.p2y + this.paddleSize / 2
       ) {
         switch (this.mode) {
@@ -158,47 +161,64 @@ export class Game {
               this.dirx = -this.gameConstants.maxSpeed;
             } else {
               this.dirx = this.dirx * -1;
-              if (this.dirx > -this.gameConstants.maxSpeed) {
-                this.dirx -= this.gameConstants.speedIncrease;
+              if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+                // this.dirx -= this.gameConstants.speedIncrease;
+                this.dirx =
+                  -this.gameConstants.speeds[this.gameConstants.speed++];
               }
             }
             break;
           }
           case GameMode.CLASSIC: {
             this.dirx = this.dirx * -1;
-            if (this.dirx > -this.gameConstants.maxSpeed) {
-              this.dirx -= this.gameConstants.speedIncrease;
+            if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+              // this.dirx -= this.gameConstants.speedIncrease;
+              this.dirx =
+                -this.gameConstants.speeds[this.gameConstants.speed++];
             }
             break;
           }
         }
         // this number stays magic because it actually is magic
-        this.diry = (this['by'] - this['p2y']) / 10;
+        this.diry = (this.by - this.p2y) / 2;
       }
     }
+
     if (this.bx <= 0) {
       this.p2s += 1;
+      if (this.p2s >= 10) {
+        gameService.winGame(this, server);
+      }
       switch (this.mode) {
         case GameMode.CLASSIC: {
-          this.dirx = this.gameConstants.initialSpeed;
+          this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           this.bx = this.gameConstants.relativeMiddle;
+          this.by = this.gameConstants.relativeMiddle;
           // this number stays magic because it actually is magic
           this.diry = generateRandomNumber(-10, 10) / 20;
           break;
         }
 
         case GameMode.MAYHEM: {
-          this.dirx = this.gameConstants.initialSpeed;
+          // this.dirx = this.gameConstants.initialSpeed;
+          this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           break;
         }
       }
     }
-    if (this.bx > this.gameConstants.relativeGameWidth) {
+
+    if (this.bx >= this.gameConstants.relativeGameWidth) {
       this.p1s += 1;
+      if (this.p1s >= 10) {
+        gameService.winGame(this, server);
+      }
       switch (this.mode) {
         case GameMode.CLASSIC: {
-          this.dirx = -this.gameConstants.initialSpeed;
+          // this.dirx = -this.gameConstants.initialSpeed;
+          this.dirx =
+            -this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           this.bx = this.gameConstants.relativeMiddle;
+          this.by = this.gameConstants.relativeMiddle;
           // this number stays magic because it actually is magic
           this.diry = generateRandomNumber(-10, 10) / 20;
           break;
@@ -206,11 +226,14 @@ export class Game {
 
         case GameMode.MAYHEM: {
           this.bx = this.gameConstants.relativeGameWidth;
-          this.dirx = -this.gameConstants.initialSpeed;
+          // this.dirx = -this.gameConstants.initialSpeed;
+          this.dirx =
+            -this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           break;
         }
       }
     }
+
     this.bx += this.dirx;
     this.by += this.diry;
     return this;
@@ -246,19 +269,12 @@ export class Game {
 
   returnGameInfo() {
     return {
-      dirx: this.dirx,
-      diry: this.diry,
-      p1x: this.p1x,
       p1y: this.p1y,
-      p2x: this.p2x,
       p2y: this.p2y,
       bx: this.bx,
       by: this.by,
       p1s: this.p1s,
       p2s: this.p2s,
-      paddleSize: this.paddleSize,
-      gameRoomId: this.gameRoomId,
-      color: this.color,
     };
   }
 
