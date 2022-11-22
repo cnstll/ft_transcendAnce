@@ -182,14 +182,16 @@ export class ChannelService {
     channelId: string,
     clientSocket: Socket,
   ) {
-    const userOnChannel: ChannelUser = await this.prisma.channelUser.findUnique({
-      where: {
-        userId_channelId: {
-          userId: userId,
-          channelId: channelId,
+    const userOnChannel: ChannelUser = await this.prisma.channelUser.findUnique(
+      {
+        where: {
+          userId_channelId: {
+            userId: userId,
+            channelId: channelId,
+          },
         },
       },
-    });
+    );
     /* then reconnect to the channel regardless of its type */
     if (userOnChannel != null) {
       await clientSocket.join(channelId);
