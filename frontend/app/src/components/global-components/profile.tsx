@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import SideBox from '../section-components/side-box';
-import FriendList from '../section-components/friend-list';
 import StatsBox from '../section-components/profile/stats-box';
 import { useParams } from 'react-router-dom';
 import ProfileBox from '../section-components/profile/profile-box';
@@ -13,6 +12,7 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';
 import MatchHistory from '../section-components/profile/match-history';
 import LoadingSpinner from '../section-components/loading-spinner';
+import FriendsList from '../section-components/profile/friends-list';
 
 function Profile() {
   const { id } = useParams();
@@ -48,7 +48,7 @@ function Profile() {
                     <h2 className="flex justify-center font-bold break-all">
                       FRIENDS
                     </h2>
-                    <FriendList />
+                    <FriendsList />
                   </SideBox>
                 </>
               ) : (
