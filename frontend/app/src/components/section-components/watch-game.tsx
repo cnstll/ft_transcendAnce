@@ -8,7 +8,7 @@ interface WatchGameProps {
 function WatchGame({ user, setIsShown }: WatchGameProps) {
   const onWatch = () => {
     setIsShown(false);
-    console.log(user);
+    user; //Just to avoid warnings ATM
   };
 
   return (

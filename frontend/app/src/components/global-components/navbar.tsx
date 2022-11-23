@@ -39,8 +39,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
     if (currentLocation.pathname != '/play') {
       socket.emit('connectUser');
     }
-
-
     socket.on('userDisconnected', () => {
       void queryClient.invalidateQueries(friendsListQueryKey);
     });
