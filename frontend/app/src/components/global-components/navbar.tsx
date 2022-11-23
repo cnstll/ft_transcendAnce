@@ -132,6 +132,9 @@ function UserInfo() {
       <Link to="/profile">
         <p className="text-center hover:underline my-2">Profile</p>
       </Link>
+      <Link to="/chat">
+        <p className="text-center hover:underline my-2">Chat</p>
+      </Link>
       <Link to="/ranking">
         <p className="text-center hover:underline my-2">Ranking</p>
       </Link>
