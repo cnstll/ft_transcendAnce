@@ -13,7 +13,7 @@ function PasswordModal(props: PwdModalProps) {
   const [inputStatus, setInputStatus] = useState<string>('empty');
 
   useEffect(() => {
-    socket.on('joinRoomPWDFailed', (channel: null | string) => {
+    socket.on('joinRoomError', (channel: null | string) => {
       if (channel === 'InvalidPassword') {
         setInputStatus('invalidPassword');
       } else if (channel === 'PasswordRequired') {
@@ -21,7 +21,7 @@ function PasswordModal(props: PwdModalProps) {
       }
     });
     return () => {
-      socket.off('joinRoomPWDFailed');
+      socket.off('joinRoomError');
     };
   }, [formData]);
 
@@ -53,7 +53,7 @@ function PasswordModal(props: PwdModalProps) {
             <form onSubmit={onSubmit}>
               {/* Password section */}
               <div
-                id="form-channel-creation-password"
+                id="form-channel-check-password"
                 className="form-group mt-4"
               >
                 <label

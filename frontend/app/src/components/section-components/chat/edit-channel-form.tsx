@@ -106,7 +106,7 @@ function EditChannelForm(props: EditChannelFormProps) {
                   border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500 ${
                     inputStatus === 'invalidName' ||
                     inputStatus === 'invalidAlreadyUsedname' ||
-                    inputStatus === 'invalidNameLengt'
+                    inputStatus === 'invalidNameLength'
                       ? 'border-red-500'
                       : ''
                   }`}

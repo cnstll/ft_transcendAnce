@@ -73,6 +73,7 @@ function SearchBoxChannel({
   }
 
   const ref = UseOutsideClick(ClickOutsideHandler);
+
   function OnChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchData((prevState) => ({
       ...prevState,
@@ -144,8 +145,7 @@ function SearchBoxChannel({
           {isShown && (
             <ul>
               {filterChannels(channels, searchData.keyword)
-                ?.slice(0, 5)
-                .map((channelItem) => (
+                ?.map((channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
                     <div className="z-index-20">

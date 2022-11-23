@@ -31,6 +31,7 @@ model User {
   bannedUser                    Ban[]             @relation("bannedUser")
   playerOneMatch                Match[]           @relation("playerOne")
   playerTwoMatch                Match[]           @relation("playerTwo")
+  invites                       Channel[]         @relation("inviteOnChannel")
 
   @@map("users")
 }
@@ -62,9 +63,6 @@ model Match {
   playerOne   User   @relation("playerOne", fields: [playerOneId], references: [id], onDelete: Cascade)
   playerTwoId String
   playerTwo   User   @relation("playerTwo", fields: [playerTwoId], references: [id], onDelete: Cascade)
-
-  // @@id([playerOneId, playerTwoId, createdAt])
-  // @@unique(fields: [playerOneId, playerTwoId, createdAt], name: "gameId")
 }
 
 model Achievement {
@@ -103,6 +101,7 @@ model Channel {
   messages    Message[]     @relation("channelMessage")
   users       ChannelUser[] @relation("channelUsers")
   channelBans Ban[]         @relation("banOnChannel")
+  invites     User[]        @relation("inviteOnChannel")
 
   @@map("channels")
 }
