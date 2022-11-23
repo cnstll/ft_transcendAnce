@@ -23,6 +23,9 @@ export class GameService {
 
   mutateGameStatus(game: Game, status: Status, server: Server) {
     game.status = status;
+    if (status === Status.DONE) {
+      this.GameMap.delete(game.p1id);
+    }
     server.to(game.gameRoomId).emit('gameStatus', {
       gameId: game.gameRoomId,
       status: game.status,
@@ -146,7 +149,6 @@ export class GameService {
   ) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
-      const message = this.moveBall(winnerId, server);
 
       if (winnerId === game.p1id) game.p1s = 10;
       else game.p2s = 10;
@@ -154,12 +156,12 @@ export class GameService {
       this.mutateGameStatus(game, Status.OVER, server);
       this.addWinningTimeout(5000, server, winnerId);
       server.emit('matchFinished');
-      server.to(game.gameRoomId).emit('updatedGameInfo', message);
     };
 
     const timeout = setTimeout(callback, milliseconds);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
+  
   addInvitationTimeout(
     name: string,
     server: Server,
@@ -183,7 +185,6 @@ export class GameService {
       const game = this.GameMap.getGame(winnerId);
       game.saveGameResults(this.prismaService);
       this.mutateGameStatus(game, Status.DONE, server);
-      this.GameMap.delete(winnerId);
     };
 
     setTimeout(callback, milliseconds);

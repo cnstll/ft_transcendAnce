@@ -89,6 +89,7 @@ export class Game {
   constructor(mode: GameMode) {
     this.status = Status.PENDING;
     this.gameRoomId = this.makeid(5);
+    this.status = Status.PENDING;
     this.mode = mode;
   }
 
