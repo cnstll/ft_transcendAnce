@@ -42,7 +42,7 @@ export class AuthService {
         nickname: userData.login,
         immutableId: userData.id.toString(),
         passwordHash: accessToken,
-        avatarImg: userData.image_url,
+        avatarImg: userData.image.link,
       };
       return await this.userService.createUser(data);
     }
