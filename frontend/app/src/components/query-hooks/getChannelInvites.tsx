@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useQuery, UseQueryResult } from "react-query";
-import { User } from "../global-components/interface";
+import { apiUrl, User } from "../global-components/interface";
 
 const fetchInvitesOfAChannel = (channelId: string) =>
 axios
-  .get<User[]>('http://localhost:3000/channels/get-invites/' + channelId, {
+  .get<User[]>(`${apiUrl}/channels/get-invites/`+ channelId, {
     withCredentials: true,
   })
   .then((res) => res.data);
@@ -17,7 +17,7 @@ UseQueryResult<User[] | undefined> {
 
 const fetchInvitableUsers = (channelId: string) =>
 axios
-  .get<User[]>('http://localhost:3000/channels/get-invitable-users/'+ channelId,{
+  .get<User[]>(`${apiUrl}/channels/get-invitable-users/`+ channelId,{
     withCredentials: true,
   })
   .then((res) => res.data);

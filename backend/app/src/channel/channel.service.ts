@@ -327,27 +327,23 @@ export class ChannelService {
   }
 
   async getIsInvitedInAChannel(userId: string, channelId: string) {
-    try {
-      const isInvited = await this.prisma.channel.findUnique({
-        where: {
-          id: channelId,
-        },
-        select: {
-          invites: {
-            select: {
-              id: true,
-            },
+    const isInvited = await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+      select: {
+        invites: {
+          select: {
+            id: true,
           },
         },
-      });
-      return isInvited.invites.find((value) => {
-        return value.id === userId;
-      })
-        ? true
-        : false;
-    } catch (error) {
-      return error;
-    }
+      },
+    });
+    return isInvited.invites.find((value) => {
+      return value.id === userId;
+    })
+      ? true
+      : false;
   }
 
   async joinChannelWS(
@@ -356,8 +352,6 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
-      /* Check the password is provided in the DTO for protected chan) */
-
       /** If private channel, check the invitation to the channel */
       if (channelDto.type === ChannelType.PRIVATE) {
         const isInvited = await this.getIsInvitedInAChannel(
@@ -368,6 +362,8 @@ export class ChannelService {
       }
       /* If there is a channel's password and a password provided */
       if (channelDto.type === ChannelType.PROTECTED) {
+        /* Check the password is provided in the DTO - mandatory for Protected channels) */
+        if (!channelDto.passwordHash) throw new Error('PasswordRequired');
         /* Get the channel's password if the type is protected */
         const channel: { type: ChannelType; passwordHash: string } =
           await this.prisma.channel.findFirst({
@@ -380,7 +376,6 @@ export class ChannelService {
               passwordHash: true,
             },
           });
-        if (!channelDto.passwordHash) throw new Error('PasswordRequired');
         /* Compare passwords */
         const pwdMatches = await argon.verify(
           channel.passwordHash,

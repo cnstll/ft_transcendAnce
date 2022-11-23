@@ -55,13 +55,13 @@ export class ChannelController {
     return this.channelService.getInvitesOfAChannel(channelId);
   }
 
-  @Get('get-invite/:id')
-  getIsInvitedInAChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') channelId: string,
-  ) {
-    return this.channelService.getIsInvitedInAChannel(userId, channelId);
-  }
+  // @Get('get-invite/:id')
+  // getIsInvitedInAChannel(
+  //   @GetCurrentUserId() userId: string,
+  //   @Param('id') channelId: string,
+  // ) {
+  //   return this.channelService.getIsInvitedInAChannel(userId, channelId);
+  // }
 
   @Get('get-invitable-users/:id')
   getInvitableUsers(
