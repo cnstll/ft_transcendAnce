@@ -24,7 +24,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const currentLocation = useLocation();
   const queryClient = useQueryClient();
   const friendsListQueryKey = 'friendsList';
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -53,7 +53,12 @@ function Navbar({ text, avatarImg }: BannerProps) {
     });
 
     const inviteListener = (challenger: User) => {
-      confirm(`${challenger.nickname} has challenged you!`) ? navigate('/play'): socket.emit('refuseInvite', challenger);
+      if (confirm(`${challenger.nickname} has challenged you!`)) {
+        socket.emit('acceptInvite', challenger);
+        navigate('/play');
+      } else {
+        socket.emit('refuseInvite', challenger);
+      }
     };
     socket.on('invitedToGame', inviteListener);
 
@@ -61,7 +66,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
       alert(alertContent);
       navigate('/');
     });
-
 
     return () => {
       socket.off('userDisconnected');
@@ -71,7 +75,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
       socket.off('invitedToGame');
       socket.off('inviteRefused');
     };
-
   }, [socket]);
 
   return (
