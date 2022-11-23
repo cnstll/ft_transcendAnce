@@ -13,6 +13,7 @@ import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorato
 import { CreateChannelDto, EditChannelDto } from './dto';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
+import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 
 enum acknoledgementStatus {
@@ -89,7 +90,7 @@ export class ChannelGateway {
       clientSocket,
     );
     typeof joinedRoom === 'string'
-      ? this.server.to(clientSocket.id).emit('joinRoomPWDFailed', joinedRoom)
+      ? this.server.to(clientSocket.id).emit('joinRoomError', joinedRoom)
       : typeof joinedRoom === null
       ? this.server.to(clientSocket.id).emit('joinRoomFailed')
       : this.server
@@ -158,7 +159,6 @@ export class ChannelGateway {
     @MessageBody('leaveInfo') leaveChannelDto: LeaveChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    // console.log(clientSocket.rooms, leaveChannelDto, clientSocket.id);
     const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
@@ -170,6 +170,27 @@ export class ChannelGateway {
         .to(leaveChannelDto.id)
         .emit('roomLeft', { userId: userId, channelId: leaveChannelDto.id });
       clientSocket.leave(leaveChannelDto.id);
+    }
+  }
+
+  // Invite other users to a private channel
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('inviteToChannel')
+  async inviteToChannel(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('inviteInfo') inviteChannelDto: InviteChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const inviteToChannel = await this.channelService.inviteToChannelWS(
+      userId,
+      inviteChannelDto,
+    );
+    if (inviteToChannel == null || typeof inviteToChannel === 'string') {
+      this.server.to(clientSocket.id).emit('inviteFailed', inviteToChannel);
+    } else {
+      this.server
+        .to([clientSocket.id, inviteChannelDto.channelId])
+        .emit('inviteSucceeded', inviteToChannel);
     }
   }
 }
