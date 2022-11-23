@@ -13,11 +13,18 @@ import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorato
 import { SocketToUserIdStorage } from './socketToUserIdStorage.service';
 import { UserService } from './user.service';
 
-@WebSocketGateway({
+@WebSocketGateway(3333, {
   cors: {
-    origin: 'http://localhost:8080',
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.BACKEND_URL,
+      process.env.DOMAIN,
+      process.env.PUBLIC_URL,
+      'http://localhost',
+    ],
     credentials: true,
   },
+  parser: require('socket.io-msgpack-parser'),
 })
 @UseGuards(JwtAuthGuard)
 export class UserGateway {
