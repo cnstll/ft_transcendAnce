@@ -10,7 +10,6 @@ interface InviteToPlayProps {
 function InviteToPlay({ user, setIsShown }: InviteToPlayProps) {
   const navigate = useNavigate();
   const onInvite = () => {
-    console.log('this is me senging my invite')
     setIsShown(false);
     socket.emit('createInvitationGame', {mode: 'CLASSIC', opponent: user.id});
     navigate('/play');
