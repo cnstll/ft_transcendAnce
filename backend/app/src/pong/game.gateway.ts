@@ -10,7 +10,7 @@ import { GameService } from './game.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { Body, UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
-import { GameMode } from './entities/game.entities';
+import { FrontendUser, GameMode } from './entities/game.entities';
 
 @WebSocketGateway(3333, {
   cors: {
@@ -61,9 +61,8 @@ export class GameGateway {
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('refuseInvite')
   refuseGameInvite(
-    @Body() challenger: any,
+    @Body() challenger: FrontendUser,
     @ConnectedSocket() client: Socket,
-    @GetCurrentUserId() playerOneId: string,
   ) {
     this.gameService.cancelInvite(client, challenger.id);
   }

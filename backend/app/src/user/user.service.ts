@@ -127,26 +127,10 @@ export class UserService {
     }
   }
 
-  async getUserInfo(userId: string): Promise<any | undefined> {
+  async getUserInfo(userId: string): Promise<User | undefined> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
-      },
-      select: {
-        // id: string;
-        // avatarImg: string;
-        // nickname: string;
-        // eloScore: number;
-        // status: UserConnectionStatus;
-        // twoFactorAuthenticationSet: boolean;
-        // twoFactorAuthenticationSecret: string;
-        id: true,
-        avatarImg: true,
-        nickname: true,
-        eloScore: true,
-        status: true,
-        twoFactorAuthenticationSet: true,
-        twoFactorAuthenticationSecret: true,
       },
       //TODO select useful info
     });

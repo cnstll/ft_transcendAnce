@@ -34,7 +34,9 @@ export class GameService {
 
   cancelInvite(client: Socket, userId: string) {
     const challengerSocket = socketToUserId.getFromUserId(userId);
-    client.to(challengerSocket).emit('inviteRefused');
+    client
+      .to(challengerSocket)
+      .emit('inviteRefused', "invite refused, they can't handle you");
     this.GameMap.delete(userId);
   }
 
@@ -45,6 +47,16 @@ export class GameService {
     p2id: string,
     gameMode: GameMode,
   ) {
+    const opponentSocket = socketToUserId.getFromUserId(p2id);
+    if (this.GameMap.getGame(p2id) !== null) {
+      server
+        .to(client.id)
+        .emit(
+          'inviteRefused',
+          'Your opponent already has an invite pending, try again later',
+        );
+      return;
+    }
     const challenger = await this.prismaService.user.findUnique({
       where: {
         id: p1id,
@@ -62,7 +74,6 @@ export class GameService {
 
     this.createGame(p1id, gameMode, p2id);
     this.join(client, p1id, server, gameMode);
-    const opponentSocket = socketToUserId.getFromUserId(p2id);
     client.to(opponentSocket).emit('invitedToGame', challenger);
   }
 
