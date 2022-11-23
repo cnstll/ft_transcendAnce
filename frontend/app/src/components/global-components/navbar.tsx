@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { apiUrl, User } from '../global-components/interface';
@@ -24,6 +24,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const currentLocation = useLocation();
   const queryClient = useQueryClient();
   const friendsListQueryKey = 'friendsList';
+  const navigate = useNavigate(); 
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -50,12 +51,27 @@ function Navbar({ text, avatarImg }: BannerProps) {
     socket.on('userGameEnded', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
     });
+
+    const inviteListener = (challenger: User) => {
+      confirm(`${challenger.nickname} has challenged you!`) ? navigate('/play'): socket.emit('refuseInvite', challenger);
+    };
+    socket.on('invitedToGame', inviteListener);
+
+    socket.on('inviteRefused', (alertContent: string): void => {
+      alert(alertContent);
+      navigate('/');
+    });
+
+
     return () => {
       socket.off('userDisconnected');
       socket.off('userConnected');
       socket.off('userInGame');
       socket.off('userGameEnded');
+      socket.off('invitedToGame');
+      socket.off('inviteRefused');
     };
+
   }, [socket]);
 
   return (
