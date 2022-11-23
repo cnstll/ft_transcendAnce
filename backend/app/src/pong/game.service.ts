@@ -170,7 +170,7 @@ export class GameService {
       this.gameInfo.verify(payload);
       const message = this.gameInfo.create(payload);
       const encoded = this.gameInfo.encode(message).finish();
-      server.to(gameRoomId).volatile.emit('GI', encoded);
+      server.to(gameRoomId).volatile.timeout(5000).emit('GI', encoded);
     };
 
     const interval = setInterval(callback, milliseconds);
