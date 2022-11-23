@@ -5,6 +5,19 @@ import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
 import { GameCoords, GameStatus } from '../../global-components/interface';
 import { GameInfo, PlayerInfo } from '../../../proto/file_pb';
+import { draw } from 'src/components/custom-hooks/draw';
+
+
+  const gameConstants = {
+    relativeGameWidth: 1000,
+    relativeMiddle: 500,
+    relativeGameHeight: 1000,
+    player1PaddlePosX: 80,
+    player2PaddlePosX: 920,
+    paddleWidth: 10,
+    paddleHeight: 100,
+    ballHeight: 10,
+  };
 
 interface GameProps {
   gameMode: string;
@@ -52,32 +65,51 @@ function PlayerAvatar({
   );
 }
 
+interface GameInformation {
+  p1x: number,
+  p2x: number,
+  gameCoordinates: GameCoords,
+  ballWidth: number,
+  heightScalar: number,
+  widthScalar: number,
+  paddleWidth: number,
+  paddleHeight: number,
+  canvas: HTMLCanvasElement | null,
+  context: CanvasRenderingContext2D | null, 
+  cacheCanvas: OffscreenCanvas | null,
+}
+
+const gameCoordinates: GameCoords = {
+  p1y: 0,
+  p2y: 0,
+  bx: 0,
+  by: 0,
+  p1s: 0, 
+  p2s: 0, 
+};
+
+const gameInfo: GameInformation = {
+  p1x: 0,
+  p2x: 0,
+  gameCoordinates: gameCoordinates,
+  ballWidth: 10,
+  heightScalar: 0,
+  widthScalar: 0,
+  paddleWidth: 0,
+  paddleHeight: 0,
+  canvas: null,
+  context: null,
+  cacheCanvas: null,
+};
+
 function Game({ gameMode, avatarImg, userId }: GameProps) {
+
   const message = new PlayerInfo();
   let encodedMessage;
-  let gameCoordinates: GameCoords;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const navigate = useNavigate();
-  let heightScalar: number;
-  let widthScalar: number;
-  let p1x: number;
-  let p2x: number;
-  let ballWidth: number;
-  let paddleWidth: number;
-  let paddleHeight: number;
-  const gameConstants = {
-    relativeGameWidth: 1000,
-    relativeMiddle: 500,
-    relativeGameHeight: 1000,
-    player1PaddlePosX: 80,
-    player2PaddlePosX: 920,
-    paddleWidth: 10,
-    paddleHeight: 100,
-    ballHeight: 10,
-  };
-  // const cacheCanvasRef= useRef<HTMLCanvasElement>(null);
-  let cacheCanvas: OffscreenCanvas;
+  // let cacheCanvas: OffscreenCanvas;
   const [playerOneScore, setPlayerOneScore] = useState<number | undefined>(
     undefined,
   );
@@ -102,7 +134,8 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    gameInfo.canvas = canvasRef.current;
+    if (gameInfo.canvas !== null) {
 
     const joinListener = (text: {
       gameId: string;
@@ -116,7 +149,6 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         setGameStatus(GameStatus.PENDING);
       } else if (text.status === 'DONE') {
         setGameStatus(GameStatus.DONE);
-        if (location)
         navigate('/profile');
       } else if (text.status === 'OVER') {
         setPlayerOneScore(text.player1score);
@@ -132,76 +164,77 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
 
     socket.on('gameStatus', joinListener);
 
-    if (canvas !== null) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight / 2;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight / 2}px`;
+      gameInfo.canvas.width = window.innerWidth;
+      gameInfo.canvas.height = window.innerHeight / 2;
+      gameInfo.canvas.style.width = `${window.innerWidth}px`;
+      gameInfo.canvas.style.height = `${window.innerHeight / 2}px`;
 
+      gameInfo.cacheCanvas = new OffscreenCanvas(gameInfo.canvas.width, gameInfo.canvas.height);
       // this canvas is used for static elements so as to not have to repeat these operations every frame
-      cacheCanvas = new OffscreenCanvas(canvas.width, canvas.height);
-      const cacheContext = cacheCanvas.getContext('2d');
+      const cacheContext = gameInfo.cacheCanvas.getContext('2d');
       if (cacheContext) {
         cacheContext.fillStyle = 'black';
-        cacheContext.fillRect(0, 0, canvas.width, canvas.height);
+        cacheContext.fillRect(0, 0, gameInfo.canvas.width, gameInfo.canvas.height);
         cacheContext.strokeStyle = 'white';
         cacheContext.setLineDash([10, 10]);
-        cacheContext.moveTo(canvas.width / 2, 0);
-        cacheContext.lineTo(canvas.width / 2, canvas.height);
+        cacheContext.moveTo(gameInfo.canvas.width / 2, 0);
+        cacheContext.lineTo(gameInfo.canvas.width / 2, gameInfo.canvas.height);
         cacheContext.stroke();
       }
 
-      heightScalar =
+ gameInfo.heightScalar =
         window.innerHeight / (2 * gameConstants.relativeGameHeight);
-      widthScalar = window.innerWidth / gameConstants.relativeGameWidth;
-      paddleWidth = widthScalar * gameConstants.paddleWidth;
-      p1x = widthScalar * gameConstants.player1PaddlePosX - paddleWidth;
-      p2x = widthScalar * gameConstants.player2PaddlePosX;
-      ballWidth = widthScalar * gameConstants.ballHeight;
-      paddleHeight = heightScalar * gameConstants.paddleHeight;
-      const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
-      if (context !== null) {
+
+      gameInfo.widthScalar = window.innerWidth / gameConstants.relativeGameWidth;
+      gameInfo.paddleWidth = gameInfo.widthScalar * gameConstants.paddleWidth;
+      gameInfo.p1x = gameInfo.widthScalar * gameConstants.player1PaddlePosX - gameInfo.paddleWidth;
+      gameInfo.p2x = gameInfo.widthScalar * gameConstants.player2PaddlePosX;
+      gameInfo.ballWidth = gameInfo.widthScalar * gameConstants.ballHeight;
+      gameInfo.paddleHeight = gameInfo.heightScalar * gameConstants.paddleHeight;
+
+      gameInfo.context = gameInfo.canvas.getContext('2d');
+      if (gameInfo.context !== null) {
         // this size is used to have a relative font size
         const size = 0.03 * window.innerWidth;
-        context.textBaseline = 'middle';
+        gameInfo.context.textBaseline = 'middle';
         //Center Horizontally
-        context.textAlign = 'center';
-        contextRef.current = context;
-        context.drawImage(cacheCanvas, 0, 0);
-        context.setLineDash([10, 10]);
-        context.moveTo(canvas.width / 2, 0);
-        context.lineTo(canvas.width / 2, canvas.height);
-        context.fillStyle = 'black';
-        context.fillRect(0, 0, canvas.width / 2, canvas.height);
+        gameInfo.context.textAlign = 'center';
+        contextRef.current = gameInfo.context;
+        gameInfo.context.drawImage(gameInfo.cacheCanvas, 0, 0);
+        gameInfo.context.setLineDash([10, 10]);
+        gameInfo.context.moveTo(gameInfo.canvas.width / 2, 0);
+        gameInfo.context.lineTo(gameInfo.canvas.width / 2, gameInfo.canvas.height);
+        gameInfo.context.fillStyle = 'black';
+        gameInfo.context.fillRect(0, 0, gameInfo.canvas.width / 2, gameInfo.canvas.height);
 
         switch (gameStatus) {
           case GameStatus.PENDING:
-            context.font = size.toString() + 'px Aldrich';
-            context.fillStyle = 'green';
-            context.fillText(
+            gameInfo.context.font = size.toString() + 'px Aldrich';
+            gameInfo.context.fillStyle = 'green';
+            gameInfo.context.fillText(
               'Waiting for a partner...',
-              canvas.width / 2,
-              canvas.height / 2,
+              gameInfo.canvas.width / 2,
+              gameInfo.canvas.height / 2,
             );
             break;
 
           case GameStatus.PAUSED:
-            context.font = size.toString() + 'px Aldrich';
-            context.fillStyle = 'green';
-            context.fillText(
+            gameInfo.context.font = size.toString() + 'px Aldrich';
+            gameInfo.context.fillStyle = 'green';
+            gameInfo.context.fillText(
               'Opponent disconnected',
               window.innerWidth / 2,
-              canvas.height / 2 - canvas.height / 8,
+              gameInfo.canvas.height / 2 - gameInfo.canvas.height / 8,
             );
-            context.fillText(
+            gameInfo.context.fillText(
               'You will win by default in 10s',
               window.innerWidth / 2,
-              canvas.height / 2 + canvas.height / 8,
+              gameInfo.canvas.height / 2 + gameInfo.canvas.height / 8,
             );
             break;
 
           case GameStatus.OVER:
-            context.font = size.toString() + 'px Aldrich';
+            gameInfo.context.font = size.toString() + 'px Aldrich';
             if (
               (playerOneScore === 10 && playerNumber === 1) ||
               (playerOneScore !== 10 && playerNumber === 2)
@@ -209,34 +242,26 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
               contextRef.current.fillStyle = 'green';
               contextRef.current.fillText(
                 'Congratulations, you won!',
-                canvas.width / 2,
-                canvas.height / 2,
+                gameInfo.canvas.width / 2,
+                gameInfo.canvas.height / 2,
               );
             } else {
               contextRef.current.fillStyle = 'red';
               contextRef.current.fillText(
                 'Sorry, you lost!',
-                canvas.width / 2,
-                canvas.height / 2,
+                gameInfo.canvas.width / 2,
+                gameInfo.canvas.height / 2,
               );
             }
             break;
         }
 
         const messageListener = (encoded: Uint8Array) => {
-          // timestamp = window.performance.now();
-          // if (start === undefined) {
-          //   start = timestamp;
-          // }
-          //
           try {
-            gameCoordinates = GameInfo.deserializeBinary(encoded).toObject();
-            //   if (timestamp - previousTimeStamp > 30 )
-            // {
-            //     console.log(timestamp - previousTimeStamp)
-            //   }
-            //   previousTimeStamp = timestamp;
-            window.requestAnimationFrame(draw);
+            gameInfo.gameCoordinates = GameInfo.deserializeBinary(encoded).toObject();
+            window.requestAnimationFrame(function() {
+              draw(gameInfo);
+            });
           } catch (e) {
             console.log(e);
           }
@@ -253,177 +278,109 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     return;
   }, [window.innerWidth, window.innerHeight, gameStatus]);
 
-  function draw() {
-    if (contextRef.current && canvasRef.current) {
-      contextRef.current.drawImage(cacheCanvas, 0, 0);
-
-      // drawing the paddles
-      contextRef.current.fillStyle = 'white';
-      contextRef.current.fillRect(
-        p1x,
-        heightScalar * gameCoordinates.p1y - paddleHeight / 2,
-        paddleWidth,
-        paddleHeight,
-      );
-      contextRef.current.fillRect(
-        p2x,
-        heightScalar * gameCoordinates.p2y - paddleHeight / 2,
-        paddleWidth,
-        paddleHeight,
-      );
-
-      if (gameCoordinates.p1s < 10) {
-        contextRef.current.font = '30px Aldrich';
-        contextRef.current.fillStyle = 'white';
-        contextRef.current.fillText(
-          '0' + gameCoordinates.p1s.toString(),
-          canvasRef.current.width / 2 - 100,
-          50,
-        );
-      }
-      if (gameCoordinates.p2s < 10) {
-        contextRef.current.font = '30px Aldrich';
-        contextRef.current.fillStyle = 'white';
-        contextRef.current.fillText(
-          '0' + gameCoordinates.p2s.toString(),
-          canvasRef.current.width / 2 + 100,
-          50,
-        );
-      }
-      if (gameCoordinates.p1s === 10) {
-        contextRef.current.font = '30px Aldrich';
-        contextRef.current.fillStyle = 'white';
-        contextRef.current.fillText(
-          gameCoordinates.p1s.toString(),
-          canvasRef.current.width / 2 - 100,
-          50,
-        );
-      }
-      if (gameCoordinates.p2s === 10) {
-        contextRef.current.font = '30px Aldrich';
-        contextRef.current.fillStyle = 'white';
-        contextRef.current.fillText(
-          gameCoordinates.p2s.toString(),
-          canvasRef.current.width / 2 + 100,
-          50,
-        );
-      }
-      //drawing the ball
-      contextRef.current.fillStyle = 'yellow';
-      contextRef.current.fillRect(
-        widthScalar * (gameCoordinates.bx - ballWidth / 2),
-        heightScalar * gameCoordinates.by,
-        ballWidth,
-        ballWidth,
-      );
-    }
-  }
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
     const clientY = event.clientY;
 
     if (contextRef.current !== null && canvasRef.current !== null) {
-      //Center vertically
       contextRef.current.textBaseline = 'middle';
-      //Center Horizontally
       contextRef.current.textAlign = 'center';
-      const size = 0.03 * canvasRef.current.width;
+      // const size = 0.03 * canvasRef.current.width;
       const rect = canvasRef.current.getBoundingClientRect();
       const posy: number = Math.round(
         ((clientY - rect.top) / canvasRef.current.height) *
           gameConstants.relativeGameWidth,
       );
+
       switch (gameStatus) {
         case GameStatus.PLAYING:
-          // message = new PlayerInfo();
           message.setYpos(posy);
           encodedMessage = message.serializeBinary();
-          // console.log('hi im here', encodedMessage)
           socket.volatile.emit('PP', encodedMessage.buffer);
           break;
 
-        case GameStatus.PENDING:
-          contextRef.current.fillStyle = 'black';
-          contextRef.current.fillRect(
-            0,
-            0,
-            canvasRef.current.width / 2,
-            canvasRef.current.height,
-          );
-          contextRef.current.font = size.toString() + 'px Aldrich';
-          contextRef.current.fillStyle = 'green';
-          contextRef.current.fillText(
-            'Waiting for a partner...',
-            canvasRef.current.width / 2,
-            canvasRef.current.height / 2,
-          );
-          contextRef.current.fillStyle = 'white';
-          contextRef.current.fillRect(
-            50,
-            clientY - rect.top - paddleHeight / 2,
-            10,
-            paddleHeight,
-          );
-          break;
+        // case GameStatus.PENDING:
+        //   contextRef.current.fillStyle = 'black';
+        //   contextRef.current.fillRect(
+        //     0,
+        //     0,
+        //     canvasRef.current.width / 2,
+        //     canvasRef.current.height,
+        //   );
+        //   contextRef.current.font = size.toString() + 'px Aldrich';
+        //   contextRef.current.fillStyle = 'green';
+        //   contextRef.current.fillText(
+        //     'Waiting for a partner...',
+        //     canvasRef.current.width / 2,
+        //     canvasRef.current.height / 2,
+        //   );
+        //   contextRef.current.fillStyle = 'white';
+        //   contextRef.current.fillRect(
+        //     50,
+        //     clientY - rect.top - gameInfo.paddleHeight / 2,
+        //     10,
+        //     gameInfo.paddleHeight,
+        //   );
+        //   break;
 
-        case GameStatus.PAUSED:
-          contextRef.current.fillStyle = 'black';
-          contextRef.current.fillRect(
-            0,
-            0,
-            canvasRef.current.width / 2,
-            canvasRef.current.height,
-          );
-          contextRef.current.font = size.toString() + 'px Aldrich';
-          contextRef.current.fillStyle = 'green';
-          contextRef.current.fillText(
-            'Opponent disconnected',
-            canvasRef.current.width / 2,
-            canvasRef.current.height / 2 - canvasRef.current.height / 8,
-          );
-          contextRef.current.fillText(
-            'You will win by default in 10s',
-            canvasRef.current.width / 2,
-            canvasRef.current.height / 2 + canvasRef.current.height / 8,
-          );
-          contextRef.current.fillStyle = 'white';
-          contextRef.current.fillRect(
-            50,
-            clientY - rect.top - paddleHeight / 2,
-            10,
-            paddleHeight,
-          );
-          break;
+        // case GameStatus.PAUSED:
+        //   contextRef.current.fillStyle = 'black';
+        //   contextRef.current.fillRect(
+        //     0,
+        //     0,
+        //     canvasRef.current.width / 2,
+        //     canvasRef.current.height,
+        //   );
+        //   contextRef.current.font = size.toString() + 'px Aldrich';
+        //   contextRef.current.fillStyle = 'green';
+        //   contextRef.current.fillText(
+        //     'Opponent disconnected',
+        //     canvasRef.current.width / 2,
+        //     canvasRef.current.height / 2 - canvasRef.current.height / 8,
+        //   );
+        //   contextRef.current.fillText(
+        //     'You will win by default in 10s',
+        //     canvasRef.current.width / 2,
+        //     canvasRef.current.height / 2 + canvasRef.current.height / 8,
+        //   );
+        //   contextRef.current.fillStyle = 'white';
+        //   contextRef.current.fillRect(
+        //     50,
+        //     clientY - rect.top - gameInfo.paddleHeight / 2,
+        //     10,
+        //     gameInfo.paddleHeight,
+        //   );
+        //   break;
 
-        case GameStatus.OVER:
-          contextRef.current.fillStyle = 'black';
-          contextRef.current.fillRect(
-            0,
-            0,
-            canvasRef.current.width / 2,
-            canvasRef.current.height,
-          );
-          contextRef.current.font = size.toString() + 'px Aldrich';
-          console.log(playerOneScore);
-          console.log(playerNumber);
-          if (
-            (playerOneScore === 10 && playerNumber === 1) ||
-            (playerOneScore !== 10 && playerNumber === 2)
-          ) {
-            contextRef.current.fillStyle = 'green';
-            contextRef.current.fillText(
-              'Congratulations, you won!',
-              canvasRef.current.width / 2,
-              canvasRef.current.height / 2,
-            );
-          } else {
-            contextRef.current.fillStyle = 'red';
-            contextRef.current.fillText(
-              'Sorry, you lost!',
-              canvasRef.current.width / 2,
-              canvasRef.current.height / 2,
-            );
-          }
-          break;
+        // case GameStatus.OVER:
+        //   contextRef.current.fillStyle = 'black';
+        //   contextRef.current.fillRect(
+        //     0,
+        //     0,
+        //     canvasRef.current.width / 2,
+        //     canvasRef.current.height,
+        //   );
+        //   contextRef.current.font = size.toString() + 'px Aldrich';
+        //   console.log(playerOneScore);
+        //   console.log(playerNumber);
+        //   if (
+        //     (playerOneScore === 10 && playerNumber === 1) ||
+        //     (playerOneScore !== 10 && playerNumber === 2)
+        //   ) {
+        //     contextRef.current.fillStyle = 'green';
+        //     contextRef.current.fillText(
+        //       'Congratulations, you won!',
+        //       canvasRef.current.width / 2,
+        //       canvasRef.current.height / 2,
+        //     );
+        //   } else {
+        //     contextRef.current.fillStyle = 'red';
+        //     contextRef.current.fillText(
+        //       'Sorry, you lost!',
+        //       canvasRef.current.width / 2,
+        //       canvasRef.current.height / 2,
+        //     );
+        //   }
+        //   break;
       }
     }
   }
