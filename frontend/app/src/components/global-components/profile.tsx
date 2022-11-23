@@ -28,17 +28,16 @@ function Profile() {
     if (user.isError) navigate('/sign-in');
   });
 
-  console.log("mydata : ", id, usersData.data?.find(
-    (otherUser) => otherUser.nickname === id,
-  ));
+  if (id &&
+    usersData.data &&
+    !usersData.data.find(
+      (otherUser) => otherUser.nickname === id,
+    )) {
+      return <PageNotFound />;
+    }
 
   return (
     <>
-      {(id &&
-        usersData.data &&
-        !usersData.data.find(
-          (otherUser) => otherUser.nickname === id,
-        )) && <PageNotFound />}
       {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <div>

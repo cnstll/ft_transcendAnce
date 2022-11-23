@@ -43,12 +43,10 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
-    // Connect to a room before sending any message
-    // TODO : Add a pop up to enter password
+
     if (activeChannel) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
-        channelPassword: '',
       });
     }
 
