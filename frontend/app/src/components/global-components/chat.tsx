@@ -86,10 +86,10 @@ function Chat() {
             </SideBox>
             <CenterBox>
               <div
-                className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
+                className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                 style={{ backgroundImage: `url(${BackgroundGeneral})` }}
               >
-                <div className="flex">
+                <div className="flex sticky top-0 backdrop-blur-sm bg-gray-900/50">
                   <div className="flex-1">
                     <h2 className="flex justify-center p-5 font-bold">
                       {channels.isSuccess &&
@@ -108,10 +108,12 @@ function Chat() {
                     </DropDownButton>
                   </div>
                 </div>
-                <DisplayMessages
-                  userId={user.data.id}
-                  channelId={activeChannelId}
-                />
+                <div className='snap-end'>
+                  <DisplayMessages
+                    userId={user.data.id}
+                    channelId={activeChannelId}
+                  />
+                </div>
               </div>
             </CenterBox>
             <SideBox>
