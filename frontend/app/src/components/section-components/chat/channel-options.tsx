@@ -5,6 +5,7 @@ import { Channel, User, channelRole } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
 import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels';
+import InviteModal from './invite-modal';
 
 /* review datafetching of role in channel to not refetch multiple times */
 
@@ -19,7 +20,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const navigate = useNavigate();
   const channelsQueryKey = 'channelsByUserList';
   const userQueryKey = 'userData';
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+  const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
   const channelsQueryData: Channel[] | undefined =
     queryClient.getQueryData(channelsQueryKey);
@@ -63,7 +65,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   }, []);
 
   function leaveChannel(channelInfo: Channel) {
-    console.log('checkpoint emit leaveRoom');
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
   }
 
@@ -75,8 +76,12 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
     }
   }
 
-  function handleModal() {
-    setShowModal(!showModal);
+  function handleEditModal() {
+    setShowEditModal(!showEditModal);
+  }
+
+  function handleInviteModal() {
+    setShowInviteModal(!showInviteModal);
   }
 
   const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
@@ -92,15 +97,15 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRole.data?.role === channelRole.Owner ? (
-          <div className="z-index-20">
-            <div onClick={handleModal}>
+        {myRole.data?.role === channelRole.Owner ?
+        (<div className="z-index-20">
+            <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
             <div>
-              {showModal && (
+              {showEditModal && (
                 <EditChannelForm
-                  setShowModal={setShowModal}
+                  setShowModal={setShowEditModal}
                   currentChannel={channelInfo}
                   setIsShown={setIsShown}
                 />
@@ -108,9 +113,22 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        <Link to="/">
-          <p className="text-center hover:underline my-2">Invite user</p>
-        </Link>
+        {(myRole.data?.role === channelRole.Owner ||
+          myRole.data?.role === channelRole.Admin) ?
+          (<div className="z-index-20">
+            <div onClick={handleInviteModal}>
+              <p className="text-center hover:underline my-2">Invite members</p>
+            </div>
+            <div>
+              {showInviteModal && (
+                <InviteModal
+                  setShowModal={setShowInviteModal}
+                  channel={channelInfo}
+                />
+              )}
+            </div>
+          </div>
+        ) : null}
         <Link to="/">
           <p className="text-center hover:underline my-2">Ban user</p>
         </Link>
