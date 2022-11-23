@@ -3,8 +3,8 @@ import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
-import {  GameCoords, GameStatus } from '../../global-components/interface';
-import {GameInfo, PlayerInfo} from '../../../proto/file_pb'
+import { GameCoords, GameStatus } from '../../global-components/interface';
+import { GameInfo, PlayerInfo } from '../../../proto/file_pb';
 
 interface GameProps {
   gameMode: string;
@@ -30,37 +30,37 @@ function PlayerAvatar({
           <img
             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
             src={currentPlayerAvatar}
-            />
+          />
           <img
             className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
             src={opponentAvatar}
-            />
+          />
         </div>
       ) : (
-          <div className="flex flex-row justify-between mt-4">
-            <img
-              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-              src={opponentAvatar}
-              />
-            <img
-              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-              src={currentPlayerAvatar}
-              />
-          </div>
-        )}
-      </>
+        <div className="flex flex-row justify-between mt-4">
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={opponentAvatar}
+          />
+          <img
+            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+            src={currentPlayerAvatar}
+          />
+        </div>
+      )}
+    </>
   );
 }
 
-function Game ({ gameMode, avatarImg, userId}: GameProps) {
+function Game({ gameMode, avatarImg, userId }: GameProps) {
   const message = new PlayerInfo();
   let encodedMessage;
   let gameCoordinates: GameCoords;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const navigate = useNavigate();
-  let heightScalar: number;  
-  let widthScalar: number ; 
+  let heightScalar: number;
+  let widthScalar: number;
   let p1x: number;
   let p2x: number;
   let ballWidth: number;
@@ -110,13 +110,16 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
       winner: string;
       player1id: string;
       player2id: string;
+      player1score: number;
     }) => {
       if (text.status === 'PENDING') {
         setGameStatus(GameStatus.PENDING);
       } else if (text.status === 'DONE') {
         setGameStatus(GameStatus.DONE);
+        if (location)
         navigate('/profile');
       } else if (text.status === 'OVER') {
+        setPlayerOneScore(text.player1score);
         setGameStatus(GameStatus.OVER);
       } else if (text.status === 'PLAYING') {
         setGameStatus(GameStatus.PLAYING);
@@ -130,17 +133,17 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
     socket.on('gameStatus', joinListener);
 
     if (canvas !== null) {
-      canvas.width = window.innerWidth ;
+      canvas.width = window.innerWidth;
       canvas.height = window.innerHeight / 2;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight / 2}px`;
 
       // this canvas is used for static elements so as to not have to repeat these operations every frame
-      cacheCanvas = new OffscreenCanvas(canvas.width, canvas.height); 
+      cacheCanvas = new OffscreenCanvas(canvas.width, canvas.height);
       const cacheContext = cacheCanvas.getContext('2d');
-      if (cacheContext){
+      if (cacheContext) {
         cacheContext.fillStyle = 'black';
-        cacheContext.fillRect(0 , 0,canvas.width, canvas.height);
+        cacheContext.fillRect(0, 0, canvas.width, canvas.height);
         cacheContext.strokeStyle = 'white';
         cacheContext.setLineDash([10, 10]);
         cacheContext.moveTo(canvas.width / 2, 0);
@@ -148,8 +151,9 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
         cacheContext.stroke();
       }
 
-      heightScalar = window.innerHeight / (2 * gameConstants.relativeGameHeight);
-      widthScalar = window.innerWidth / (gameConstants.relativeGameWidth);
+      heightScalar =
+        window.innerHeight / (2 * gameConstants.relativeGameHeight);
+      widthScalar = window.innerWidth / gameConstants.relativeGameWidth;
       paddleWidth = widthScalar * gameConstants.paddleWidth;
       p1x = widthScalar * gameConstants.player1PaddlePosX - paddleWidth;
       p2x = widthScalar * gameConstants.player2PaddlePosX;
@@ -163,7 +167,7 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
         //Center Horizontally
         context.textAlign = 'center';
         contextRef.current = context;
-        context.drawImage(cacheCanvas,0,0);
+        context.drawImage(cacheCanvas, 0, 0);
         context.setLineDash([10, 10]);
         context.moveTo(canvas.width / 2, 0);
         context.lineTo(canvas.width / 2, canvas.height);
@@ -200,7 +204,7 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
             context.font = size.toString() + 'px Aldrich';
             if (
               (playerOneScore === 10 && playerNumber === 1) ||
-                (playerOneScore !== 10 && playerNumber === 2)
+              (playerOneScore !== 10 && playerNumber === 2)
             ) {
               contextRef.current.fillStyle = 'green';
               contextRef.current.fillText(
@@ -226,15 +230,14 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
           // }
           //
           try {
-          gameCoordinates =  GameInfo.deserializeBinary(encoded).toObject();
-        //   if (timestamp - previousTimeStamp > 30 )
-        // {
-        //     console.log(timestamp - previousTimeStamp)
-        //   }
-        //   previousTimeStamp = timestamp;
-          window.requestAnimationFrame(draw);
+            gameCoordinates = GameInfo.deserializeBinary(encoded).toObject();
+            //   if (timestamp - previousTimeStamp > 30 )
+            // {
+            //     console.log(timestamp - previousTimeStamp)
+            //   }
+            //   previousTimeStamp = timestamp;
+            window.requestAnimationFrame(draw);
           } catch (e) {
-            
             console.log(e);
           }
         };
@@ -243,60 +246,80 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
 
         return () => {
           socket.off('GI', messageListener);
+          socket.off('gameStatus', joinListener);
         };
       }
     }
     return;
-  }, [window.innerWidth, window.innerHeight, gameStatus ]);
+  }, [window.innerWidth, window.innerHeight, gameStatus]);
 
-          function draw() {
-            if (contextRef.current && canvasRef.current) {
-              contextRef.current.drawImage(cacheCanvas, 0,0);
+  function draw() {
+    if (contextRef.current && canvasRef.current) {
+      contextRef.current.drawImage(cacheCanvas, 0, 0);
 
-              // drawing the paddles
-              contextRef.current.fillStyle = 'white';
-              contextRef.current.fillRect(p1x, heightScalar * gameCoordinates.p1y - (paddleHeight / 2 ), paddleWidth, paddleHeight);
-              contextRef.current.fillRect(p2x, heightScalar * gameCoordinates.p2y - (paddleHeight/2), paddleWidth, paddleHeight);
+      // drawing the paddles
+      contextRef.current.fillStyle = 'white';
+      contextRef.current.fillRect(
+        p1x,
+        heightScalar * gameCoordinates.p1y - paddleHeight / 2,
+        paddleWidth,
+        paddleHeight,
+      );
+      contextRef.current.fillRect(
+        p2x,
+        heightScalar * gameCoordinates.p2y - paddleHeight / 2,
+        paddleWidth,
+        paddleHeight,
+      );
 
-              if (gameCoordinates.p1s == 10 || gameCoordinates.p2s == 10) {
-                setPlayerOneScore(gameCoordinates.p1s);
-              } 
-
-              if (gameCoordinates.p1s < 10) {
-                contextRef.current.font = '30px Aldrich';
-                contextRef.current.fillStyle = 'white';
-                contextRef.current.fillText(
-                  '0' + gameCoordinates.p1s.toString(),
-                  canvasRef.current.width / 2 - 100,
-                  50,
-                );
-              }
-              if (gameCoordinates.p2s < 10) {
-                contextRef.current.font = '30px Aldrich';
-                contextRef.current.fillStyle = 'white';
-                contextRef.current.fillText(
-                  '0' + gameCoordinates.p2s.toString(),
-                  canvasRef.current.width / 2 + 100,
-                  50,
-                );
-              }
-              if (gameCoordinates.p1s === 10) {
-                contextRef.current.font = '30px Aldrich';
-                contextRef.current.fillStyle = 'white';
-                contextRef.current.fillText(gameCoordinates.p1s.toString(), canvasRef.current.width / 2 - 100, 50);
-              }
-              if (gameCoordinates.p2s === 10) {
-                contextRef.current.font = '30px Aldrich';
-                contextRef.current.fillStyle = 'white';
-                contextRef.current.fillText(gameCoordinates.p2s.toString(), canvasRef.current.width / 2 + 100, 50);
-              }
-              //drawing the ball
-              contextRef.current.fillStyle = 'yellow';
-              contextRef.current.fillRect(widthScalar * (gameCoordinates.bx - ballWidth / 2) , heightScalar * gameCoordinates.by, ballWidth, ballWidth);
-            }
-          }
+      if (gameCoordinates.p1s < 10) {
+        contextRef.current.font = '30px Aldrich';
+        contextRef.current.fillStyle = 'white';
+        contextRef.current.fillText(
+          '0' + gameCoordinates.p1s.toString(),
+          canvasRef.current.width / 2 - 100,
+          50,
+        );
+      }
+      if (gameCoordinates.p2s < 10) {
+        contextRef.current.font = '30px Aldrich';
+        contextRef.current.fillStyle = 'white';
+        contextRef.current.fillText(
+          '0' + gameCoordinates.p2s.toString(),
+          canvasRef.current.width / 2 + 100,
+          50,
+        );
+      }
+      if (gameCoordinates.p1s === 10) {
+        contextRef.current.font = '30px Aldrich';
+        contextRef.current.fillStyle = 'white';
+        contextRef.current.fillText(
+          gameCoordinates.p1s.toString(),
+          canvasRef.current.width / 2 - 100,
+          50,
+        );
+      }
+      if (gameCoordinates.p2s === 10) {
+        contextRef.current.font = '30px Aldrich';
+        contextRef.current.fillStyle = 'white';
+        contextRef.current.fillText(
+          gameCoordinates.p2s.toString(),
+          canvasRef.current.width / 2 + 100,
+          50,
+        );
+      }
+      //drawing the ball
+      contextRef.current.fillStyle = 'yellow';
+      contextRef.current.fillRect(
+        widthScalar * (gameCoordinates.bx - ballWidth / 2),
+        heightScalar * gameCoordinates.by,
+        ballWidth,
+        ballWidth,
+      );
+    }
+  }
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
-    const clientY = event.clientY ;
+    const clientY = event.clientY;
 
     if (contextRef.current !== null && canvasRef.current !== null) {
       //Center vertically
@@ -305,15 +328,17 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
       contextRef.current.textAlign = 'center';
       const size = 0.03 * canvasRef.current.width;
       const rect = canvasRef.current.getBoundingClientRect();
-      const posy: number = Math.round(((clientY - rect.top) / (canvasRef.current.height )) * gameConstants.relativeGameWidth) ;
+      const posy: number = Math.round(
+        ((clientY - rect.top) / canvasRef.current.height) *
+          gameConstants.relativeGameWidth,
+      );
       switch (gameStatus) {
-
         case GameStatus.PLAYING:
           // message = new PlayerInfo();
           message.setYpos(posy);
           encodedMessage = message.serializeBinary();
           // console.log('hi im here', encodedMessage)
-          socket.volatile.emit('PP', encodedMessage.buffer); 
+          socket.volatile.emit('PP', encodedMessage.buffer);
           break;
 
         case GameStatus.PENDING:
@@ -378,9 +403,11 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
             canvasRef.current.height,
           );
           contextRef.current.font = size.toString() + 'px Aldrich';
+          console.log(playerOneScore);
+          console.log(playerNumber);
           if (
             (playerOneScore === 10 && playerNumber === 1) ||
-              (playerOneScore !== 10 && playerNumber === 2)
+            (playerOneScore !== 10 && playerNumber === 2)
           ) {
             contextRef.current.fillStyle = 'green';
             contextRef.current.fillText(
@@ -415,7 +442,7 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-            />
+          />
         )}
         {gameStatus === GameStatus.DONE && (
           <p className="text-white"> The game is over, you probably lost </p>
@@ -425,21 +452,21 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-            />
+          />
         )}
         {gameStatus === GameStatus.PENDING && (
           <canvas
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-            />
+          />
         )}
         {gameStatus === GameStatus.PAUSED && (
           <canvas
             onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
-            />
+          />
         )}
         {gameStatus === GameStatus.PLAYING &&
           opponent.isSuccess &&
@@ -448,7 +475,7 @@ function Game ({ gameMode, avatarImg, userId}: GameProps) {
               currentPlayerAvatar={avatarImg}
               opponentAvatar={opponent.data.avatarImg}
               playerNumber={playerNumber}
-              />
+            />
           )}
       </div>
     </div>

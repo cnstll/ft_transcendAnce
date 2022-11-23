@@ -43,16 +43,14 @@ export class ChannelGateway {
   async connectToChannel(
     @GetCurrentUserId() userId: string,
     @MessageBody('channelId') channelId: string,
-    @MessageBody('channelPassword') channelPassword: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const channel = await this.channelService.connectToChannel(
+    const userOnChannel = await this.channelService.connectToChannel(
       userId,
       channelId,
-      channelPassword,
       clientSocket,
     );
-    channel === null
+    userOnChannel === null
       ? this.server.to(clientSocket.id).emit('connectionFailed')
       : this.server.emit('connectedToRoom', channelId);
   }
