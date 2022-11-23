@@ -15,7 +15,7 @@ function UsersListItem({
   userListType,
 }: {
   user: User;
-  userListType: UserListType;
+  userListType?: UserListType;
 }) {
   const [isShown, setIsShown] = useState(false);
 
@@ -44,16 +44,18 @@ function UsersListItem({
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
       </div>
-      <div className="content-center mx-2 mt-1">
-        <DropDownButton setIsShown={setIsShown} isShown={isShown}>
-          {userListType === UserListType.MEMBERS && (
-            <MembersOptions user={user} setIsShown={setIsShown} />
-          )}
-          {userListType === UserListType.FRIENDS && (
-            <FriendsOptions user={user} setIsShown={setIsShown} />
-          )}
-        </DropDownButton>
-      </div>
+      {userListType && (
+        <div className="content-center mx-2 mt-1">
+          <DropDownButton setIsShown={setIsShown} isShown={isShown}>
+            {userListType === UserListType.MEMBERS && (
+              <MembersOptions user={user} setIsShown={setIsShown} />
+            )}
+            {userListType === UserListType.FRIENDS && (
+              <FriendsOptions user={user} setIsShown={setIsShown} />
+            )}
+          </DropDownButton>
+        </div>
+      )}
     </div>
   );
 }
