@@ -69,6 +69,7 @@ export class DoubleKeyMap {
 export class Game {
   constructor(mode: GameMode) {
     this.gameRoomId = this.makeid(5);
+    this.status = Status.PENDING;
     this.mode = mode;
   }
 
