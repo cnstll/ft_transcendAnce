@@ -1,49 +1,22 @@
 import DropDownButton from './drop-down-button';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
-import type { User } from '../global-components/interface';
+import {
+  User,
+  UserConnectionStatus,
+  UserListType,
+} from '../global-components/interface';
 import { useState } from 'react';
+import FriendsOptions from './profile/friends-options';
+import MembersOptions from './chat/members-options';
 
-interface UserOptionsProps {
-  nickname: string;
-  setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-function BlockUser({ nickname, setIsShown }: UserOptionsProps) {
-  const onBlock = () => {
-    setIsShown(false);
-  };
-
-  return (
-    <p
-      className="text-center hover:underline my-2 truncate cursor-pointer"
-      onClick={onBlock}
-    >
-      Block {nickname}
-    </p>
-  );
-}
-
-function UserOptions({ nickname, setIsShown }: UserOptionsProps) {
-  return (
-    <div>
-      <Link to={`/profile/${nickname}`}>
-        <p className="text-center hover:underline my-2">Go to profile</p>
-      </Link>
-      <Link to="/">
-        <p className="text-center hover:underline my-2">Invite to play</p>
-      </Link>
-      <BlockUser nickname={nickname} setIsShown={setIsShown} />
-    </div>
-  );
-}
-
-interface UsersListItemProps {
+function UsersListItem({
+  user,
+  userListType,
+}: {
   user: User;
-}
-
-function UsersListItem({ user }: UsersListItemProps) {
+  userListType?: UserListType;
+}) {
   const [isShown, setIsShown] = useState(false);
 
   return (
@@ -56,24 +29,33 @@ function UsersListItem({ user }: UsersListItemProps) {
         />
         <div className="relative">
           <div className="absolute -left-2 z-10">
-            {user.status === 'ONLINE' && (
+            {user.status === UserConnectionStatus.ONLINE && (
               <FontAwesomeIcon className="text-green-600" icon={faCircle} />
             )}
-            {user.status === 'OFFLINE' && (
+            {user.status === UserConnectionStatus.OFFLINE && (
               <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
             )}
-            {user.status === 'PLAYING' && <FontAwesomeIcon icon={faGamepad} />}
+            {user.status === UserConnectionStatus.PLAYING && (
+              <FontAwesomeIcon icon={faGamepad} />
+            )}
           </div>
         </div>
       </div>
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
       </div>
-      <div className="content-center mx-2 mt-1">
-        <DropDownButton setIsShown={setIsShown} isShown={isShown}>
-          <UserOptions nickname={user.nickname} setIsShown={setIsShown} />
-        </DropDownButton>
-      </div>
+      {userListType && (
+        <div className="content-center mx-2 mt-1">
+          <DropDownButton setIsShown={setIsShown} isShown={isShown}>
+            {userListType === UserListType.MEMBERS && (
+              <MembersOptions user={user} setIsShown={setIsShown} />
+            )}
+            {userListType === UserListType.FRIENDS && (
+              <FriendsOptions user={user} setIsShown={setIsShown} />
+            )}
+          </DropDownButton>
+        </div>
+      )}
     </div>
   );
 }

@@ -27,6 +27,7 @@ export class GameService {
       winner: '',
       player1id: game.p1id,
       player2id: game.p2id,
+      player1score: game.p1s,
     });
   }
 
@@ -82,9 +83,9 @@ export class GameService {
       const game = this.GameMap.getGame(winnerId);
       const message = this.moveBall(winnerId, server);
 
+      if (winnerId === game.p1id) game.p1s = 10;
+      else game.p2s = 10;
       this.mutateGameStatus(game, Status.OVER, server);
-      if (winnerId === game.p1id) message.p1s = 10;
-      else message.p2s = 10;
       this.deleteInterval(name);
       this.addWinningTimeout(name, 5000, server, winnerId);
       server.emit('matchFinished');
@@ -103,7 +104,7 @@ export class GameService {
   ) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
-      game.claimVictory(winnerId, this.prismaService);
+      game.saveGameResults(this.prismaService);
       this.mutateGameStatus(game, Status.DONE, server);
       this.GameMap.delete(winnerId);
     };
@@ -154,9 +155,11 @@ export class GameService {
 
   winGame(game: Game, server: Server) {
     this.deleteInterval(game.gameRoomId);
-    this.mutateGameStatus(game, Status.DONE, server);
-    game.saveGameResults(this.prismaService);
-    this.GameMap.delete(game.p1id);
+    this.mutateGameStatus(game, Status.OVER, server);
+    if (game.p1s === 10)
+      this.addWinningTimeout(game.gameRoomId, 5000, server, game.p1id);
+    else if (game.p2s === 10)
+      this.addWinningTimeout(game.gameRoomId, 5000, server, game.p2id);
   }
 
   addInterval(
@@ -170,7 +173,7 @@ export class GameService {
       this.gameInfo.verify(payload);
       const message = this.gameInfo.create(payload);
       const encoded = this.gameInfo.encode(message).finish();
-      server.to(gameRoomId).volatile.emit('GI', encoded);
+      server.to(gameRoomId).volatile.timeout(5000).emit('GI', encoded);
     };
 
     const interval = setInterval(callback, milliseconds);
