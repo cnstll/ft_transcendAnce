@@ -15,7 +15,7 @@ import { UserGateway } from './user/user.gateway';
     AuthModule,
     ChannelModule,
     ConfigModule.forRoot({
-      envFilePath: '.env.dev',
+      envFilePath: process.env.ENV_FILE_PATH,
       isGlobal: true,
     }),
     PrismaModule,

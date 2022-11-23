@@ -102,7 +102,7 @@ function SearchBoxChannel({
     if (filteredChannels) {
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
-        if (firstResult || firstResult === '') {
+        if (firstResult && searchData.keyword) {
           if (filteredChannels[0].type === channelType.Protected)
             setShowModal(true);
           else JoinChannel(filteredChannels[0]);
