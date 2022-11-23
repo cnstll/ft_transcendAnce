@@ -451,7 +451,7 @@ export class UserService {
         matchesList.push(matches.playerOneMatch[i]);
       }
     }
-    if (matches?.playerOneMatch !== null) {
+    if (matches?.playerTwoMatch !== null) {
       for (let i = 0; i < matches.playerTwoMatch.length; i++) {
         matchesList.push(matches.playerTwoMatch[i]);
       }
