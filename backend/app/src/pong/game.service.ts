@@ -81,19 +81,16 @@ export class GameService {
   ) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
-      const message = this.moveBall(winnerId, server);
 
       if (winnerId === game.p1id) game.p1s = 10;
       else game.p2s = 10;
       this.mutateGameStatus(game, Status.OVER, server);
-      this.deleteInterval(name);
       this.addWinningTimeout(name, 5000, server, winnerId);
       server.emit('matchFinished');
-      server.to(game.gameRoomId).emit('updatedGameInfo', message);
     };
 
-    const timeout = setInterval(callback, milliseconds);
-    this.schedulerRegistry.addInterval(name, timeout);
+    const timeout = setTimeout(callback, milliseconds);
+    this.schedulerRegistry.addTimeout(name, timeout);
   }
 
   addWinningTimeout(
@@ -106,11 +103,9 @@ export class GameService {
       const game = this.GameMap.getGame(winnerId);
       game.saveGameResults(this.prismaService);
       this.mutateGameStatus(game, Status.DONE, server);
-      this.GameMap.delete(winnerId);
     };
 
-    const timeout = setTimeout(callback, milliseconds);
-    this.schedulerRegistry.addTimeout(name, timeout);
+    setTimeout(callback, milliseconds);
   }
 
   pause(id: string, server: Server) {
