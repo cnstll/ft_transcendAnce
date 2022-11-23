@@ -40,7 +40,6 @@ export class GameService {
       .emit('inviteRefused', "invite refused, they can't handle you");
     this.GameMap.delete(userId);
   }
-
   async createInvitationGame(
     client: Socket,
     server: Server,
@@ -58,6 +57,7 @@ export class GameService {
         );
       return;
     }
+
     const challenger = await this.prismaService.user.findUnique({
       where: {
         id: p1id,
@@ -78,7 +78,7 @@ export class GameService {
     client.to(opponentSocket).emit('invitedToGame', challenger);
   }
 
-  async join(client: Socket, userId: string, server: Server, mode: GameMode) {
+  join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
     if (this.GameMap.size === 0) {
@@ -135,23 +135,18 @@ export class GameService {
 
       if (winnerId === game.p1id) game.p1s = 10;
       else game.p2s = 10;
+      if (game.status !== Status.PAUSED) this.deleteInterval(name);
       this.mutateGameStatus(game, Status.OVER, server);
-      this.deleteInterval(name);
-      this.addWinningTimeout(name, 5000, server, winnerId);
+      this.addWinningTimeout(5000, server, winnerId);
       server.emit('matchFinished');
       server.to(game.gameRoomId).emit('updatedGameInfo', message);
     };
 
-    const timeout = setInterval(callback, milliseconds);
-    this.schedulerRegistry.addInterval(name, timeout);
+    const timeout = setTimeout(callback, milliseconds);
+    this.schedulerRegistry.addTimeout(name, timeout);
   }
 
-  addWinningTimeout(
-    name: string,
-    milliseconds: number,
-    server: Server,
-    winnerId: string,
-  ) {
+  addWinningTimeout(milliseconds: number, server: Server, winnerId: string) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
       game.saveGameResults(this.prismaService);
@@ -159,13 +154,16 @@ export class GameService {
       this.GameMap.delete(winnerId);
     };
 
-    const timeout = setTimeout(callback, milliseconds);
-    this.schedulerRegistry.addTimeout(name, timeout);
+    setTimeout(callback, milliseconds);
   }
 
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
-    if (game && game.status === Status.PLAYING) {
+    if (game && game.status === Status.PAUSED) {
+      console.log('hi there');
+      this.deleteTimeout(game.gameRoomId);
+      this.GameMap.delete(id);
+    } else if (game && game.status === Status.PLAYING) {
       if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
@@ -209,10 +207,8 @@ export class GameService {
   winGame(game: Game, server: Server) {
     this.deleteInterval(game.gameRoomId);
     this.mutateGameStatus(game, Status.OVER, server);
-    if (game.p1s === 10)
-      this.addWinningTimeout(game.gameRoomId, 5000, server, game.p1id);
-    else if (game.p2s === 10)
-      this.addWinningTimeout(game.gameRoomId, 5000, server, game.p2id);
+    if (game.p1s === 10) this.addWinningTimeout(5000, server, game.p1id);
+    else if (game.p2s === 10) this.addWinningTimeout(5000, server, game.p2id);
   }
 
   addInterval(

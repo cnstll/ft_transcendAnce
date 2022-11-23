@@ -53,9 +53,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
     });
 
     const inviteListener = (challenger: User) => {
-      // if(challenger) {
-      //   socket.emit('refuseInvite', )
-      // }
       confirm(`${challenger.nickname} has challenged you!`) ? navigate('/play'): socket.emit('refuseInvite', challenger);
     };
     socket.on('invitedToGame', inviteListener);
