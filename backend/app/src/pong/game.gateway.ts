@@ -24,6 +24,7 @@ import { FrontendUser, GameMode } from './entities/game.entities';
   },
   parser: require('socket.io-msgpack-parser'),
 })
+@UseGuards(JwtAuthGuard)
 export class GameGateway {
   @WebSocketServer()
   server: Server;
@@ -31,7 +32,6 @@ export class GameGateway {
 
   constructor(private readonly gameService: GameService) {}
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('PP')
   async create(
     @MessageBody() encoded: Uint8Array,
@@ -40,24 +40,25 @@ export class GameGateway {
     this.gameService.create(encoded, id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('disconnect')
   handleDisconnect(@ConnectedSocket() client: Socket) {
     this.gameService.pause(this.socketToId.get(client.id), this.server);
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('leaveGame')
   handleAbandon(@ConnectedSocket() client: Socket) {
     this.gameService.pause(this.socketToId.get(client.id), this.server);
   }
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('reJoin')
   rejoin(@GetCurrentUserId() userId: string) {
     return this.gameService.rejoin(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('acceptInvite')
+  acceptGameInvite(@Body() challenger: FrontendUser) {
+    this.gameService.acceptInvite(challenger.id);
+  }
+
   @SubscribeMessage('refuseInvite')
   refuseGameInvite(
     @Body() challenger: FrontendUser,
@@ -66,7 +67,6 @@ export class GameGateway {
     this.gameService.refuseInvite(client, challenger.id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createInvitationGame')
   createInvitationGame(
     @MessageBody('mode') mode: GameMode,
@@ -84,7 +84,6 @@ export class GameGateway {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinGame')
   joinRoom(
     @MessageBody('mode') mode: GameMode,

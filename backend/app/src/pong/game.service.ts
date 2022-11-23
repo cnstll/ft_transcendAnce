@@ -38,7 +38,11 @@ export class GameService {
     client
       .to(challengerSocket)
       .emit('inviteRefused', "invite refused, they can't handle you");
+    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
     this.GameMap.delete(userId);
+  }
+  acceptInvite(userId: string) {
+    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
   }
 
   async createInvitationGame(
@@ -80,8 +84,7 @@ export class GameService {
         pendingGame.gameRoomId,
         server,
         client.id,
-        // opponentSocket,
-        pendingGame.p1id,
+        p1id,
       );
       client.to(opponentSocket).emit('invitedToGame', challenger);
       return 'gameJoined';
@@ -161,12 +164,10 @@ export class GameService {
     name: string,
     server: Server,
     socketId: string,
-    // opponentSocket: string,
     userId: string,
   ) {
     const callback = () => {
       this.GameMap.delete(userId);
-
       server
         .to(socketId)
         .emit('inviteRefused', 'Your opponent is to slow for you');
@@ -228,7 +229,7 @@ export class GameService {
   createGame(p1: string, mode: GameMode, p2?: string) {
     const game = new Game(mode);
     this.GameMap.setPlayer1(p1, game);
-    if (p2) {
+    if (p2 !== undefined) {
       this.GameMap.setPlayer2(p2, game);
     }
     return game;
