@@ -19,7 +19,6 @@ export interface FrontendUser {
   nickname: string;
   eloScore: number;
   twoFactorAuthenticationSet: boolean;
-  twoFactorAuthenticationSecret: string;
 }
 
 export enum GameMode {

@@ -33,13 +33,14 @@ export class GameService {
     });
   }
 
-  cancelInvite(client: Socket, userId: string) {
+  refuseInvite(client: Socket, userId: string) {
     const challengerSocket = socketToUserId.getFromUserId(userId);
     client
       .to(challengerSocket)
       .emit('inviteRefused', "invite refused, they can't handle you");
     this.GameMap.delete(userId);
   }
+
   async createInvitationGame(
     client: Socket,
     server: Server,
@@ -69,12 +70,19 @@ export class GameService {
           eloScore: true,
           status: true,
           twoFactorAuthenticationSet: true,
-          twoFactorAuthenticationSecret: true,
         },
       });
 
-      this.createGame(p1id, gameMode, p2id);
+      const pendingGame = this.createGame(p1id, gameMode, p2id);
       this.join(client, p1id, server, gameMode);
+      //TODO: send timeout message to invitee
+      this.addInvitationTimeout(
+        pendingGame.gameRoomId,
+        server,
+        client.id,
+        // opponentSocket,
+        pendingGame.p1id,
+      );
       client.to(opponentSocket).emit('invitedToGame', challenger);
       return 'gameJoined';
     } catch (error) {
@@ -147,6 +155,25 @@ export class GameService {
     };
 
     const timeout = setTimeout(callback, milliseconds);
+    this.schedulerRegistry.addTimeout(name, timeout);
+  }
+  addInvitationTimeout(
+    name: string,
+    server: Server,
+    socketId: string,
+    // opponentSocket: string,
+    userId: string,
+  ) {
+    const callback = () => {
+      this.GameMap.delete(userId);
+
+      server
+        .to(socketId)
+        .emit('inviteRefused', 'Your opponent is to slow for you');
+      //   server.to(opponentSocket).emit('inviteRefused', 'YOU were to slow');
+    };
+    const timeoutInMs = 10000;
+    const timeout = setTimeout(callback, timeoutInMs);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
 

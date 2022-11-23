@@ -63,7 +63,7 @@ export class GameGateway {
     @Body() challenger: FrontendUser,
     @ConnectedSocket() client: Socket,
   ) {
-    this.gameService.cancelInvite(client, challenger.id);
+    this.gameService.refuseInvite(client, challenger.id);
   }
 
   @UseGuards(JwtAuthGuard)
