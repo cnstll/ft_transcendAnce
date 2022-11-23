@@ -42,25 +42,6 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
-
-    if (activeChannel) {
-      socket.emit('connectToRoom', {
-        channelId: activeChannelId,
-        channelPassword: '',
-      });
-    }
-    else if (channels.data !== undefined) {
-        const redirectToChannel = channels.data.at(0);
-        if (redirectToChannel) {
-          setActiveChannelId(redirectToChannel.id)
-          socket.emit('connectToRoom', {
-            channelId: redirectToChannel.id,
-            channelPassword: '',
-          });
-          navigate('../chat/' + redirectToChannel.id);
-        }
-    }
-
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
@@ -76,6 +57,31 @@ function Chat() {
     socket.on('userGameEnded', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
     });
+    if (activeChannel && channels.data && channels.data.length > 0) {
+      socket.emit('connectToRoom', {
+        channelId: activeChannelId,
+        channelPassword: '',
+      });
+    }
+    if (
+      !activeChannel &&
+      channels.data !== undefined &&
+      channels.data.length > 0
+    ) {
+      const redirectToChannel = channels.data.at(0);
+      if (redirectToChannel) {
+        setActiveChannelId(redirectToChannel.id);
+        socket.emit('connectToRoom', {
+          channelId: redirectToChannel.id,
+          channelPassword: '',
+        });
+        navigate('../chat/' + redirectToChannel.id);
+      }
+    }
+    if (activeChannel && channels.data?.length == 0) {
+      setActiveChannelId('');
+      navigate('../chat');
+    }
     return () => {
       socket.off('userDisconnected');
       socket.off('userConnected');
@@ -83,7 +89,7 @@ function Chat() {
       socket.off('userGameEnded');
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user]);
+  }, [activeChannelId, socket, user, channels.data?.length]);
 
   return (
     <>
@@ -121,13 +127,16 @@ function Chat() {
                     </h2>
                   </div>
                   <div className="p-5 flex justify-center">
-                    {activeChannel? <DropDownButton isShown={isShown} setIsShown={setIsShown}>
-                      <ChannelOptions
-                        setActiveChannelId={setActiveChannelId}
-                        setIsShown={setIsShown}
-                      />
-                    </DropDownButton> : <div/>
-                    }
+                    {activeChannel ? (
+                      <DropDownButton isShown={isShown} setIsShown={setIsShown}>
+                        <ChannelOptions
+                          setActiveChannelId={setActiveChannelId}
+                          setIsShown={setIsShown}
+                        />
+                      </DropDownButton>
+                    ) : (
+                      <div />
+                    )}
                   </div>
                 </div>
                 <DisplayMessages

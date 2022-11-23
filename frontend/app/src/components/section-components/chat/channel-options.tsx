@@ -38,7 +38,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
         if (userQueryData?.id === leavingInfo.userId) {
           const channelListDisplayed: Channel[] | undefined =
             await queryClient.getQueryData(channelsQueryKey);
-          if (channelListDisplayed && channelListDisplayed.length > 0) {
+          if (channelListDisplayed && channelListDisplayed.length > 1) {
             const deletedChannel = leavingInfo.channelId;
             // Find another existing channel to redirect the user to after leaving current one
             const nextChannelId =
@@ -46,10 +46,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
                 (channel) => channel.id != deletedChannel,
               )?.id ?? '';
             setActiveChannelId(nextChannelId);
+            setIsShown(false);
             navigate(`../chat/${nextChannelId}`);
-          } else {
-            setActiveChannelId('');
-            navigate('../chat');
           }
         } else {
           //TODO User still in the room should get notified that a user left
