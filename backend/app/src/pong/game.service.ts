@@ -55,27 +55,31 @@ export class GameService {
           'inviteRefused',
           'Your opponent already has an invite pending, try again later',
         );
-      return;
+      return 'inviteFailed';
     }
+    try {
+      const challenger = await this.prismaService.user.findUnique({
+        where: {
+          id: p1id,
+        },
+        select: {
+          id: true,
+          avatarImg: true,
+          nickname: true,
+          eloScore: true,
+          status: true,
+          twoFactorAuthenticationSet: true,
+          twoFactorAuthenticationSecret: true,
+        },
+      });
 
-    const challenger = await this.prismaService.user.findUnique({
-      where: {
-        id: p1id,
-      },
-      select: {
-        id: true,
-        avatarImg: true,
-        nickname: true,
-        eloScore: true,
-        status: true,
-        twoFactorAuthenticationSet: true,
-        twoFactorAuthenticationSecret: true,
-      },
-    });
-
-    this.createGame(p1id, gameMode, p2id);
-    this.join(client, p1id, server, gameMode);
-    client.to(opponentSocket).emit('invitedToGame', challenger);
+      this.createGame(p1id, gameMode, p2id);
+      this.join(client, p1id, server, gameMode);
+      client.to(opponentSocket).emit('invitedToGame', challenger);
+      return 'gameJoined';
+    } catch (error) {
+      return error;
+    }
   }
 
   join(client: Socket, userId: string, server: Server, mode: GameMode) {
@@ -160,7 +164,6 @@ export class GameService {
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
     if (game && game.status === Status.PAUSED) {
-      console.log('hi there');
       this.deleteTimeout(game.gameRoomId);
       this.GameMap.delete(id);
     } else if (game && game.status === Status.PLAYING) {

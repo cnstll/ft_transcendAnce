@@ -19,7 +19,6 @@ import { FrontendUser, GameMode } from './entities/game.entities';
       process.env.BACKEND_URL,
       process.env.DOMAIN,
       process.env.PUBLIC_URL,
-      'http://localhost',
     ],
     credentials: true,
   },
@@ -76,7 +75,7 @@ export class GameGateway {
     @GetCurrentUserId() playerOneId: string,
   ) {
     this.socketToId.set(client.id, playerOneId);
-    this.gameService.createInvitationGame(
+    return this.gameService.createInvitationGame(
       client,
       this.server,
       playerOneId,

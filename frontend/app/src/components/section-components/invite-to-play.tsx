@@ -11,9 +11,19 @@ function InviteToPlay({ user, setIsShown }: InviteToPlayProps) {
   const navigate = useNavigate();
   const onInvite = () => {
     setIsShown(false);
-    socket.emit('createInvitationGame', {mode: 'CLASSIC', opponent: user.id});
-    navigate('/play');
-
+    socket.emit(
+      'createInvitationGame',
+      { mode: 'CLASSIC', opponent: user.id },
+      (msg: string) => {
+        if (msg === 'gameJoined') {
+          navigate('/play');
+        } else if (msg === 'inviteFailed') {
+          //Nothing to Do here as it is handled by a listener
+        } else {
+          alert('Your invitation was deflected by a mighty pong spirit');
+        }
+      },
+    );
   };
   user; // just to silence warnings
   return (
