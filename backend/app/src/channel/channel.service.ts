@@ -194,7 +194,7 @@ export class ChannelService {
     );
     /* then reconnect to the channel regardless of its type */
     if (userOnChannel != null) {
-      await clientSocket.join(channelId);
+      clientSocket.join(channelId);
     }
     return userOnChannel;
   }
