@@ -34,6 +34,11 @@ export class ChannelService {
       where: {
         OR: [{ type: 'PUBLIC' }, { type: 'PRIVATE' }, { type: 'PROTECTED' }],
       },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+      },
     });
   }
 
@@ -45,6 +50,11 @@ export class ChannelService {
             userId: userId,
           },
         },
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
       },
     });
   }
@@ -90,7 +100,16 @@ export class ChannelService {
           channelId: channelId,
         },
         select: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              avatarImg: true,
+              nickname: true,
+              eloScore: true,
+              status: true,
+              twoFactorAuthenticationSet: true,
+            },
+          },
         },
       });
       const flattenUsers = [];
