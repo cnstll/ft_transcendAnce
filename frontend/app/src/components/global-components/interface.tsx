@@ -46,12 +46,23 @@ export enum friendshipStatus {
   ADD,
 }
 
+export enum UserListType {
+  MEMBERS = 'MEMBERS',
+  FRIENDS = 'FRIENDS',
+}
+
+export enum UserConnectionStatus {
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE',
+  PLAYING = 'PLAYING',
+}
+
 export interface User {
   id: string;
   avatarImg: string;
   nickname: string;
   eloScore: number;
-  status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+  status: UserConnectionStatus;
   twoFactorAuthenticationSet: boolean;
 }
 

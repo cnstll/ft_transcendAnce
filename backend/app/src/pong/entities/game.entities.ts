@@ -69,6 +69,7 @@ export class DoubleKeyMap {
 export class Game {
   constructor(mode: GameMode) {
     this.gameRoomId = this.makeid(5);
+    this.status = Status.PENDING;
     this.mode = mode;
   }
 
@@ -237,15 +238,6 @@ export class Game {
     this.bx += this.dirx;
     this.by += this.diry;
     return this;
-  }
-
-  claimVictory(winnerId: string, prismaService: PrismaService) {
-    if (this.p1id === winnerId) {
-      this.p1s = 10;
-    } else {
-      this.p2s = 10;
-    }
-    this.saveGameResults(prismaService);
   }
 
   makeid(length: number) {
