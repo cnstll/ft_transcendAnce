@@ -25,6 +25,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const queryClient = useQueryClient();
   const friendsListQueryKey = 'friendsList';
   const navigate = useNavigate();
+  const channelUsersQueryKey = 'channelUsers';
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -41,15 +42,19 @@ function Navbar({ text, avatarImg }: BannerProps) {
     }
     socket.on('userDisconnected', () => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userConnected', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userInGame', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userGameEnded', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
 
     const inviteListener = (challenger: User) => {

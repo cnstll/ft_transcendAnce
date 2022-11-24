@@ -64,7 +64,16 @@ export class UserService {
 
   async getAllUsers(res: Response) {
     try {
-      const nicknames = await this.prismaService.user.findMany({});
+      const nicknames = await this.prismaService.user.findMany({
+        select: {
+          id: true,
+          nickname: true,
+          avatarImg: true,
+          eloScore: true,
+          status: true,
+          twoFactorAuthenticationSet: true,
+        },
+      });
       return res.status(200).send(nicknames);
       //TODO select so you don't return unneeded user info
     } catch (error) {
@@ -135,6 +144,22 @@ export class UserService {
       //TODO select useful info
     });
     return user;
+  }
+
+  async getFrontUserInfo(userId: string) {
+    return await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        avatarImg: true,
+        nickname: true,
+        eloScore: true,
+        status: true,
+        twoFactorAuthenticationSet: true,
+      },
+    });
   }
 
   async findOneFromUserNickname(

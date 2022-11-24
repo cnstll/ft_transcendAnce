@@ -82,7 +82,6 @@ export interface User {
   eloScore: number;
   status: UserConnectionStatus;
   twoFactorAuthenticationSet: boolean;
-  twoFactorAuthenticationSecret: string;
 }
 
 export interface RankingData {

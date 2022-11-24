@@ -46,6 +46,12 @@ export class UserController {
     return this.userService.getUserInfo(userId);
   }
 
+  @Get('get-front-user-info')
+  @UseGuards(JwtAuthGuard)
+  getFrontUserInfo(@GetCurrentUserId() userId: string) {
+    return this.userService.getFrontUserInfo(userId);
+  }
+
   @Post('get-user-by-id')
   @UseGuards(JwtAuthGuard)
   getUserById(@Body() data: { userId: string }) {
