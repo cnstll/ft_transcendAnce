@@ -149,7 +149,7 @@ model ChannelAction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@id([channelActionTargetId, channelActionOnChannelId, type])
+  @@id([channelActionTargetId, channelActionOnChannelId, channelActionRequesterId, type])
   @@unique([channelActionTargetId, channelActionOnChannelId])
   @@map("channel_actions")
 }

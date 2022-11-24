@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
@@ -22,6 +30,17 @@ export class ChannelController {
   @Get('get-channel-by-user-id')
   getChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getChannelsByUserId(userId);
+  }
+
+  @Post('get-direct-message-by-user-id')
+  getDirectMessageByUserId(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { participantId: string },
+  ) {
+    return this.channelService.getDirectMessageByUserId(
+      userId,
+      data.participantId,
+    );
   }
 
   @Get(':id')

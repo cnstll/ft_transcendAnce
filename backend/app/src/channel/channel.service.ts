@@ -83,6 +83,23 @@ export class ChannelService {
     });
   }
 
+  async getDirectMessageByUserId(userId: string, participantId: string) {
+    const allDirectMessages = await this.prisma.channel.findMany({
+      where: {
+        type: 'DIRECTMESSAGE',
+      },
+    });
+    for (let i = 0; i < allDirectMessages.length; i++) {
+      const users = this.getUsersOfAChannel(allDirectMessages[i].id);
+      if (
+        (users[0].id === userId && users[1].id === participantId) ||
+        (users[0].id === participantId && users[1].id === userId)
+      )
+        return allDirectMessages[i].id;
+    }
+    return '';
+  }
+
   async checkChannel(channelId: string) {
     const channel: Channel = await this.prisma.channel.findFirst({
       where: {

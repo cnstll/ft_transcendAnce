@@ -194,4 +194,13 @@ export class UserController {
   ) {
     return this.userService.setAchievement(userId, data.achievementId);
   }
+
+  /** Ban, mute,block management */
+
+  @Post('check-user-is-blocked') checkUserIsBlocked(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { targetId: string },
+  ) {
+    return this.userService.checkUserIsBlocked(userId, data.targetId);
+  }
 }

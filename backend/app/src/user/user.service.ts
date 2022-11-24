@@ -668,4 +668,35 @@ export class UserService {
     if (numberOfLoss === 5) this.setAchievement(userId, 'achievement4');
     if (numberOfWin === 5) this.setAchievement(userId, 'achievement3');
   }
+
+  /** Ban, mute, block management **/
+
+  async checkUserIsBlocked(userId: string, targetId: string) {
+    try {
+      const userIsBlocked = await this.prismaService.channelAction.findFirst({
+        where: {
+          type: 'BLOCK',
+          OR: [
+            {
+              AND: [
+                { channelActionRequesterId: userId },
+                { channelActionTargetId: targetId },
+              ],
+            },
+            {
+              AND: [
+                { channelActionTargetId: targetId },
+                { channelActionRequesterId: userId },
+              ],
+            },
+          ],
+        },
+      });
+      if (!userIsBlocked) return false;
+      else return true;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }
