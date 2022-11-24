@@ -68,14 +68,14 @@ export class GameGateway {
   }
 
   @SubscribeMessage('createInvitationGame')
-  createInvitationGame(
+  async createInvitationGame(
     @MessageBody('mode') mode: GameMode,
     @MessageBody('opponent') playerTwoId: GameMode,
     @ConnectedSocket() client: Socket,
     @GetCurrentUserId() playerOneId: string,
   ) {
     this.socketToId.set(client.id, playerOneId);
-    return this.gameService.createInvitationGame(
+    return await this.gameService.createInvitationGame(
       client,
       this.server,
       playerOneId,
