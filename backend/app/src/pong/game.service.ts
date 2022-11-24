@@ -183,7 +183,7 @@ export class GameService {
       server
         .to(challengerSocketId)
         .emit('inviteRefused', 'Your opponent is too slow for you');
-      server.to(opponentSocketId).emit('inviteRefused', 'YOU were to slow');
+      server.to(opponentSocketId).emit('inviteRefused', 'YOU were too slow');
     };
     const timeoutInMs = 5000;
     const timeout = setTimeout(callback, timeoutInMs);
