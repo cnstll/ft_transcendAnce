@@ -20,6 +20,24 @@ export enum channelRole {
   Owner = 'OWNER',
 }
 
+export interface GameInformation {
+  p1x: number,
+  p2x: number,
+  playerOneScore: number;
+  playerTwoScore: number;
+  gameCoordinates: GameCoords,
+  ballWidth: number,
+  heightScalar: number,
+  widthScalar: number,
+  paddleWidth: number,
+  paddleHeight: number,
+  canvas: HTMLCanvasElement | null,
+  context: CanvasRenderingContext2D | null, 
+  cacheCanvas: OffscreenCanvas | null,
+  fontSize: number,
+  playerNumber: number,
+}
+
 export interface Channel {
   id: string;
   name: string;

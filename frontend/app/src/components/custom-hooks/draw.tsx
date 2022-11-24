@@ -1,25 +1,30 @@
-import { GameCoords } from "../global-components/interface";
+import { GameInformation } from "../global-components/interface";
 
 
 
-interface GameInformation {
-  p1x: number,
+export function cacheCanvas(gameContextInfo: GameInformation) {
+  const context = gameContextInfo.context;
+  const canvas = gameContextInfo.canvas;
+  if (context && canvas) {
+    const retCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+    const cacheContext = retCanvas.getContext('2d');
 
-  p2x: number,
-  gameCoordinates: GameCoords,
-  ballWidth: number,
-  heightScalar: number,
-  widthScalar: number,
-  paddleWidth: number,
-  paddleHeight: number,
-  canvas: HTMLCanvasElement | null,
-  context: CanvasRenderingContext2D | null, 
-  cacheCanvas: OffscreenCanvas | null,
+    if (cacheContext){
+      cacheContext.fillStyle = 'black';
+      cacheContext.fillRect(0, 0, canvas.width, canvas.height);
+      cacheContext.strokeStyle = 'white';
+      cacheContext.setLineDash([10, 10]);
+      cacheContext.moveTo(canvas.width / 2, 0);
+        cacheContext.lineTo(canvas.width / 2, canvas.height);
+        cacheContext.stroke();
+    }
+    return retCanvas;
+}
+  return new OffscreenCanvas(300, 300);
 }
 
 export function draw(gameContextInfo : GameInformation) {
 
-  // console.log('i am here to chew bubblegum and kick ass');
   const context = gameContextInfo.context;
   const canvas = gameContextInfo.canvas;
 

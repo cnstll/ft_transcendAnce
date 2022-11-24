@@ -161,7 +161,7 @@ export class GameService {
     const timeout = setTimeout(callback, milliseconds);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
-  
+
   addInvitationTimeout(
     name: string,
     server: Server,
