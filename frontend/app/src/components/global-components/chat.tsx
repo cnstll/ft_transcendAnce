@@ -30,7 +30,6 @@ function Chat() {
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
-
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
 
