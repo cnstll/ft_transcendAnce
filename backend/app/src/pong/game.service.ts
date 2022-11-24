@@ -38,14 +38,20 @@ export class GameService {
 
   refuseInvite(client: Socket, userId: string) {
     const challengerSocket = socketToUserId.getFromUserId(userId);
-    client
-      .to(challengerSocket)
-      .emit('inviteRefused', "invite refused, they can't handle you");
-    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
-    this.GameMap.delete(userId);
+    if (this.GameMap.getGame(userId)) {
+      client
+        .to(challengerSocket)
+        .emit('inviteRefused', "invite refused, they can't handle you");
+    }
+    try {
+      this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+      this.GameMap.delete(userId);
+    } catch (error) {}
   }
   acceptInvite(userId: string) {
-    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+    try {
+      this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+    } catch (error) {}
   }
 
   async createInvitationGame(
@@ -87,6 +93,7 @@ export class GameService {
         pendingGame.gameRoomId,
         server,
         client.id,
+        opponentSocket,
         p1id,
       );
       client.to(opponentSocket).emit('invitedToGame', challenger);
@@ -138,7 +145,9 @@ export class GameService {
   }
 
   deleteTimeout(name: string) {
-    this.schedulerRegistry.deleteTimeout(name);
+    try {
+      this.schedulerRegistry.deleteTimeout(name);
+    } catch (error) {}
   }
 
   addTimeout(
@@ -161,21 +170,22 @@ export class GameService {
     const timeout = setTimeout(callback, milliseconds);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
-  
+
   addInvitationTimeout(
     name: string,
     server: Server,
-    socketId: string,
-    userId: string,
+    challengerSocketId: string,
+    opponentSocketId: string,
+    challengerId: string,
   ) {
     const callback = () => {
-      this.GameMap.delete(userId);
+      this.GameMap.delete(challengerId);
       server
-        .to(socketId)
+        .to(challengerSocketId)
         .emit('inviteRefused', 'Your opponent is to slow for you');
-      //   server.to(opponentSocket).emit('inviteRefused', 'YOU were to slow');
+      server.to(opponentSocketId).emit('inviteRefused', 'YOU were to slow');
     };
-    const timeoutInMs = 10000;
+    const timeoutInMs = 5000;
     const timeout = setTimeout(callback, timeoutInMs);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
