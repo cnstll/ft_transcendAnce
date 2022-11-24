@@ -116,7 +116,6 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         setGameStatus(GameStatus.PENDING);
       } else if (text.status === 'DONE') {
         setGameStatus(GameStatus.DONE);
-        if (location)
         navigate('/profile');
       } else if (text.status === 'OVER') {
         setPlayerOneScore(text.player1score);
