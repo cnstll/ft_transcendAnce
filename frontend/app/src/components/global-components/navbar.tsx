@@ -24,6 +24,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const currentLocation = useLocation();
   const queryClient = useQueryClient();
   const friendsListQueryKey = 'friendsList';
+  const channelUsersQueryKey = 'channelUsers';
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -40,15 +41,19 @@ function Navbar({ text, avatarImg }: BannerProps) {
     }
     socket.on('userDisconnected', () => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userConnected', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userInGame', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userGameEnded', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     return () => {
       socket.off('userDisconnected');
