@@ -97,8 +97,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRole.data?.role === channelRole.Owner ?
-        (<div className="z-index-20">
+        {myRole.data?.role === channelRole.Owner ? (
+          <div className="z-index-20">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -113,9 +113,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(myRole.data?.role === channelRole.Owner ||
-          myRole.data?.role === channelRole.Admin) ?
-          (<div className="z-index-20">
+        {myRole.data?.role === channelRole.Owner ||
+        myRole.data?.role === channelRole.Admin ? (
+          <div className="z-index-20">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
@@ -129,9 +129,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        <Link to="/">
-          <p className="text-center hover:underline my-2">Ban user</p>
-        </Link>
       </div>
     );
   else return <></>;

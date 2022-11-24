@@ -1,14 +1,14 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { Channel, channelType, User } from '../global-components/interface';
+import { UseOutsideClick } from '../../custom-hooks/use-outside-click';
+import { Channel, channelType, User } from '../../global-components/interface';
 import { useNavigate } from 'react-router-dom';
-import SearchChannelItem from './chat/search-channel-item';
-import { socket } from '../global-components/client-socket';
-import JoinChannel from '../custom-hooks/emit-join-channel';
+import SearchChannelItem from './search-channel-item';
+import { socket } from '../../global-components/client-socket';
+import JoinChannel from '../../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
-import PasswordModal from './chat/password-modal';
+import PasswordModal from './password-modal';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -144,8 +144,8 @@ function SearchBoxChannel({
         <div className={'bg-white rounded-lg text-sm absolute ' + width}>
           {isShown && (
             <ul>
-              {filterChannels(channels, searchData.keyword)
-                ?.map((channelItem) => (
+              {filterChannels(channels, searchData.keyword)?.map(
+                (channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
                     <div className="z-index-20">
@@ -157,7 +157,8 @@ function SearchBoxChannel({
                       )}
                     </div>
                   </div>
-                ))}
+                ),
+              )}
             </ul>
           )}
         </div>

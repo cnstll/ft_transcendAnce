@@ -1,4 +1,4 @@
-import { User } from '../global-components/interface';
+import { User } from '../../global-components/interface';
 
 interface BlockFriendsProps {
   user: User;

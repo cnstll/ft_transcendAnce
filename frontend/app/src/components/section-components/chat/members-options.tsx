@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { User, UserConnectionStatus } from '../../global-components/interface';
-import BlockFriends from '../block-friends';
-import InviteToPlay from '../invite-to-play';
-import WatchGame from '../watch-game';
+import BlockFriends from './block-friends';
+import InviteToPlay from '../play/invite-to-play';
+import WatchGame from '../play/watch-game';
+import SendDM from './send-dm';
 
 interface UserOptionsProps {
   user: User;
@@ -18,6 +19,7 @@ function MembersOptions({ user, setIsShown }: UserOptionsProps) {
       {user.status !== UserConnectionStatus.PLAYING && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
+      <SendDM user={user} setIsShown={setIsShown} />
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />
