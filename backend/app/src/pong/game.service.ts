@@ -182,7 +182,7 @@ export class GameService {
       this.GameMap.delete(challengerId);
       server
         .to(challengerSocketId)
-        .emit('inviteRefused', 'Your opponent is to slow for you');
+        .emit('inviteRefused', 'Your opponent is too slow for you');
       server.to(opponentSocketId).emit('inviteRefused', 'YOU were to slow');
     };
     const timeoutInMs = 5000;

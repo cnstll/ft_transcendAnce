@@ -75,7 +75,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
       socket.off('invitedToGame');
       socket.off('inviteRefused');
     };
-  }, [socket]);
+  }, []);
 
   return (
     <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
