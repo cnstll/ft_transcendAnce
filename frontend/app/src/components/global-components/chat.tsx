@@ -72,11 +72,13 @@ function Chat() {
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
-    //roleUsers.refetch;
+    queryClient.invalidateQueries('channelsByUserList');
+    queryClient.invalidateQueries('rolesInChannel');
+    queryClient.invalidateQueries('channelUsers');
     return () => {
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user, channels.data?.length, roleUsers]);
+  }, [activeChannelId, socket, user, channels.data?.length, channels, channelUsers]);
 
   return (
     <>
