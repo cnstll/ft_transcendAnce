@@ -1,15 +1,21 @@
+
 import { Link } from 'react-router-dom';
-import { User, UserConnectionStatus } from '../../global-components/interface';
+import { useMyChannelRole } from 'src/components/query-hooks/useGetChannels';
+import { channelRole, User, UserConnectionStatus } from '../../global-components/interface';
 import BlockFriends from '../block-friends';
 import InviteToPlay from '../invite-to-play';
 import WatchGame from '../watch-game';
+import PromoteToAdmin from './promote-to-admin';
 
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  channelId: string;
 }
 
-function MembersOptions({ user, setIsShown }: UserOptionsProps) {
+function MembersOptions({ user, setIsShown, channelId}: UserOptionsProps) {
+  const myRole = useMyChannelRole(channelId);
+
   return (
     <div>
       <Link to={`/profile/${user.nickname}`}>
@@ -17,6 +23,9 @@ function MembersOptions({ user, setIsShown }: UserOptionsProps) {
       </Link>
       {user.status !== UserConnectionStatus.PLAYING && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
+      )}
+      {myRole.isSuccess && myRole.data?.role === channelRole.Owner && (
+        <PromoteToAdmin user={user} setIsShown={setIsShown} />
       )}
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (

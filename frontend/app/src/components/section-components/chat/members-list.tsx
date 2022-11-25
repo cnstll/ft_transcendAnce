@@ -7,14 +7,16 @@ interface MembersListProps {
   roles?: {
     userId: string;
     role: channelRole;}[];
+  channelId: string;
 }
 
-function MembersList({ channelUsers, user, roles }: MembersListProps) {
+function MembersList({ channelUsers, user, roles, channelId }: MembersListProps) {
   return (
     <UsersList
       users={channelUsers.filter((channelUser) => channelUser.id != user.id)}
       userListType={UserListType.MEMBERS}
       roles={roles}
+      channelId={channelId}
     />
   );
 }

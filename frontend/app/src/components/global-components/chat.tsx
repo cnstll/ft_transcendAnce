@@ -82,7 +82,7 @@ function Chat() {
     <>
       {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
-        <div className="h-full min-h-screen bg-black">
+        <div className="h-full min-h-screen bg-black z-0">
           <Navbar
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
@@ -122,7 +122,7 @@ function Chat() {
                       </DropDownButton>
                   </div>
                 </div>}
-                <div className='snap-end'>
+                <div className="snap-end">
                   <DisplayMessages
                     userId={user.data.id}
                     channelId={activeChannelId}
@@ -137,6 +137,7 @@ function Chat() {
                   channelUsers={channelUsers.data}
                   user={user.data}
                   roles={roleUsers.data}
+                  channelId={activeChannel?? ''}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}

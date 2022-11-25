@@ -31,7 +31,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   );
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
-
   const myRole = useMyChannelRole(channelInfo?.id ?? '');
   console.log("option log: ", myRole.data);
 
@@ -99,7 +98,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
           </p>
         </Link>
         {myRole.data?.role === channelRole.Owner ?
-        (<div className="z-index-20">
+        (<div className="z-40">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -114,9 +113,10 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(myRole.data?.role === channelRole.Owner ||
+        {(myRole.isSuccess &&
+          myRole.data?.role === channelRole.Owner ||
           myRole.data?.role === channelRole.Admin) ?
-          (<div className="z-20 ">
+          (<div className="z-40">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>

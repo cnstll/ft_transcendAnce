@@ -14,11 +14,13 @@ import MembersOptions from './chat/members-options';
 function UsersListItem({
   user,
   userListType,
-  role
+  role,
+  channelId
 }: {
   user: User;
   userListType?: UserListType;
   role?: channelRole;
+  channelId?: string;
 }) {
   const [isShown, setIsShown] = useState(false);
 
@@ -46,17 +48,30 @@ function UsersListItem({
       </div>
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
-        {role === channelRole.Owner && <p className='ml-3 text-xs text-purple-light'><FontAwesomeIcon className="mr-1" icon={faCrown} /> Owner</p>}
-        {role === channelRole.Admin && <p className='ml-3 text-xs text-purple-light'><FontAwesomeIcon className="mx-1" icon={faChessKnight} /> Admin</p>}
+        {role === channelRole.Owner &&
+          <p className='ml-3 text-xs text-purple-light'>
+            <FontAwesomeIcon className="mr-1" icon={faCrown} />
+            Owner
+          </p>}
+        {role === channelRole.Admin &&
+          <p className='ml-3 text-xs text-purple-light'>
+            <FontAwesomeIcon className="mx-1" icon={faChessKnight} />
+            Admin
+          </p>}
       </div>
       {userListType && (
         <div className="content-center mx-2 mt-1">
           <DropDownButton setIsShown={setIsShown} isShown={isShown} style="">
             {userListType === UserListType.MEMBERS && (
-              <MembersOptions user={user} setIsShown={setIsShown} />
+              <MembersOptions
+                user={user}
+                setIsShown={setIsShown}
+                channelId={channelId?? ''}/>
             )}
             {userListType === UserListType.FRIENDS && (
-              <FriendsOptions user={user} setIsShown={setIsShown} />
+              <FriendsOptions
+                user={user}
+                setIsShown={setIsShown} />
             )}
           </DropDownButton>
         </div>
