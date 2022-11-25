@@ -116,7 +116,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
         ) : null}
         {(myRole.data?.role === channelRole.Owner ||
           myRole.data?.role === channelRole.Admin) ?
-          (<div className="z-index-20">
+          (<div className="z-20 ">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
