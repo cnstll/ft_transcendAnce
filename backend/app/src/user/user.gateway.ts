@@ -83,9 +83,11 @@ export class UserGateway {
   handleDisconnect(@ConnectedSocket() clientSocket: Socket) {
     // const userId = this.socketToIdService.get(clientSocket.id);
     const userId = socketToUserId.get(clientSocket.id);
-    this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
-    // this.socketToIdService.delete(clientSocket.id);
-    socketToUserId.delete(clientSocket.id);
-    clientSocket.broadcast.emit('userDisconnected');
+    if (userId) {
+      this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
+      // this.socketToIdService.delete(clientSocket.id);
+      socketToUserId.delete(clientSocket.id);
+      clientSocket.broadcast.emit('userDisconnected');
+    }
   }
 }
