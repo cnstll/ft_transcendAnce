@@ -85,7 +85,7 @@ export class ChannelService {
 
   async getChannelAuthors(channelId: string) {
     try {
-      const authors: any = await this.prisma.message.findMany({
+      const authors = await this.prisma.message.findMany({
         where: {
           channelId: channelId,
         },
