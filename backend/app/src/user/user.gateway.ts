@@ -10,22 +10,28 @@ import { Server, Socket } from 'socket.io';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { JwtPayload } from '../auth/types';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
-import { SocketToUserIdStorage } from './socketToUserIdStorage.service';
+import { socketToUserId } from './socketToUserIdStorage.service';
 import { UserService } from './user.service';
 
-@WebSocketGateway({
+@WebSocketGateway(3333, {
   cors: {
-    origin: 'http://localhost:8080',
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.BACKEND_URL,
+      process.env.DOMAIN,
+      process.env.PUBLIC_URL,
+      'http://localhost',
+    ],
     credentials: true,
   },
+  parser: require('socket.io-msgpack-parser'),
 })
 @UseGuards(JwtAuthGuard)
 export class UserGateway {
   @WebSocketServer()
   server: Server;
   constructor(
-    private readonly userService: UserService,
-    private readonly socketToIdService: SocketToUserIdStorage,
+    private readonly userService: UserService, // private readonly socketToIdService: SocketToUserIdStorage,
   ) {}
 
   @SubscribeMessage('connectUser')
@@ -67,16 +73,21 @@ export class UserGateway {
       const user: JwtPayload = JSON.parse(
         payloadBuffer.toString(),
       ) as JwtPayload;
-      this.socketToIdService.set(clientSocket.id, user.id);
+      // this.socketToIdService.set(clientSocket.id, user.id);
+      socketToUserId.set(clientSocket.id, user.id);
       clientSocket.emit('userConnected');
     }
   }
 
   @SubscribeMessage('disconnect')
   handleDisconnect(@ConnectedSocket() clientSocket: Socket) {
-    const userId = this.socketToIdService.get(clientSocket.id);
-    this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
-    this.socketToIdService.delete(clientSocket.id);
-    clientSocket.broadcast.emit('userDisconnected');
+    // const userId = this.socketToIdService.get(clientSocket.id);
+    const userId = socketToUserId.get(clientSocket.id);
+    if (userId) {
+      this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
+      // this.socketToIdService.delete(clientSocket.id);
+      socketToUserId.delete(clientSocket.id);
+      clientSocket.broadcast.emit('userDisconnected');
+    }
   }
 }

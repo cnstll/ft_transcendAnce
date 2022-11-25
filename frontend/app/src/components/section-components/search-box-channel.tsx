@@ -73,6 +73,7 @@ function SearchBoxChannel({
   }
 
   const ref = UseOutsideClick(ClickOutsideHandler);
+
   function OnChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchData((prevState) => ({
       ...prevState,
@@ -102,7 +103,7 @@ function SearchBoxChannel({
     if (filteredChannels) {
       if (filteredChannels[0]) {
         const firstResult = filteredChannels[0].id;
-        if (firstResult || firstResult === '') {
+        if (firstResult && searchData.keyword) {
           if (filteredChannels[0].type === channelType.Protected)
             setShowModal(true);
           else JoinChannel(filteredChannels[0]);
@@ -144,8 +145,7 @@ function SearchBoxChannel({
           {isShown && (
             <ul>
               {filterChannels(channels, searchData.keyword)
-                ?.slice(0, 5)
-                .map((channelItem) => (
+                ?.map((channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
                     <div className="z-index-20">

@@ -9,8 +9,8 @@ const fetchAllUsers = () =>
     })
     .then((res) => res.data);
 
-function useUserFriends(): UseQueryResult<User[]> {
+function useGetAllUsers(): UseQueryResult<User[]> {
   return useQuery('allUsers', fetchAllUsers);
 }
 
-export default useUserFriends;
+export default useGetAllUsers;

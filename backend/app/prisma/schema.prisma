@@ -27,10 +27,11 @@ model User {
   achievements                  UserAchievement[] @relation("userAchievements")
   messagesSent                  Message[]         @relation("messageSender")
   userOnChannels                ChannelUser[]     @relation("userOnChannel")
-  banRequester                  Ban[]             @relation("banRequester")
-  bannedUser                    Ban[]             @relation("bannedUser")
+  channelActionRequester        ChannelAction[]   @relation("channelActionRequester")
+  channelActionTarget           ChannelAction[]   @relation("channelActionTarget")
   playerOneMatch                Match[]           @relation("playerOne")
   playerTwoMatch                Match[]           @relation("playerTwo")
+  invites                       Channel[]         @relation("inviteOnChannel")
 
   @@map("users")
 }
@@ -62,9 +63,6 @@ model Match {
   playerOne   User   @relation("playerOne", fields: [playerOneId], references: [id], onDelete: Cascade)
   playerTwoId String
   playerTwo   User   @relation("playerTwo", fields: [playerTwoId], references: [id], onDelete: Cascade)
-
-  // @@id([playerOneId, playerTwoId, createdAt])
-  // @@unique(fields: [playerOneId, playerTwoId, createdAt], name: "gameId")
 }
 
 model Achievement {
@@ -100,9 +98,10 @@ model Channel {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  messages    Message[]     @relation("channelMessage")
-  users       ChannelUser[] @relation("channelUsers")
-  channelBans Ban[]         @relation("banOnChannel")
+  messages               Message[]       @relation("channelMessage")
+  users                  ChannelUser[]   @relation("channelUsers")
+  channelActionOnChannel ChannelAction[] @relation("channelActionOnChannel")
+  invites                User[]          @relation("inviteOnChannel")
 
   @@map("channels")
 }
@@ -136,21 +135,29 @@ model ChannelUser {
   @@map("channel_users")
 }
 
-model Ban {
-  bannedUserId String
-  bannedUser   User    @relation("bannedUser", fields: [bannedUserId], references: [id], onDelete: Cascade)
-  banChannelId String
-  banChannel   Channel @relation("banOnChannel", fields: [banChannelId], references: [id], onDelete: Cascade)
+model ChannelAction {
+  channelActionTargetId    String
+  channelActionTarget      User              @relation("channelActionTarget", fields: [channelActionTargetId], references: [id], onDelete: Cascade)
+  channelActionOnChannelId String
+  channelActionOnChannel   Channel           @relation("channelActionOnChannel", fields: [channelActionOnChannelId], references: [id], onDelete: Cascade)
+  channelActionTime        DateTime          @db.Time
+  type                     ChannelActionType
 
-  banRequesterId String?
-  banRequester   User?   @relation("banRequester", fields: [banRequesterId], references: [id], onDelete: SetNull)
+  channelActionRequesterId String
+  channelActionRequester   User   @relation("channelActionRequester", fields: [channelActionRequesterId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@id([bannedUserId, banChannelId])
-  @@unique([bannedUserId, banChannelId])
-  @@map("bans")
+  @@id([channelActionTargetId, channelActionOnChannelId, type])
+  @@unique([channelActionTargetId, channelActionOnChannelId])
+  @@map("channel_actions")
+}
+
+enum ChannelActionType {
+  BAN
+  BLOCK
+  MUTE
 }
 
 enum FriendshipStatus {

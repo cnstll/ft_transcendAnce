@@ -4,9 +4,15 @@ export enum channelType {
   Protected = 'PROTECTED',
   DirectMessage = 'DIRECTMESSAGE',
 }
- 
-export const apiUrl: string = (process.env.REACT_APP_BACKEND_URL === undefined?  'oops': process.env.REACT_APP_BACKEND_URL);
-export const domain: string = (process.env.REACT_APP_DOMAIN=== undefined?  'oops': process.env.REACT_APP_DOMAIN);
+
+export const apiUrl: string =
+  process.env.REACT_APP_BACKEND_URL === undefined
+    ? 'oops'
+    : process.env.REACT_APP_BACKEND_URL;
+export const domain: string =
+  process.env.REACT_APP_DOMAIN === undefined
+    ? 'oops'
+    : process.env.REACT_APP_DOMAIN;
 
 export enum channelRole {
   User = 'USER',
@@ -40,14 +46,24 @@ export enum friendshipStatus {
   ADD,
 }
 
+export enum UserListType {
+  MEMBERS = 'MEMBERS',
+  FRIENDS = 'FRIENDS',
+}
+
+export enum UserConnectionStatus {
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE',
+  PLAYING = 'PLAYING',
+}
+
 export interface User {
   id: string;
   avatarImg: string;
   nickname: string;
   eloScore: number;
-  status: 'OFFLINE' | 'ONLINE' | 'PLAYING';
+  status: UserConnectionStatus;
   twoFactorAuthenticationSet: boolean;
-  twoFactorAuthenticationSecret: string;
 }
 
 export interface RankingData {

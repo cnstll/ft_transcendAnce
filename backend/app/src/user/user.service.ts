@@ -64,7 +64,16 @@ export class UserService {
 
   async getAllUsers(res: Response) {
     try {
-      const nicknames = await this.prismaService.user.findMany({});
+      const nicknames = await this.prismaService.user.findMany({
+        select: {
+          id: true,
+          nickname: true,
+          avatarImg: true,
+          eloScore: true,
+          status: true,
+          twoFactorAuthenticationSet: true,
+        },
+      });
       return res.status(200).send(nicknames);
       //TODO select so you don't return unneeded user info
     } catch (error) {
@@ -128,12 +137,29 @@ export class UserService {
   }
 
   async getUserInfo(userId: string): Promise<User | undefined> {
-    const user: User = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
       },
+      //TODO select useful info
     });
     return user;
+  }
+
+  async getFrontUserInfo(userId: string) {
+    return await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        avatarImg: true,
+        nickname: true,
+        eloScore: true,
+        status: true,
+        twoFactorAuthenticationSet: true,
+      },
+    });
   }
 
   async findOneFromUserNickname(
@@ -446,12 +472,12 @@ export class UserService {
     });
     const matchesList: Match[] = [];
 
-    if (matches.playerOneMatch !== null) {
+    if (matches?.playerOneMatch !== null) {
       for (let i = 0; i < matches.playerOneMatch.length; i++) {
         matchesList.push(matches.playerOneMatch[i]);
       }
     }
-    if (matches.playerOneMatch !== null) {
+    if (matches?.playerTwoMatch !== null) {
       for (let i = 0; i < matches.playerTwoMatch.length; i++) {
         matchesList.push(matches.playerTwoMatch[i]);
       }

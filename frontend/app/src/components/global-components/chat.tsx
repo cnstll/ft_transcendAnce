@@ -7,7 +7,6 @@ import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import UsersList from '../section-components/users-list';
 import { Channel, User } from '../global-components/interface';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
@@ -20,6 +19,7 @@ import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
 import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
+import MembersList from '../section-components/chat/members-list';
 
 function Chat() {
   const user = useUserInfo();
@@ -30,49 +30,48 @@ function Chat() {
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
-
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
-  const friendsListQueryKey = 'friendsList';
 
   useEffect(() => {
     if (user.isError) {
       navigate('/sign-in');
     }
-    // Connect to a room before sending any message
-    // TODO : Add a pop up to enter password
-    if (activeChannel) {
+    if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
         channelPassword: '',
       });
     }
+    if (
+      !activeChannel &&
+      channels.data !== undefined &&
+      channels.data.length > 0
+    ) {
+      const redirectToChannel = channels.data.at(0);
+      if (redirectToChannel) {
+        setActiveChannelId(redirectToChannel.id);
+        socket.emit('connectToRoom', {
+          channelId: redirectToChannel.id,
+          channelPassword: '',
+        });
+        navigate('../chat/' + redirectToChannel.id);
+      }
+    }
+    if (activeChannel && channels.data?.length == 0) {
+      setActiveChannelId('');
+      navigate('../chat');
+    }
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
-    socket.on('userDisconnected', () => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
-    socket.on('userConnected', (): void => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
-    socket.on('userInGame', (): void => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
-    socket.on('userGameEnded', (): void => {
-      void queryClient.invalidateQueries(friendsListQueryKey);
-    });
     return () => {
-      socket.off('userDisconnected');
-      socket.off('userConnected');
-      socket.off('userInGame');
-      socket.off('userGameEnded');
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user]);
+  }, [activeChannelId, socket, user, channels.data?.length]);
 
   return (
     <>
@@ -96,10 +95,10 @@ function Chat() {
             </SideBox>
             <CenterBox>
               <div
-                className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto"
+                className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                 style={{ backgroundImage: `url(${BackgroundGeneral})` }}
               >
-                <div className="flex">
+                <div className="flex sticky top-0 backdrop-blur-sm bg-gray-900/50">
                   <div className="flex-1">
                     <h2 className="flex justify-center p-5 font-bold">
                       {channels.isSuccess &&
@@ -110,27 +109,32 @@ function Chat() {
                     </h2>
                   </div>
                   <div className="p-5 flex justify-center">
-                    <DropDownButton isShown={isShown} setIsShown={setIsShown}>
-                      <ChannelOptions
-                        setActiveChannelId={setActiveChannelId}
-                        setIsShown={setIsShown}
-                      />
-                    </DropDownButton>
+                    {activeChannel ? (
+                      <DropDownButton isShown={isShown} setIsShown={setIsShown}>
+                        <ChannelOptions
+                          setActiveChannelId={setActiveChannelId}
+                          setIsShown={setIsShown}
+                        />
+                      </DropDownButton>
+                    ) : (
+                      <div />
+                    )}
                   </div>
                 </div>
-                <DisplayMessages
-                  userId={user.data.id}
-                  channelId={activeChannelId}
-                />
+                <div className='snap-end'>
+                  <DisplayMessages
+                    userId={user.data.id}
+                    channelId={activeChannelId}
+                  />
+                </div>
               </div>
             </CenterBox>
             <SideBox>
               <h2 className="flex justify-center font-bold">MEMBERS</h2>
               {channelUsers.isSuccess && channelUsers.data && (
-                <UsersList
-                  users={channelUsers.data.filter(
-                    (channelUser) => channelUser.id != user.data.id,
-                  )}
+                <MembersList
+                  channelUsers={channelUsers.data}
+                  user={user.data}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}
@@ -144,7 +148,6 @@ function Chat() {
           </div>
         </div>
       )}
-      ;
     </>
   );
 }

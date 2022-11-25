@@ -67,7 +67,7 @@ function SearchBoxUser({
     if (filteredResults) {
       if (filteredResults[0]) {
         const firstResult = filteredResults[0].nickname;
-        if (firstResult) {
+        if (firstResult && searchData.keyword) {
           navigate('../profile/' + firstResult);
         }
       }
@@ -104,8 +104,7 @@ function SearchBoxUser({
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
-                ?.slice(0, 5)
-                .map((userItem) => (
+                ?.map((userItem) => (
                   <SearchUserItem key={userItem.id} user={userItem} />
                 ))}
             </ul>
