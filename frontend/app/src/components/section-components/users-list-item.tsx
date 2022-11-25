@@ -2,6 +2,7 @@ import DropDownButton from './drop-down-button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
 import {
+  channelType,
   User,
   UserConnectionStatus,
   UserListType,
@@ -13,9 +14,11 @@ import MembersOptions from './chat/members-options';
 function UsersListItem({
   user,
   userListType,
+  type,
 }: {
   user: User;
   userListType?: UserListType;
+  type?: channelType;
 }) {
   const [isShown, setIsShown] = useState(false);
 
@@ -48,7 +51,7 @@ function UsersListItem({
         <div className="content-center mx-2 mt-1">
           <DropDownButton setIsShown={setIsShown} isShown={isShown}>
             {userListType === UserListType.MEMBERS && (
-              <MembersOptions user={user} setIsShown={setIsShown} />
+              <MembersOptions user={user} setIsShown={setIsShown} type={type} />
             )}
             {userListType === UserListType.FRIENDS && (
               <FriendsOptions user={user} setIsShown={setIsShown} />

@@ -197,7 +197,9 @@ export class UserController {
 
   /** Ban, mute,block management */
 
-  @Post('check-user-is-blocked') checkUserIsBlocked(
+  @Post('check-user-is-blocked')
+  @UseGuards(JwtAuthGuard)
+  checkUserIsBlocked(
     @GetCurrentUserId() userId: string,
     @Body() data: { targetId: string },
   ) {

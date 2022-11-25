@@ -32,6 +32,9 @@ function Chat() {
     useChannelsByUserList();
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
+  const type = channels.data?.find(
+    (channel) => channel.id === activeChannel,
+  )?.type;
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
@@ -121,7 +124,7 @@ function Chat() {
                     )}
                   </div>
                 </div>
-                <div className='snap-end'>
+                <div className="snap-end">
                   <DisplayMessages
                     userId={user.data.id}
                     channelId={activeChannelId}
@@ -131,10 +134,11 @@ function Chat() {
             </CenterBox>
             <SideBox>
               <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              {channelUsers.isSuccess && channelUsers.data && (
+              {channelUsers.isSuccess && channelUsers.data && type && (
                 <MembersList
                   channelUsers={channelUsers.data}
                   user={user.data}
+                  type={type}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}

@@ -65,7 +65,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   }, []);
 
   function leaveChannel(channelInfo: Channel) {
-    socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
+    socket.emit('leaveRoom', {
+      leaveInfo: { id: channelInfo.id, type: channelInfo.type },
+    });
   }
 
   function leaveChannelHandler() {
