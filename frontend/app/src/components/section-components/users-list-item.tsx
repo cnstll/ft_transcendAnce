@@ -1,7 +1,8 @@
 import DropDownButton from './drop-down-button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faGamepad, faCircle, faCrown, faChessKnight } from '@fortawesome/free-solid-svg-icons';
 import {
+  channelRole,
   User,
   UserConnectionStatus,
   UserListType,
@@ -13,9 +14,11 @@ import MembersOptions from './chat/members-options';
 function UsersListItem({
   user,
   userListType,
+  role
 }: {
   user: User;
   userListType?: UserListType;
+  role?: channelRole;
 }) {
   const [isShown, setIsShown] = useState(false);
 
@@ -43,6 +46,8 @@ function UsersListItem({
       </div>
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
+        {role === channelRole.Owner && <p className='ml-3 text-xs text-purple-light'><FontAwesomeIcon className="mr-1" icon={faCrown} /> Owner</p>}
+        {role === channelRole.Admin && <p className='ml-3 text-xs text-purple-light'><FontAwesomeIcon className="mx-1" icon={faChessKnight} /> Admin</p>}
       </div>
       {userListType && (
         <div className="content-center mx-2 mt-1">
