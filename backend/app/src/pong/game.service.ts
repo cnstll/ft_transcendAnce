@@ -161,6 +161,25 @@ export class GameService {
     this.schedulerRegistry.addTimeout(name, timeout);
   }
 
+  addInvitationTimeout(
+    name: string,
+    server: Server,
+    challengerSocketId: string,
+    opponentSocketId: string,
+    challengerId: string,
+  ) {
+    const callback = () => {
+      this.GameMap.delete(challengerId);
+      server
+        .to(challengerSocketId)
+        .emit('inviteRefused', 'Your opponent is too slow for you');
+      server.to(opponentSocketId).emit('inviteRefused', 'YOU were too slow');
+    };
+    const timeoutInMs = 5000;
+    const timeout = setTimeout(callback, timeoutInMs);
+    this.schedulerRegistry.addTimeout(name, timeout);
+  }
+
   addWinningTimeout(milliseconds: number, server: Server, winnerId: string) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);

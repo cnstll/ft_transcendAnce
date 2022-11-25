@@ -22,7 +22,6 @@ interface BannerProps {
 
 function Accept({onAccept, name}: {onAccept: () => void, name: string} ) {
   const handleAccept= () => {
-    console.log('accepting now');
     onAccept();
   };
   return (
@@ -120,7 +119,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
     position: 'bottom-right',
     onClose: () => {
       if (acceptInvite){
-        console.log('sending response now: ', acceptInvite);
         socket.emit('acceptInvite', challenger);
         navigate('/play');
       } else {
