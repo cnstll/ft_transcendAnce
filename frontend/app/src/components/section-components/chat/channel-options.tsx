@@ -32,6 +32,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
 
+  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
+  console.log("option log: ", myRole.data);
+
   useEffect(() => {
     socket.on(
       'roomLeft',
@@ -62,7 +65,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       socket.off('roomLeft');
       socket.off('leaveRoomFailed');
     };
-  }, []);
+  }, [myRole]);
 
   function leaveChannel(channelInfo: Channel) {
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
@@ -83,8 +86,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   function handleInviteModal() {
     setShowInviteModal(!showInviteModal);
   }
-
-  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
 
   if (channelInfo !== undefined)
     return (

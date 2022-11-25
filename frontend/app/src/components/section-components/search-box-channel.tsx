@@ -141,14 +141,14 @@ function SearchBoxChannel({
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white rounded-lg text-sm absolute ' + width}>
+        <div className={'bg-white rounded-lg text-sm absolute z-30 ' + width}>
           {isShown && (
             <ul>
               {filterChannels(channels, searchData.keyword)
                 ?.map((channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
-                    <div className="z-index-20">
+                    <div className="">
                       {showModal && (
                         <PasswordModal
                           setShowModal={setShowModal}

@@ -40,7 +40,7 @@ function PasswordModal(props: PwdModalProps) {
     <>
       <div
         className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0
-          h-modal h-full bg-[#222] bg-opacity-50"
+          h-modal h-full bg-[#222] bg-opacity-50 z-30 "
       >
         <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
           <div className="relative bg-white rounded-lg shadow text-black p-6">

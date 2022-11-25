@@ -98,29 +98,25 @@ function Chat() {
                 className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                 style={{ backgroundImage: `url(${BackgroundGeneral})` }}
               >
-                <div className="flex sticky top-0 backdrop-blur-sm bg-gray-900/50">
-                  <div className="flex-1">
+                  {channels.isSuccess &&
+                    channels.data && channels.data.length > 0 &&
+                  <div className="flex sticky top-0 ">
+                    <div className="flex-1 backdrop-blur-sm bg-gray-900/50">
                     <h2 className="flex justify-center p-5 font-bold">
-                      {channels.isSuccess &&
-                        channels.data &&
-                        channels.data.find(
-                          (channel) => channel.id === activeChannel,
-                        )?.name}
+                    {channels.data.find(
+                      (channel) => channel.id === activeChannel,
+                    )?.name}
                     </h2>
                   </div>
-                  <div className="p-5 flex justify-center">
-                    {activeChannel ? (
-                      <DropDownButton isShown={isShown} setIsShown={setIsShown}>
+                  <div className="flex justify-center">
+                      <DropDownButton isShown={isShown} setIsShown={setIsShown} style="backdrop-blur-sm bg-gray-900/50 p-5">
                         <ChannelOptions
                           setActiveChannelId={setActiveChannelId}
                           setIsShown={setIsShown}
                         />
                       </DropDownButton>
-                    ) : (
-                      <div />
-                    )}
                   </div>
-                </div>
+                </div>}
                 <div className='snap-end'>
                   <DisplayMessages
                     userId={user.data.id}
