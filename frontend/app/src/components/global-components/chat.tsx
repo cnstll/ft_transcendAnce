@@ -105,16 +105,16 @@ function Chat() {
               >
                   {channels.isSuccess &&
                     channels.data && channels.data.length > 0 &&
-                  <div className="flex sticky top-0 ">
-                    <div className="flex-1 backdrop-blur-sm bg-gray-900/50">
-                    <h2 className="flex justify-center p-5 font-bold">
+                  <div className="flex sticky top-0">
+                    <div className="flex-1 backdrop-blur-sm bg-gray-900/50 text-center flex-wrap overflow-hidden max-h-20">
+                    <h2 className="flex-1 justify-center p-4 font-bold">
                     {channels.data.find(
                       (channel) => channel.id === activeChannel,
                     )?.name}
                     </h2>
                   </div>
                   <div className="flex justify-center">
-                      <DropDownButton isShown={isShown} setIsShown={setIsShown} style="backdrop-blur-sm bg-gray-900/50 p-5 ">
+                      <DropDownButton isShown={isShown} setIsShown={setIsShown} style="backdrop-blur-sm bg-gray-900/50 p-5">
                         <ChannelOptions
                           setActiveChannelId={setActiveChannelId}
                           setIsShown={setIsShown}

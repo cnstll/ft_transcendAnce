@@ -130,9 +130,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        <Link to="/">
-          <p className="text-center hover:underline my-2">Ban user</p>
-        </Link>
       </div>
     );
   else return <></>;
