@@ -14,7 +14,7 @@ import {
   Message,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateChannelDto, EditChannelDto } from './dto';
+import { CreateChannelDto, EditChannelDto, EditRoleChannelDto } from './dto';
 import { Socket } from 'socket.io';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
@@ -283,28 +283,6 @@ export class ChannelService {
 
   //******   CHAT WEBSOCKETS SERVICES *******//
 
-  async hasAdminRights(userId: string, channelId: string) {
-    /* Find the user's role to check the rights to update */
-    const admin: { role: ChannelRole } =
-      await this.prisma.channelUser.findUnique({
-        where: {
-          userId_channelId: {
-            userId: userId,
-            channelId: channelId,
-          },
-        },
-        select: {
-          role: true,
-        },
-      });
-    /* If relation doesn't exist or User doesn't have Owner or Admin role */
-    if (!admin || admin.role === 'USER') {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
   async connectToChannel(
     userId: string,
     channelId: string,
@@ -511,6 +489,29 @@ export class ChannelService {
     }
   }
 
+  // async hasAdminRights(userId: string, channelId: string) {
+  //   /* Find the user's role to check the rights to update */
+  //   const admin: { role: ChannelRole } =
+  //     await this.prisma.channelUser.findUnique({
+  //       where: {
+  //         userId_channelId: {
+  //           userId: userId,
+  //           channelId: channelId,
+  //         },
+  //       },
+  //       select: {
+  //         role: true,
+  //       },
+  //     });
+  //   /* If relation doesn't exist or User doesn't have Owner or Admin role */
+  //   // if (!admin || admin.role === 'USER') {
+  //   //   return false;
+  //   // } else {
+  //   //   return true;
+  //   // }
+  //   return admin;
+  // }
+
   async editChannelByIdWS(
     userId: string,
     channelId: string,
@@ -522,9 +523,12 @@ export class ChannelService {
         return null;
       }
       /* Check that the user is owner or admin for update rights */
-      const canEdit = await this.hasAdminRights(userId, channelId);
-      if (!canEdit) {
-        return null;
+      const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        userId,
+        channelId,
+      );
+      if (!userRole || userRole.role < ChannelRole.ADMIN) {
+        return 'noEligibleRights';
       }
       if (dto.type === ChannelType.PROTECTED) {
         await this.handlePasswords(dto, channelId);
@@ -541,6 +545,7 @@ export class ChannelService {
       delete editedChannel.passwordHash;
       return editedChannel;
     } catch (error) {
+      console.log(error);
       if (error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
       }
@@ -596,7 +601,7 @@ export class ChannelService {
       userId,
       inviteDto.channelId,
     );
-    if (userRole.role < ChannelRole.ADMIN) {
+    if (!userRole || userRole.role < ChannelRole.ADMIN) {
       return 'noEligibleRights';
     }
     try {
@@ -620,6 +625,53 @@ export class ChannelService {
       if (error == 'Error: alreadyInvited') {
         return 'alreadyInvited';
       }
+      console.log(error);
+    }
+  }
+
+  async updateAdminRoleByChannelIdWS(
+    userId: string,
+    channelId: string,
+    dto: EditRoleChannelDto,
+  ) {
+    try {
+      /** First, check the current user asking promotion is the owner of the channel */
+      const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        userId,
+        channelId,
+      );
+      if (!userRole || userRole.role < ChannelRole.OWNER) {
+        return 'noEligibleRights';
+      }
+      /** Then, check the targeted user exists + is user or admin of the channel */
+      const targetRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        dto.promotedUserId,
+        channelId,
+      );
+      if (!targetRole || targetRole.role === ChannelRole.OWNER) {
+        return 'PromotionNotAuthorized';
+      }
+      /** Toggle Admin role regarding the current role */
+      const newRole: ChannelRole =
+        (targetRole.role === ChannelRole.USER? ChannelRole.ADMIN : ChannelRole.USER);
+      /* Then, update the role of the user targeted to Admin in the channel */
+      const editedTarget: { role: ChannelRole } =
+        await this.prisma.channelUser.update({
+          where: {
+            userId_channelId: {
+              userId: dto.promotedUserId,
+              channelId: channelId,
+            },
+          },
+          data: {
+            role: newRole,
+          },
+          select: {
+            role: true,
+          },
+        });
+      return editedTarget.role;
+    } catch (error) {
       console.log(error);
     }
   }

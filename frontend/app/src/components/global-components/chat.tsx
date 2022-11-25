@@ -72,7 +72,7 @@ function Chat() {
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
-    roleUsers.refetch;
+    //roleUsers.refetch;
     return () => {
       socket.off('roomLeft');
     };

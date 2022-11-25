@@ -66,7 +66,8 @@ function UsersListItem({
               <MembersOptions
                 user={user}
                 setIsShown={setIsShown}
-                channelId={channelId?? ''}/>
+                channelId={channelId?? ''}
+                role={role?? channelRole.User}/>
             )}
             {userListType === UserListType.FRIENDS && (
               <FriendsOptions

@@ -11,9 +11,10 @@ interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   channelId: string;
+  role: channelRole;
 }
 
-function MembersOptions({ user, setIsShown, channelId}: UserOptionsProps) {
+function MembersOptions({ user, setIsShown, channelId, role}: UserOptionsProps) {
   const myRole = useMyChannelRole(channelId);
 
   return (
@@ -25,7 +26,7 @@ function MembersOptions({ user, setIsShown, channelId}: UserOptionsProps) {
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
       {myRole.isSuccess && myRole.data?.role === channelRole.Owner && (
-        <PromoteToAdmin user={user} setIsShown={setIsShown} />
+        <PromoteToAdmin user={user} setIsShown={setIsShown} channelId={channelId} role={role}/>
       )}
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (
