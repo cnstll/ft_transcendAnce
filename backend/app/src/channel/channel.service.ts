@@ -147,6 +147,28 @@ export class ChannelService {
     }
   }
 
+  async getRolesOfUsersChannel(channelId: string) {
+    try {
+      await this.checkChannel(channelId);
+      const roles: {
+        userId: string;
+        role: ChannelRole;
+      }[] = await this.prisma.channelUser.findMany({
+        where: {
+          channelId: channelId,
+        },
+        select: {
+          userId: true,
+          role: true,
+        },
+      });
+      return roles;
+    } catch (error) {
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
+  }
+
   async getInvitesOfAChannel(channelId: string) {
     try {
       await this.checkChannel(channelId);

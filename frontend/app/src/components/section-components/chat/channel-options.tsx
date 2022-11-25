@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Channel, User, channelRole } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
-import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels';
+import { useMyChannelRole} from 'src/components/query-hooks/useGetChannels';
 import InviteModal from './invite-modal';
 
 /* review datafetching of role in channel to not refetch multiple times */
@@ -32,7 +32,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
 
-  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
+  const myRole = useMyChannelRole(channelInfo?.id ?? '');
   console.log("option log: ", myRole.data);
 
   useEffect(() => {
