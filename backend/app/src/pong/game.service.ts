@@ -39,9 +39,7 @@ export class GameService {
   refuseInvite(client: Socket, userId: string) {
     const challengerSocket = socketToUserId.getFromUserId(userId);
     if (this.GameMap.getGame(userId)) {
-      client
-        .to(challengerSocket)
-        .emit('inviteRefused', "invite refused, they can't handle you");
+      client.to(challengerSocket).emit('inviteRefused', 'invite refused');
     }
     try {
       this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
@@ -86,16 +84,8 @@ export class GameService {
         },
       });
 
-      const pendingGame = this.createGame(p1id, gameMode, p2id);
+      this.createGame(p1id, gameMode, p2id);
       this.join(client, p1id, server, gameMode);
-      //TODO: send timeout message to invitee
-      this.addInvitationTimeout(
-        pendingGame.gameRoomId,
-        server,
-        client.id,
-        opponentSocket,
-        p1id,
-      );
       client.to(opponentSocket).emit('invitedToGame', challenger);
       return 'gameJoined';
     } catch (error) {
@@ -168,25 +158,6 @@ export class GameService {
     };
 
     const timeout = setTimeout(callback, milliseconds);
-    this.schedulerRegistry.addTimeout(name, timeout);
-  }
-
-  addInvitationTimeout(
-    name: string,
-    server: Server,
-    challengerSocketId: string,
-    opponentSocketId: string,
-    challengerId: string,
-  ) {
-    const callback = () => {
-      this.GameMap.delete(challengerId);
-      server
-        .to(challengerSocketId)
-        .emit('inviteRefused', 'Your opponent is too slow for you');
-      server.to(opponentSocketId).emit('inviteRefused', 'YOU were too slow');
-    };
-    const timeoutInMs = 5000;
-    const timeout = setTimeout(callback, timeoutInMs);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
 
