@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { socket } from 'src/components/global-components/client-socket';
-import { User } from '../../global-components/interface';
+import { channelType, User } from '../../global-components/interface';
 
 interface BlockFriendsProps {
   user: User;
@@ -13,13 +14,22 @@ function SendDM({ user, setIsShown }: BlockFriendsProps) {
   const navigate = useNavigate();
   const channelsQueryKey = 'channelsByUserList';
 
-  const onSendDM = () => {
-    setIsShown(false);
+  useEffect(() => {
     socket.on('roomCreated', async (channelId: string) => {
       await queryClient.refetchQueries(channelsQueryKey);
       navigate('../chat/' + channelId);
     });
-    // socket.emit('createRoom', { createInfo: formData });
+    return () => {
+      socket.off('roomCreated');
+      socket.off('createRoomFailed');
+    };
+  }, []);
+
+  const onSendDM = () => {
+    setIsShown(false);
+    socket.emit('createRoom', {
+      createInfo: { name: user.nickname, type: channelType.DirectMessage },
+    });
     return () => {
       socket.off('roomCreated');
     };

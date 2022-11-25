@@ -44,8 +44,8 @@ export class ChannelService {
     });
   }
 
-  getChannelsByUserId(userId: string) {
-    return this.prisma.channel.findMany({
+  async getAllChannelsByUserId(userId: string) {
+    const channels = await this.prisma.channel.findMany({
       where: {
         users: {
           some: {
@@ -59,6 +59,18 @@ export class ChannelService {
         type: true,
       },
     });
+    /** Check if the channnel is of type DIRECT MESSAGE and change the name
+     * according to the name of the current user
+     */
+    for (let i = 0; i < channels.length; i++) {
+      if (channels[i].type === 'DIRECTMESSAGE') {
+        const channelUser = await this.getUsersOfAChannel(channels[i].id);
+        if (channelUser[0].id === userId)
+          channels[i].name = channelUser[1].nickname;
+        else channels[i].name = channelUser[0].nickname;
+      }
+    }
+    return channels;
   }
 
   getChannelById(channelId: string) {
