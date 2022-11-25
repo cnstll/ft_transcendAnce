@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { socket } from '../../global-components/client-socket';
 import { Message, User } from '../../global-components/interface';
-import { useChannelUsers } from '../../query-hooks/useGetChannelUsers';
+import { useChannelAuthors } from '../../query-hooks/useGetChannelAuthors';
 import { useGetAllMessages } from '../../query-hooks/useGetMessages';
 import LoadingSpinner from '../loading-spinner';
 
@@ -56,12 +56,13 @@ function DisplayMessages({
   const messageQuery: UseQueryResult<Message[] | undefined> =
     useGetAllMessages(channelId);
 
-  const channelUsersQuery: UseQueryResult<User[] | undefined> =
-    useChannelUsers(channelId);
+  const channelAuthorsQuery: UseQueryResult<User[] | undefined> =
+    useChannelAuthors(channelId);
 
   const queryClient = useQueryClient();
   const messageQueryKey = 'getAllMessages';
   const channelUsersQueryKey = 'channelUsers';
+  const channelAuthorsQueryKey = 'channelAuthors';
 
   useEffect(() => {
     socket.on('messageRoomFailed', () => {
@@ -69,6 +70,7 @@ function DisplayMessages({
     });
     socket.on('incomingMessage', async () => {
       await queryClient.invalidateQueries(messageQueryKey);
+      await queryClient.invalidateQueries(channelAuthorsQueryKey);
     });
     socket.on('roomJoined', async () => {
       await queryClient.invalidateQueries(channelUsersQueryKey);
@@ -81,10 +83,14 @@ function DisplayMessages({
 
   return (
     <div className="p-5 flex flex-col gap-4">
-      {!channelId && <div className='text-xl text-center'>Join the fun, join your first channel! 🎉</div>}
+      {!channelId && (
+        <div className="text-xl text-center">
+          Join the fun, join your first channel! 🎉
+        </div>
+      )}
       {messageQuery.isSuccess &&
-        channelUsersQuery.isSuccess &&
-        channelUsersQuery.data &&
+        channelAuthorsQuery.isSuccess &&
+        channelAuthorsQuery.data &&
         messageQuery.data &&
         messageQuery.data.length > 0 &&
         messageQuery.data.map((message) =>
@@ -93,7 +99,7 @@ function DisplayMessages({
               key={message.id}
               content={message.content}
               image={
-                channelUsersQuery.data?.filter(
+                channelAuthorsQuery.data?.filter(
                   (user) => user.id === message.senderId,
                 )[0]?.avatarImg
               }
@@ -103,7 +109,7 @@ function DisplayMessages({
               key={message.id}
               content={message.content}
               image={
-                channelUsersQuery.data?.filter(
+                channelAuthorsQuery.data?.filter(
                   (user) => user.id === message.senderId,
                 )[0]?.avatarImg
               }
@@ -113,10 +119,21 @@ function DisplayMessages({
       {messageQuery.isSuccess &&
         messageQuery.data &&
         messageQuery.data.length === 0 && (
-          <div className='text-xl text-center'>No message in this channel yet! Don't be shy, send one!</div>
+          <div className="text-xl text-center">
+            No message in this channel yet! Don't be shy, send one!
+          </div>
         )}
       {messageQuery.isLoading && <LoadingSpinner />}
-      {messageQuery.isError && <div className='text-xl text-center'>Woops could not find any messages 😔 </div>}
+      {messageQuery.isError && (
+        <div className="text-xl text-center">
+          Woops could not find any messages 😔
+        </div>
+      )}
+      {channelAuthorsQuery.isError && (
+        <div className="text-xl text-center">
+          Woops could not load your messages 😔
+        </div>
+      )}
     </div>
   );
 }
