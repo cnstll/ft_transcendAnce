@@ -19,6 +19,7 @@ interface BannerProps {
   text: JSX.Element | string;
   avatarImg: string;
 }
+
 function Accept({onAccept, name}: {onAccept: () => void, name: string} ) {
   const handleAccept= () => {
     console.log('accepting now');
