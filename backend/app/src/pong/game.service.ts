@@ -96,6 +96,13 @@ export class GameService {
     }
   }
 
+  watch(client: Socket, playerId: string) {
+    const game = this.GameMap.getGame(playerId);
+    client.join(game.gameRoomId);
+    // this.mutateGameStatus(game, game.status, server);
+    return { playerNumber: 1 };
+  }
+
   join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 

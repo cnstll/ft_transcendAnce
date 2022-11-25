@@ -84,6 +84,16 @@ export class GameGateway {
     );
   }
 
+  @SubscribeMessage('watchGame')
+  watchGame(
+    @MessageBody('playerId') playerId: string,
+    @ConnectedSocket() client: Socket,
+    // @GetCurrentUserId() id: string,
+  ) {
+    return this.gameService.watch(client, playerId);
+    // this.socketToId.set(client.id, id);
+    // return this.gameService.join(client, id, this.server, mode);
+  }
   @SubscribeMessage('joinGame')
   joinRoom(
     @MessageBody('mode') mode: GameMode,

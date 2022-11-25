@@ -1,10 +1,10 @@
 import React from 'react';
-import { useEffect, useRef, useState, MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
 import { GameCoords, GameInformation, GameStatus } from '../../global-components/interface';
-import { GameInfo, PlayerInfo } from '../../../proto/file_pb';
+import { GameInfo } from '../../../proto/file_pb';
 import { cacheCanvas, draw } from 'src/components/custom-hooks/draw';
 import { drawGameStatus } from 'src/components/custom-hooks/game-statuses';
 
@@ -19,12 +19,6 @@ const gameConstants = {
   paddleHeight: 100,
   ballHeight: 10,
 };
-
-interface GameProps {
-  gameMode: string;
-  avatarImg: string;
-  userId: string;
-}
 
 interface PlayerAvatarProps {
   currentPlayerAvatar: string;
@@ -93,27 +87,24 @@ const gameInfo: GameInformation = {
   playerNumber: 1,
 };
 
-function Game({ gameMode, avatarImg, userId }: GameProps) {
+function WatchGame({ avatarImg, userId }: {avatarImg: string, userId: string}) {
 
-  const message = new PlayerInfo();
-  let encodedMessage;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const navigate = useNavigate();
+  const { playerId } = useParams();
   const [playerOneId, setPlayerOneId] = useState<string | undefined>(undefined);
   const [playerTwoId, setPlayerTwoId] = useState<string | undefined>(undefined);
   const [gameStatus, setGameStatus] = useState<GameStatus>(GameStatus.PENDING);
 
   useEffect(() => {
     socket.emit(
-      'joinGame',
-      { mode: gameMode },
+      'watchGame',
+      {playerId: playerId},
       (response: { playerNumber: number }) => {
+        console.log('here i am the server responded')
         gameInfo.playerNumber = response.playerNumber;
       },
     );
-    return () => {
-      socket.emit('leaveGame', {});
-    };
   }, []);
 
   useEffect(() => {
@@ -198,23 +189,6 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     return;
   }, [window.innerWidth, window.innerHeight, gameStatus]);
 
-  function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
-    const clientY = event.clientY;
-
-    if (gameInfo.context !== null && canvasRef.current !== null && gameStatus === GameStatus.PLAYING) {
-      gameInfo.context.textBaseline = 'middle';
-      gameInfo.context.textAlign = 'center';
-      const rect = canvasRef.current.getBoundingClientRect();
-      const posy: number = Math.round(
-        ((clientY - rect.top) / canvasRef.current.height) *
-          gameConstants.relativeGameWidth,
-      );
-          message.setYpos(posy);
-          encodedMessage = message.serializeBinary();
-          socket.volatile.emit('PP', encodedMessage.buffer);
-    }
-  }
-
   let opponentId: string | undefined = userId;
   if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
   else if (gameInfo.playerNumber === 2 && playerOneId) opponentId = playerOneId;
@@ -226,7 +200,6 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
       <div>
         {gameStatus === GameStatus.PLAYING && (
           <canvas
-            onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
             />
@@ -236,21 +209,18 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         )}
         {gameStatus === GameStatus.OVER && (
           <canvas
-            onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
             />
         )}
         {gameStatus === GameStatus.PENDING && (
           <canvas
-            onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
             />
         )}
         {gameStatus === GameStatus.PAUSED && (
           <canvas
-            onMouseMove={movePaddle}
             ref={canvasRef}
             className="border-solid border-2 border-white"
             />
@@ -269,4 +239,4 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
   );
 }
 
-export default React.memo(Game);
+export default React.memo(WatchGame);
