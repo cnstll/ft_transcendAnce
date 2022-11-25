@@ -16,7 +16,7 @@ function PromoteToAdmin({ user, setIsShown, channelId, role}: PromoteToAdminProp
 
   useEffect(() => {
     socket.on('roleUpdated', async () => {
-      await queryClient.refetchQueries(roleQueryKey);
+      await queryClient.invalidateQueries(roleQueryKey);
       setIsShown(false);
     });
     socket.on('updateRoleFailedd', () => {

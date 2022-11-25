@@ -653,7 +653,9 @@ export class ChannelService {
       }
       /** Toggle Admin role regarding the current role */
       const newRole: ChannelRole =
-        (targetRole.role === ChannelRole.USER? ChannelRole.ADMIN : ChannelRole.USER);
+        targetRole.role === ChannelRole.USER
+          ? ChannelRole.ADMIN
+          : ChannelRole.USER;
       /* Then, update the role of the user targeted to Admin in the channel */
       const editedTarget: { role: ChannelRole } =
         await this.prisma.channelUser.update({
