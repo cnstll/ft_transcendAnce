@@ -14,7 +14,9 @@ function UsersList({
 }) {
   return (
     <div className="flex flex-col text-base my-4 gap-4">
-      {users.map((user: User) => (
+      {users
+      .sort((a, b) => (a.nickname.toLowerCase() >= b.nickname.toLowerCase() ? 1 : -1))
+      .map((user: User) => (
         <UsersListItem key={user.id} user={user} userListType={userListType} role={(roles?.find((role) => role.userId === user.id)?.role)} />
       ))}
     </div>

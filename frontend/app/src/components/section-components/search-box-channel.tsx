@@ -145,7 +145,8 @@ function SearchBoxChannel({
           {isShown && (
             <ul>
               {filterChannels(channels, searchData.keyword)
-                ?.map((channelItem) => (
+                ?.sort((a, b) => (a.name.toLowerCase() >= b.name.toLowerCase() ? 1 : -1))
+                .map((channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
                     <div className="">

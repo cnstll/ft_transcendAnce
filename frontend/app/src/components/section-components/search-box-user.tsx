@@ -104,6 +104,7 @@ function SearchBoxUser({
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
+                ?.sort((a, b) => (a.nickname.toLowerCase() >= b.nickname.toLowerCase() ? 1 : -1))
                 ?.map((userItem) => (
                   <SearchUserItem key={userItem.id} user={userItem} />
                 ))}
