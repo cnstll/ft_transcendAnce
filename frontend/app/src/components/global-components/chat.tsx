@@ -31,7 +31,6 @@ function Chat() {
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
-
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
 
@@ -42,10 +41,31 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
-    if (activeChannel) {
+
+    if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
       });
+    }
+
+    if (
+      !activeChannel &&
+      channels.data !== undefined &&
+      channels.data.length > 0
+    ) {
+      const redirectToChannel = channels.data.at(0);
+      if (redirectToChannel) {
+        setActiveChannelId(redirectToChannel.id);
+        socket.emit('connectToRoom', {
+          channelId: redirectToChannel.id,
+          channelPassword: '',
+        });
+        navigate('../chat/' + redirectToChannel.id);
+      }
+    }
+    if (activeChannel && channels.data?.length == 0) {
+      setActiveChannelId('');
+      navigate('../chat');
     }
 
     socket.on('roomLeft', () => {
@@ -54,7 +74,7 @@ function Chat() {
     return () => {
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user]);
+  }, [activeChannelId, socket, user, channels.data?.length]);
 
   if (activeChannel) {
     if (channels.data &&
@@ -100,12 +120,16 @@ function Chat() {
                     </h2>
                   </div>
                   <div className="p-5 flex justify-center">
-                    <DropDownButton isShown={isShown} setIsShown={setIsShown}>
-                      <ChannelOptions
-                        setActiveChannelId={setActiveChannelId}
-                        setIsShown={setIsShown}
-                      />
-                    </DropDownButton>
+                    {activeChannel ? (
+                      <DropDownButton isShown={isShown} setIsShown={setIsShown}>
+                        <ChannelOptions
+                          setActiveChannelId={setActiveChannelId}
+                          setIsShown={setIsShown}
+                        />
+                      </DropDownButton>
+                    ) : (
+                      <div />
+                    )}
                   </div>
                 </div>
                 <div className='snap-end'>
@@ -135,7 +159,6 @@ function Chat() {
           </div>
         </div>
       )}
-      ;
     </>
   );
 }

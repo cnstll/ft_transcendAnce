@@ -81,6 +81,7 @@ function DisplayMessages({
 
   return (
     <div className="p-5 flex flex-col gap-4">
+      {!channelId && <div className='text-xl text-center'>Join the fun, join your first channel! 🎉</div>}
       {messageQuery.isSuccess &&
         channelUsersQuery.isSuccess &&
         channelUsersQuery.data &&
@@ -112,10 +113,10 @@ function DisplayMessages({
       {messageQuery.isSuccess &&
         messageQuery.data &&
         messageQuery.data.length === 0 && (
-          <div>No message in this channel yet! Don't be shy, send one!</div>
+          <div className='text-xl text-center'>No message in this channel yet! Don't be shy, send one!</div>
         )}
       {messageQuery.isLoading && <LoadingSpinner />}
-      {messageQuery.isError && <div>Woops could not find any messages :( </div>}
+      {messageQuery.isError && <div className='text-xl text-center'>Woops could not find any messages 😔 </div>}
     </div>
   );
 }
