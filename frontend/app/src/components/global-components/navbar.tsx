@@ -101,8 +101,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
           height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
           width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
           placeholder="player"
-          users={usersData.data?.filter(
-            (user) => user.id !== currentUserData.data?.id,
+          users={usersData.data.filter(
+            (user) => user.id !== currentUserData.data.id,
           )}
         />
       )}
