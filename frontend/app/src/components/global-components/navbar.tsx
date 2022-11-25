@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../custom-hooks/use-outside-click';
 import { apiUrl, User } from '../global-components/interface';
@@ -24,6 +24,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
   const currentLocation = useLocation();
   const queryClient = useQueryClient();
   const friendsListQueryKey = 'friendsList';
+  const navigate = useNavigate();
+  const channelUsersQueryKey = 'channelUsers';
 
   const showInfo = () => {
     setIsShown((current) => !current);
@@ -40,23 +42,45 @@ function Navbar({ text, avatarImg }: BannerProps) {
     }
     socket.on('userDisconnected', () => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userConnected', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userInGame', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userGameEnded', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+      void queryClient.invalidateQueries(channelUsersQueryKey);
     });
+
+    const inviteListener = (challenger: User) => {
+      if (confirm(`${challenger.nickname} has challenged you!`)) {
+        socket.emit('acceptInvite', challenger);
+        navigate('/play');
+      } else {
+        socket.emit('refuseInvite', challenger);
+      }
+    };
+    socket.on('invitedToGame', inviteListener);
+
+    socket.on('inviteRefused', (alertContent: string): void => {
+      alert(alertContent);
+      navigate('/');
+    });
+
     return () => {
       socket.off('userDisconnected');
       socket.off('userConnected');
       socket.off('userInGame');
       socket.off('userGameEnded');
+      socket.off('invitedToGame');
+      socket.off('inviteRefused');
     };
-  }, [socket]);
+  }, []);
 
   return (
     <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
@@ -112,6 +136,9 @@ function UserInfo() {
     <div>
       <Link to="/profile">
         <p className="text-center hover:underline my-2">Profile</p>
+      </Link>
+      <Link to="/chat">
+        <p className="text-center hover:underline my-2">Chat</p>
       </Link>
       <Link to="/ranking">
         <p className="text-center hover:underline my-2">Ranking</p>
