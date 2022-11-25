@@ -145,7 +145,9 @@ export class GameService {
   }
 
   deleteTimeout(name: string) {
-    this.schedulerRegistry.deleteTimeout(name);
+    try {
+      this.schedulerRegistry.deleteTimeout(name);
+    } catch (error) {}
   }
 
   addTimeout(
