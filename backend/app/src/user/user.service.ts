@@ -137,10 +137,11 @@ export class UserService {
   }
 
   async getUserInfo(userId: string): Promise<User | undefined> {
-    const user: User = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
       },
+      //TODO select useful info
     });
     return user;
   }

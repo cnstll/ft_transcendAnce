@@ -7,6 +7,20 @@ export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
 
+export enum UserConnectionStatus {
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE',
+  PLAYING = 'PLAYING',
+}
+
+export interface FrontendUser {
+  id: string;
+  avatarImg: string;
+  nickname: string;
+  eloScore: number;
+  twoFactorAuthenticationSet: boolean;
+}
+
 export enum GameMode {
   CLASSIC = 'CLASSIC',
   MAYHEM = 'MAYHEM',
@@ -22,7 +36,7 @@ export class DoubleKeyMap {
 
   getGame(playerId: string) {
     const game = this.playerMap.get(playerId);
-    if (game !== null) {
+    if (game !== undefined) {
       return game;
     }
     return null;
@@ -30,7 +44,7 @@ export class DoubleKeyMap {
 
   rejoinGame(playerId: string) {
     const game: Game = this.playerMap.get(playerId);
-    if (game !== null) {
+    if (game !== undefined) {
       return game;
     }
     return null;
@@ -54,6 +68,11 @@ export class DoubleKeyMap {
     this.size++;
   }
 
+  setPlayer2(player2Id: string, game: Game) {
+    game.p2id = player2Id;
+    this.playerMap.set(player2Id, game);
+  }
+
   delete(userId: string) {
     const game = this.playerMap.get(userId);
     if (game.p1id === userId) {
@@ -68,6 +87,7 @@ export class DoubleKeyMap {
 
 export class Game {
   constructor(mode: GameMode) {
+    this.status = Status.PENDING;
     this.gameRoomId = this.makeid(5);
     this.status = Status.PENDING;
     this.mode = mode;

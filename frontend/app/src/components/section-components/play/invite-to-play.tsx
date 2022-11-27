@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { socket } from '../../global-components/client-socket';
 import { User } from '../../global-components/interface';
 
 interface InviteToPlayProps {
@@ -6,8 +8,22 @@ interface InviteToPlayProps {
 }
 
 function InviteToPlay({ user, setIsShown }: InviteToPlayProps) {
+  const navigate = useNavigate();
   const onInvite = () => {
     setIsShown(false);
+    socket.emit(
+      'createInvitationGame',
+      { mode: 'CLASSIC', opponent: user.id },
+      (msg: string) => {
+        if (msg === 'gameJoined') {
+          navigate('/play');
+        } else if (msg === 'inviteFailed') {
+          //Nothing to Do here as it is handled by a listener
+        } else {
+          alert('Your invitation was deflected by a mighty pong spirit');
+        }
+      },
+    );
   };
   user; // just to silence warnings
   return (
