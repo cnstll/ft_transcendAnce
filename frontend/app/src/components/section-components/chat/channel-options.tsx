@@ -37,6 +37,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       'roomLeft',
       async (leavingInfo: { userId: string; channelId: string }) => {
         // User receiving the event is the user leaving the room
+        setIsShown(false);
         if (userQueryData?.id === leavingInfo.userId) {
           const channelListDisplayed: Channel[] | undefined =
             await queryClient.getQueryData(channelsQueryKey);
@@ -48,7 +49,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
                 (channel) => channel.id != deletedChannel,
               )?.id ?? '';
             setActiveChannelId(nextChannelId);
-            setIsShown(false);
             navigate(`../chat/${nextChannelId}`);
           }
         } else {
