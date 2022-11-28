@@ -19,6 +19,7 @@ import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
 import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
+import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
 
 function Chat() {
@@ -45,11 +46,13 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
+    /** Reconnect to socket? */
     if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
       });
     }
+    /** Fallback on a joined channel when landing on /chat */
     if (
       !activeChannel &&
       channels.data !== undefined &&
@@ -65,20 +68,31 @@ function Chat() {
         navigate('../chat/' + redirectToChannel.id);
       }
     }
+    /** Fallback on /chat when no joined channel */
     if (activeChannel && channels.data?.length == 0) {
       setActiveChannelId('');
       navigate('../chat');
     }
+
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
-    queryClient.invalidateQueries('channelsByUserList');
-    queryClient.invalidateQueries('rolesInChannel');
-    queryClient.invalidateQueries('channelUsers');
+    /** The following invalidateQueries enable edit channel + invite modals to work properly */
+    void queryClient.invalidateQueries('channelsByUserList');
+    void queryClient.invalidateQueries('rolesInChannel');
     return () => {
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user, channels.data?.length, channels, channelUsers]);
+  }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
+
+  /** Fallback on 404 when the channel is not accessible (not invited, not existing) */
+  if (activeChannel) {
+    if (channels.data &&
+      !channels.data.find(
+        (channel) => channel.id === activeChannel,
+      ))
+      return <PageNotFound />;
+  }
 
   return (
     <>
@@ -109,14 +123,14 @@ function Chat() {
                     channels.data && channels.data.length > 0 &&
                   <div className="flex sticky top-0">
                     <div className="flex-1 backdrop-blur-sm bg-gray-900/50 text-center flex-wrap overflow-hidden max-h-20">
-                    <h2 className="flex-1 justify-center p-4 font-bold">
+                    <h2 className="flex-1 justify-center pt-4 sm:pt-5 font-bold">
                     {channels.data.find(
                       (channel) => channel.id === activeChannel,
                     )?.name}
                     </h2>
                   </div>
                   <div className="flex justify-center">
-                      <DropDownButton isShown={isShown} setIsShown={setIsShown} style="backdrop-blur-sm bg-gray-900/50 p-5">
+                      <DropDownButton isShown={isShown} setIsShown={setIsShown} style="backdrop-blur-sm bg-gray-900/50 p-6 md:p-5">
                         <ChannelOptions
                           setActiveChannelId={setActiveChannelId}
                           setIsShown={setIsShown}

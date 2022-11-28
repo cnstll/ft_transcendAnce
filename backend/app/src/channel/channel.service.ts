@@ -83,6 +83,34 @@ export class ChannelService {
     });
   }
 
+  async getChannelAuthors(channelId: string) {
+    try {
+      const authors = await this.prisma.message.findMany({
+        where: {
+          channelId: channelId,
+        },
+        select: {
+          sender: {
+            select: {
+              id: true,
+              nickname: true,
+              avatarImg: true,
+            },
+          },
+        },
+        distinct: ['senderId'],
+      });
+      const flattenAuthors = [];
+      for (let index = 0; index < authors.length; index++) {
+        flattenAuthors.push(authors[index].sender);
+      }
+      return flattenAuthors;
+    } catch (error) {
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
+  }
+
   async checkChannel(channelId: string) {
     const channel: Channel = await this.prisma.channel.findFirst({
       where: {

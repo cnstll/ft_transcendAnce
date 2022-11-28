@@ -4,8 +4,8 @@ import { useMyChannelRole } from 'src/components/query-hooks/useGetChannels';
 import { channelRole, User, UserConnectionStatus } from '../../global-components/interface';
 import BlockFriends from '../block-friends';
 import InviteToPlay from '../invite-to-play';
-import WatchGame from '../watch-game';
 import PromoteToAdmin from './promote-to-admin';
+import WatchGame from '../watch-game-options';
 
 interface UserOptionsProps {
   user: User;

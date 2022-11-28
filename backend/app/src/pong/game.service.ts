@@ -5,10 +5,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { Status, Game, DoubleKeyMap, GameMode } from './entities/game.entities';
 import { Root } from 'protobufjs';
+import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 
 @Injectable()
 export class GameService {
   GameMap = new DoubleKeyMap();
+
   gameInfo = this.protobuf.lookupType('userpackage.GameInfo');
   playerInfo = this.protobuf.lookupType('userpackage.PlayerInfo');
   buf: Buffer;
@@ -34,7 +36,74 @@ export class GameService {
     });
   }
 
-  async join(client: Socket, userId: string, server: Server, mode: GameMode) {
+  refuseInvite(client: Socket, userId: string) {
+    const challengerSocket = socketToUserId.getFromUserId(userId);
+    client
+      .to(challengerSocket)
+      .emit('inviteRefused', "invite refused, they can't handle you");
+    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+    this.GameMap.delete(userId);
+  }
+  acceptInvite(userId: string) {
+    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+  }
+
+  async createInvitationGame(
+    client: Socket,
+    server: Server,
+    p1id: string,
+    p2id: string,
+    gameMode: GameMode,
+  ) {
+    const opponentSocket = socketToUserId.getFromUserId(p2id);
+    if (this.GameMap.getGame(p2id) !== null) {
+      server
+        .to(client.id)
+        .emit(
+          'inviteRefused',
+          'Your opponent already has an invite pending, try again later',
+        );
+      return 'inviteFailed';
+    }
+    try {
+      const challenger = await this.prismaService.user.findUnique({
+        where: {
+          id: p1id,
+        },
+        select: {
+          id: true,
+          avatarImg: true,
+          nickname: true,
+          eloScore: true,
+          status: true,
+          twoFactorAuthenticationSet: true,
+        },
+      });
+
+      const pendingGame = this.createGame(p1id, gameMode, p2id);
+      this.join(client, p1id, server, gameMode);
+      //TODO: send timeout message to invitee
+      this.addInvitationTimeout(
+        pendingGame.gameRoomId,
+        server,
+        client.id,
+        p1id,
+      );
+      client.to(opponentSocket).emit('invitedToGame', challenger);
+      return 'gameJoined';
+    } catch (error) {
+      return error;
+    }
+  }
+
+  watch(client: Socket, playerId: string) {
+    const game = this.GameMap.getGame(playerId);
+    client.join(game.gameRoomId);
+    // this.mutateGameStatus(game, game.status, server);
+    return { playerNumber: 1 };
+  }
+
+  join(client: Socket, userId: string, server: Server, mode: GameMode) {
     let game: Game;
 
     if (this.GameMap.size === 0) {
@@ -48,6 +117,9 @@ export class GameService {
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
+          this.addInterval(game.gameRoomId, userId, 16, server);
+        } else if (game.status === Status.PENDING && game.p2id === userId) {
+          this.mutateGameStatus(game, Status.PLAYING, server);
           this.addInterval(game.gameRoomId, userId, 16, server);
         }
         if (game.p2id === userId) return { playerNumber: 2 };
@@ -73,7 +145,9 @@ export class GameService {
   }
 
   deleteTimeout(name: string) {
-    this.schedulerRegistry.deleteTimeout(name);
+    try {
+      this.schedulerRegistry.deleteTimeout(name);
+    } catch (error) {}
   }
 
   addTimeout(
@@ -87,12 +161,31 @@ export class GameService {
 
       if (winnerId === game.p1id) game.p1s = 10;
       else game.p2s = 10;
-      // this.mutateGameStatus(game, Status.OVER, server);
+      if (game.status !== Status.PAUSED) this.deleteInterval(name);
+      this.mutateGameStatus(game, Status.OVER, server);
       this.addWinningTimeout(5000, server, winnerId);
       server.emit('matchFinished');
     };
 
     const timeout = setTimeout(callback, milliseconds);
+    this.schedulerRegistry.addTimeout(name, timeout);
+  }
+
+  addInvitationTimeout(
+    name: string,
+    server: Server,
+    socketId: string,
+    userId: string,
+  ) {
+    const callback = () => {
+      this.GameMap.delete(userId);
+      server
+        .to(socketId)
+        .emit('inviteRefused', 'Your opponent is to slow for you');
+      //   server.to(opponentSocket).emit('inviteRefused', 'YOU were to slow');
+    };
+    const timeoutInMs = 10000;
+    const timeout = setTimeout(callback, timeoutInMs);
     this.schedulerRegistry.addTimeout(name, timeout);
   }
 
@@ -108,21 +201,18 @@ export class GameService {
 
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
-    if (game) {
-      switch (game.status) {
-        case Status.PLAYING:
-          this.deleteInterval(game.gameRoomId);
-          this.mutateGameStatus(game, Status.PAUSED, server);
-          if (id === game.p1id) {
-            this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
-          } else {
-            this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
-          }
-          break;
-
-        case Status.PENDING:
-          this.GameMap.delete(id);
-          break;
+    if (game && game.status === Status.PAUSED) {
+      this.deleteTimeout(game.gameRoomId);
+      this.GameMap.delete(id);
+    } else if (game && game.status === Status.PLAYING) {
+      if (game.p1id === id || game.p2id === id) {
+        this.deleteInterval(game.gameRoomId);
+        this.mutateGameStatus(game, Status.PAUSED, server);
+        if (id === game.p1id) {
+          this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
+        } else {
+          this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
+        }
       }
     }
   }
@@ -146,9 +236,12 @@ export class GameService {
     return game.returnGameInfo();
   }
 
-  createGame(p1: string, mode: GameMode) {
+  createGame(p1: string, mode: GameMode, p2?: string) {
     const game = new Game(mode);
     this.GameMap.setPlayer1(p1, game);
+    if (p2 !== undefined) {
+      this.GameMap.setPlayer2(p2, game);
+    }
     return game;
   }
 

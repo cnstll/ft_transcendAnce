@@ -76,4 +76,8 @@ export class ChannelController {
   ) {
     return this.channelService.getMessagesFromChannel(userId, channelId, res);
   }
+  @Get('get-authors-from-channel/:id')
+  getAuthorsFromAChannel(@Param('id') channelId: string) {
+    return this.channelService.getChannelAuthors(channelId);
+  }
 }

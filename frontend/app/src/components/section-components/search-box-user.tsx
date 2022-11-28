@@ -64,16 +64,15 @@ function SearchBoxUser({
       users,
       searchData.keyword,
     );
-    if (filteredResults) {
-      if (filteredResults[0]) {
-        const firstResult = filteredResults[0].nickname;
-        if (firstResult && searchData.keyword) {
-          navigate('../profile/' + firstResult);
-        }
+    if (filteredResults && filteredResults.length > 0) {
+      const firstResult = filteredResults[0].nickname;
+      if (firstResult && searchData.keyword) {
+        navigate('../profile/' + firstResult);
       }
+    } else {
+      setSearchData(defaultSearchData);
     }
   }
-
   return (
     <>
       <div className="relative text-black" ref={ref}>
@@ -104,8 +103,9 @@ function SearchBoxUser({
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
-                ?.sort((a, b) => (a.nickname.toLowerCase() >= b.nickname.toLowerCase() ? 1 : -1))
-                ?.map((userItem) => (
+                ?.slice(0, 5)
+                .sort((a, b) => (a.nickname.toLowerCase() >= b.nickname.toLowerCase() ? 1 : -1))
+                .map((userItem) => (
                   <SearchUserItem key={userItem.id} user={userItem} />
                 ))}
             </ul>
