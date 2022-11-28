@@ -64,16 +64,15 @@ function SearchBoxUser({
       users,
       searchData.keyword,
     );
-    if (filteredResults) {
-      if (filteredResults[0]) {
-        const firstResult = filteredResults[0].nickname;
-        if (firstResult && searchData.keyword) {
-          navigate('../profile/' + firstResult);
-        }
+    if (filteredResults && filteredResults.length > 0) {
+      const firstResult = filteredResults[0].nickname;
+      if (firstResult && searchData.keyword) {
+        navigate('../profile/' + firstResult);
       }
+    } else {
+      setSearchData(defaultSearchData);
     }
   }
-
   return (
     <>
       <div className="relative text-black" ref={ref}>
@@ -100,11 +99,12 @@ function SearchBoxUser({
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white rounded-lg text-sm absolute ' + width}>
+        <div className={'bg-white z-10 rounded-lg text-sm absolute ' + width}>
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
-                ?.map((userItem) => (
+                ?.slice(0, 5)
+                .map((userItem) => (
                   <SearchUserItem key={userItem.id} user={userItem} />
                 ))}
             </ul>

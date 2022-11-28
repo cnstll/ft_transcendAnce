@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { User } from '../global-components/interface';
 
 interface WatchGameProps {
@@ -6,9 +7,10 @@ interface WatchGameProps {
 }
 
 function WatchGame({ user, setIsShown }: WatchGameProps) {
+  const navigate = useNavigate();
   const onWatch = () => {
     setIsShown(false);
-    user; //Just to avoid warnings ATM
+    navigate(`/watch/${user.id}`)
   };
 
   return (

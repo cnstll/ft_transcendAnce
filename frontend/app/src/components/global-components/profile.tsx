@@ -12,16 +12,29 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import { useEffect } from 'react';
 import MatchHistory from '../section-components/profile/match-history';
 import LoadingSpinner from '../section-components/loading-spinner';
+import PageNotFound from './page-not-found';
+import { UseQueryResult } from 'react-query';
+import useGetAllUsers from '../query-hooks/useGetAllUsers';
+import { User } from './interface';
 import FriendsList from '../section-components/profile/friends-list';
 
 function Profile() {
   const { id } = useParams();
   const user = useUserInfo();
+  const usersData: UseQueryResult<User[]> = useGetAllUsers();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user.isError) navigate('/sign-in');
   });
+
+  if (id &&
+    usersData.data &&
+    !usersData.data.find(
+      (otherUser) => otherUser.nickname === id,
+    )) {
+      return <PageNotFound />;
+    }
 
   return (
     <>
