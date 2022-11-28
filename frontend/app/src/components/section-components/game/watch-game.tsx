@@ -237,7 +237,7 @@ function WatchGame({
         )}
         {gameStatus === GameStatus.PLAYING &&
           opponent.isSuccess &&
-          gameInfo.playerNumber !== undefined && (
+          gameInfo.playerNumber && (
             <PlayerAvatar
               currentPlayerAvatar={avatarImg}
               opponentAvatar={opponent.data.avatarImg}
