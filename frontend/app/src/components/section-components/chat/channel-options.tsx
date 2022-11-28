@@ -106,7 +106,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
         </Link>
         {myRole.data?.role === channelRole.Owner &&
         channelInfo.type !== channelType.DirectMessage ? (
-          <div className="z-index-20">
+          <div className="z-20">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -123,8 +123,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
         ) : null}
         {(myRole.data?.role === channelRole.Owner ||
           myRole.data?.role === channelRole.Admin) &&
-        channelInfo.type !== channelType.DirectMessage ? (
-          <div className="z-index-20">
+        channelInfo.type === channelType.Private ? (
+          <div className="z-20">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
@@ -138,6 +138,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
+        <Link to="/">
+          <p className="text-center hover:underline my-2">Ban user</p>
+        </Link>
       </div>
     );
   else return <></>;
