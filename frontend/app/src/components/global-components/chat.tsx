@@ -19,6 +19,7 @@ import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
 import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
+import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
 
 function Chat() {
@@ -43,12 +44,13 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
+
     if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
-        channelPassword: '',
       });
     }
+
     if (
       !activeChannel &&
       channels.data !== undefined &&
@@ -68,6 +70,7 @@ function Chat() {
       setActiveChannelId('');
       navigate('../chat');
     }
+
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
@@ -75,6 +78,14 @@ function Chat() {
       socket.off('roomLeft');
     };
   }, [activeChannelId, socket, user, channels.data?.length]);
+
+  if (activeChannel) {
+    if (channels.data &&
+      !channels.data.find(
+        (channel) => channel.id === activeChannel,
+      ))
+      return <PageNotFound />;
+  }
 
   return (
     <>
