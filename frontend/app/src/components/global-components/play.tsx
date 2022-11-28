@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import Navbar from './navbar';
 import BackgroundGeneral from '../../img/disco2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +7,7 @@ import Background from '../section-components/background';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import Game from '../section-components/play/canvas';
+import Game from '../section-components/game/canvas';
 import Button from '../section-components/button';
 import { socket } from '../global-components/client-socket';
 import LoadingSpinner from '../section-components/loading-spinner';
