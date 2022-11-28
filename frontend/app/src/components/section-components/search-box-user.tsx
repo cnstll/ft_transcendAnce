@@ -99,7 +99,7 @@ function SearchBoxUser({
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white rounded-lg text-sm absolute z-30 ' + width}>
+        <div className={'bg-white rounded-lg text-sm absolute z-20 ' + width}>
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
