@@ -3,7 +3,7 @@ import { User, UserConnectionStatus } from '../../global-components/interface';
 import BlockFriends from '../chat/block-friends';
 import SendDM from '../chat/send-dm';
 import InviteToPlay from '../game/invite-to-play';
-import WatchGame from '../game/watch-game';
+import WatchGame from '../game/watch-game-options';
 
 interface UserOptionsProps {
   user: User;
