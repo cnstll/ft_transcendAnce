@@ -63,14 +63,14 @@ export class ChannelService {
     /** Check if the channnel is of type DIRECT MESSAGE and change the name
      * according to the name of the current user
      */
-    // for (let i = 0; i < channels.length; i++) {
-    //   if (channels[i].type === 'DIRECTMESSAGE') {
-    //     const channelUser = await this.getUsersOfAChannel(channels[i].id);
-    //     if (channelUser[0].id === userId)
-    //       channels[i].name = channelUser[1].nickname;
-    //     else channels[i].name = channelUser[0].nickname;
-    //   }
-    // }
+    for (let i = 0; i < channels.length; i++) {
+      if (channels[i].type === 'DIRECTMESSAGE') {
+        const channelUser = await this.getUsersOfAChannel(channels[i].id);
+        if (channelUser[0].id === userId)
+          channels[i].name = channelUser[1].nickname;
+        else channels[i].name = channelUser[0].nickname;
+      }
+    }
     return channels;
   }
 
