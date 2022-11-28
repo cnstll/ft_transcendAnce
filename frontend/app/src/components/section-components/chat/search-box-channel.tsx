@@ -45,7 +45,7 @@ function SearchBoxChannel({
       async (joiningInfo: { userId: string; channelId: string }) => {
         await queryClient.invalidateQueries('channelsByUserList');
         //User joining the channel will navigate to this channel
-        if (userQueryData?.id.toString() == joiningInfo.userId) {
+        if (userQueryData?.id.toString() === joiningInfo.userId) {
           setIsShown(false);
           setShowModal(false);
           navigate(`../chat/${joiningInfo.channelId}`);

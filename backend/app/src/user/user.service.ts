@@ -700,4 +700,23 @@ export class UserService {
       return null;
     }
   }
+
+  async checkCurrentUserBlockedTarget(userId: string, targetId: string) {
+    try {
+      const userIsBlocked = await this.prismaService.channelAction.findFirst({
+        where: {
+          type: 'BLOCK',
+          AND: [
+            { channelActionRequesterId: userId },
+            { channelActionTargetId: targetId },
+          ],
+        },
+      });
+      if (!userIsBlocked) return false;
+      else return true;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }

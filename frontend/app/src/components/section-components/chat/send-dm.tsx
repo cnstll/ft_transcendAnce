@@ -15,16 +15,26 @@ function SendDM({ user, setIsShown }: BlockFriendsProps) {
   const navigate = useNavigate();
   const channelsQueryKey = 'channelsByUserList';
   const [isBlocked, setIsBlocked] = useState(false);
-  // const [conversationExists, setConversationExists] = useState(false);
+  const [conversationId, setConversationId] = useState('');
 
   useEffect(() => {
     socket.on('roomCreated', async (channelId: string) => {
       await queryClient.refetchQueries(channelsQueryKey);
       navigate('../chat/' + channelId);
     });
+    socket.on(
+      'roomJoined',
+      async (joiningInfo: { userId: string; channelId: string }) => {
+        await queryClient.invalidateQueries('channelsByUserList');
+        //User joining the channel will navigate to this channel
+        navigate(`../chat/${joiningInfo.channelId}`);
+      },
+    );
     return () => {
       socket.off('roomCreated');
       socket.off('createRoomFailed');
+      socket.off('roomJoined');
+      socket.off('joinRoomFailed');
     };
   }, [channelsQueryKey]);
 
@@ -41,16 +51,25 @@ function SendDM({ user, setIsShown }: BlockFriendsProps) {
         },
       )
       .then((res) => setIsBlocked(res.data));
-    console.log(isBlocked);
     if (isBlocked) return;
 
     //Check if a DM between the 2 users already exists
+
+    void axios
+      .post<string>(
+        `${apiUrl}/channel/get-direct-message-by-user-id`,
+        { participantId: user.id },
+        {
+          withCredentials: true,
+        },
+      )
+      .then((res) => setConversationId(res.data));
+    if (conversationId) navigate('../chat/' + conversationId);
 
     //Create a DM between the 2 users
     socket.emit('createRoom', {
       createInfo: { name: user.nickname, type: channelType.DirectMessage },
     });
-
     return () => {
       socket.off('roomCreated');
     };

@@ -205,4 +205,16 @@ export class UserController {
   ) {
     return this.userService.checkUserIsBlocked(userId, data.targetId);
   }
+
+  @Post('check-current-user-blocked-target')
+  @UseGuards(JwtAuthGuard)
+  checkCurrentUserBlockedTarget(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { targetId: string },
+  ) {
+    return this.userService.checkCurrentUserBlockedTarget(
+      userId,
+      data.targetId,
+    );
+  }
 }

@@ -289,11 +289,7 @@ export class ChannelService {
     }
   }
 
-  async getMessagesFromChannel(
-    userId: string,
-    channelId: string,
-    res: Response,
-  ) {
+  async getMessagesFromChannel(channelId: string, res: Response) {
     // Use userId to verify that user requesting message belong to channel or is not banned
     // Retrieve all messages from channel using its id
     try {
@@ -589,7 +585,7 @@ export class ChannelService {
   async leaveChannelWS(userId: string, dto: LeaveChannelDto) {
     try {
       // Remove user from channel users ('user leave room')
-      const leavingUser = await this.prisma.channelUser.delete({
+      let leavingUser = await this.prisma.channelUser.delete({
         where: {
           userId_channelId: {
             userId: userId,
@@ -607,9 +603,24 @@ export class ChannelService {
             users: true,
           },
         });
+      /* Verify if channel is of type direct message */
+      const channel = await this.getChannelById(dto.id);
+      if (channel.type === ChannelType.DIRECTMESSAGE) {
+        leavingUser = await this.prisma.channelUser.delete({
+          where: {
+            userId_channelId: {
+              userId: channelUsers.users[0].userId,
+              channelId: dto.id,
+            },
+          },
+        });
+      }
       /* Then, delete channel */
       // If user is the last one delete the channel
-      if (channelUsers.users.length == 0) {
+      if (
+        channelUsers.users.length === 0 ||
+        channel.type === ChannelType.DIRECTMESSAGE
+      ) {
         await this.prisma.channel.delete({
           where: {
             id: dto.id,

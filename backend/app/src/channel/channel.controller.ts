@@ -91,12 +91,8 @@ export class ChannelController {
   }
 
   @Get('get-messages-from-channel/:id')
-  getMessagesFromChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') channelId: string,
-    @Res() res: Response,
-  ) {
-    return this.channelService.getMessagesFromChannel(userId, channelId, res);
+  getMessagesFromChannel(@Param('id') channelId: string, @Res() res: Response) {
+    return this.channelService.getMessagesFromChannel(channelId, res);
   }
   @Get('get-authors-from-channel/:id')
   getAuthorsFromAChannel(@Param('id') channelId: string) {
