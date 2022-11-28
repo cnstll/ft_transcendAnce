@@ -80,10 +80,10 @@ function Chat() {
   }, [activeChannelId, socket, user, channels.data?.length]);
 
   if (activeChannel) {
-    if (channels.data &&
-      !channels.data.find(
-        (channel) => channel.id === activeChannel,
-      ))
+    if (
+      channels.data &&
+      !channels.data.find((channel) => channel.id === activeChannel)
+    )
       return <PageNotFound />;
   }
 
@@ -150,6 +150,7 @@ function Chat() {
                   channelUsers={channelUsers.data}
                   user={user.data}
                   type={type}
+                  setActiveChannelId={setActiveChannelId}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}

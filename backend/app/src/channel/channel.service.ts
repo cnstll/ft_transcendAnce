@@ -12,7 +12,6 @@ import {
   ChannelUser,
   User,
   Message,
-  Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';

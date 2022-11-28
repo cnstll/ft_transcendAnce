@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { User, UserConnectionStatus } from '../../global-components/interface';
 import BlockFriends from '../chat/block-friends';
 import SendDM from '../chat/send-dm';
-import InviteToPlay from '../play/invite-to-play';
-import WatchGame from '../play/watch-game';
+import InviteToPlay from '../game/invite-to-play';
+import WatchGame from '../game/watch-game';
 
 interface UserOptionsProps {
   user: User;

@@ -5,17 +5,23 @@ import {
   UserConnectionStatus,
 } from '../../global-components/interface';
 import BlockFriends from './block-friends';
-import InviteToPlay from '../play/invite-to-play';
-import WatchGame from '../play/watch-game';
+import InviteToPlay from '../game/invite-to-play';
+import WatchGame from '../game/watch-game';
 import SendDM from './send-dm';
 
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   type: channelType | undefined;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function MembersOptions({ user, setIsShown, type }: UserOptionsProps) {
+function MembersOptions({
+  user,
+  setIsShown,
+  type,
+  setActiveChannelId,
+}: UserOptionsProps) {
   return (
     <div>
       <Link to={`/profile/${user.nickname}`}>
@@ -25,7 +31,11 @@ function MembersOptions({ user, setIsShown, type }: UserOptionsProps) {
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
       {type !== channelType.DirectMessage && (
-        <SendDM user={user} setIsShown={setIsShown} />
+        <SendDM
+          user={user}
+          setIsShown={setIsShown}
+          setActiveChannelId={setActiveChannelId}
+        />
       )}
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (

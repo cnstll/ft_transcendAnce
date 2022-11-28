@@ -5,15 +5,19 @@ import type {
   UserListType,
 } from '../global-components/interface';
 
+interface UsersListProps {
+  users: User[];
+  userListType: UserListType;
+  type?: channelType;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+}
+
 function UsersList({
   users,
   userListType,
   type,
-}: {
-  users: User[];
-  userListType: UserListType;
-  type?: channelType;
-}) {
+  setActiveChannelId,
+}: UsersListProps) {
   return (
     <div className="flex flex-col text-base my-4 gap-4">
       {users.map((user: User) => (
@@ -22,6 +26,7 @@ function UsersList({
           user={user}
           userListType={userListType}
           type={type}
+          setActiveChannelId={setActiveChannelId}
         />
       ))}
     </div>

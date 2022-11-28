@@ -8,9 +8,10 @@ import { apiUrl, channelType, User } from '../../global-components/interface';
 interface BlockFriendsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-function SendDM({ user, setIsShown }: BlockFriendsProps) {
+function SendDM({ user, setIsShown, setActiveChannelId }: BlockFriendsProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isBlocked, setIsBlocked] = useState(false);
@@ -20,6 +21,7 @@ function SendDM({ user, setIsShown }: BlockFriendsProps) {
     socket.on('roomCreated', async (channelId: string) => {
       setIsShown(false);
       await queryClient.refetchQueries('channelsByUserList');
+      if (setActiveChannelId) setActiveChannelId(channelId);
       navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {

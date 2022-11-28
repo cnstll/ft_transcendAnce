@@ -11,15 +11,19 @@ import { useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
 
+interface UsersListProps {
+  user: User;
+  userListType?: UserListType;
+  type?: channelType;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+}
+
 function UsersListItem({
   user,
   userListType,
   type,
-}: {
-  user: User;
-  userListType?: UserListType;
-  type?: channelType;
-}) {
+  setActiveChannelId,
+}: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
 
   return (
@@ -51,7 +55,12 @@ function UsersListItem({
         <div className="content-center mx-2 mt-1">
           <DropDownButton setIsShown={setIsShown} isShown={isShown}>
             {userListType === UserListType.MEMBERS && (
-              <MembersOptions user={user} setIsShown={setIsShown} type={type} />
+              <MembersOptions
+                user={user}
+                setIsShown={setIsShown}
+                type={type}
+                setActiveChannelId={setActiveChannelId}
+              />
             )}
             {userListType === UserListType.FRIENDS && (
               <FriendsOptions user={user} setIsShown={setIsShown} />

@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { UseOutsideClick } from '../../custom-hooks/use-outside-click';
-import { Channel, channelType, User } from '../../global-components/interface';
+import { Channel, channelType } from '../../global-components/interface';
 import { useNavigate } from 'react-router-dom';
 import SearchChannelItem from './search-channel-item';
 import { socket } from '../../global-components/client-socket';
@@ -35,8 +35,7 @@ function SearchBoxChannel({
   const { keyword } = searchData;
   const queryClient = useQueryClient();
   const userQueryKey = 'userData';
-  const userQueryData: User | undefined =
-    queryClient.getQueryData(userQueryKey);
+  queryClient.getQueryData(userQueryKey);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -45,14 +44,11 @@ function SearchBoxChannel({
       async (joiningInfo: { userId: string; channelId: string }) => {
         await queryClient.invalidateQueries('channelsByUserList');
         //User joining the channel will navigate to this channel
-        if (userQueryData?.id.toString() === joiningInfo.userId) {
-          setIsShown(false);
-          setShowModal(false);
-          navigate(`../chat/${joiningInfo.channelId}`);
-          setActiveChannelId(joiningInfo.channelId);
-        } else {
-          //TODO notify other users that a new user joined
-        }
+        setIsShown(false);
+        setShowModal(false);
+        navigate(`../chat/${joiningInfo.channelId}`);
+        setActiveChannelId(joiningInfo.channelId);
+        //   //TODO notify other users that a new user joined
       },
     );
     socket.on('joinRoomFailed', () => {
