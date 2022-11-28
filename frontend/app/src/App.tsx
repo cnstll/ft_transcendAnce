@@ -8,6 +8,7 @@ import Play from './components/global-components/play';
 import Chat from './components/global-components/chat';
 import PageNotFound from './components/global-components/page-not-found';
 import SignIn2FA from './components/global-components/2fa-sign-in';
+import Watch from './components/global-components/watch';
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/ranking" element={<Ranking />} />
         <Route path="/play" element={<Play />} />
-        <Route path="/play/:id" element={<Play />} />
+        <Route path="/watch/:playerId" element={<Watch />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/chat/:activeChannel" element={<Chat />} />
         <Route path="/2fa-sign-in" element={<SignIn2FA />} />
