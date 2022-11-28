@@ -37,6 +37,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       'roomLeft',
       async (leavingInfo: { userId: string; channelId: string }) => {
         // User receiving the event is the user leaving the room
+        setIsShown(false);
         if (userQueryData?.id === leavingInfo.userId) {
           const channelListDisplayed: Channel[] | undefined =
             await queryClient.getQueryData(channelsQueryKey);
@@ -48,7 +49,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
                 (channel) => channel.id != deletedChannel,
               )?.id ?? '';
             setActiveChannelId(nextChannelId);
-            setIsShown(false);
             navigate(`../chat/${nextChannelId}`);
           }
         } else {
@@ -62,7 +62,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       socket.off('roomLeft');
       socket.off('leaveRoomFailed');
     };
-  }, []);
+  }, [queryClient]);
 
   function leaveChannel(channelInfo: Channel) {
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
@@ -97,8 +97,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRole.data?.role === channelRole.Owner ?
-        (<div className="z-index-20">
+        {myRole.data?.role === channelRole.Owner ? (
+          <div className="z-index-20">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -113,9 +113,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(myRole.data?.role === channelRole.Owner ||
-          myRole.data?.role === channelRole.Admin) ?
-          (<div className="z-index-20">
+        {myRole.data?.role === channelRole.Owner ||
+        myRole.data?.role === channelRole.Admin ? (
+          <div className="z-index-20">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
