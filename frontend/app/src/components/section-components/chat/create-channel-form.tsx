@@ -7,7 +7,6 @@ import { useQueryClient } from 'react-query';
 
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
-  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const defaultFormData = {

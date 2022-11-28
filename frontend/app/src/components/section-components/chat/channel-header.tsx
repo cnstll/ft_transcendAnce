@@ -35,12 +35,7 @@ function ChannelHeader({
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
           <div className="z-index-20">
-            {showForm && (
-              <CreateChannelForm
-                setShowForm={setShowForm}
-                setActiveChannelId={setActiveChannelId}
-              />
-            )}
+            {showForm && <CreateChannelForm setShowForm={setShowForm} />}
           </div>
         </div>
       </div>

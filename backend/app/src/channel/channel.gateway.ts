@@ -16,6 +16,7 @@ import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { ChannelType } from '@prisma/client';
+import { Channel } from '@grpc/grpc-js';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -67,11 +68,20 @@ export class ChannelGateway {
     dto = {
       ...dto,
     };
-    const channel = await this.channelService.createChannelWS(
-      dto,
-      userId,
-      clientSocket,
-    );
+    let channel;
+    if (dto.type === ChannelType.DIRECTMESSAGE) {
+      channel = await this.channelService.createDirectMessageWS(
+        dto,
+        userId,
+        clientSocket,
+      );
+    } else {
+      channel = await this.channelService.createChannelWS(
+        dto,
+        userId,
+        clientSocket,
+      );
+    }
     channel === null || typeof channel === 'string'
       ? this.server.to(clientSocket.id).emit('createRoomFailed', channel)
       : this.server.emit('roomCreated', channel.id);
@@ -86,7 +96,6 @@ export class ChannelGateway {
     @ConnectedSocket() clientSocket: Socket,
   ) {
     // Change UserId depending if the channel is of type direct message
-    if (dto.type === ChannelType.DIRECTMESSAGE) userId = dto.userId;
     const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,

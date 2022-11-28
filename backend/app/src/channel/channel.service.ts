@@ -12,6 +12,7 @@ import {
   ChannelUser,
   User,
   Message,
+  Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
@@ -403,6 +404,44 @@ export class ChannelService {
     }
   }
 
+  async createDirectMessageWS(
+    dto: CreateChannelDto,
+    userId: string,
+    clientSocket: Socket,
+  ) {
+    try {
+      /* Then try to create a new channel */
+      const createdChannel: Channel = await this.prisma.channel.create({
+        data: {
+          name: 'Estelle',
+          type: 'DIRECTMESSAGE',
+          users: {
+            createMany: {
+              data: [
+                { userId: userId, role: 'OWNER' },
+                { userId: dto.userId, role: 'ADMIN' },
+              ],
+            },
+          },
+        },
+      });
+      delete createdChannel.passwordHash;
+      /* create and join room instance */
+      clientSocket.join(createdChannel.id);
+      return createdChannel;
+    } catch (error) {
+      //   if (error.code === 'P2002') {
+      //     return 'alreadyUsed' + error.meta.target[0];
+      //   }
+      //   if (error == 'Error: WrongData') {
+      //     return 'WrongData';
+      //   }
+      //   return null;
+      // }
+      console.log(error);
+    }
+  }
+
   async getIsInvitedInAChannel(userId: string, channelId: string) {
     const isInvited = await this.prisma.channel.findUnique({
       where: {
@@ -607,7 +646,10 @@ export class ChannelService {
         });
       /* Verify if channel is of type direct message */
       const channel = await this.getChannelById(dto.id);
-      if (channel.type === ChannelType.DIRECTMESSAGE) {
+      if (
+        channel.type === ChannelType.DIRECTMESSAGE &&
+        channelUsers.users.length > 0
+      ) {
         leavingUser = await this.prisma.channelUser.delete({
           where: {
             userId_channelId: {
