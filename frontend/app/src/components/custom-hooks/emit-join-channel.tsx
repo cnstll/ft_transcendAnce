@@ -12,6 +12,16 @@ function JoinChannel(channelInfo: Channel) {
         },
       });
       break;
+    case channelType.DirectMessage:
+      socket.emit('joinRoom', {
+        joinInfo: {
+          id: channelInfo.id,
+          type: channelInfo.type,
+          userId: channelInfo.userId,
+        },
+      });
+      console.log(channelInfo.userId);
+      break;
     default:
       socket.emit('joinRoom', {
         joinInfo: {

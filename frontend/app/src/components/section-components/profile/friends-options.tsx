@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { User, UserConnectionStatus } from '../../global-components/interface';
 import BlockFriends from '../chat/block-friends';
+import SendDM from '../chat/send-dm';
 import InviteToPlay from '../play/invite-to-play';
 import WatchGame from '../play/watch-game';
 
@@ -18,6 +19,7 @@ function FriendsOptions({ user, setIsShown }: UserOptionsProps) {
       {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
+      <SendDM user={user} setIsShown={setIsShown} />
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />

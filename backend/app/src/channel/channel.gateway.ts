@@ -15,6 +15,7 @@ import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
+import { ChannelType } from '@prisma/client';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -84,6 +85,8 @@ export class ChannelGateway {
     @MessageBody('joinInfo') dto: JoinChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    // Change UserId depending if the channel is of type direct message
+    if (dto.type === ChannelType.DIRECTMESSAGE) userId = dto.userId;
     const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,

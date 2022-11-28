@@ -12,5 +12,9 @@ export class JoinChannelDto {
 
   @IsString()
   @IsOptional()
+  userId?: string;
+
+  @IsString()
+  @IsOptional()
   passwordHash?: string;
 }

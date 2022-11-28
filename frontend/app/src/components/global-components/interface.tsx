@@ -24,6 +24,7 @@ export interface Channel {
   id: string;
   name: string;
   passwordHash?: string;
+  userId?: string;
   type: channelType;
 }
 export interface Message {
