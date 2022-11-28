@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -668,5 +669,31 @@ export class UserService {
       this.setAchievement(userId, 'achievement6');
     if (numberOfLoss === 5) this.setAchievement(userId, 'achievement4');
     if (numberOfWin === 5) this.setAchievement(userId, 'achievement3');
+  }
+
+  /** Channel invitations for the current user */
+  async getChannelInvites(userId: string) {
+    try {
+      const invitesList = await this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          invites: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      const invites: { id: string }[] = [];
+      for (let i = 0; i < invitesList.invites.length; i++) {
+        invites.push(invitesList.invites[i]);
+      }
+      return invites;
+    } catch (error) {
+      if (error.status === 404) throw new NotFoundException(error);
+      else throw new ForbiddenException(error);
+    }
   }
 }

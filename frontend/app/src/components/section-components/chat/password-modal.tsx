@@ -51,7 +51,6 @@ function PasswordModal(props: PwdModalProps) {
               Join {props.channel.name}
             </h3>
             <form onSubmit={onSubmit}>
-              {/* Password section */}
               <div
                 id="form-channel-check-password"
                 className="form-group mt-4"
@@ -90,7 +89,6 @@ function PasswordModal(props: PwdModalProps) {
                   </p>
                 )}
               </div>
-              {/* Buttons section */}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"
