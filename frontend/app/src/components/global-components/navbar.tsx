@@ -10,6 +10,8 @@ import useGetAllUsers from '../query-hooks/useGetAllUsers';
 import SearchBoxUser from '../section-components/search-box-user';
 import DropDownMenu from '../section-components/drop-down-menu';
 import { socket } from './client-socket';
+import useUserInfo from '../query-hooks/useUserInfo';
+import LoadingSpinner from '../section-components/loading-spinner';
 // import { socket } from './client-socket';
 
 interface BannerProps {
@@ -20,6 +22,7 @@ interface BannerProps {
 
 function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
+  const currentUserData = useUserInfo();
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
   const currentLocation = useLocation();
   const queryClient = useQueryClient();
@@ -93,12 +96,18 @@ function Navbar({ text, avatarImg }: BannerProps) {
           {text}
         </h2>
       </Link>
-      <SearchBoxUser
-        height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
-        width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
-        placeholder="player"
-        users={usersData.data}
-      />
+      {currentUserData.isSuccess && usersData.isSuccess && (
+        <SearchBoxUser
+          height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
+          width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
+          placeholder="player"
+          users={usersData.data.filter(
+            (user) => user.id !== currentUserData.data.id,
+          )}
+        />
+      )}
+      {(currentUserData.isLoading || usersData.isLoading) && <LoadingSpinner />}
+      {(currentUserData.isError || usersData.isError) && <div> Whoops </div>}
       <div className="relative" ref={ref}>
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
           <img
