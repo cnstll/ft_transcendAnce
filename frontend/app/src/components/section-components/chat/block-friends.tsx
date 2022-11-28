@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { useState } from 'react';
-import { apiUrl, User } from '../../global-components/interface';
+import useBlockedUser from 'src/components/query-hooks/useBlockedUser';
+import { User } from '../../global-components/interface';
+import LoadingSpinner from '../loading-spinner';
 
 interface BlockFriendsProps {
   user: User;
@@ -8,18 +8,7 @@ interface BlockFriendsProps {
 }
 
 function BlockFriends({ user, setIsShown }: BlockFriendsProps) {
-  const [isBlocked, setIsBlocked] = useState(false);
-
-  //Check if the targeted user is blocked
-  void axios
-    .post<boolean>(
-      `${apiUrl}/user/check-current-user-blocked-target`,
-      { targetId: user.id },
-      {
-        withCredentials: true,
-      },
-    )
-    .then((res) => setIsBlocked(res.data));
+  const isBlocked = useBlockedUser(user.id);
 
   const onBlock = () => {
     setIsShown(false);
@@ -31,14 +20,19 @@ function BlockFriends({ user, setIsShown }: BlockFriendsProps) {
 
   return (
     <>
-      {isBlocked ? (
+      {isBlocked.isError && (
+        <p className="text-base text-gray-400">We encountered an error 🤷</p>
+      )}
+      {isBlocked.isLoading && <LoadingSpinner />}
+      {isBlocked.isSuccess && isBlocked.data && (
         <p
           className="text-center hover:underline my-2 truncate cursor-pointer"
           onClick={onUnblock}
         >
           Unblock {user.nickname}
         </p>
-      ) : (
+      )}
+      {isBlocked.isSuccess && !isBlocked.data && (
         <p
           className="text-center hover:underline my-2 truncate cursor-pointer"
           onClick={onBlock}

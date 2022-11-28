@@ -58,7 +58,11 @@ function SendDM({ user, setIsShown, setActiveChannelId }: BlockFriendsProps) {
         },
       )
       .then((res) => setConversationId(res.data));
-    if (conversationId) navigate('../chat/' + conversationId);
+    console.log(conversationId);
+    if (conversationId) {
+      navigate('../chat/' + conversationId);
+      return;
+    }
 
     //Create a DM between the 2 users
     socket.emit('createRoom', {

@@ -103,6 +103,7 @@ export class ChannelService {
     });
     for (let i = 0; i < allDirectMessages.length; i++) {
       const users = await this.getUsersOfAChannel(allDirectMessages[i].id);
+      console.log(users);
       if (
         (users.length > 1 &&
           users[0].id === userId &&
