@@ -10,6 +10,7 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import Game from '../section-components/play/canvas';
 import Button from '../section-components/button';
 import { socket } from '../global-components/client-socket';
+import LoadingSpinner from '../section-components/loading-spinner';
 
 function Play() {
   const user = useUserInfo();
@@ -17,7 +18,9 @@ function Play() {
   const [gameMode, setGameMode] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user.isError) navigate('/sign-in');
+    if (user.isError) navigate('/sign-in');});
+
+  useEffect(() => {
     socket.emit('reJoin', { mode: gameMode }, (response: string | null) => {
       setGameMode(response);
     });
@@ -32,9 +35,11 @@ function Play() {
     setGameMode('CLASSIC');
   }
 
-  if (user.isSuccess)
     return (
-      <div>
+      <>
+      {user.isLoading && <LoadingSpinner />}
+      {user.isSuccess &&
+      (<div>
         <Background background={BackgroundGeneral}>
           <Navbar
             text={<FontAwesomeIcon icon={faHouse} />}
@@ -68,9 +73,8 @@ function Play() {
             />
           )}
         </Background>
-      </div>
-    );
-  return <></>;
+      </div>)}
+    </>
+  );
 }
-
 export default React.memo(Play);
