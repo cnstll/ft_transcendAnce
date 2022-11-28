@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Channel, User, channelRole } from '../../global-components/interface';
+import { Channel, User, channelRole, channelType } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
 import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels';
@@ -98,7 +98,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
           </p>
         </Link>
         {myRole.data?.role === channelRole.Owner ? (
-          <div className="z-index-20">
+          <div className="z-20">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -113,9 +113,10 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {myRole.data?.role === channelRole.Owner ||
-        myRole.data?.role === channelRole.Admin ? (
-          <div className="z-index-20">
+        {(myRole.data?.role === channelRole.Owner ||
+          myRole.data?.role === channelRole.Admin) &&
+          channelInfo.type === channelType.Private ?
+          (<div className="z-20">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
@@ -128,7 +129,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
               )}
             </div>
           </div>
-        ) : null}
+          ) : null}
         <Link to="/">
           <p className="text-center hover:underline my-2">Ban user</p>
         </Link>
