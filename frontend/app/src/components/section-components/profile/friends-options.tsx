@@ -8,9 +8,10 @@ import WatchGame from '../game/watch-game-options';
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  isBlocked: boolean;
 }
 
-function FriendsOptions({ user, setIsShown }: UserOptionsProps) {
+function FriendsOptions({ user, setIsShown, isBlocked }: UserOptionsProps) {
   return (
     <div>
       <Link to={`/profile/${user.nickname}`}>
@@ -19,7 +20,7 @@ function FriendsOptions({ user, setIsShown }: UserOptionsProps) {
       {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
-      <SendDM user={user} setIsShown={setIsShown} />
+      {!isBlocked && <SendDM user={user} setIsShown={setIsShown} />}
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />

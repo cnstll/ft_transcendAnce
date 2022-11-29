@@ -14,6 +14,7 @@ interface UserOptionsProps {
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  isBlocked: boolean;
 }
 
 function MembersOptions({
@@ -21,6 +22,7 @@ function MembersOptions({
   setIsShown,
   type,
   setActiveChannelId,
+  isBlocked,
 }: UserOptionsProps) {
   return (
     <div>
@@ -30,7 +32,7 @@ function MembersOptions({
       {user.status !== UserConnectionStatus.PLAYING && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
-      {type !== channelType.DirectMessage && (
+      {type !== channelType.DirectMessage && !isBlocked && (
         <SendDM
           user={user}
           setIsShown={setIsShown}

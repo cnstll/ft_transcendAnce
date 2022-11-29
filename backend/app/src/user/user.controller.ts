@@ -209,6 +209,15 @@ export class UserController {
     );
   }
 
+  @Post('check-user-is-blocked')
+  @UseGuards(JwtAuthGuard)
+  checkUserIsBlocked(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { targetId: string },
+  ) {
+    return this.userService.checkUserIsBlocked(userId, data.targetId);
+  }
+
   /** Channel invitations */
   @Get('get-channel-invites')
   @UseGuards(JwtAuthGuard)
