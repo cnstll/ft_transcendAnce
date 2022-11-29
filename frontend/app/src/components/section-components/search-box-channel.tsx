@@ -64,7 +64,7 @@ function SearchBoxChannel({
       socket.off('roomJoined');
       socket.off('joinRoomFailed');
     };
-  }, [channelInvites]);
+  }, []);
 
   function ShowInfo() {
     setIsShown(true);
