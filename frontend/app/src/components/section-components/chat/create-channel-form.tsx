@@ -7,6 +7,7 @@ import { useQueryClient } from 'react-query';
 
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
+  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const defaultFormData = {
@@ -28,6 +29,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
     socket.on('roomCreated', async (channelId: string) => {
       props.setShowForm(false);
       await queryClient.refetchQueries(channelsQueryKey);
+      props.setActiveChannelId(channelId);
       setFormData(defaultFormData);
       navigate('../chat/' + channelId);
     });
