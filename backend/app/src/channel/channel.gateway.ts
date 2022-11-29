@@ -73,7 +73,7 @@ export class ChannelGateway {
     );
     channel === null || typeof channel === 'string'
       ? this.server.to(clientSocket.id).emit('createRoomFailed', channel)
-      : this.server.emit('roomCreated', channel.id);
+      : this.server.emit('roomCreated', channel.id, userId);
   }
 
   // When a user join a channel, her ids are added to the users in the corresponding room
