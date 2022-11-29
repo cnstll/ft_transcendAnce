@@ -112,8 +112,9 @@ function Chat() {
                 {channels.isSuccess &&
                   channels.data && channels.data.length > 0 &&
                 <div className="flex sticky top-0">
-                  <div className="flex-1 backdrop-blur-sm bg-gray-900/50 text-center flex-wrap overflow-hidden max-h-20">
-                    <h2 className="flex-1 justify-center pt-4 sm:pt-5 font-bold">
+                  <div className="flex-1 flex flex-wrap sm:justify-center content-center
+                    backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20">
+                    <h2 className="font-bold">
                     {channels.data.find(
                       (channel) => channel.id === activeChannel,
                     )?.name}
