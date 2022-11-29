@@ -20,7 +20,6 @@ function JoinChannel(channelInfo: Channel) {
           userId: channelInfo.userId,
         },
       });
-      console.log(channelInfo.userId);
       break;
     default:
       socket.emit('joinRoom', {

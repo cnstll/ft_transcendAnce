@@ -23,6 +23,7 @@ import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
+import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 
 @Injectable()
 export class ChannelService {
@@ -413,6 +414,9 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
+      /* Get the socket of the second user of the dm */
+      const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+
       /* Check if one of the user is blocked by the other */
       const usersBlockedEachOther = await this.userService.checkUserIsBlocked(
         userId,
@@ -436,11 +440,9 @@ export class ChannelService {
           name: 'Estelle',
           type: 'DIRECTMESSAGE',
           users: {
-            createMany: {
-              data: [
-                { userId: userId, role: 'OWNER' },
-                { userId: dto.userId, role: 'ADMIN' },
-              ],
+            create: {
+              userId: userId,
+              role: 'OWNER',
             },
           },
         },
@@ -448,6 +450,15 @@ export class ChannelService {
       delete createdChannel.passwordHash;
       /* create and join room instance */
       clientSocket.join(createdChannel.id);
+      this.joinChannelWS(
+        { type: createdChannel.type, id: createdChannel.id },
+        dto.userId,
+        clientSocket,
+      );
+      clientSocket.to(secondUserSocket).emit('roomJoined', {
+        userId: dto.userId,
+        channelId: createdChannel.id,
+      });
       return createdChannel;
     } catch (error) {
       if (error.code === 'P2002') {
@@ -641,7 +652,11 @@ export class ChannelService {
     }
   }
 
-  async leaveChannelWS(userId: string, dto: LeaveChannelDto) {
+  async leaveChannelWS(
+    userId: string,
+    dto: LeaveChannelDto,
+    clientSocket: Socket,
+  ) {
     try {
       // Remove user from channel users ('user leave room')
       let leavingUser = await this.prisma.channelUser.delete({
@@ -668,6 +683,9 @@ export class ChannelService {
         channel.type === ChannelType.DIRECTMESSAGE &&
         channelUsers.users.length > 0
       ) {
+        const secondUserSocket = socketToUserId.getFromUserId(
+          channelUsers.users[0].userId,
+        );
         leavingUser = await this.prisma.channelUser.delete({
           where: {
             userId_channelId: {
@@ -676,9 +694,14 @@ export class ChannelService {
             },
           },
         });
+        clientSocket.to(secondUserSocket).emit('roomLeft', {
+          userId: channelUsers.users[0].userId,
+          channelId: dto.id,
+        });
+        clientSocket.leave(dto.id);
       }
       /* Then, delete channel */
-      // If user is the last one delete the channel
+      // If user is the last one or channel is of type direct message delete the channel
       if (
         channelUsers.users.length === 0 ||
         channel.type === ChannelType.DIRECTMESSAGE

@@ -3,7 +3,6 @@ import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   Channel,
-  User,
   channelRole,
   channelType,
 } from '../../global-components/interface';
@@ -34,8 +33,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const channelInfo = channelsQueryData?.find(
     (channel) => channel.id == activeChannel,
   );
-  const userQueryData: User | undefined =
-    queryClient.getQueryData(userQueryKey);
+  queryClient.getQueryData(userQueryKey);
 
   useEffect(() => {
     socket.on(
@@ -43,22 +41,18 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       async (leavingInfo: { userId: string; channelId: string }) => {
         // User receiving the event is the user leaving the room
         setIsShown(false);
-        if (userQueryData?.id === leavingInfo.userId) {
-          const channelListDisplayed: Channel[] | undefined =
-            await queryClient.getQueryData(channelsQueryKey);
-          if (channelListDisplayed && channelListDisplayed.length > 1) {
-            const deletedChannel = leavingInfo.channelId;
-            // Find another existing channel to redirect the user to after leaving current one
-            const nextChannelId =
-              channelListDisplayed.find(
-                (channel) => channel.id != deletedChannel,
-              )?.id ?? '';
-            setActiveChannelId(nextChannelId);
-            navigate(`../chat/${nextChannelId}`);
-          }
-        } else {
-          //TODO User still in the room should get notified that a user left
+        const channelListDisplayed: Channel[] | undefined =
+          await queryClient.getQueryData(channelsQueryKey);
+        if (channelListDisplayed && channelListDisplayed.length > 1) {
+          const deletedChannel = leavingInfo.channelId;
+          // Find another existing channel to redirect the user to after leaving current one
+          const nextChannelId =
+            channelListDisplayed.find((channel) => channel.id != deletedChannel)
+              ?.id ?? '';
+          setActiveChannelId(nextChannelId);
+          navigate(`../chat/${nextChannelId}`);
         }
+        //TODO User still in the room should get notified that a user left
         await queryClient.invalidateQueries(channelsQueryKey);
       },
     );
@@ -138,11 +132,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {channelInfo.type !== channelType.DirectMessage && (
-          <Link to="/">
-            <p className="text-center hover:underline my-2">Ban user</p>
-          </Link>
-        )}
       </div>
     );
   else return <></>;

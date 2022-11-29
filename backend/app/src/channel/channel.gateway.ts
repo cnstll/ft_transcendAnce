@@ -16,6 +16,7 @@ import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { ChannelType } from '@prisma/client';
+import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -173,6 +174,7 @@ export class ChannelGateway {
     const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
+      clientSocket,
     );
     if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
