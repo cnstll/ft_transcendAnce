@@ -9,7 +9,7 @@ import {
   faEnvelopeCircleCheck
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 function SearchChannelItem({ channel, invited }: { channel: Channel, invited: boolean }) {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -46,7 +46,6 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
             )}
             {channel.name} </li>
         </div>
-        <ToastContainer closeButton={false}/>
       </Link>
       {showModal &&
         <PasswordModal setShowModal={setShowModal} channel={channel}
