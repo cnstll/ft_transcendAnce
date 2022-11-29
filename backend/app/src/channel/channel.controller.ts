@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import { ChannelActionType } from '@prisma/client';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
@@ -82,5 +83,16 @@ export class ChannelController {
   @Get('get-authors-from-channel/:id')
   getAuthorsFromAChannel(@Param('id') channelId: string) {
     return this.channelService.getChannelAuthors(channelId);
+  }
+
+  @Get('get-users-under-moderation-action/:channelId/:actionType')
+  getUsersUnderModerationAction(
+    @Param('channelId') channelId: string,
+    @Param('actionType') actionType: ChannelActionType,
+  ) {
+    return this.channelService.getUsersUnderModerationAction(
+      channelId,
+      actionType,
+    );
   }
 }

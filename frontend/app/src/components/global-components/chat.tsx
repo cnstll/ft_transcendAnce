@@ -7,8 +7,13 @@ import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import { Channel, User } from '../global-components/interface';
-import { useEffect, useState } from 'react';
+import {
+  Channel,
+  channelActionType,
+  ModerationInfo,
+  User,
+} from '../global-components/interface';
+import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { useChannelsByUserList } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
@@ -21,12 +26,18 @@ import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
 import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
+import { useGetUsersUnderModerationAction } from '../query-hooks/getModerationActionInfo';
+
+export const channelContext = createContext({
+  activeChannelId: '',
+});
 
 function Chat() {
   const user = useUserInfo();
   const { activeChannel } = useParams();
   const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
   const [isShown, setIsShown] = useState(false);
+  //   const [isBannedFromChannel, setIsBannedFromChannel] = useState(false);
 
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
@@ -36,11 +47,22 @@ function Chat() {
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
+  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
+  const bannedUsers: UseQueryResult<string[] | undefined> =
+    useGetUsersUnderModerationAction(activeChannelId, channelActionType.Ban);
+  //   const channelUsers = useChannelUsers(channelContext.activeChannelId);
 
   useEffect(() => {
     if (user.isError) {
       navigate('/sign-in');
     }
+    socket.on('banSucceeded', async (baninfo: ModerationInfo) => {
+      await queryClient.invalidateQueries([
+        channelUserBannedQueryKey,
+        baninfo.channelActionOnChannelId,
+        channelActionType.Ban,
+      ]);
+    });
 
     if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
@@ -73,14 +95,15 @@ function Chat() {
     });
     return () => {
       socket.off('roomLeft');
+      socket.off('banSucceeded');
     };
-  }, [activeChannelId, socket, user, channels.data?.length]);
+  }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
   if (activeChannel) {
-    if (channels.data &&
-      !channels.data.find(
-        (channel) => channel.id === activeChannel,
-      ))
+    if (
+      channels.data &&
+      !channels.data.find((channel) => channel.id === activeChannel)
+    )
       return <PageNotFound />;
   }
 
@@ -89,74 +112,143 @@ function Chat() {
       {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
         <div className="h-full min-h-screen bg-black">
-          <Navbar
-            text={<FontAwesomeIcon icon={faHouse} />}
-            avatarImg={user.data.avatarImg}
-          />
-          <div
-            className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
-                gap-10 px-5 justify-center mt-6 text-white text-3xl"
-          >
-            <SideBox>
-              <ChannelHeader setActiveChannelId={setActiveChannelId} />
-              <MyChannelsList
-                activeChannelId={activeChannelId}
-                setActiveChannelId={setActiveChannelId}
-              />
-            </SideBox>
-            <CenterBox>
-              <div
-                className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
-                style={{ backgroundImage: `url(${BackgroundGeneral})` }}
-              >
-                <div className="flex sticky top-0 backdrop-blur-sm bg-gray-900/50">
-                  <div className="flex-1">
-                    <h2 className="flex justify-center p-5 font-bold">
-                      {channels.isSuccess &&
-                        channels.data &&
-                        channels.data.find(
-                          (channel) => channel.id === activeChannel,
-                        )?.name}
-                    </h2>
-                  </div>
-                  <div className="p-5 flex justify-center">
-                    {activeChannel ? (
-                      <DropDownButton isShown={isShown} setIsShown={setIsShown}>
-                        <ChannelOptions
-                          setActiveChannelId={setActiveChannelId}
-                          setIsShown={setIsShown}
-                        />
-                      </DropDownButton>
-                    ) : (
-                      <div />
-                    )}
-                  </div>
-                </div>
-                <div className='snap-end'>
-                  <DisplayMessages
-                    userId={user.data.id}
-                    channelId={activeChannelId}
-                  />
-                </div>
-              </div>
-            </CenterBox>
-            <SideBox>
-              <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              {channelUsers.isSuccess && channelUsers.data && (
-                <MembersList
-                  channelUsers={channelUsers.data}
-                  user={user.data}
+          {bannedUsers.isSuccess &&
+            !bannedUsers.data?.some((userId) => userId === user.data.id) && (
+              <>
+                <Navbar
+                  text={<FontAwesomeIcon icon={faHouse} />}
+                  avatarImg={user.data.avatarImg}
                 />
-              )}{' '}
-              {channelUsers.isLoading && <LoadingSpinner />}
-              {channelUsers.isError && (
-                <div>Woops somethin went wrong here</div>
-              )}
-            </SideBox>
-          </div>
-          <div className="flex justify-center">
-            <ChatBox userId={user.data.id} channelId={activeChannelId} />
-          </div>
+                <div
+                  className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+                gap-10 px-5 justify-center mt-6 text-white text-3xl"
+                >
+                  <SideBox>
+                    <ChannelHeader setActiveChannelId={setActiveChannelId} />
+                    <MyChannelsList
+                      activeChannelId={activeChannelId}
+                      setActiveChannelId={setActiveChannelId}
+                    />
+                  </SideBox>
+                  <CenterBox>
+                    <div
+                      className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
+                      style={{ backgroundImage: `url(${BackgroundGeneral})` }}
+                    >
+                      <div className="flex sticky top-0 backdrop-blur-sm bg-gray-900/50">
+                        <div className="flex-1">
+                          <h2 className="flex justify-center p-5 font-bold">
+                            {channels.isSuccess &&
+                              channels.data &&
+                              channels.data.find(
+                                (channel) => channel.id === activeChannel,
+                              )?.name}
+                          </h2>
+                        </div>
+                        <div className="p-5 flex justify-center">
+                          {activeChannel ? (
+                            <DropDownButton
+                              isShown={isShown}
+                              setIsShown={setIsShown}
+                            >
+                              <ChannelOptions
+                                setActiveChannelId={setActiveChannelId}
+                                setIsShown={setIsShown}
+                              />
+                            </DropDownButton>
+                          ) : (
+                            <div />
+                          )}
+                        </div>
+                      </div>
+                      <div className="snap-end">
+                        <DisplayMessages
+                          userId={user.data.id}
+                          channelId={activeChannelId}
+                        />
+                      </div>
+                    </div>
+                  </CenterBox>
+                  <SideBox>
+                    <h2 className="flex justify-center font-bold">MEMBERS</h2>
+                    {channelUsers.isSuccess && channelUsers.data && (
+                      <channelContext.Provider
+                        value={{ activeChannelId: activeChannelId }}
+                      >
+                        <MembersList
+                          channelUsers={channelUsers.data}
+                          user={user.data}
+                        />
+                      </channelContext.Provider>
+                    )}{' '}
+                    {channelUsers.isLoading && <LoadingSpinner />}
+                    {channelUsers.isError && (
+                      <div>Woops somethin went wrong here</div>
+                    )}
+                  </SideBox>
+                </div>
+                <div className="flex justify-center">
+                  <ChatBox userId={user.data.id} channelId={activeChannelId} />
+                </div>
+              </>
+            )}
+          {bannedUsers.isSuccess &&
+            bannedUsers.data?.some((userId) => userId === user.data.id) && (
+              <>
+                <Navbar
+                  text={<FontAwesomeIcon icon={faHouse} />}
+                  avatarImg={user.data.avatarImg}
+                />
+                <div
+                  className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
+              gap-10 px-5 justify-center mt-6 text-white text-3xl"
+                >
+                  <SideBox>
+                    <ChannelHeader setActiveChannelId={setActiveChannelId} />
+                    <MyChannelsList
+                      activeChannelId={activeChannelId}
+                      setActiveChannelId={setActiveChannelId}
+                    />
+                  </SideBox>
+                  <CenterBox>
+                    <div
+                      className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
+                      style={{ backgroundImage: `url(${BackgroundGeneral})` }}
+                    >
+                      <div className="flex sticky top-0 backdrop-blur-sm bg-gray-900/50">
+                        <div className="flex-1">
+                          <h2 className="flex justify-center p-5 font-bold">
+                            {channels.isSuccess &&
+                              channels.data &&
+                              channels.data.find(
+                                (channel) => channel.id === activeChannel,
+                              )?.name}
+                          </h2>
+                        </div>
+                        <div className="p-5 flex justify-center">
+                          {activeChannel ? (
+                            <DropDownButton
+                              isShown={isShown}
+                              setIsShown={setIsShown}
+                            >
+                              <ChannelOptions
+                                setActiveChannelId={setActiveChannelId}
+                                setIsShown={setIsShown}
+                              />
+                            </DropDownButton>
+                          ) : (
+                            <div />
+                          )}
+                        </div>
+                      </div>
+                      <div className="snap-end text-xl text-center">
+                        Sorry you have been banned from this dancefloor 💔
+                      </div>
+                    </div>
+                  </CenterBox>
+                </div>
+              </>
+            )}
         </div>
       )}
     </>

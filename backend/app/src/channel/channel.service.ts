@@ -12,6 +12,7 @@ import {
   ChannelUser,
   User,
   Message,
+  ChannelActionType,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto } from './dto';
@@ -22,6 +23,7 @@ import * as argon from 'argon2';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 
 @Injectable()
 export class ChannelService {
@@ -396,6 +398,61 @@ export class ChannelService {
       : false;
   }
 
+  async getModerationActionInfo(
+    userTargetId: string,
+    channelId: string,
+    channelActionType: ChannelActionType,
+  ) {
+    try {
+      const moderationAction = await this.prisma.channelAction.findUnique({
+        where: {
+          channelActionTargetId_channelActionOnChannelId: {
+            channelActionTargetId: userTargetId,
+            channelActionOnChannelId: channelId,
+          },
+        },
+        select: {
+          type: true,
+          channelActionTargetId: true,
+          channelActionTime: true,
+        },
+      });
+      console.log(moderationAction);
+      return moderationAction;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getUsersUnderModerationAction(
+    channelId: string,
+    channelActionType: ChannelActionType,
+  ) {
+    try {
+      const usersUnderModeration = await this.prisma.channelAction.findMany({
+        where: {
+          channelActionOnChannelId: channelId,
+          type: channelActionType,
+        },
+        select: {
+          channelActionTarget: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      const flattenUsers = [];
+      for (let index = 0; index < usersUnderModeration.length; index++) {
+        flattenUsers.push(usersUnderModeration[index].channelActionTarget.id);
+      }
+      console.log('THESE USERS ARE BANNED: ', flattenUsers);
+      return flattenUsers;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async joinChannelWS(
     channelDto: JoinChannelDto,
     userId: string,
@@ -627,6 +684,62 @@ export class ChannelService {
         return 'alreadyInvited';
       }
       console.log(error);
+    }
+  }
+
+  async banFromChannelWS(requesterId: string, banInfo: ModerateChannelDto) {
+    try {
+      //Requester is admin or owner
+      const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        requesterId,
+        banInfo.channelActionOnChannelId,
+      );
+      if (userRole.role < ChannelRole.ADMIN) {
+        return 'noEligibleRights';
+      }
+
+      //User exist in channel and is not already banned
+      console.log(
+        'Can be banned ?? : ',
+        banInfo.channelActionTargetId,
+        banInfo.channelActionOnChannelId,
+        banInfo.type,
+      );
+      //   const canBeBanned = await this.prisma.channelAction.findUnique({
+      //     where: {
+      //       channelActionTargetId_channelActionOnChannelId: {
+      //         channelActionTargetId: banInfo.channelActionTargetId,
+      //         channelActionOnChannelId: banInfo.channelActionOnChannelId,
+      //       },
+      //     },
+      //     select: {
+      //       channelActionTarget: true,
+      //     },
+      //   });
+      //   if (!canBeBanned) {
+      //     console.log('Cannot be banned: ', canBeBanned);
+      //     return 'cannotBeBanned';
+      //   } else {
+      //     console.log('Can ba banned: ', canBeBanned);
+      //   }
+      const bannedUser = await this.prisma.channelAction.create({
+        data: {
+          channelActionTargetId: banInfo.channelActionTargetId,
+          channelActionOnChannelId: banInfo.channelActionOnChannelId,
+          channelActionTime: banInfo.channelActionDuration,
+          type: ChannelActionType.BAN,
+          channelActionRequesterId: requesterId,
+        },
+        select: {
+          channelActionTargetId: true,
+          channelActionOnChannelId: true,
+        },
+      });
+      console.log(bannedUser);
+      return bannedUser;
+    } catch (error) {
+      console.log(error);
+      return null;
     }
   }
 }

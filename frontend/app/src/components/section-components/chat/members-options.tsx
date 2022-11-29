@@ -3,6 +3,7 @@ import { User, UserConnectionStatus } from '../../global-components/interface';
 import BlockFriends from '../block-friends';
 import InviteToPlay from '../invite-to-play';
 import WatchGame from '../watch-game-options';
+import BanUser from './ban-user-modal';
 
 interface UserOptionsProps {
   user: User;
@@ -22,6 +23,7 @@ function MembersOptions({ user, setIsShown }: UserOptionsProps) {
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />
       )}
+      <BanUser user={user} setIsShown={setIsShown} />
     </div>
   );
 }

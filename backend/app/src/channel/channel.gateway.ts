@@ -15,6 +15,7 @@ import { JoinChannelDto } from './dto/joinChannel.dto';
 import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -191,6 +192,27 @@ export class ChannelGateway {
       this.server
         .to([clientSocket.id, inviteChannelDto.channelId])
         .emit('inviteSucceeded', inviteToChannel);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('banUser')
+  async banUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('banInfo') banInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    console.log(banInfo);
+    const banUser = await this.channelService.banFromChannelWS(
+      requesterId,
+      banInfo,
+    );
+    if (banUser == null || typeof banUser === 'string') {
+      this.server.to(clientSocket.id).emit('banFailed', banUser);
+    } else {
+      this.server
+        .to(banInfo.channelActionOnChannelId)
+        .emit('banSucceeded', banUser);
     }
   }
 }
