@@ -7,10 +7,10 @@ import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import { Channel, channelRole, User } from '../global-components/interface';
+import { Channel, User } from '../global-components/interface';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import { useChannelRoles, useChannelsByUserList } from '../query-hooks/useGetChannels';
+import {  useChannelsByUserList } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
@@ -33,11 +33,6 @@ function Chat() {
     useChannelsByUserList();
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
-  const roleUsers: UseQueryResult<{
-    userId: string;
-    role: channelRole;}[]
-    | undefined> =
-  useChannelRoles(activeChannelId);
 
   const queryClient = useQueryClient();
   const channelUsersQueryKey = 'channelUsers';
@@ -77,9 +72,7 @@ function Chat() {
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
-    /** The following invalidateQueries enable edit channel + invite modals to work properly */
-    void queryClient.invalidateQueries('channelsByUserList');
-    void queryClient.invalidateQueries('rolesInChannel');
+
     return () => {
       socket.off('roomLeft');
     };
@@ -152,7 +145,6 @@ function Chat() {
                 <MembersList
                   channelUsers={channelUsers.data}
                   user={user.data}
-                  roles={roleUsers.data}
                   channelId={activeChannel?? ''}
                 />
               )}{' '}

@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useQueryClient } from "react-query";
+
 import { socket } from "src/components/global-components/client-socket";
 import { channelRole, User } from "../../global-components/interface";
 
@@ -11,22 +10,6 @@ interface PromoteToAdminProps {
 }
 
 function PromoteToAdmin({ user, setIsShown, channelId, role}: PromoteToAdminProps) {
-  const roleQueryKey = 'rolesInChannel';
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    socket.on('roleUpdated', async () => {
-      await queryClient.invalidateQueries(roleQueryKey);
-      setIsShown(false);
-    });
-    socket.on('updateRoleFailed', () => {
-      alert("Couldn't update the user's role");
-    });
-    return () => {
-      socket.off('roomEdited');
-      socket.off('editRoomFailed');
-    };
-  }, []);
 
   const onPromote = () => {
     setIsShown(false);

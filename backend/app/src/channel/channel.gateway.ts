@@ -211,7 +211,9 @@ export class ChannelGateway {
       channelId,
       editRoleDto,
     );
-    roleUpdated === null || typeof roleUpdated === 'string'
+    roleUpdated == null ||
+    roleUpdated === 'PromotionNotAuthorized' ||
+    roleUpdated === 'noEligibleRights'
       ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)
       : this.server
           .to([clientSocket.id, channelId])

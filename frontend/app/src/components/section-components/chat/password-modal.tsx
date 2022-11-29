@@ -81,12 +81,12 @@ function PasswordModal(props: PwdModalProps) {
                 />
                 {inputStatus === 'invalidPassword' && (
                   <p className="text-red-500 text-xs font-medium my-1">
-                    Password is mandatory to enter {props.channel.name}
+                    Wrong password
                   </p>
                 )}
                 {inputStatus === 'passwordRequired' && (
                   <p className="text-red-500 text-xs font-medium my-1">
-                    A password is required
+                    A password is required to enter this channel
                   </p>
                 )}
               </div>

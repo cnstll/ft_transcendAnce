@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Channel, User, channelRole } from '../../global-components/interface';
+import { Channel, User, channelRole, channelType } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
 import { useMyChannelRole} from 'src/components/query-hooks/useGetChannels';
@@ -32,13 +32,13 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
   const myRole = useMyChannelRole(channelInfo?.id ?? '');
-  console.log("option log: ", myRole.data);
 
   useEffect(() => {
     socket.on(
       'roomLeft',
       async (leavingInfo: { userId: string; channelId: string }) => {
         // User receiving the event is the user leaving the room
+        setIsShown(false);
         if (userQueryData?.id === leavingInfo.userId) {
           const channelListDisplayed: Channel[] | undefined =
             await queryClient.getQueryData(channelsQueryKey);
@@ -50,7 +50,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
                 (channel) => channel.id != deletedChannel,
               )?.id ?? '';
             setActiveChannelId(nextChannelId);
-            setIsShown(false);
             navigate(`../chat/${nextChannelId}`);
           }
         } else {
@@ -64,7 +63,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       socket.off('roomLeft');
       socket.off('leaveRoomFailed');
     };
-  }, [myRole]);
+  }, [myRole, queryClient]);
 
   function leaveChannel(channelInfo: Channel) {
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
@@ -97,8 +96,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRole.data?.role === channelRole.Owner ?
-        (<div className="z-40">
+        {myRole.data?.role === channelRole.Owner ? (
+          <div className="z-40">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -113,9 +112,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(myRole.isSuccess &&
-          myRole.data?.role === channelRole.Owner ||
-          myRole.data?.role === channelRole.Admin) ?
+        {(myRole.data?.role === channelRole.Owner ||
+          myRole.data?.role === channelRole.Admin) &&
+          channelInfo.type === channelType.Private ?
           (<div className="z-40">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>

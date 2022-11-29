@@ -130,7 +130,7 @@ function WatchGame({
           setGameStatus(GameStatus.PENDING);
         } else if (text.status === 'DONE') {
           setGameStatus(GameStatus.DONE);
-          navigate('/profile');
+          navigate('/');
         } else if (text.status === 'OVER') {
           gameInfo.playerOneScore = text.player1score;
           setGameStatus(GameStatus.OVER);
