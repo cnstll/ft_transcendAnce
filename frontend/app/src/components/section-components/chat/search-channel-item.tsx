@@ -33,7 +33,7 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
   return (
     <>
       <Link to={`../chat/${channel.id}`} onClick={onClick}>
-        <div className='flex justify-start px-2 py-3'>
+        <div className='flex justify-start p-3'>
           <li className="px-2 flex-wrap break-words">
             {channel.type === channelType.Protected && (
               <FontAwesomeIcon className="text-md text-purple-medium pr-1" icon={faLock} />
