@@ -20,7 +20,7 @@ function SearchChannelItem({ channel }: { channel: Channel }) {
   return (
     <>
       <Link to={`../chat/${channel.id}`} onClick={onClick}>
-        <li className="p-4">{channel.name}</li>
+        <li className="p-4 flex-wrap break-words">{channel.name}</li>
       </Link>
       {showModal &&
         <PasswordModal setShowModal={setShowModal} channel={channel}

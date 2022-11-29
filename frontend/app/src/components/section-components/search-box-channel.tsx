@@ -141,14 +141,16 @@ function SearchBoxChannel({
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white rounded-lg text-sm absolute ' + width}>
+        <div className={'bg-white rounded-lg text-sm absolute z-20 ' + width}>
           {isShown && (
             <ul>
               {filterChannels(channels, searchData.keyword)
-                ?.map((channelItem) => (
+                ?.slice(0, 5)
+                .sort((a, b) => (a.name.toLowerCase() >= b.name.toLowerCase() ? 1 : -1))
+                .map((channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
-                    <div className="z-index-20">
+                    <div className="z-20">
                       {showModal && (
                         <PasswordModal
                           setShowModal={setShowModal}
