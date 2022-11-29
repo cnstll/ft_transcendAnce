@@ -11,8 +11,7 @@ function SearchChannelItem({ channel }: { channel: Channel }) {
     e.preventDefault();
     if (channel.type == channelType.Protected) {
       setShowModal(true);
-    }
-    else {
+    } else {
       JoinChannel(channel);
     }
   }
@@ -20,11 +19,13 @@ function SearchChannelItem({ channel }: { channel: Channel }) {
   return (
     <>
       <Link to={`../chat/${channel.id}`} onClick={onClick}>
-        <li className="p-4">{channel.name}</li>
+        <li className="p-4 flex-wrap break-words text-[8px] sm:text-xs md:text-xs lg:text-sm">
+          {channel.name}
+        </li>
       </Link>
-      {showModal &&
-        <PasswordModal setShowModal={setShowModal} channel={channel}
-      />}
+      {showModal && (
+        <PasswordModal setShowModal={setShowModal} channel={channel} />
+      )}
     </>
   );
 }
