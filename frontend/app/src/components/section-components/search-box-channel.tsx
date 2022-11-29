@@ -150,7 +150,7 @@ function SearchBoxChannel({
                 .map((channelItem) => (
                   <div key={channelItem.id}>
                     <SearchChannelItem channel={channelItem} />
-                    <div className="">
+                    <div className="z-20">
                       {showModal && (
                         <PasswordModal
                           setShowModal={setShowModal}

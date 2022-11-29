@@ -19,7 +19,7 @@ function PromoteToAdmin({ user, setIsShown, channelId, role}: PromoteToAdminProp
       await queryClient.invalidateQueries(roleQueryKey);
       setIsShown(false);
     });
-    socket.on('updateRoleFailedd', () => {
+    socket.on('updateRoleFailed', () => {
       alert("Couldn't update the user's role");
     });
     return () => {
