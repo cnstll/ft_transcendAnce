@@ -64,6 +64,13 @@ function Chat() {
       ]);
     });
 
+    socket.on('banFailed', (banInfo: string | null) => {
+      console.log('WOW ITS A BAN FAIL');
+      if (banInfo !== null) {
+        alert(`Oups : ${banInfo} !`);
+      }
+    });
+
     if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
@@ -93,11 +100,13 @@ function Chat() {
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
+
     return () => {
       socket.off('roomLeft');
       socket.off('banSucceeded');
+      socket.off('banFailed');
     };
-  }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
+  }, [activeChannelId, queryClient]);
 
   if (activeChannel) {
     if (

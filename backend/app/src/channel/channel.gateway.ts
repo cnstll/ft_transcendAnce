@@ -202,13 +202,15 @@ export class ChannelGateway {
     @MessageBody('banInfo') banInfo: ModerateChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    console.log(banInfo);
     const banUser = await this.channelService.banFromChannelWS(
       requesterId,
       banInfo,
     );
     if (banUser == null || typeof banUser === 'string') {
-      this.server.to(clientSocket.id).emit('banFailed', banUser);
+      console.log('FAILED TO BAN');
+      this.server
+        .to(banInfo.channelActionOnChannelId)
+        .emit('banFailed', banUser);
     } else {
       this.server
         .to(banInfo.channelActionOnChannelId)

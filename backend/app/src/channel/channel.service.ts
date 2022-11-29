@@ -689,39 +689,64 @@ export class ChannelService {
 
   async banFromChannelWS(requesterId: string, banInfo: ModerateChannelDto) {
     try {
-      //Requester is admin or owner
+      //Check if channel is not a direct channel
+      const typeOfChannel: { type: ChannelType } =
+        await this.prisma.channel.findUnique({
+          where: {
+            id: banInfo.channelActionOnChannelId,
+          },
+          select: {
+            type: true,
+          },
+        });
+      if (typeOfChannel.type === ChannelType.DIRECTMESSAGE) {
+        return 'cannotBanInDirectMessage';
+      }
+      //Verify Admin or Owner Role
       const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
         requesterId,
         banInfo.channelActionOnChannelId,
       );
-      if (userRole.role < ChannelRole.ADMIN) {
+      if (
+        userRole.role !== ChannelRole.OWNER &&
+        userRole.role !== ChannelRole.ADMIN
+      ) {
         return 'noEligibleRights';
       }
-
-      //User exist in channel and is not already banned
-      console.log(
-        'Can be banned ?? : ',
-        banInfo.channelActionTargetId,
-        banInfo.channelActionOnChannelId,
-        banInfo.type,
-      );
-      //   const canBeBanned = await this.prisma.channelAction.findUnique({
-      //     where: {
-      //       channelActionTargetId_channelActionOnChannelId: {
-      //         channelActionTargetId: banInfo.channelActionTargetId,
-      //         channelActionOnChannelId: banInfo.channelActionOnChannelId,
-      //       },
-      //     },
-      //     select: {
-      //       channelActionTarget: true,
-      //     },
-      //   });
-      //   if (!canBeBanned) {
-      //     console.log('Cannot be banned: ', canBeBanned);
-      //     return 'cannotBeBanned';
-      //   } else {
-      //     console.log('Can ba banned: ', canBeBanned);
-      //   }
+      // Target User is not owner of the channel
+      const targetRole: { role: ChannelRole } =
+        await this.prisma.channelUser.findUnique({
+          where: {
+            userId_channelId: {
+              userId: banInfo.channelActionTargetId,
+              channelId: banInfo.channelActionOnChannelId,
+            },
+          },
+          select: {
+            role: true,
+          },
+        });
+      if (targetRole.role === ChannelRole.OWNER) {
+        return 'cannotBanOwner';
+      }
+      // Target User exist in channel and is not already banned
+      const isAlreadyBanned = await this.prisma.channelAction.findUnique({
+        where: {
+          channelActionTargetId_channelActionOnChannelId: {
+            channelActionTargetId: banInfo.channelActionTargetId,
+            channelActionOnChannelId: banInfo.channelActionOnChannelId,
+          },
+        },
+        select: {
+          channelActionTarget: true,
+        },
+      });
+      if (isAlreadyBanned !== null) {
+        console.log('Cannot be banned: ', isAlreadyBanned);
+        return 'cannotBeBanned';
+      } else {
+        console.log('Can ba banned: ', isAlreadyBanned);
+      }
       const bannedUser = await this.prisma.channelAction.create({
         data: {
           channelActionTargetId: banInfo.channelActionTargetId,

@@ -26,14 +26,15 @@ function BanUser(props: BanUserProps) {
   //   );
   //   const channelUsers = useChannelUsers(channelContext.activeChannelId);
 
-  useEffect(() => {
-    socket.on('banFailed', (banInfo: string) => {
-      alert(`Oups : ${banInfo}`);
-    });
-    return () => {
-      socket.off('banFailed');
-    };
-  }, []);
+  //   useEffect(() => {
+  // socket.on('banFailed', (banInfo: string | null) => {
+  //   console.log('WOW ITS A BAN FAIL');
+  //   alert(`Oups : ${banInfo} !`);
+  // });
+  // return () => {
+  //   socket.off('banFailed');
+  // };
+  //   }, []);
 
   function onBan() {
     socket.emit('banUser', {
@@ -50,9 +51,6 @@ function BanUser(props: BanUserProps) {
   //List of users in the channel crossed with list of banned users
   //Emit banUser > update db
   //Listen to ban events
-  //If user not admin or owner, cannot ban
-  //If user already banned, cannot ban
-  //If channel is a DM, cannot ban
 
   return (
     <>
