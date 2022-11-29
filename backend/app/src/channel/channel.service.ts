@@ -517,29 +517,6 @@ export class ChannelService {
     }
   }
 
-  // async hasAdminRights(userId: string, channelId: string) {
-  //   /* Find the user's role to check the rights to update */
-  //   const admin: { role: ChannelRole } =
-  //     await this.prisma.channelUser.findUnique({
-  //       where: {
-  //         userId_channelId: {
-  //           userId: userId,
-  //           channelId: channelId,
-  //         },
-  //       },
-  //       select: {
-  //         role: true,
-  //       },
-  //     });
-  //   /* If relation doesn't exist or User doesn't have Owner or Admin role */
-  //   // if (!admin || admin.role === 'USER') {
-  //   //   return false;
-  //   // } else {
-  //   //   return true;
-  //   // }
-  //   return admin;
-  // }
-
   async editChannelByIdWS(
     userId: string,
     channelId: string,
@@ -573,7 +550,6 @@ export class ChannelService {
       delete editedChannel.passwordHash;
       return editedChannel;
     } catch (error) {
-      console.log(error);
       if (error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
       }
