@@ -18,7 +18,6 @@ function Watch() {
     if (user.isError) navigate('/sign-in');
   }, []);
 
-  console.log('this is playerId: ', playerId);
   if (user.isSuccess)
     return (
       <div>
