@@ -203,6 +203,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
   }, [window.innerWidth, window.innerHeight, gameStatus]);
 
   function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
+    event.preventDefault();
     const clientY = event.clientY;
 
     if (
