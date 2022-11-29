@@ -16,7 +16,6 @@ import { LeaveChannelDto } from './dto/leaveChannel.dto';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { ChannelType } from '@prisma/client';
-import { Channel } from '@grpc/grpc-js';
 
 enum acknoledgementStatus {
   OK = 'OK',

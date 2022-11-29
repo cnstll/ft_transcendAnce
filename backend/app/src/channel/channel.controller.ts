@@ -32,17 +32,6 @@ export class ChannelController {
     return this.channelService.getAllChannelsByUserId(userId);
   }
 
-  @Post('get-direct-message-by-user-id')
-  getDirectMessageByUserId(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { participantId: string },
-  ) {
-    return this.channelService.getDirectMessageByUserId(
-      userId,
-      data.participantId,
-    );
-  }
-
   @Get(':id')
   getChannelById(@Param('id') channelId: string) {
     return this.channelService.getChannelById(channelId);

@@ -22,10 +22,14 @@ import * as argon from 'argon2';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChannelService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
   getChannels() {
     return this.prisma.channel.findMany();
@@ -103,16 +107,15 @@ export class ChannelService {
     });
     for (let i = 0; i < allDirectMessages.length; i++) {
       const users = await this.getUsersOfAChannel(allDirectMessages[i].id);
-      console.log(users);
       if (
         (users.length > 1 &&
           users[0].id === userId &&
           users[1].id === participantId) ||
         (users[0].id === participantId && users[1].id === userId)
       )
-        return allDirectMessages[i].id;
+        return allDirectMessages[i];
     }
-    return '';
+    return null;
   }
 
   async getChannelAuthors(channelId: string) {
@@ -410,7 +413,24 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
-      /* Then try to create a new channel */
+      /* Check if one of the user is blocked by the other */
+      const usersBlockedEachOther = await this.userService.checkUserIsBlocked(
+        userId,
+        dto.userId,
+      );
+      if (usersBlockedEachOther) return 'Users blocked each other';
+
+      /* Check if a DM between the 2 users already exists */
+      const conversationAlreadyExist = await this.getDirectMessageByUserId(
+        userId,
+        dto.userId,
+      );
+      if (conversationAlreadyExist) {
+        delete conversationAlreadyExist.passwordHash;
+        return conversationAlreadyExist;
+      }
+
+      /* Create a DM between the 2 users */
       const createdChannel: Channel = await this.prisma.channel.create({
         data: {
           name: 'Estelle',
@@ -430,15 +450,13 @@ export class ChannelService {
       clientSocket.join(createdChannel.id);
       return createdChannel;
     } catch (error) {
-      //   if (error.code === 'P2002') {
-      //     return 'alreadyUsed' + error.meta.target[0];
-      //   }
-      //   if (error == 'Error: WrongData') {
-      //     return 'WrongData';
-      //   }
-      //   return null;
-      // }
-      console.log(error);
+      if (error.code === 'P2002') {
+        return 'alreadyUsed' + error.meta.target[0];
+      }
+      if (error == 'Error: WrongData') {
+        return 'WrongData';
+      }
+      return null;
     }
   }
 

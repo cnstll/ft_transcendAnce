@@ -197,15 +197,6 @@ export class UserController {
 
   /** Ban, mute,block management */
 
-  @Post('check-user-is-blocked')
-  @UseGuards(JwtAuthGuard)
-  checkUserIsBlocked(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.checkUserIsBlocked(userId, data.targetId);
-  }
-
   @Post('check-current-user-blocked-target')
   @UseGuards(JwtAuthGuard)
   checkCurrentUserBlockedTarget(

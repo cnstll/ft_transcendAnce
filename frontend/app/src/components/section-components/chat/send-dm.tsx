@@ -1,9 +1,8 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { socket } from 'src/components/global-components/client-socket';
-import { apiUrl, channelType, User } from '../../global-components/interface';
+import { channelType, User } from '../../global-components/interface';
 
 interface BlockFriendsProps {
   user: User;
@@ -14,8 +13,6 @@ interface BlockFriendsProps {
 function SendDM({ user, setIsShown, setActiveChannelId }: BlockFriendsProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [conversationId, setConversationId] = useState('');
 
   useEffect(() => {
     socket.on('roomCreated', async (channelId: string) => {
@@ -36,34 +33,6 @@ function SendDM({ user, setIsShown, setActiveChannelId }: BlockFriendsProps) {
   });
 
   const onSendDM = () => {
-    //Check if one of the user is blocked
-    void axios
-      .post<boolean>(
-        `${apiUrl}/user/check-user-is-blocked`,
-        { targetId: user.id },
-        {
-          withCredentials: true,
-        },
-      )
-      .then((res) => setIsBlocked(res.data));
-    if (isBlocked) return;
-
-    //Check if a DM between the 2 users already exists
-    void axios
-      .post<string>(
-        `${apiUrl}/channels/get-direct-message-by-user-id`,
-        { participantId: user.id },
-        {
-          withCredentials: true,
-        },
-      )
-      .then((res) => setConversationId(res.data));
-    console.log(conversationId);
-    if (conversationId) {
-      navigate('../chat/' + conversationId);
-      return;
-    }
-
     //Create a DM between the 2 users
     socket.emit('createRoom', {
       createInfo: {
