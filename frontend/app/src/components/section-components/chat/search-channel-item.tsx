@@ -30,8 +30,6 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
     }
   }
 
-  console.log("invited is ", invited);
-
   return (
     <>
       <Link to={`../chat/${channel.id}`} onClick={onClick}>

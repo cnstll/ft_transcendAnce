@@ -39,7 +39,6 @@ function SearchBoxChannel({
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
   const [showModal, setShowModal] = useState<boolean>(false);
-
   const channelInvites = getMyChannelInvites();
 
   useEffect(() => {
@@ -65,7 +64,7 @@ function SearchBoxChannel({
       socket.off('roomJoined');
       socket.off('joinRoomFailed');
     };
-  }, []);
+  }, [channelInvites]);
 
   function ShowInfo() {
     setIsShown(true);
