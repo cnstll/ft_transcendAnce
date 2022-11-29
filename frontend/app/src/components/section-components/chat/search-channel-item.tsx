@@ -15,8 +15,8 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
 
   function onClick(e: React.MouseEvent) {
     e.preventDefault();
-    if (channel.type === channelType.Private && invited === false)
-    /** replace with a toatify notification */
+    if (channel.type === channelType.Private && !invited)
+    /** replace with a toastify notification */
       alert("You're not invited to this channel");
     else if (channel.type === channelType.Protected) {
       setShowModal(true);
@@ -36,10 +36,10 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
             {channel.type === channelType.Protected && (
               <FontAwesomeIcon className="text-md text-purple-medium pr-1" icon={faLock} />
             )}
-            {invited === true && channel.type === channelType.Private && (
+            {invited && channel.type === channelType.Private && (
               <FontAwesomeIcon className="text-md text-purple-medium pr-1" icon={faEnvelopeCircleCheck} />
             )}
-            {invited === false && channel.type === channelType.Private && (
+            {!invited && channel.type === channelType.Private && (
               <FontAwesomeIcon className="text-md text-red-500 pr-1" icon={faEnvelope}/>
             )}
             {channel.name} </li>
