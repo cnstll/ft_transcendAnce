@@ -652,11 +652,7 @@ export class ChannelService {
     }
   }
 
-  async leaveChannelWS(
-    userId: string,
-    dto: LeaveChannelDto,
-    clientSocket: Socket,
-  ) {
+  async leaveChannelWS(userId: string, dto: LeaveChannelDto) {
     try {
       // Remove user from channel users ('user leave room')
       let leavingUser = await this.prisma.channelUser.delete({
@@ -683,9 +679,6 @@ export class ChannelService {
         channel.type === ChannelType.DIRECTMESSAGE &&
         channelUsers.users.length > 0
       ) {
-        const secondUserSocket = socketToUserId.getFromUserId(
-          channelUsers.users[0].userId,
-        );
         leavingUser = await this.prisma.channelUser.delete({
           where: {
             userId_channelId: {
@@ -694,11 +687,6 @@ export class ChannelService {
             },
           },
         });
-        clientSocket.to(secondUserSocket).emit('roomLeft', {
-          userId: channelUsers.users[0].userId,
-          channelId: dto.id,
-        });
-        clientSocket.leave(dto.id);
       }
       /* Then, delete channel */
       // If user is the last one or channel is of type direct message delete the channel

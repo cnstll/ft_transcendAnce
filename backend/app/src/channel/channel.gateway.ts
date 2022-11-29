@@ -174,7 +174,6 @@ export class ChannelGateway {
     const userLeaving = await this.channelService.leaveChannelWS(
       userId,
       leaveChannelDto,
-      clientSocket,
     );
     if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
