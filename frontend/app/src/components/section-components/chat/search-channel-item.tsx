@@ -24,8 +24,7 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
       });
     else if (channel.type === channelType.Protected) {
       setShowModal(true);
-    }
-    else {
+    } else {
       JoinChannel(channel);
     }
   }
@@ -34,7 +33,7 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
     <>
       <Link to={`../chat/${channel.id}`} onClick={onClick}>
         <div className='flex justify-start p-3'>
-          <li className="px-2 flex-wrap break-words">
+          <li className="px-2 flex-wrap break-words text-[8px] sm:text-xs md:text-xs lg:text-sm">
             {channel.type === channelType.Protected && (
               <FontAwesomeIcon className="text-md text-purple-medium pr-1" icon={faLock} />
             )}
@@ -47,9 +46,9 @@ function SearchChannelItem({ channel, invited }: { channel: Channel, invited: bo
             {channel.name} </li>
         </div>
       </Link>
-      {showModal &&
-        <PasswordModal setShowModal={setShowModal} channel={channel}
-      />}
+      {showModal && (
+        <PasswordModal setShowModal={setShowModal} channel={channel} />
+      )}
     </>
   );
 }
