@@ -208,4 +208,11 @@ export class UserController {
       data.targetId,
     );
   }
+
+  /** Channel invitations */
+  @Get('get-channel-invites')
+  @UseGuards(JwtAuthGuard)
+  getChannelInvites(@GetCurrentUserId() userId: string) {
+    return this.userService.getChannelInvites(userId);
+  }
 }

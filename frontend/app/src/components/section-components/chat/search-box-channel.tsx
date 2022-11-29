@@ -9,6 +9,7 @@ import { socket } from '../../global-components/client-socket';
 import JoinChannel from '../../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
 import PasswordModal from './password-modal';
+import { getMyChannelInvites } from '../../query-hooks/getChannelInvites';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -37,6 +38,7 @@ function SearchBoxChannel({
   const userQueryKey = 'userData';
   queryClient.getQueryData(userQueryKey);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const channelInvites = getMyChannelInvites();
 
   useEffect(() => {
     socket.on(
@@ -147,7 +149,16 @@ function SearchBoxChannel({
                 )
                 .map((channelItem) => (
                   <div key={channelItem.id}>
-                    <SearchChannelItem channel={channelItem} />
+                    <SearchChannelItem
+                      channel={channelItem}
+                      invited={
+                        channelInvites.data?.find((value) => {
+                          return value.id === channelItem.id;
+                        })
+                          ? true
+                          : false
+                      }
+                    />
                     <div className="z-20">
                       {showModal && (
                         <PasswordModal
