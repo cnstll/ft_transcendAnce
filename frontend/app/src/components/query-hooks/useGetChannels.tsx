@@ -30,7 +30,7 @@ export function useChannelsByUserList():
 
 const fetchMyRoleInChannel = (channelId: string) =>
   axios
-    .get<channelRole>(`${apiUrl}/channels/get-role-user-channel/` + channelId, {
+    .get<channelRole>(`${apiUrl}/channels/get-role-user-channel/${channelId}`, {
       withCredentials: true,
   }).then((res) => res.data);
 
@@ -42,7 +42,7 @@ export function useMyChannelRole(channelId: string):
 
 const fetchRolesInChannel = (channelId: string) =>
   axios
-    .get<{ userId: string; role: channelRole; }[]>(`${apiUrl}/channels/get-roles-users-channel/` + channelId, {
+    .get<{ userId: string; role: channelRole; }[]>(`${apiUrl}/channels/get-roles-users-channel/${channelId}`, {
       withCredentials: true,
   }).then((res) => res.data);
 

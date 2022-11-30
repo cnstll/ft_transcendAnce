@@ -37,7 +37,6 @@ function MembersList({ channelUsers, user, channelId }: MembersListProps) {
 
   useEffect(() => {
     socket.on('roleUpdated', async () => {
-      //   console.log('event');
       await queryClient.invalidateQueries(channelRolesQueryKey);
       await queryClient.invalidateQueries(myRoleQueryKey);
     });
