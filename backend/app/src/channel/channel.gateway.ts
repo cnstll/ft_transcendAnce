@@ -209,11 +209,11 @@ export class ChannelGateway {
     if (banUser == null || typeof banUser === 'string') {
       console.log('FAILED TO BAN');
       this.server
-        .to(banInfo.channelActionOnChannelId)
+        .in(banInfo.channelActionOnChannelId)
         .emit('banFailed', banUser);
     } else {
       this.server
-        .to(banInfo.channelActionOnChannelId)
+        .in(banInfo.channelActionOnChannelId)
         .emit('banSucceeded', banUser);
     }
   }

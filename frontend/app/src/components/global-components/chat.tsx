@@ -15,7 +15,10 @@ import {
 } from '../global-components/interface';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import { useChannelsByUserList } from '../query-hooks/useGetChannels';
+import {
+  useChannelsByUserList,
+  useMyChannelByUserId,
+} from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
@@ -37,8 +40,6 @@ function Chat() {
   const { activeChannel } = useParams();
   const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
   const [isShown, setIsShown] = useState(false);
-  //   const [isBannedFromChannel, setIsBannedFromChannel] = useState(false);
-
   const navigate = useNavigate();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
@@ -46,6 +47,9 @@ function Chat() {
     useChannelUsers(activeChannelId);
 
   const queryClient = useQueryClient();
+  const myRole: UseQueryResult<{ role: string } | undefined> =
+    useMyChannelByUserId(activeChannelId);
+  myRole;
   const channelUsersQueryKey = 'channelUsers';
   const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
   const bannedUsers: UseQueryResult<string[] | undefined> =

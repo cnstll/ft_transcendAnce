@@ -19,7 +19,9 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const channelsQueryKey = 'channelsByUserList';
+  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
   const userQueryKey = 'userData';
+
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
@@ -32,6 +34,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
 
+  const channelUserBannedQueryData: string[] | undefined =
+    queryClient.getQueryData(channelUserBannedQueryKey);
   useEffect(() => {
     socket.on(
       'roomLeft',
@@ -97,8 +101,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRole.data?.role === channelRole.Owner ?
-        (<div className="z-index-20">
+        {myRole.data?.role === channelRole.Owner ? (
+          <div className="z-index-20">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -114,8 +118,11 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
           </div>
         ) : null}
         {(myRole.data?.role === channelRole.Owner ||
-          myRole.data?.role === channelRole.Admin) ?
-          (<div className="z-index-20">
+          myRole.data?.role === channelRole.Admin) &&
+        channelUserBannedQueryData?.some(
+          (bannedUserId) => bannedUserId === userQueryData?.id,
+        ) ? (
+          <div className="z-index-20">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
@@ -129,9 +136,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        <Link to="/">
-          <p className="text-center hover:underline my-2">Ban user</p>
-        </Link>
       </div>
     );
   else return <></>;

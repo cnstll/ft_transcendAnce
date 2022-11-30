@@ -1,4 +1,4 @@
-import { Dispatch, useContext, useEffect } from 'react';
+import { Dispatch, useContext } from 'react';
 import { useQueryClient } from 'react-query';
 import { socket } from 'src/components/global-components/client-socket';
 import {
@@ -20,21 +20,6 @@ function BanUser(props: BanUserProps) {
   queryClient;
   const timer = new Date('August 19, 1975 00:00:05 GMT+01:00');
   const channelCtx = useContext(channelContext);
-  //   const bannedUsers = useGetUsersUnderModerationAction(
-  //     channelContext.activeChannelId,
-  //     channelActionType.Ban,
-  //   );
-  //   const channelUsers = useChannelUsers(channelContext.activeChannelId);
-
-  //   useEffect(() => {
-  // socket.on('banFailed', (banInfo: string | null) => {
-  //   console.log('WOW ITS A BAN FAIL');
-  //   alert(`Oups : ${banInfo} !`);
-  // });
-  // return () => {
-  //   socket.off('banFailed');
-  // };
-  //   }, []);
 
   function onBan() {
     socket.emit('banUser', {
@@ -47,10 +32,6 @@ function BanUser(props: BanUserProps) {
     });
     props.setIsShown(false);
   }
-  //List of banned users
-  //List of users in the channel crossed with list of banned users
-  //Emit banUser > update db
-  //Listen to ban events
 
   return (
     <>
