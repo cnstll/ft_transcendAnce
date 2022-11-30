@@ -644,7 +644,7 @@ export class ChannelService {
         userId,
         channelId,
       );
-      if (!userRole || userRole.role < ChannelRole.OWNER) {
+      if (!userRole || userRole.role < ChannelRole.ADMIN) {
         return 'noEligibleRights';
       }
       /** Then, check the targeted user exists + is user or admin of the channel */

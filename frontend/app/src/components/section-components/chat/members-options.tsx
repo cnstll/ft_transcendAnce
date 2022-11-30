@@ -1,11 +1,15 @@
-
 import { Link } from 'react-router-dom';
-import { useMyChannelRole } from 'src/components/query-hooks/useGetChannels';
-import { channelRole, User, UserConnectionStatus } from '../../global-components/interface';
+// import { useMyChannelRole } from 'src/components/query-hooks/useGetChannels';
+import {
+  channelRole,
+  User,
+  UserConnectionStatus,
+} from '../../global-components/interface';
 import BlockFriends from '../block-friends';
 import InviteToPlay from '../invite-to-play';
 import PromoteToAdmin from './promote-to-admin';
 import WatchGame from '../watch-game-options';
+import { useQueryClient } from 'react-query';
 
 interface UserOptionsProps {
   user: User;
@@ -14,8 +18,17 @@ interface UserOptionsProps {
   role: channelRole;
 }
 
-function MembersOptions({ user, setIsShown, channelId, role}: UserOptionsProps) {
-  const myRole = useMyChannelRole(channelId);
+function MembersOptions({
+  user,
+  setIsShown,
+  channelId,
+  role,
+}: UserOptionsProps) {
+  //   const myRole = useMyChannelRole(channelId);
+  const queryClient = useQueryClient();
+  const myRoleQueryKey = 'myRoleInChannel';
+  const myRoleQueryData: { role: channelRole } | undefined =
+    queryClient.getQueryData([myRoleQueryKey, channelId]);
 
   return (
     <div>
@@ -25,9 +38,16 @@ function MembersOptions({ user, setIsShown, channelId, role}: UserOptionsProps) 
       {user.status !== UserConnectionStatus.PLAYING && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
-      {myRole.isSuccess && myRole.data?.role === channelRole.Owner && (
-        <PromoteToAdmin user={user} setIsShown={setIsShown} channelId={channelId} role={role}/>
-      )}
+      {myRoleQueryData &&
+        (myRoleQueryData.role === channelRole.Owner ||
+          myRoleQueryData.role === channelRole.Admin) && (
+          <PromoteToAdmin
+            user={user}
+            setIsShown={setIsShown}
+            channelId={channelId}
+            role={role}
+          />
+        )}
       <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />

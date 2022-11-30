@@ -215,8 +215,6 @@ export class ChannelGateway {
     roleUpdated === 'PromotionNotAuthorized' ||
     roleUpdated === 'noEligibleRights'
       ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)
-      : this.server
-          .to([clientSocket.id, channelId])
-          .emit('roleUpdated', roleUpdated);
+      : this.server.in(channelId).emit('roleUpdated', roleUpdated);
   }
 }
