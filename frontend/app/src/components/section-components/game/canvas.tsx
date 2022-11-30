@@ -1,4 +1,4 @@
-import React from 'react';
+import React  from 'react';
 import { useEffect, useRef, useState, MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
@@ -224,6 +224,30 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     }
   }
 
+  function movePaddleTouch(event: React.TouchEvent) {
+    
+    event.preventDefault();
+    const touch = (event.changedTouches)[0];
+    const clientY = touch.clientY;
+
+    if (
+      gameInfo.context !== null &&
+      canvasRef.current !== null &&
+      gameStatus === GameStatus.PLAYING
+    ) {
+      gameInfo.context.textBaseline = 'middle';
+      gameInfo.context.textAlign = 'center';
+      const rect = canvasRef.current.getBoundingClientRect();
+      const posy: number = Math.round(
+        ((clientY - rect.top) / canvasRef.current.height) *
+          gameConstants.relativeGameWidth,
+      );
+      message.setYpos(posy);
+      encodedMessage = message.serializeBinary();
+      socket.volatile.emit('PP', encodedMessage.buffer);
+    }
+  }
+
   let opponentId: string | undefined = userId;
   if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
   else if (gameInfo.playerNumber === 2 && playerOneId) opponentId = playerOneId;
@@ -236,6 +260,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         {gameStatus === GameStatus.PLAYING && (
           <canvas
             onMouseMove={movePaddle}
+            onTouchMove={movePaddleTouch}
             ref={canvasRef}
             className="border-solid border-2 border-white"
           />

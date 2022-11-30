@@ -16,6 +16,7 @@ function InviteToPlay({ user, setIsShown }: InviteToPlayProps) {
       { mode: 'CLASSIC', opponent: user.id },
       (msg: string) => {
         if (msg === 'gameJoined') {
+          console.log('everything normal here')
           navigate('/play');
         } else if (msg === 'inviteFailed') {
           //Nothing to Do here as it is handled by a listener

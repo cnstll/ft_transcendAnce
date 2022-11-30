@@ -57,12 +57,8 @@ function Accept({ onAccept, name }: { onAccept: () => void; name: string }) {
 
 function Navbar({ text, avatarImg }: BannerProps) {
   const [isShown, setIsShown] = useState(false);
-// <<<<<<< HEAD
-  // const [acceptInvite, setAcceptInvite] = useState<boolean>(true);
   let acceptInvite = false;
-// =======
   const currentUserData = useUserInfo();
-// >>>>>>> b735594d58cb33d2ffbcfd2038d7b4b813b2d300
   const usersData: UseQueryResult<User[]> = useGetAllUsers();
   const currentLocation = useLocation();
   const queryClient = useQueryClient();
@@ -130,7 +126,10 @@ function Navbar({ text, avatarImg }: BannerProps) {
         position: 'bottom-right',
         icon: '😭',
         autoClose: 1000,
-        onClose: () => navigate('/'),
+        onClose: () => {
+          if (location.pathname === '/play') {
+          navigate('/')}
+          },
       });
     });
 

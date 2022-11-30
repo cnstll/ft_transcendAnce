@@ -91,9 +91,27 @@ export class GameService {
     }
   }
 
-  watch(client: Socket, playerId: string) {
+  leaveWatch(client: Socket, playerId: string) {
     const game = this.GameMap.getGame(playerId);
-    client.join(game.gameRoomId);
+    if (game !== null) {
+      client.leave(game.gameRoomId);
+    }
+  }
+
+  watch(client: Socket, playerId: string, server: Server) {
+    const game = this.GameMap.getGame(playerId);
+    if (game !== null) {
+      client.join(game.gameRoomId);
+      server.to(client.id).emit('gameStatus', {
+        gameId: game.gameRoomId,
+        status: game.status,
+        winner: '',
+        player1id: game.p1id,
+        player2id: game.p2id,
+        player1score: game.p1s,
+      });
+    }
+    //TODO make this return dynamic
     return { playerNumber: 1 };
   }
 
@@ -133,6 +151,7 @@ export class GameService {
   rejoin(userId: string) {
     let game: Game;
     if ((game = this.GameMap.getGame(userId))) {
+      console.log(userId);
       return game.mode;
     }
     return null;

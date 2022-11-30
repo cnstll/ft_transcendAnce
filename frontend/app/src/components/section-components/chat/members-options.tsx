@@ -15,7 +15,7 @@ function MembersOptions({ user, setIsShown }: UserOptionsProps) {
       <Link to={`/profile/${user.nickname}`}>
         <p className="text-center hover:underline my-2">Go to profile</p>
       </Link>
-      {user.status !== UserConnectionStatus.PLAYING && (
+      {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
       <BlockFriends user={user} setIsShown={setIsShown} />
