@@ -120,7 +120,7 @@ function DisplayMessages({
         messageQuery.data &&
         messageQuery.data.length === 0 && (
           <div className="text-xl text-center">
-            No message in this channel yet! Don't be shy, send one!
+            Don't be shy, send a message!
           </div>
         )}
       {messageQuery.isLoading && <LoadingSpinner />}

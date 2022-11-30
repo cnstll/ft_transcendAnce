@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   Channel,
   channelRole,
@@ -18,10 +18,10 @@ interface ChannelOptions {
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
+function ChannelOptions({  setIsShown }: ChannelOptions) {
   const { activeChannel } = useParams();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+
   const channelsQueryKey = 'channelsByUserList';
   const userQueryKey = 'userData';
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
@@ -36,29 +36,13 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   queryClient.getQueryData(userQueryKey);
 
   useEffect(() => {
-    socket.on(
-      'roomLeft',
-      async (leavingInfo: { userId: string; channelId: string }) => {
+    socket.on('roomLeft', () => {
         // User receiving the event is the user leaving the room
         setIsShown(false);
-        const channelListDisplayed: Channel[] | undefined =
-          await queryClient.getQueryData(channelsQueryKey);
-        if (channelListDisplayed && channelListDisplayed.length > 1) {
-          const deletedChannel = leavingInfo.channelId;
-          // Find another existing channel to redirect the user to after leaving current one
-          const nextChannelId =
-            channelListDisplayed.find((channel) => channel.id != deletedChannel)
-              ?.id ?? '';
-          setActiveChannelId(nextChannelId);
-          navigate(`../chat/${nextChannelId}`);
-        }
-        //TODO User still in the room should get notified that a user left
-        await queryClient.invalidateQueries(channelsQueryKey);
-      },
+      }
     );
     socket.on('leaveRoomFailed', () => alert('Failed to leave room'));
     return () => {
-      socket.off('roomLeft');
       socket.off('leaveRoomFailed');
     };
   }, [queryClient]);

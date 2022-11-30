@@ -23,7 +23,6 @@ import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
-import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 
 @Injectable()
 export class ChannelService {
@@ -70,7 +69,7 @@ export class ChannelService {
     for (let i = 0; i < channels.length; i++) {
       if (channels[i].type === 'DIRECTMESSAGE') {
         const channelUser = await this.getUsersOfAChannel(channels[i].id);
-        if (channelUser[0].id === userId)
+        if (channelUser[0].id === userId && channelUser[1])
           channels[i].name = channelUser[1].nickname;
         else channels[i].name = channelUser[0].nickname;
       }
@@ -415,7 +414,8 @@ export class ChannelService {
   ) {
     try {
       /* Get the socket of the second user of the dm */
-      const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+      // const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+      // console.log("test 1 ", secondUserSocket);
 
       /* Check if one of the user is blocked by the other */
       const usersBlockedEachOther = await this.userService.checkUserIsBlocked(
@@ -437,28 +437,24 @@ export class ChannelService {
       /* Create a DM between the 2 users */
       const createdChannel: Channel = await this.prisma.channel.create({
         data: {
-          name: 'Estelle',
           type: 'DIRECTMESSAGE',
           users: {
-            create: {
-              userId: userId,
-              role: 'OWNER',
-            },
+            create: [
+              {
+                userId: userId,
+                role: 'USER',
+              },
+              {
+                userId: dto.userId,
+                role: 'USER',
+              },
+            ],
           },
         },
       });
       delete createdChannel.passwordHash;
       /* create and join room instance */
       clientSocket.join(createdChannel.id);
-      this.joinChannelWS(
-        { type: createdChannel.type, id: createdChannel.id },
-        dto.userId,
-        clientSocket,
-      );
-      clientSocket.to(secondUserSocket).emit('roomJoined', {
-        userId: dto.userId,
-        channelId: createdChannel.id,
-      });
       return createdChannel;
     } catch (error) {
       if (error.code === 'P2002') {

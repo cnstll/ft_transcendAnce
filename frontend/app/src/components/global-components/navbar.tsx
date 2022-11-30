@@ -80,11 +80,13 @@ function Navbar({ text, avatarImg }: BannerProps) {
       socket.emit('connectUser');
     }
     socket.on('userDisconnected', () => {
+
       void queryClient.invalidateQueries(friendsListQueryKey);
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userConnected', (): void => {
       void queryClient.invalidateQueries(friendsListQueryKey);
+    /** To check: the query below sometimes makes error ERR_EMPTY_RESPONSE */
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
     socket.on('userInGame', (): void => {

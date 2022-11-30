@@ -38,7 +38,8 @@ function Chat() {
   )?.type;
 
   const queryClient = useQueryClient();
-  const channelUsersQueryKey = 'channelUsers';
+  //const channelUsersQueryKey = 'channelUsers';
+  const channelsByUserListKey = 'channelsByUserList';
 
   useEffect(() => {
     if (user.isError) {
@@ -71,13 +72,28 @@ function Chat() {
       navigate('../chat');
     }
 
-    socket.on('roomLeft', () => {
-      void queryClient.invalidateQueries(channelUsersQueryKey);
+    socket.on('roomLeft', (leavingInfo: { userId: string; channelId: string, secondUserId?: string }) => {
+      // Applies only if the current user have other channels to be redirected to and to his/her DM's mate
+      if (channels.data && channels.data.length > 1 &&
+        (user.data?.id === leavingInfo.userId ||
+          (leavingInfo.secondUserId && user.data?.id === leavingInfo.secondUserId)))
+      {
+        const deletedChannel = leavingInfo.channelId;
+        // Find another existing channel to redirect the user to after leaving current one
+        const nextChannelId =
+        channels.data.find((channel) => channel.id != deletedChannel)
+            ?.id ?? '';
+        setActiveChannelId(nextChannelId);
+        navigate(`../chat/${nextChannelId}`);
+      }
+      //TODO User still in the room should get notified that a user left
+      //void queryClient.invalidateQueries(channelUsersQueryKey);
+      void queryClient.invalidateQueries(channelsByUserListKey);
     });
     return () => {
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user, channels.data?.length]);
+  }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
   if (activeChannel) {
     if (
@@ -115,7 +131,7 @@ function Chat() {
                 {channels.isSuccess &&
                   channels.data && channels.data.length > 0 &&
                 <div className="flex sticky top-0">
-                  <div className="flex-1 flex flex-wrap sm:justify-center content-center
+                  <div className="flex-1 flex flex-wrap justify-center content-center
                     backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20">
                     <h2 className="font-bold">
                     {channels.data.find(

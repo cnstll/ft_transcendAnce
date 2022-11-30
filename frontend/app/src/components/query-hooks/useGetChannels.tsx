@@ -15,7 +15,7 @@ export function useGroupChannelsList(): UseQueryResult<Channel[] | undefined> {
 
 const fetchAllChannelsByUserId = () =>
   axios
-    .get<Channel[]>(`${apiUrl}/channels/get-all-channel-by-user-id`, {
+    .get<Channel[]>(`${apiUrl}/channels/get-all-channels-by-user-id`, {
       withCredentials: true,
     })
     .then((res) => res.data);
