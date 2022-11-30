@@ -673,29 +673,60 @@ export class UserService {
 
   /** Ban, mute, block management **/
 
+  async addBlockedUser(userId: string, targetId: string) {
+    try {
+      const blockedUser = await this.prismaService.blockedUser.create({
+        data: {
+          channelBlockedRequesterId: userId,
+          channelBlockedTargetId: targetId,
+        },
+      });
+      return blockedUser;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async removeBlockedUser(userId: string, targetId: string) {
+    try {
+      const blockedUser = await this.prismaService.blockedUser.delete({
+        where: {
+          blockedId: {
+            channelBlockedRequesterId: userId,
+            channelBlockedTargetId: targetId,
+          },
+        },
+      });
+
+      return blockedUser;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
   async checkUserIsBlocked(userId: string, targetId: string) {
     try {
-      const userIsBlocked = await this.prismaService.channelAction.findFirst({
+      const userIsBlocked = await this.prismaService.blockedUser.findMany({
         where: {
-          type: 'BLOCK',
           OR: [
             {
               AND: [
-                { channelActionRequesterId: userId },
-                { channelActionTargetId: targetId },
+                { channelBlockedRequesterId: userId },
+                { channelBlockedTargetId: targetId },
               ],
             },
             {
               AND: [
-                { channelActionTargetId: targetId },
-                { channelActionRequesterId: userId },
+                { channelBlockedTargetId: targetId },
+                { channelBlockedRequesterId: userId },
               ],
             },
           ],
         },
       });
-      if (!userIsBlocked) return false;
-      else return true;
+      return userIsBlocked;
     } catch (error) {
       console.log(error);
       return null;
@@ -704,17 +735,16 @@ export class UserService {
 
   async checkCurrentUserBlockedTarget(userId: string, targetId: string) {
     try {
-      const userIsBlocked = await this.prismaService.channelAction.findFirst({
+      const userIsBlocked = await this.prismaService.blockedUser.findFirst({
         where: {
-          type: 'BLOCK',
           AND: [
-            { channelActionRequesterId: userId },
-            { channelActionTargetId: targetId },
+            { channelBlockedRequesterId: userId },
+            { channelBlockedTargetId: targetId },
           ],
         },
       });
-      if (!userIsBlocked) return false;
-      else return true;
+      // console.log(userIsBlocked);
+      return userIsBlocked;
     } catch (error) {
       console.log(error);
       return null;
