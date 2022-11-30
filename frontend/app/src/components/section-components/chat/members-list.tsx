@@ -6,7 +6,7 @@ import {
 import UsersList from '../users-list';
 import { useEffect } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { socket } from 'src/components/global-components/client-socket';
 import {
   useChannelRoles,
@@ -60,7 +60,6 @@ function MembersList({ channelUsers, user, channelId }: MembersListProps) {
         roles={roleUsers.data}
         channelId={channelId}
       />
-      <ToastContainer closeButton={false} />
     </>
   );
 }
