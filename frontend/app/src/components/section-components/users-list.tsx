@@ -1,12 +1,18 @@
 import UsersListItem from './users-list-item';
-import type { User, UserListType } from '../global-components/interface';
+import type { channelRole, User, UserListType } from '../global-components/interface';
 
 function UsersList({
   users,
   userListType,
+  roles,
+  channelId
 }: {
   users: User[];
   userListType: UserListType;
+  roles?: {
+    userId: string;
+    role: channelRole;}[];
+  channelId?: string;
 }) {
   return (
     <div className="flex flex-col text-base my-4 gap-4">
@@ -17,6 +23,8 @@ function UsersList({
           key={user.id}
           user={user}
           userListType={userListType}
+          role={(roles?.find((role) => role.userId === user.id)?.role)}
+          channelId={channelId}
         />
       ))}
     </div>

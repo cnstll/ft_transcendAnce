@@ -10,7 +10,7 @@ import DropDownButton from '../section-components/drop-down-button';
 import { Channel, User } from '../global-components/interface';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import { useChannelsByUserList } from '../query-hooks/useGetChannels';
+import {  useChannelsByUserList } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
@@ -41,13 +41,13 @@ function Chat() {
     if (user.isError) {
       navigate('/sign-in');
     }
-
+    /** Reconnect to socket? */
     if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
       });
     }
-
+    /** Fallback on a joined channel when landing on /chat */
     if (
       !activeChannel &&
       channels.data !== undefined &&
@@ -63,6 +63,7 @@ function Chat() {
         navigate('../chat/' + redirectToChannel.id);
       }
     }
+    /** Fallback on /chat when no joined channel */
     if (activeChannel && channels.data?.length == 0) {
       setActiveChannelId('');
       navigate('../chat');
@@ -71,11 +72,13 @@ function Chat() {
     socket.on('roomLeft', () => {
       void queryClient.invalidateQueries(channelUsersQueryKey);
     });
+
     return () => {
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user, channels.data?.length]);
+  }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
+  /** Fallback on 404 when the channel is not accessible (not invited, not existing) */
   if (activeChannel) {
     if (channels.data &&
       !channels.data.find(
@@ -88,7 +91,7 @@ function Chat() {
     <>
       {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
-        <div className="h-full min-h-screen bg-black">
+        <div className="h-full min-h-screen bg-black z-0">
           <Navbar
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
@@ -146,6 +149,7 @@ function Chat() {
                 <MembersList
                   channelUsers={channelUsers.data}
                   user={user.data}
+                  channelId={activeChannel?? ''}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}
