@@ -46,7 +46,7 @@ function UsersListItem({
       </div>
       {userListType && (
         <div className="content-center mx-2 mt-1">
-          <DropDownButton setIsShown={setIsShown} isShown={isShown}>
+          <DropDownButton setIsShown={setIsShown} isShown={isShown} style="">
             {userListType === UserListType.MEMBERS && (
               <MembersOptions user={user} setIsShown={setIsShown} />
             )}

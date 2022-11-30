@@ -51,7 +51,6 @@ function PasswordModal(props: PwdModalProps) {
               Join {props.channel.name}
             </h3>
             <form onSubmit={onSubmit}>
-              {/* Password section */}
               <div
                 id="form-channel-check-password"
                 className="form-group mt-4"
@@ -81,16 +80,15 @@ function PasswordModal(props: PwdModalProps) {
                 />
                 {inputStatus === 'invalidPassword' && (
                   <p className="text-red-500 text-xs font-medium my-1">
-                    Password is mandatory to enter {props.channel.name}
+                    Wrong password
                   </p>
                 )}
                 {inputStatus === 'passwordRequired' && (
                   <p className="text-red-500 text-xs font-medium my-1">
-                    A password is required
+                    A password is required to enter this channel
                   </p>
                 )}
               </div>
-              {/* Buttons section */}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"

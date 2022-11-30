@@ -8,12 +8,14 @@ interface DropDownButtonProps {
   children: React.ReactNode;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   isShown: boolean;
+  style: string;
 }
 
 function DropDownButton({
   children,
   setIsShown,
   isShown,
+  style
 }: DropDownButtonProps) {
   function ShowInfo() {
     setIsShown((current) => !current);
@@ -27,7 +29,7 @@ function DropDownButton({
 
   return (
     <div className="static" ref={ref}>
-      <button onClick={ShowInfo} className="text-white font-bold">
+    <button onClick={ShowInfo} className={"text-white font-bold " + style}>
         <FontAwesomeIcon icon={faEllipsis} />
       </button>
       <div className="relative">
