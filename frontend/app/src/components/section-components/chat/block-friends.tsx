@@ -1,5 +1,6 @@
+import axios from 'axios';
 import useBlockedUser from 'src/components/query-hooks/useBlockedUser';
-import { User } from '../../global-components/interface';
+import { apiUrl, User } from '../../global-components/interface';
 import LoadingSpinner from '../loading-spinner';
 
 interface BlockFriendsProps {
@@ -12,10 +13,26 @@ function BlockFriends({ user, setIsShown }: BlockFriendsProps) {
 
   const onBlock = () => {
     setIsShown(false);
+    // Add user to the blocked list
+    void axios.post(
+      `${apiUrl}/user/add-blocked-user`,
+      { targetId: user.id },
+      {
+        withCredentials: true,
+      },
+    );
+    // To do : if dm exists delete it
   };
 
   const onUnblock = () => {
     setIsShown(false);
+    void axios.post(
+      `${apiUrl}/user/remove-blocked-user`,
+      { targetId: user.id },
+      {
+        withCredentials: true,
+      },
+    );
   };
 
   return (
