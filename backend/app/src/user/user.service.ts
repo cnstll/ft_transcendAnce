@@ -4,7 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
+import {
+  User,
+  FriendshipStatus,
+  UserStatus,
+  Match,
+  Achievement,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { Stat } from './interfaces/stats.interface';
@@ -76,7 +82,6 @@ export class UserService {
         },
       });
       return res.status(200).send(nicknames);
-      //TODO select so you don't return unneeded user info
     } catch (error) {
       console.log(error);
       return res.status(500).send();
@@ -616,7 +621,7 @@ export class UserService {
           achievements: true,
         },
       });
-      const achievementList = [];
+      const achievementList: Achievement[] = [];
       for (let i = 0; i < UserAchivements.achievements.length; i++) {
         const achievement = await this.prismaService.achievement.findUnique({
           where: {
@@ -669,86 +674,6 @@ export class UserService {
       this.setAchievement(userId, 'achievement6');
     if (numberOfLoss === 5) this.setAchievement(userId, 'achievement4');
     if (numberOfWin === 5) this.setAchievement(userId, 'achievement3');
-  }
-
-  /** Ban, mute, block management **/
-
-  async addBlockedUser(userId: string, targetId: string) {
-    try {
-      const blockedUser = await this.prismaService.blockedUser.create({
-        data: {
-          channelBlockedRequesterId: userId,
-          channelBlockedTargetId: targetId,
-        },
-      });
-      return blockedUser;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }
-
-  async removeBlockedUser(userId: string, targetId: string) {
-    try {
-      const blockedUser = await this.prismaService.blockedUser.delete({
-        where: {
-          blockedId: {
-            channelBlockedRequesterId: userId,
-            channelBlockedTargetId: targetId,
-          },
-        },
-      });
-
-      return blockedUser;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }
-
-  async checkUserIsBlocked(userId: string, targetId: string) {
-    try {
-      const userIsBlocked = await this.prismaService.blockedUser.findMany({
-        where: {
-          OR: [
-            {
-              AND: [
-                { channelBlockedRequesterId: userId },
-                { channelBlockedTargetId: targetId },
-              ],
-            },
-            {
-              AND: [
-                { channelBlockedTargetId: targetId },
-                { channelBlockedRequesterId: userId },
-              ],
-            },
-          ],
-        },
-      });
-      return userIsBlocked;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }
-
-  async checkCurrentUserBlockedTarget(userId: string, targetId: string) {
-    try {
-      const userIsBlocked = await this.prismaService.blockedUser.findFirst({
-        where: {
-          AND: [
-            { channelBlockedRequesterId: userId },
-            { channelBlockedTargetId: targetId },
-          ],
-        },
-      });
-      // console.log(userIsBlocked);
-      return userIsBlocked;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
   }
 
   /** Channel invitations for the current user */

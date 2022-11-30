@@ -195,47 +195,6 @@ export class UserController {
     return this.userService.setAchievement(userId, data.achievementId);
   }
 
-  /** Ban, mute,block management */
-
-  @Post('add-blocked-user')
-  @UseGuards(JwtAuthGuard)
-  addBlockedUser(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.addBlockedUser(userId, data.targetId);
-  }
-
-  @Post('remove-blocked-user')
-  @UseGuards(JwtAuthGuard)
-  removeBlockedUser(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.removeBlockedUser(userId, data.targetId);
-  }
-
-  @Post('check-current-user-blocked-target')
-  @UseGuards(JwtAuthGuard)
-  checkCurrentUserBlockedTarget(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.checkCurrentUserBlockedTarget(
-      userId,
-      data.targetId,
-    );
-  }
-
-  @Post('check-user-is-blocked')
-  @UseGuards(JwtAuthGuard)
-  checkUserIsBlocked(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.checkUserIsBlocked(userId, data.targetId);
-  }
-
   /** Channel invitations */
   @Get('get-channel-invites')
   @UseGuards(JwtAuthGuard)

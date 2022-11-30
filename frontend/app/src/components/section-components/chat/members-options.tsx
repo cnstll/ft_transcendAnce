@@ -4,7 +4,7 @@ import {
   User,
   UserConnectionStatus,
 } from '../../global-components/interface';
-import BlockFriends from './block-friends';
+import BlockFriends from './block-user';
 import InviteToPlay from '../game/invite-to-play';
 import WatchGame from '../game/watch-game-options';
 import SendDM from './send-dm';
@@ -14,7 +14,7 @@ interface UserOptionsProps {
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
-  isBlocked: boolean;
+  isBlocked: string | undefined;
 }
 
 function MembersOptions({

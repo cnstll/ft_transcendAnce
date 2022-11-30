@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { User, UserConnectionStatus } from '../../global-components/interface';
-import BlockFriends from '../chat/block-friends';
+import BlockFriends from '../chat/block-user';
 import SendDM from '../chat/send-dm';
 import InviteToPlay from '../game/invite-to-play';
 import WatchGame from '../game/watch-game-options';
@@ -8,7 +8,7 @@ import WatchGame from '../game/watch-game-options';
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
-  isBlocked: boolean;
+  isBlocked: string | undefined;
 }
 
 function FriendsOptions({ user, setIsShown, isBlocked }: UserOptionsProps) {

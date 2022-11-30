@@ -1,16 +1,13 @@
 import axios from 'axios';
-import useBlockedUser from 'src/components/query-hooks/useBlockedUser';
 import { apiUrl, User } from '../../global-components/interface';
-import LoadingSpinner from '../loading-spinner';
+// import LoadingSpinner from '../loading-spinner';
 
-interface BlockFriendsProps {
+interface BlockUserProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function BlockFriends({ user, setIsShown }: BlockFriendsProps) {
-  const isBlocked = useBlockedUser(user.id);
-
+function BlockUser({ user, setIsShown }: BlockUserProps) {
   const onBlock = () => {
     setIsShown(false);
     // Add user to the blocked list
@@ -37,28 +34,28 @@ function BlockFriends({ user, setIsShown }: BlockFriendsProps) {
 
   return (
     <>
-      {isBlocked.isError && (
+      {/* {isBlocked.isError && (
         <p className="text-base text-gray-400">We encountered an error 🤷</p>
       )}
       {isBlocked.isLoading && <LoadingSpinner />}
-      {isBlocked.isSuccess && isBlocked.data && (
-        <p
-          className="text-center hover:underline my-2 truncate cursor-pointer"
-          onClick={onUnblock}
-        >
-          Unblock {user.nickname}
-        </p>
-      )}
-      {isBlocked.isSuccess && !isBlocked.data && (
-        <p
-          className="text-center hover:underline my-2 truncate cursor-pointer"
-          onClick={onBlock}
-        >
-          Block {user.nickname}
-        </p>
-      )}
+      {isBlocked.isSuccess && isBlocked.data && ( */}
+      <p
+        className="text-center hover:underline my-2 truncate cursor-pointer"
+        onClick={onUnblock}
+      >
+        Unblock {user.nickname}
+      </p>
+      {/* )} */}
+      {/* {isBlocked.isSuccess && !isBlocked.data && ( */}
+      <p
+        className="text-center hover:underline my-2 truncate cursor-pointer"
+        onClick={onBlock}
+      >
+        Block {user.nickname}
+      </p>
+      {/* )} */}
     </>
   );
 }
 
-export default BlockFriends;
+export default BlockUser;
