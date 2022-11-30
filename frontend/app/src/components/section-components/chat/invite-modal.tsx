@@ -70,7 +70,6 @@ function InviteModal(props: InviteModalProps) {
             >
               Invite members to {props.channel.name}
             </h3>
-            {/* Invited members - to do */}
             <div className="my-4">
               <h4
                 className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
@@ -99,7 +98,6 @@ function InviteModal(props: InviteModalProps) {
                 </p>
               )}
             </div>
-            {/* Search for a user section */}
             <form onSubmit={onSubmit}>
               <div id="form-channel-invite" className="form-group mt-4">
                 <label
@@ -147,7 +145,6 @@ function InviteModal(props: InviteModalProps) {
                   </p>
                 )}
               </div>
-              {/* Buttons section */}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"

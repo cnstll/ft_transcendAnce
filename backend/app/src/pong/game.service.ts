@@ -94,7 +94,6 @@ export class GameService {
   watch(client: Socket, playerId: string) {
     const game = this.GameMap.getGame(playerId);
     client.join(game.gameRoomId);
-    // this.mutateGameStatus(game, game.status, server);
     return { playerNumber: 1 };
   }
 
@@ -104,7 +103,6 @@ export class GameService {
     if (this.GameMap.size === 0) {
       game = this.createGame(userId, mode);
       client.join(game.gameRoomId);
-      this.mutateGameStatus(game, game.status, server);
       return { playerNumber: 1 };
     } else {
       if ((game = this.GameMap.rejoinGame(userId)) != null) {
@@ -127,6 +125,7 @@ export class GameService {
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
+      client.join(game.gameRoomId);
       return { playerNumber: 1 };
     }
   }
@@ -177,7 +176,6 @@ export class GameService {
       server
         .to(socketId)
         .emit('inviteRefused', 'Your opponent is to slow for you');
-      //   server.to(opponentSocket).emit('inviteRefused', 'YOU were to slow');
     };
     const timeoutInMs = 10000;
     const timeout = setTimeout(callback, timeoutInMs);
