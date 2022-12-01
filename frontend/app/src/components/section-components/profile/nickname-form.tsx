@@ -80,12 +80,12 @@ function NickNameForm({
           ></input>
           {inputStatus === 'invalidName' && (
             <p className="text-red-500 text-xs font-medium pt-2">
-              Invalid name format
+              Invalid format: only alphanumeric characters accepted
             </p>
           )}
           {inputStatus === 'invalidLength' && (
             <p className="text-red-500 text-xs font-medium pt-2">
-              Name must be less than 22 characters
+              Name must be less than 15 characters
             </p>
           )}
         </div>
