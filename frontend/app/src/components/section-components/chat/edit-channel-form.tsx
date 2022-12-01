@@ -25,7 +25,7 @@ function EditChannelForm(props: EditChannelFormProps) {
 
   useEffect(() => {
     socket.on('roomEdited', async () => {
-      await queryClient.refetchQueries(channelsQueryKey);
+      await queryClient.invalidateQueries(channelsQueryKey);
       props.setShowModal(false);
       setFormData(defaultFormData);
     });

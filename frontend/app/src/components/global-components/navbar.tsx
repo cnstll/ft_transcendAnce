@@ -188,7 +188,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
           )}
         </div>
       </div>
-      <ToastContainer closeButton={false} />
+     <ToastContainer closeButton={false} />
     </>
   );
 }

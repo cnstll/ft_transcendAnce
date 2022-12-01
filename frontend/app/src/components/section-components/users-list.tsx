@@ -1,5 +1,6 @@
 import UsersListItem from './users-list-item';
 import type {
+  channelRole,
   channelType,
   User,
   UserListType,
@@ -10,14 +11,20 @@ interface UsersListProps {
   userListType: UserListType;
   type?: channelType;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  roles?: {
+    userId: string;
+    role: channelRole;}[];
+  channelId?: string;
 }
 
-function UsersList({
-  users,
+function UsersList(
+  {users,
   userListType,
   type,
   setActiveChannelId,
-}: UsersListProps) {
+  roles,
+  channelId}: UsersListProps
+) {
   return (
     <div className="flex flex-col text-base my-4 gap-4">
       {users
@@ -31,6 +38,8 @@ function UsersList({
             userListType={userListType}
             type={type}
             setActiveChannelId={setActiveChannelId}
+            role={(roles?.find((role) => role.userId === user.id)?.role)}
+            channelId={channelId}
           />
         ))}
     </div>

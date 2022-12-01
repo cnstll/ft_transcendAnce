@@ -50,6 +50,11 @@ export class ChannelController {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
   }
 
+  @Get('get-roles-users-channel/:id')
+  getRolesOfUsersChannel(@Param('id') channelId: string) {
+    return this.channelService.getRolesOfUsersChannel(channelId);
+  }
+
   @Get('get-invites/:id')
   getInvitesOfAChannel(@Param('id') channelId: string) {
     return this.channelService.getInvitesOfAChannel(channelId);

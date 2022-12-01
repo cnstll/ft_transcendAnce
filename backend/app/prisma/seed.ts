@@ -81,8 +81,8 @@ async function main() {
       name: 'Les démons de minuit',
       users: {
         create: [
-          { userId: 'user1', role: 'ADMIN' },
-          { userId: 'user2' },
+          { userId: 'user1', role: 'OWNER' },
+          { userId: 'user2', role: 'ADMIN'  },
           { userId: 'user3' },
         ],
       },
@@ -97,7 +97,7 @@ async function main() {
       name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
       type: 'PRIVATE',
       users: {
-        create: [{ userId: 'user1' }, { userId: 'user2', role: 'ADMIN' }],
+        create: [{ userId: 'user2', role: 'OWNER' }, { userId: 'user4', role: 'USER' }],
       },
       invites: {
         connect: [{id: 'user1'}, {id: 'user2'}],
@@ -114,7 +114,7 @@ async function main() {
       type: 'PROTECTED',
       passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$u7C7YawZ2zrB8EMSxbnneg$R2p8E8EKJu7mr5TNRK8gmSipfZzfh2LvnM61CiCRdqY',
       users: {
-        create: [{ userId: 'user1', role: 'ADMIN' }, { userId: 'user3' }],
+        create: [{ userId: 'user1', role: 'ADMIN' }, { userId: 'user2', role: 'OWNER' }, { userId: 'user4', role: 'USER' }],
       },
     },
   });
