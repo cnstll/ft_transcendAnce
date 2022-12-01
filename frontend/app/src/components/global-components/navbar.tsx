@@ -164,13 +164,15 @@ function Navbar({ text, avatarImg }: BannerProps) {
       )}
       {(currentUserData.isLoading || usersData.isLoading) && <LoadingSpinner />}
       {(currentUserData.isError || usersData.isError) && <div> Whoops </div>}
-      <div className="relative" ref={ref}>
+      {currentUserData.isSuccess && <div className="relative" ref={ref}>
         <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
-          <img
-            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-            src={avatarImg}
-            alt="Rounded avatar"
-          />
+          <Link to="/profile">
+            <img
+              className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+              src={avatarImg}
+              alt="Rounded avatar"
+            />
+          </Link>
           <button onClick={showInfo} className="text-white font-bold">
             <FontAwesomeIcon icon={faChevronDown} />
           </button>
@@ -182,7 +184,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
             </DropDownMenu>
           </div>
         )}
-      </div>
+      </div>}
     </div>
      <ToastContainer closeButton={false} />
     </>

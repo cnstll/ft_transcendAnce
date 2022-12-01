@@ -10,6 +10,7 @@ import {
 import { useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
+import { Link } from 'react-router-dom';
 
 function UsersListItem({
   user,
@@ -27,11 +28,13 @@ function UsersListItem({
   return (
     <div className="flex items-center justify-center">
       <div className="flex items-center justify-center mr-2">
-        <img
-          className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
-          src={user.avatarImg}
-          alt="Rounded avatar"
-        />
+        <Link to={'/profile/' + user.nickname}>
+          <img
+            className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
+            src={user.avatarImg}
+            alt="Rounded avatar"
+          />
+        </Link>
         <div className="relative">
           <div className="absolute -left-2 z-10">
             {user.status === UserConnectionStatus.ONLINE && (
