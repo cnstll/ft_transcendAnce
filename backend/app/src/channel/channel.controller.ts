@@ -20,7 +20,7 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-channel-by-user-id')
+  @Get('get-channels-by-user-id')
   getChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getChannelsByUserId(userId);
   }
@@ -51,18 +51,15 @@ export class ChannelController {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
   }
 
+  @Get('get-roles-users-channel/:id')
+  getRolesOfUsersChannel(@Param('id') channelId: string) {
+    return this.channelService.getRolesOfUsersChannel(channelId);
+  }
+
   @Get('get-invites/:id')
   getInvitesOfAChannel(@Param('id') channelId: string) {
     return this.channelService.getInvitesOfAChannel(channelId);
   }
-
-  // @Get('get-invite/:id')
-  // getIsInvitedInAChannel(
-  //   @GetCurrentUserId() userId: string,
-  //   @Param('id') channelId: string,
-  // ) {
-  //   return this.channelService.getIsInvitedInAChannel(userId, channelId);
-  // }
 
   @Get('get-invitable-users/:id')
   getInvitableUsers(

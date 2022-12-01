@@ -18,7 +18,7 @@ interface BanUserProps {
 function BanUser(props: BanUserProps) {
   const queryClient = useQueryClient();
   queryClient;
-  const channelCtx = useContext(channelContext);
+  const channelCtx: { activeChannelId: string } = useContext(channelContext);
 
   function onBan() {
     socket.emit('banUser', {

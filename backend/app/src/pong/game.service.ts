@@ -38,11 +38,13 @@ export class GameService {
 
   refuseInvite(client: Socket, userId: string) {
     const challengerSocket = socketToUserId.getFromUserId(userId);
-    client
-      .to(challengerSocket)
-      .emit('inviteRefused', "invite refused, they can't handle you");
-    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
-    this.GameMap.delete(userId);
+    if (this.GameMap.getGame(userId)) {
+      client.to(challengerSocket).emit('inviteRefused', 'invite refused');
+    }
+    try {
+      this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+      this.GameMap.delete(userId);
+    } catch (error) {}
   }
   acceptInvite(userId: string) {
     this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
@@ -80,15 +82,8 @@ export class GameService {
         },
       });
 
-      const pendingGame = this.createGame(p1id, gameMode, p2id);
+      this.createGame(p1id, gameMode, p2id);
       this.join(client, p1id, server, gameMode);
-      //TODO: send timeout message to invitee
-      this.addInvitationTimeout(
-        pendingGame.gameRoomId,
-        server,
-        client.id,
-        p1id,
-      );
       client.to(opponentSocket).emit('invitedToGame', challenger);
       return 'gameJoined';
     } catch (error) {
@@ -99,7 +94,6 @@ export class GameService {
   watch(client: Socket, playerId: string) {
     const game = this.GameMap.getGame(playerId);
     client.join(game.gameRoomId);
-    // this.mutateGameStatus(game, game.status, server);
     return { playerNumber: 1 };
   }
 
@@ -109,7 +103,6 @@ export class GameService {
     if (this.GameMap.size === 0) {
       game = this.createGame(userId, mode);
       client.join(game.gameRoomId);
-      this.mutateGameStatus(game, game.status, server);
       return { playerNumber: 1 };
     } else {
       if ((game = this.GameMap.rejoinGame(userId)) != null) {
@@ -132,6 +125,7 @@ export class GameService {
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
+      client.join(game.gameRoomId);
       return { playerNumber: 1 };
     }
   }
@@ -182,7 +176,6 @@ export class GameService {
       server
         .to(socketId)
         .emit('inviteRefused', 'Your opponent is to slow for you');
-      //   server.to(opponentSocket).emit('inviteRefused', 'YOU were to slow');
     };
     const timeoutInMs = 10000;
     const timeout = setTimeout(callback, timeoutInMs);

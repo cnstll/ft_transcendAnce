@@ -99,11 +99,12 @@ function SearchBoxUser({
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </form>
-        <div className={'bg-white z-10 rounded-lg text-sm absolute ' + width}>
+        <div className={'bg-white rounded-lg text-sm absolute z-20 ' + width}>
           {isShown && (
             <ul>
               {filterUsers(users, searchData.keyword)
                 ?.slice(0, 5)
+                .sort((a, b) => (a.nickname.toLowerCase() >= b.nickname.toLowerCase() ? 1 : -1))
                 .map((userItem) => (
                   <SearchUserItem key={userItem.id} user={userItem} />
                 ))}

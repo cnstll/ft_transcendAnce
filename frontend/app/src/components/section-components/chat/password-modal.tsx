@@ -40,7 +40,7 @@ function PasswordModal(props: PwdModalProps) {
     <>
       <div
         className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0
-          h-modal h-full bg-[#222] bg-opacity-50"
+          h-modal h-full bg-[#222] bg-opacity-50 "
       >
         <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
           <div className="relative bg-white rounded-lg shadow text-black p-6">
@@ -51,7 +51,6 @@ function PasswordModal(props: PwdModalProps) {
               Join {props.channel.name}
             </h3>
             <form onSubmit={onSubmit}>
-              {/* Password section */}
               <div
                 id="form-channel-check-password"
                 className="form-group mt-4"
@@ -81,16 +80,15 @@ function PasswordModal(props: PwdModalProps) {
                 />
                 {inputStatus === 'invalidPassword' && (
                   <p className="text-red-500 text-xs font-medium my-1">
-                    Password is mandatory to enter {props.channel.name}
+                    Wrong password
                   </p>
                 )}
                 {inputStatus === 'passwordRequired' && (
                   <p className="text-red-500 text-xs font-medium my-1">
-                    A password is required
+                    A password is required to enter this channel
                   </p>
                 )}
               </div>
-              {/* Buttons section */}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"

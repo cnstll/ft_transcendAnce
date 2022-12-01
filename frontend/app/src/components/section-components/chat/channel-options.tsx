@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Channel, User, channelRole } from '../../global-components/interface';
+import {
+  Channel,
+  User,
+  channelRole,
+  channelType,
+} from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
-import { useMyChannelByUserId } from 'src/components/query-hooks/useGetChannels';
+// import { useMyChannelRole } from 'src/components/query-hooks/useGetChannels';
 import InviteModal from './invite-modal';
 
 /* review datafetching of role in channel to not refetch multiple times */
@@ -33,6 +38,10 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
   );
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
+  //   const myRole = useMyChannelRole(channelInfo?.id ?? '');
+  const myRoleQueryKey = 'myRoleInChannel';
+  const myRoleQueryData: { role: channelRole } | undefined =
+    queryClient.getQueryData([myRoleQueryKey, channelInfo?.id]);
 
   const channelUserBannedQueryData: string[] | undefined =
     queryClient.getQueryData(channelUserBannedQueryKey);
@@ -41,6 +50,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       'roomLeft',
       async (leavingInfo: { userId: string; channelId: string }) => {
         // User receiving the event is the user leaving the room
+        setIsShown(false);
         if (userQueryData?.id === leavingInfo.userId) {
           const channelListDisplayed: Channel[] | undefined =
             await queryClient.getQueryData(channelsQueryKey);
@@ -52,7 +62,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
                 (channel) => channel.id != deletedChannel,
               )?.id ?? '';
             setActiveChannelId(nextChannelId);
-            setIsShown(false);
             navigate(`../chat/${nextChannelId}`);
           }
         } else {
@@ -66,7 +75,7 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
       socket.off('roomLeft');
       socket.off('leaveRoomFailed');
     };
-  }, []);
+  }, [queryClient]);
 
   function leaveChannel(channelInfo: Channel) {
     socket.emit('leaveRoom', { leaveInfo: { id: channelInfo.id } });
@@ -88,8 +97,6 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
     setShowInviteModal(!showInviteModal);
   }
 
-  const myRole = useMyChannelByUserId(channelInfo?.id ?? '');
-
   if (channelInfo !== undefined)
     return (
       <div>
@@ -101,8 +108,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRole.data?.role === channelRole.Owner ? (
-          <div className="z-index-20">
+        {myRoleQueryData?.role === channelRole.Owner ? (
+          <div className="z-40">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -117,12 +124,13 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(myRole.data?.role === channelRole.Owner ||
-          myRole.data?.role === channelRole.Admin) &&
+        {(myRoleQueryData?.role === channelRole.Owner ||
+          myRoleQueryData?.role === channelRole.Admin) &&
+        channelInfo.type === channelType.Private &&
         channelUserBannedQueryData?.some(
           (bannedUserId) => bannedUserId === userQueryData?.id,
         ) ? (
-          <div className="z-index-20">
+          <div className="z-40">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>

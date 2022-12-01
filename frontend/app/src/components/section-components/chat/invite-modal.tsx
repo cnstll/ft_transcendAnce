@@ -59,8 +59,8 @@ function InviteModal(props: InviteModalProps) {
   return (
     <>
       <div
-        className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0
-          h-modal h-full bg-[#222] bg-opacity-50"
+        className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-40 w-full md:inset-0
+          h-modal h-full bg-[#222] bg-opacity-50 "
       >
         <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
           <div className="relative bg-white rounded-lg shadow text-black p-6">
@@ -70,7 +70,6 @@ function InviteModal(props: InviteModalProps) {
             >
               Invite members to {props.channel.name}
             </h3>
-            {/* Invited members - to do */}
             <div className="my-4">
               <h4
                 className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
@@ -99,7 +98,6 @@ function InviteModal(props: InviteModalProps) {
                 </p>
               )}
             </div>
-            {/* Search for a user section */}
             <form onSubmit={onSubmit}>
               <div id="form-channel-invite" className="form-group mt-4">
                 <label
@@ -147,7 +145,6 @@ function InviteModal(props: InviteModalProps) {
                   </p>
                 )}
               </div>
-              {/* Buttons section */}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"
