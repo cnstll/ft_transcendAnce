@@ -10,10 +10,6 @@ export class ModerateChannelDto {
   @IsNotEmpty()
   channelActionOnChannelId: string;
 
-  @IsDate()
-  @IsNotEmpty()
-  channelActionDuration: Date;
-
   @IsString()
   @IsNotEmpty()
   type: ChannelActionType;

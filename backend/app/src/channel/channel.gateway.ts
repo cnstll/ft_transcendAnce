@@ -46,6 +46,13 @@ export class ChannelGateway {
     @MessageBody('channelId') channelId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    const sockets = await this.server.in(channelId).fetchSockets();
+    console.log(
+      'ROOM: ',
+      channelId,
+      ' Socket COnnected: ',
+      sockets.map((socket) => socket.id),
+    );
     const userOnChannel = await this.channelService.connectToChannel(
       userId,
       channelId,
@@ -202,19 +209,18 @@ export class ChannelGateway {
     @MessageBody('banInfo') banInfo: ModerateChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const banUser = await this.channelService.banFromChannelWS(
+    const banResult = await this.channelService.banFromChannelWS(
       requesterId,
       banInfo,
     );
-    if (banUser == null || typeof banUser === 'string') {
+    console.log(banResult);
+    if (banResult == null || typeof banResult === 'string') {
       console.log('FAILED TO BAN');
-      this.server
-        .in(banInfo.channelActionOnChannelId)
-        .emit('banFailed', banUser);
+      this.server.to(clientSocket.id).emit('banFailed', banResult);
     } else {
       this.server
-        .in(banInfo.channelActionOnChannelId)
-        .emit('banSucceeded', banUser);
+        .to(banInfo.channelActionOnChannelId)
+        .emit('banSucceeded', banResult);
     }
   }
 }

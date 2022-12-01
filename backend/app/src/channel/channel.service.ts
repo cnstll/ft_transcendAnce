@@ -423,6 +423,28 @@ export class ChannelService {
       console.log(error);
     }
   }
+  async deleteChannelAction(
+    channelId: string,
+    targetUserId: string,
+    actionType: ChannelActionType,
+  ) {
+    try {
+      const deletedChannelAction = await this.prisma.channelAction.deleteMany({
+        where: {
+          AND: [
+            { channelActionTargetId: targetUserId },
+            {
+              channelActionOnChannelId: channelId,
+            },
+            { type: actionType },
+          ],
+        },
+      });
+      console.log(deletedChannelAction);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   async getUsersUnderModerationAction(
     channelId: string,
@@ -434,17 +456,25 @@ export class ChannelService {
           channelActionOnChannelId: channelId,
           type: channelActionType,
         },
-        select: {
-          channelActionTarget: {
-            select: {
-              id: true,
-            },
-          },
-        },
       });
       const flattenUsers = [];
       for (let index = 0; index < usersUnderModeration.length; index++) {
-        flattenUsers.push(usersUnderModeration[index].channelActionTarget.id);
+        const banExpirationDate = Number(
+          Date.parse(usersUnderModeration[index].channelActionTime.toString()),
+        );
+
+        const currentTime = Date.now();
+        // const diffBanTime = banStartTime.to - currentTime
+        console.log('Ban expiration: ', banExpirationDate - currentTime);
+        if (banExpirationDate - currentTime < 0) {
+          await this.deleteChannelAction(
+            channelId,
+            usersUnderModeration[index].channelActionTargetId,
+            channelActionType,
+          );
+        } else {
+          flattenUsers.push(usersUnderModeration[index].channelActionTargetId);
+        }
       }
       console.log('THESE USERS ARE BANNED: ', flattenUsers);
       return flattenUsers;
@@ -745,13 +775,16 @@ export class ChannelService {
         console.log('Cannot be banned: ', isAlreadyBanned);
         return 'cannotBeBanned';
       } else {
-        console.log('Can ba banned: ', isAlreadyBanned);
+        console.log('Can be banned: ', isAlreadyBanned);
       }
+      const banDurationInMS = 30 * 1000;
+      const banExpirationDate = new Date(Date.now() + banDurationInMS);
+      console.log(banExpirationDate);
       const bannedUser = await this.prisma.channelAction.create({
         data: {
           channelActionTargetId: banInfo.channelActionTargetId,
           channelActionOnChannelId: banInfo.channelActionOnChannelId,
-          channelActionTime: banInfo.channelActionDuration,
+          channelActionTime: banExpirationDate,
           type: ChannelActionType.BAN,
           channelActionRequesterId: requesterId,
         },

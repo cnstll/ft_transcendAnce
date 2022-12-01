@@ -18,7 +18,6 @@ interface BanUserProps {
 function BanUser(props: BanUserProps) {
   const queryClient = useQueryClient();
   queryClient;
-  const timer = new Date('August 19, 1975 00:00:05 GMT+01:00');
   const channelCtx = useContext(channelContext);
 
   function onBan() {
@@ -26,7 +25,6 @@ function BanUser(props: BanUserProps) {
       banInfo: {
         channelActionTargetId: props.user?.id,
         channelActionOnChannelId: channelCtx.activeChannelId,
-        channelActionDuration: timer,
         type: channelActionType.Ban,
       },
     });
