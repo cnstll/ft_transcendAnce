@@ -261,6 +261,8 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
           <canvas
             onMouseMove={movePaddle}
             onTouchMove={movePaddleTouch}
+            onTouchStart={(e) => e.preventDefault()}
+            onTouchEnd={(e) => {e.preventDefault()}}
             ref={canvasRef}
             className="border-solid border-2 border-white"
           />
