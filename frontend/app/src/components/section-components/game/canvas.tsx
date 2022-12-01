@@ -224,29 +224,36 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     }
   }
 
-  // function movePaddleTouch(event: React.TouchEvent) {
-  //   
-  //   event.preventDefault();
-  //   const touch = (event.changedTouches)[0];
-  //   const clientY = touch.clientY;
+  function movePaddleTouch(event: React.TouchEvent) {
+    
+    event.preventDefault();
+    const touch = (event.changedTouches)[0];
+    // const clientY = touch.clientY;
 
-  //   if (
-  //     gameInfo.context !== null &&
-  //     canvasRef.current !== null &&
-  //     gameStatus === GameStatus.PLAYING
-  //   ) {
-  //     gameInfo.context.textBaseline = 'middle';
-  //     gameInfo.context.textAlign = 'center';
-  //     const rect = canvasRef.current.getBoundingClientRect();
-  //     const posy: number = Math.round(
-  //       ((clientY - rect.top) / canvasRef.current.height) *
-  //         gameConstants.relativeGameWidth,
-  //     );
-  //     message.setYpos(posy);
-  //     encodedMessage = message.serializeBinary();
-  //     socket.volatile.emit('PP', encodedMessage.buffer);
-  //   }
-  // }
+    const mouseEvent = new MouseEvent("mousemove", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+    if (
+      gameInfo.context !== null &&
+      gameInfo.canvas!== null &&
+      canvasRef.current !== null &&
+      gameStatus === GameStatus.PLAYING
+    ) {
+      gameInfo.canvas.dispatchEvent(mouseEvent);
+    }
+    //   gameInfo.context.textBaseline = 'middle';
+    //   gameInfo.context.textAlign = 'center';
+    //   const rect = canvasRef.current.getBoundingClientRect();
+    //   const posy: number = Math.round(
+    //     ((clientY - rect.top) / canvasRef.current.height) *
+    //       gameConstants.relativeGameWidth,
+    //   );
+    //   message.setYpos(posy);
+    //   encodedMessage = message.serializeBinary();
+    //   socket.volatile.emit('PP', encodedMessage.buffer);
+    // }
+  }
 
   let opponentId: string | undefined = userId;
   if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
@@ -260,10 +267,9 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         {gameStatus === GameStatus.PLAYING && (
           <canvas
             onMouseMove={movePaddle}
-            onTouchMove={(e) => e.preventDefault()}
-            onTouchStart={(e) => e.preventDefault()}
+            onTouchMove={movePaddleTouch}
+            onTouchStart={movePaddleTouch}
             onTouchEnd={(e) => {e.preventDefault()}}
-            // onTouchMoveCapture{(e) => {e.preventDefault()}}
             ref={canvasRef}
             className="border-solid border-2 border-white"
           />
