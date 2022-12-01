@@ -29,7 +29,6 @@ function MembersOptions({
   type,
   setActiveChannelId,
 }: UserOptionsProps) {
-  //   const myRole = useMyChannelRole(channelId);
   const queryClient = useQueryClient();
   const myRoleQueryKey = 'myRoleInChannel';
   const myRoleQueryData: { role: channelRole } | undefined =

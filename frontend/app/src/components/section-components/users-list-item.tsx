@@ -17,7 +17,9 @@ interface UsersListProps {
   userListType?: UserListType;
   type?: channelType;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
-  role?: channelRole;
+  role?: {
+    userId: string;
+    role: channelRole;};
   channelId?: string;
 }
 
@@ -55,12 +57,12 @@ function UsersListItem({
       </div>
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
-        {role === channelRole.Owner &&
+        {role?.role === channelRole.Owner &&
           <p className='ml-3 text-xs text-purple-light'>
             <FontAwesomeIcon className="mr-1" icon={faCrown} />
             Owner
           </p>}
-        {role === channelRole.Admin &&
+        {role?.role === channelRole.Admin &&
           <p className='ml-3 text-xs text-purple-light'>
             <FontAwesomeIcon className="mx-1" icon={faChessKnight} />
             Admin
@@ -76,7 +78,7 @@ function UsersListItem({
                 type={type}
                 setActiveChannelId={setActiveChannelId}
                 channelId={channelId?? ''}
-                role={role?? channelRole.User}/>
+                role={role?.role ?? channelRole.User}/>
             )}
             {userListType === UserListType.FRIENDS && (
               <FriendsOptions

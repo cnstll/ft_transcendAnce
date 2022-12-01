@@ -1,8 +1,8 @@
 import {
-  channelType,
   channelRole,
   User,
   UserListType,
+  Channel,
 } from '../../global-components/interface';
 import UsersList from '../users-list';
 import { useEffect } from 'react';
@@ -10,13 +10,13 @@ import { useQueryClient, UseQueryResult } from 'react-query';
 import { toast } from 'react-toastify';
 import { socket } from 'src/components/global-components/client-socket';
 import {
+  getCurrentChannel,
   useChannelRoles,
 } from 'src/components/query-hooks/useGetChannels';
 
 interface MembersListProps {
   channelUsers: User[];
   user: User;
-  type: channelType | undefined;
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
   channelId: string;
 }
@@ -25,12 +25,12 @@ function MembersList({
   channelUsers,
   user,
   channelId,
-  type,
   setActiveChannelId,
  }: MembersListProps) {
   const customToastId = 'custom-toast-error-role';
   const channelRolesQueryKey = 'rolesInChannel';
   const myRoleQueryKey = 'myRoleInChannel';
+  const currentChannel: UseQueryResult<Channel | undefined> = getCurrentChannel(channelId);
 
   const queryClient = useQueryClient();
 
@@ -44,7 +44,7 @@ function MembersList({
 
   useEffect(() => {
     socket.on('roleUpdated', async () => {
-      await queryClient.invalidateQueries(channelRolesQueryKey);
+      await queryClient.refetchQueries(channelRolesQueryKey);
       await queryClient.invalidateQueries(myRoleQueryKey);
     });
     socket.on('updateRoleFailed', () => {
@@ -61,17 +61,14 @@ function MembersList({
 
   return (
     <>
-    {type === undefined && <p className='text-gray-300'>No one here</p>}
-    {type !== undefined &&
       <UsersList
         users={channelUsers.filter((channelUser) => channelUser.id != user.id)}
         userListType={UserListType.MEMBERS}
         roles={roleUsers.data}
         channelId={channelId}
-        type={type}
+        type={currentChannel.data?.type}
         setActiveChannelId={setActiveChannelId}
       />
-    }
     </>
   );
 }

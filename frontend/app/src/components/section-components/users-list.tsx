@@ -1,5 +1,5 @@
 import UsersListItem from './users-list-item';
-import type {
+import {
   channelRole,
   channelType,
   User,
@@ -38,7 +38,7 @@ function UsersList(
             userListType={userListType}
             type={type}
             setActiveChannelId={setActiveChannelId}
-            role={(roles?.find((role) => role.userId === user.id)?.role)}
+            role={channelId? (roles?.find((role) => role.userId === user.id)) : undefined}
             channelId={channelId}
           />
         ))}
