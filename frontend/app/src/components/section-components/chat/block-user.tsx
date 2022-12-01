@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { useGetBlockedUsers } from 'src/components/query-hooks/useBlockedUser';
 import { apiUrl, User } from '../../global-components/interface';
-// import LoadingSpinner from '../loading-spinner';
+import LoadingSpinner from '../loading-spinner';
 
 interface BlockUserProps {
   user: User;
@@ -8,11 +9,19 @@ interface BlockUserProps {
 }
 
 function BlockUser({ user, setIsShown }: BlockUserProps) {
+  const listBlockedUser = useGetBlockedUsers();
+
+  console.log(listBlockedUser.data);
+  let isBlocked = false;
+
+  if (listBlockedUser.data && listBlockedUser.data.length > 0)
+    isBlocked = listBlockedUser.data.includes(user.id);
+
   const onBlock = () => {
     setIsShown(false);
     // Add user to the blocked list
     void axios.post(
-      `${apiUrl}/user/add-blocked-user`,
+      `${apiUrl}/block/add-blocked-user`,
       { targetId: user.id },
       {
         withCredentials: true,
@@ -24,7 +33,7 @@ function BlockUser({ user, setIsShown }: BlockUserProps) {
   const onUnblock = () => {
     setIsShown(false);
     void axios.post(
-      `${apiUrl}/user/remove-blocked-user`,
+      `${apiUrl}/block/remove-blocked-user`,
       { targetId: user.id },
       {
         withCredentials: true,
@@ -34,26 +43,25 @@ function BlockUser({ user, setIsShown }: BlockUserProps) {
 
   return (
     <>
-      {/* {isBlocked.isError && (
+      {listBlockedUser.isError && (
         <p className="text-base text-gray-400">We encountered an error 🤷</p>
       )}
-      {isBlocked.isLoading && <LoadingSpinner />}
-      {isBlocked.isSuccess && isBlocked.data && ( */}
-      <p
-        className="text-center hover:underline my-2 truncate cursor-pointer"
-        onClick={onUnblock}
-      >
-        Unblock {user.nickname}
-      </p>
-      {/* )} */}
-      {/* {isBlocked.isSuccess && !isBlocked.data && ( */}
-      <p
-        className="text-center hover:underline my-2 truncate cursor-pointer"
-        onClick={onBlock}
-      >
-        Block {user.nickname}
-      </p>
-      {/* )} */}
+      {listBlockedUser.isLoading && <LoadingSpinner />}
+      {isBlocked ? (
+        <p
+          className="text-center hover:underline my-2 truncate cursor-pointer"
+          onClick={onUnblock}
+        >
+          Unblock {user.nickname}
+        </p>
+      ) : (
+        <p
+          className="text-center hover:underline my-2 truncate cursor-pointer"
+          onClick={onBlock}
+        >
+          Block {user.nickname}
+        </p>
+      )}
     </>
   );
 }

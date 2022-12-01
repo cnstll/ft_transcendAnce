@@ -8,7 +8,7 @@ import WatchGame from '../game/watch-game-options';
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
-  isBlocked: string | undefined;
+  isBlocked: boolean | undefined;
 }
 
 function FriendsOptions({ user, setIsShown, isBlocked }: UserOptionsProps) {

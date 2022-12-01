@@ -39,7 +39,14 @@ export class BlockController {
 
   @Get('users-blocked-by-current-user')
   @UseGuards(JwtAuthGuard)
-  usersBlockedByCurrentUser(@GetCurrentUserId() userId: string) {
-    return this.blockService.usersBlockedByCurrentUser(userId);
+  async usersBlockedByCurrentUser(
+    @GetCurrentUserId() userId: string,
+    @Res() res: Response,
+  ) {
+    const listBlockedUsers = await this.blockService.usersBlockedByCurrentUser(
+      userId,
+    );
+    if (listBlockedUsers) return res.status(200).send(listBlockedUsers);
+    else return res.status(500);
   }
 }

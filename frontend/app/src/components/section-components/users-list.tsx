@@ -22,8 +22,6 @@ function UsersList({
 }: UsersListProps) {
   const usersWithBlockRelation = useGetBlockRelations();
 
-  console.log(usersWithBlockRelation.data);
-
   return (
     <>
       {usersWithBlockRelation.isError && (

@@ -14,7 +14,7 @@ interface UserOptionsProps {
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
-  isBlocked: string | undefined;
+  isBlocked: boolean | undefined;
 }
 
 function MembersOptions({

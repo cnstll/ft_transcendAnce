@@ -27,9 +27,8 @@ function UsersListItem({
   blockRelationUserList,
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
-  const isBlockedOrBlocked = blockRelationUserList?.find(
-    (blockUser) => blockUser === user.id,
-  );
+  const isBlockedOrBlocked = blockRelationUserList?.includes(user.id);
+
   return (
     <>
       <div className="flex items-center justify-center">

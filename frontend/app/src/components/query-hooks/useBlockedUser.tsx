@@ -12,3 +12,14 @@ const getUsersWithBlockRelation = () =>
 export function useGetBlockRelations(): UseQueryResult<string[]> {
   return useQuery('blockedUsers', getUsersWithBlockRelation);
 }
+
+const getBlockedUsers = () =>
+  axios
+    .get<string[]>(`${apiUrl}/block/users-blocked-by-current-user`, {
+      withCredentials: true,
+    })
+    .then((res) => res.data);
+
+export function useGetBlockedUsers(): UseQueryResult<string[]> {
+  return useQuery('blockedUsersList', getBlockedUsers);
+}
