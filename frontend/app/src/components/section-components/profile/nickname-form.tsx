@@ -24,9 +24,11 @@ function NickNameForm({
     setInputStatus('editing');
     const input = nickNameRef.current ? nickNameRef.current.value : '';
     if (input.length > 15)
-      setInputStatus('invalidLength');
+    setInputStatus('invalidLength');
     else if (!validateNameInput(input))
-      setInputStatus('invalidName');
+    setInputStatus('invalidName');
+    if (input.length < 1)
+      setInputStatus('invalidLengthZero');
   }
 
   // When pressing enter the new nickname is submitted
@@ -37,6 +39,10 @@ function NickNameForm({
     const input = nickNameRef.current ? nickNameRef.current.value : '';
     if (input.length > 15) {
       setInputStatus('invalidLength');
+      return;
+    }
+    else if (input.length < 1) {
+      setInputStatus('invalidLengthZero');
       return;
     }
     else if (!validateNameInput(input)) {
@@ -55,7 +61,7 @@ function NickNameForm({
             };
           });
         } else if (status == 200) {
-          setInputStatus('invalidTaken');
+          setInputStatus('invalidNameTaken');
         }
       },
     });
@@ -89,9 +95,10 @@ function NickNameForm({
                 <input
                   className={`form-control block w-full my-3 px-3 py-1.5 text-xs bg-gray-50 bg-clip-padding
                   border-b-2 focus:ring-blue-500 focus:border-blue-500 focus:text-gray-500  ${
-                    inputStatus === 'invalidTaken' ||
+                    inputStatus === 'invalidNameTaken' ||
                     inputStatus === 'invalidLength' ||
-                    inputStatus === 'invalidName'
+                    inputStatus === 'invalidName' ||
+                    inputStatus === 'invalidLengthZero'
                       ? 'border-red-500'
                       : ''
                   }`}
@@ -115,6 +122,11 @@ function NickNameForm({
                 {inputStatus === 'invalidTaken' && (
                   <p className="text-red-500 text-xs font-medium">
                     Name already taken
+                  </p>
+                )}
+                {inputStatus === 'invalidLengthZero' && (
+                  <p className="text-red-500 text-xs font-medium">
+                    Name is mandatory
                   </p>
                 )}
               </div>
