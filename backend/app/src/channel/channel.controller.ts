@@ -19,7 +19,7 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-channel-by-user-id')
+  @Get('get-channels-by-user-id')
   getChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getChannelsByUserId(userId);
   }
@@ -48,6 +48,11 @@ export class ChannelController {
     @Param('id') channelId: string,
   ) {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
+  }
+
+  @Get('get-roles-users-channel/:id')
+  getRolesOfUsersChannel(@Param('id') channelId: string) {
+    return this.channelService.getRolesOfUsersChannel(channelId);
   }
 
   @Get('get-invites/:id')

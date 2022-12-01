@@ -11,9 +11,5 @@ export class UserDto {
 
   @IsNotEmpty()
   @IsString()
-  passwordHash: string;
-
-  @IsNotEmpty()
-  @IsString()
   avatarImg: string;
 }

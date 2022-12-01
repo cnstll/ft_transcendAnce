@@ -29,7 +29,7 @@ function DropDownButton({
 
   return (
     <div className="static" ref={ref}>
-    <button onClick={ShowInfo} className={"text-white font-bold " + style}>
+      <button onClick={ShowInfo} className={"text-white font-bold " + style}>
         <FontAwesomeIcon icon={faEllipsis} />
       </button>
       <div className="relative">

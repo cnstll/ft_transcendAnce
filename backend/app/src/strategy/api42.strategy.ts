@@ -24,6 +24,6 @@ export class Api42Strategy extends PassportStrategy(Strategy) {
         headers: { Authorization: `Bearer ${accessToken}` },
       }),
     );
-    return this.authService.loginIntra(data, accessToken);
+    return this.authService.loginIntra(data);
   }
 }
