@@ -52,7 +52,6 @@ describe('Channel controller (e2e)', () => {
         .send({
           nickname: 'testchannel1',
           immutableId: 'testchannel1',
-          passwordHash: 'b'
         })
         .expect(201)
         .then((response) => {
@@ -66,7 +65,6 @@ describe('Channel controller (e2e)', () => {
         .send({
           nickname: 'testchannel2',
           immutableId: 'testchannel2',
-          passwordHash: 'd'
         })
         .expect(201)
         .then((response) => {
