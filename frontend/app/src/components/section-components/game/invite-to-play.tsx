@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { socket } from '../global-components/client-socket';
-import { User } from '../global-components/interface';
+import { socket } from '../../global-components/client-socket';
+import { User } from '../../global-components/interface';
 
 interface InviteToPlayProps {
   user: User;

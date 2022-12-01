@@ -278,7 +278,7 @@ describe('Channel controller (e2e)', () => {
       await new Promise(process.nextTick);
       let bearer = 'Bearer ' + cookieTestA;
       return request(app.getHttpServer())
-        .get('/channels/get-channel-by-user-id')
+        .get('/channels/get-all-channels-by-user-id')
         .set('Authorization', bearer)
         .send({})
         .expect(200)

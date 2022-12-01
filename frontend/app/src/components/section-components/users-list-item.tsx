@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGamepad, faCircle, faCrown, faChessKnight } from '@fortawesome/free-solid-svg-icons';
 import {
   channelRole,
+  channelType,
   User,
   UserConnectionStatus,
   UserListType,
@@ -11,17 +12,25 @@ import { useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
 
+interface UsersListProps {
+  user: User;
+  userListType?: UserListType;
+  type?: channelType;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  role?: {
+    userId: string;
+    role: channelRole;};
+  channelId?: string;
+}
+
 function UsersListItem({
   user,
   userListType,
+  type,
+  setActiveChannelId,
   role,
-  channelId
-}: {
-  user: User;
-  userListType?: UserListType;
-  role?: channelRole;
-  channelId?: string;
-}) {
+  channelId,
+}: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
 
   return (
@@ -48,12 +57,12 @@ function UsersListItem({
       </div>
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
-        {role === channelRole.Owner &&
+        {role?.role === channelRole.Owner &&
           <p className='ml-3 text-xs text-purple-light'>
             <FontAwesomeIcon className="mr-1" icon={faCrown} />
             Owner
           </p>}
-        {role === channelRole.Admin &&
+        {role?.role === channelRole.Admin &&
           <p className='ml-3 text-xs text-purple-light'>
             <FontAwesomeIcon className="mx-1" icon={faChessKnight} />
             Admin
@@ -66,8 +75,10 @@ function UsersListItem({
               <MembersOptions
                 user={user}
                 setIsShown={setIsShown}
+                type={type}
+                setActiveChannelId={setActiveChannelId}
                 channelId={channelId?? ''}
-                role={role?? channelRole.User}/>
+                role={role?.role ?? channelRole.User}/>
             )}
             {userListType === UserListType.FRIENDS && (
               <FriendsOptions

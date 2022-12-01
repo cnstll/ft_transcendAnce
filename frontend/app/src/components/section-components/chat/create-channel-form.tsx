@@ -29,8 +29,8 @@ function CreateChannelForm(props: CreateChannelFormProps) {
     socket.on('roomCreated', async (channelId: string) => {
       props.setShowForm(false);
       await queryClient.refetchQueries(channelsQueryKey);
-      setFormData(defaultFormData);
       props.setActiveChannelId(channelId);
+      setFormData(defaultFormData);
       navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
