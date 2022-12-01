@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
@@ -27,7 +19,7 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-all-channel-by-user-id')
+  @Get('get-all-channels-by-user-id')
   getAllChannelsByUserId(@GetCurrentUserId() userId: string) {
     return this.channelService.getAllChannelsByUserId(userId);
   }
@@ -56,6 +48,11 @@ export class ChannelController {
     @Param('id') channelId: string,
   ) {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
+  }
+
+  @Get('get-roles-users-channel/:id')
+  getRolesOfUsersChannel(@Param('id') channelId: string) {
+    return this.channelService.getRolesOfUsersChannel(channelId);
   }
 
   @Get('get-invites/:id')

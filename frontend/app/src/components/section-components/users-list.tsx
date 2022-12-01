@@ -1,5 +1,6 @@
 import UsersListItem from './users-list-item';
-import type {
+import {
+  channelRole,
   channelType,
   User,
   UserListType,
@@ -12,6 +13,11 @@ interface UsersListProps {
   userListType: UserListType;
   type?: channelType;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  roles?: {
+    userId: string;
+    role: channelRole;
+  }[];
+  channelId?: string;
 }
 
 function UsersList({
@@ -19,6 +25,8 @@ function UsersList({
   userListType,
   type,
   setActiveChannelId,
+  roles,
+  channelId,
 }: UsersListProps) {
   const usersWithBlockRelation = useGetBlockRelations();
 
@@ -42,6 +50,12 @@ function UsersList({
                 type={type}
                 setActiveChannelId={setActiveChannelId}
                 blockRelationUserList={usersWithBlockRelation.data}
+                role={
+                  channelId
+                    ? roles?.find((role) => role.userId === user.id)
+                    : undefined
+                }
+                channelId={channelId}
               />
             ))}
         </div>

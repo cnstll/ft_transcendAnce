@@ -54,7 +54,6 @@ describe('User Controller (e2e)', () => {
         .send({
           nickname: 'a',
           immutableId: 'i',
-          passwordHash: 'b'
         })
         .expect(201)
         .then((response) => {
@@ -68,7 +67,6 @@ describe('User Controller (e2e)', () => {
         .send({
           nickname: 'b',
           immutableId: 'j',
-          passwordHash: 'd'
         })
         .expect(201)
         .then((response) => {
@@ -82,7 +80,6 @@ describe('User Controller (e2e)', () => {
         .send({
           nickname: 'c',
           immutableId: 'k',
-          passwordHash: 'd'
         })
         .expect(201)
         .expect(201)
@@ -97,7 +94,6 @@ describe('User Controller (e2e)', () => {
         .send({
           nickname: 'd',
           immutableId: 'l',
-          passwordHash: 'd'
         })
         .expect(201)
         .then((response) => {
@@ -111,7 +107,6 @@ describe('User Controller (e2e)', () => {
         .send({
           nickname: 'd',
           immutableId: 'l',
-          passwordHash: 'd'
         })
         .expect(304)
     });

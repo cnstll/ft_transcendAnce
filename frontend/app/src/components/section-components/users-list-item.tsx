@@ -1,7 +1,13 @@
 import DropDownButton from './drop-down-button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
 import {
+  faGamepad,
+  faCircle,
+  faCrown,
+  faChessKnight,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  channelRole,
   channelType,
   User,
   UserConnectionStatus,
@@ -17,6 +23,11 @@ interface UsersListProps {
   type?: channelType;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   blockRelationUserList?: string[];
+  role?: {
+    userId: string;
+    role: channelRole;
+  };
+  channelId?: string;
 }
 
 function UsersListItem({
@@ -25,6 +36,8 @@ function UsersListItem({
   type,
   setActiveChannelId,
   blockRelationUserList,
+  role,
+  channelId,
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
   const [isBlocked, setIsBlocked] = useState(() => {
@@ -64,34 +77,48 @@ function UsersListItem({
             </div>
           </div>
         </div>
-        <div className="w-32">
-          <p className="ml-3 truncate">{user.nickname}</p>
-        </div>
-        {userListType && (
-          <div className="content-center mx-2 mt-1">
-            <DropDownButton setIsShown={setIsShown} isShown={isShown} style="">
-              {userListType === UserListType.MEMBERS && (
-                <MembersOptions
-                  user={user}
-                  setIsShown={setIsShown}
-                  type={type}
-                  setActiveChannelId={setActiveChannelId}
-                  isBlocked={isBlocked}
-                  setIsBlocked={setIsBlocked}
-                />
-              )}
-              {userListType === UserListType.FRIENDS && (
-                <FriendsOptions
-                  user={user}
-                  setIsShown={setIsShown}
-                  isBlocked={isBlocked}
-                  setIsBlocked={setIsBlocked}
-                />
-              )}
-            </DropDownButton>
-          </div>
+      </div>
+      <div className="w-32">
+        <p className="ml-3 truncate">{user.nickname}</p>
+        {role?.role === channelRole.Owner && (
+          <p className="ml-3 text-xs text-purple-light">
+            <FontAwesomeIcon className="mr-1" icon={faCrown} />
+            Owner
+          </p>
+        )}
+        {role?.role === channelRole.Admin && (
+          <p className="ml-3 text-xs text-purple-light">
+            <FontAwesomeIcon className="mx-1" icon={faChessKnight} />
+            Admin
+          </p>
         )}
       </div>
+      {userListType && (
+        <div className="content-center mx-2 mt-1">
+          <DropDownButton setIsShown={setIsShown} isShown={isShown} style="">
+            {userListType === UserListType.MEMBERS && (
+              <MembersOptions
+                user={user}
+                setIsShown={setIsShown}
+                type={type}
+                setActiveChannelId={setActiveChannelId}
+                channelId={channelId ?? ''}
+                role={role?.role ?? channelRole.User}
+                isBlocked={isBlocked}
+                setIsBlocked={setIsBlocked}
+              />
+            )}
+            {userListType === UserListType.FRIENDS && (
+              <FriendsOptions
+                user={user}
+                setIsShown={setIsShown}
+                isBlocked={isBlocked}
+                setIsBlocked={setIsBlocked}
+              />
+            )}
+          </DropDownButton>
+        </div>
+      )}
     </>
   );
 }

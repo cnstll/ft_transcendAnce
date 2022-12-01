@@ -30,7 +30,6 @@ export class UserService {
         data: {
           nickname: dto.nickname,
           immutableId: dto.immutableId.toString(),
-          passwordHash: dto.passwordHash,
           avatarImg: dto.avatarImg,
           status: UserStatus.ONLINE,
         },

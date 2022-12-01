@@ -38,19 +38,20 @@ function Chat() {
   )?.type;
 
   const queryClient = useQueryClient();
-  const channelUsersQueryKey = 'channelUsers';
+  //const channelUsersQueryKey = 'channelUsers';
+  const channelsByUserListKey = 'channelsByUserList';
 
   useEffect(() => {
     if (user.isError) {
       navigate('/sign-in');
     }
-
+    /** Reconnect to socket? */
     if (activeChannel && channels.data && channels.data.length > 0) {
       socket.emit('connectToRoom', {
         channelId: activeChannelId,
       });
     }
-
+    /** Fallback on a joined channel when landing on /chat */
     if (
       !activeChannel &&
       channels.data !== undefined &&
@@ -66,19 +67,47 @@ function Chat() {
         navigate('../chat/' + redirectToChannel.id);
       }
     }
+    /** Fallback on /chat when no joined channel */
     if (activeChannel && channels.data?.length == 0) {
       setActiveChannelId('');
       navigate('../chat');
     }
 
-    socket.on('roomLeft', () => {
-      void queryClient.invalidateQueries(channelUsersQueryKey);
-    });
+    socket.on(
+      'roomLeft',
+      (leavingInfo: {
+        userId: string;
+        channelId: string;
+        secondUserId?: string;
+      }) => {
+        // Applies only if the current user have other channels to be redirected to and to his/her DM's mate
+        if (
+          channels.data &&
+          channels.data.length > 1 &&
+          (user.data?.id === leavingInfo.userId ||
+            (leavingInfo.secondUserId &&
+              user.data?.id === leavingInfo.secondUserId))
+        ) {
+          const deletedChannel = leavingInfo.channelId;
+          // Find another existing channel to redirect the user to after leaving current one
+          const nextChannelId =
+            channels.data.find((channel) => channel.id != deletedChannel)?.id ??
+            '';
+          setActiveChannelId(nextChannelId);
+          navigate(`../chat/${nextChannelId}`);
+        }
+        //TODO User still in the room should get notified that a user left
+        //void queryClient.invalidateQueries(channelUsersQueryKey);
+        void queryClient.invalidateQueries(channelsByUserListKey);
+      },
+    );
+
     return () => {
       socket.off('roomLeft');
     };
-  }, [activeChannelId, socket, user, channels.data?.length]);
+  }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
+  /** Fallback on 404 when the channel is not accessible (not invited, not existing) */
   if (activeChannel) {
     if (
       channels.data &&
@@ -91,7 +120,7 @@ function Chat() {
     <>
       {user.isLoading && <LoadingSpinner />}
       {user.isSuccess && (
-        <div className="h-full min-h-screen bg-black">
+        <div className="h-full min-h-screen bg-black z-0">
           <Navbar
             text={<FontAwesomeIcon icon={faHouse} />}
             avatarImg={user.data.avatarImg}
@@ -113,28 +142,35 @@ function Chat() {
                 style={{ backgroundImage: `url(${BackgroundGeneral})` }}
               >
                 {channels.isSuccess &&
-                  channels.data && channels.data.length > 0 &&
-                <div className="flex sticky top-0">
-                  <div className="flex-1 flex flex-wrap sm:justify-center content-center
-                    backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20">
-                    <h2 className="font-bold">
-                    {channels.data.find(
-                      (channel) => channel.id === activeChannel,
-                    )?.name}
-                    </h2>
-                  </div>
-                  <div className="flex justify-center">
-                      <DropDownButton
-                        isShown={isShown}
-                        setIsShown={setIsShown}
-                        style="backdrop-blur-sm bg-gray-900/50 p-6 md:p-5">
-                        <ChannelOptions
-                          setActiveChannelId={setActiveChannelId}
+                  channels.data &&
+                  channels.data.length > 0 && (
+                    <div className="flex sticky top-0">
+                      <div
+                        className="flex-1 flex flex-wrap justify-center content-center
+                    backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20"
+                      >
+                        <h2 className="font-bold">
+                          {
+                            channels.data.find(
+                              (channel) => channel.id === activeChannel,
+                            )?.name
+                          }
+                        </h2>
+                      </div>
+                      <div className="flex justify-center">
+                        <DropDownButton
+                          isShown={isShown}
                           setIsShown={setIsShown}
-                        />
-                      </DropDownButton>
-                  </div>
-                </div>}
+                          style="backdrop-blur-sm bg-gray-900/50 p-6 md:p-5"
+                        >
+                          <ChannelOptions
+                            setActiveChannelId={setActiveChannelId}
+                            setIsShown={setIsShown}
+                          />
+                        </DropDownButton>
+                      </div>
+                    </div>
+                  )}
                 <div className="snap-end">
                   <DisplayMessages
                     userId={user.data.id}
@@ -151,6 +187,7 @@ function Chat() {
                   user={user.data}
                   type={type}
                   setActiveChannelId={setActiveChannelId}
+                  channelId={activeChannel ?? ''}
                 />
               )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}
