@@ -19,6 +19,16 @@ function NickNameForm({
     const ret = input.length !== 0 && input.length <= 15 && regex.test(input);
     return ret;
   }
+
+  function onChangeHandler() {
+    setInputStatus('editing');
+    const input = nickNameRef.current ? nickNameRef.current.value : '';
+    if (input.length > 15)
+      setInputStatus('invalidLength');
+    else if (!validateNameInput(input))
+      setInputStatus('invalidName');
+  }
+
   // When pressing enter the new nickname is submitted
   // The new nickname is checked against a regex and
   // Then sent to the backend for deduplication check
@@ -57,15 +67,27 @@ function NickNameForm({
           <label htmlFor="editNickName">Enter your name</label>
           <input
             className={`form-control block w-full px-3 py-1.5 text-base font-normal bg-purple-light focus:bg-purple-light bg-clip-padding border-b-2 focus:outline-none ${
-              inputStatus !== 'invalid'
-                ? 'border-white focus:text-white'
-                : 'border-red-500 focus:text-red-500'
+              inputStatus === 'invalidLength' ||
+              inputStatus === 'invalidName'
+                ? 'border-red-500'
+                : ''
             }`}
             type="text"
             id="nickNameInput"
+            autoComplete="off"
             ref={nickNameRef}
-            onInput={() => setInputStatus('typing')}
+            onChange={onChangeHandler}
           ></input>
+          {inputStatus === 'invalidName' && (
+            <p className="text-red-500 text-xs font-medium pt-2">
+              Invalid name format
+            </p>
+          )}
+          {inputStatus === 'invalidLength' && (
+            <p className="text-red-500 text-xs font-medium pt-2">
+              Name must be less than 22 characters
+            </p>
+          )}
         </div>
       </form>
     </div>
