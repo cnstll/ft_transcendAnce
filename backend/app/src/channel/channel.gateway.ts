@@ -19,6 +19,8 @@ import {
   InviteChannelDto,
   IncomingMessageDto,
 } from './dto';
+import { ChannelType } from '@prisma/client';
+import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -70,11 +72,24 @@ export class ChannelGateway {
     dto = {
       ...dto,
     };
-    const channel = await this.channelService.createChannelWS(
-      dto,
-      userId,
-      clientSocket,
-    );
+    let channel;
+    if (dto.type === ChannelType.DIRECTMESSAGE) {
+      channel = await this.channelService.createDirectMessageWS(
+        dto,
+        userId,
+        clientSocket,
+      );
+      /** Get the second user's socketId and make it join the channel's room */
+      const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+      if (secondUserSocket)
+        this.server.in([secondUserSocket]).socketsJoin(channel.id);
+    } else {
+      channel = await this.channelService.createChannelWS(
+        dto,
+        userId,
+        clientSocket,
+      );
+    }
     channel === null || typeof channel === 'string'
       ? this.server.to(clientSocket.id).emit('createRoomFailed', channel)
       : this.server.emit('roomCreated', channel.id);
@@ -88,6 +103,7 @@ export class ChannelGateway {
     @MessageBody('joinInfo') dto: JoinChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    // Change UserId depending if the channel is of type direct message
     const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,
@@ -169,6 +185,18 @@ export class ChannelGateway {
     );
     if (userLeaving == null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
+    } else if (leaveChannelDto.type === ChannelType.DIRECTMESSAGE) {
+      this.server.to(leaveChannelDto.id).emit('roomLeft', {
+        userId: userId,
+        channelId: leaveChannelDto.id,
+        secondUserId: userLeaving.userId,
+      });
+      /** Get the first user's socketId to leave the channel's room */
+      clientSocket.leave(leaveChannelDto.id);
+      /** Get the second user's socketId to leave the channel's room */
+      const secondUserSocket = socketToUserId.getFromUserId(userLeaving.userId);
+      if (secondUserSocket)
+        this.server.in(secondUserSocket).socketsLeave(userLeaving.channelId);
     } else {
       this.server
         .to(leaveChannelDto.id)
