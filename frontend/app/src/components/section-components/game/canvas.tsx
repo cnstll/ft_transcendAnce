@@ -1,5 +1,5 @@
 import React  from 'react';
-import { useEffect, useRef, useState, MouseEvent } from 'react';
+import { useEffect, useRef, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
@@ -202,7 +202,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     return;
   }, [window.innerWidth, window.innerHeight, gameStatus]);
 
-  function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
+  function movePaddle(event: React.MouseEvent<HTMLCanvasElement>) {
     event.preventDefault();
     const clientY = event.clientY;
 
