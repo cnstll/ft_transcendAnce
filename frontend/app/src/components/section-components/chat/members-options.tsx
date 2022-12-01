@@ -4,10 +4,10 @@ import {
   User,
   UserConnectionStatus,
 } from '../../global-components/interface';
-import BlockFriends from './block-user';
 import InviteToPlay from '../game/invite-to-play';
 import WatchGame from '../game/watch-game-options';
 import SendDM from './send-dm';
+import BlockUser from './block-user';
 
 interface UserOptionsProps {
   user: User;
@@ -15,6 +15,7 @@ interface UserOptionsProps {
   type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   isBlocked: boolean | undefined;
+  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function MembersOptions({
@@ -23,6 +24,7 @@ function MembersOptions({
   type,
   setActiveChannelId,
   isBlocked,
+  setIsBlocked,
 }: UserOptionsProps) {
   return (
     <div>
@@ -39,7 +41,11 @@ function MembersOptions({
           setActiveChannelId={setActiveChannelId}
         />
       )}
-      <BlockFriends user={user} setIsShown={setIsShown} />
+      <BlockUser
+        user={user}
+        setIsShown={setIsShown}
+        setIsBlocked={setIsBlocked}
+      />
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />
       )}

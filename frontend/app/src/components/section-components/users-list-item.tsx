@@ -27,13 +27,17 @@ function UsersListItem({
   blockRelationUserList,
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
-  const isBlockedOrBlocked = blockRelationUserList?.includes(user.id);
+  const [isBlocked, setIsBlocked] = useState(() => {
+    if (blockRelationUserList?.includes(user.id))
+      return blockRelationUserList.includes(user.id);
+    return false;
+  });
 
   return (
     <>
       <div className="flex items-center justify-center">
         <div className="flex items-center justify-center mr-2">
-          {isBlockedOrBlocked ? (
+          {isBlocked ? (
             <img
               className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full blur-sm"
               src={user.avatarImg}
@@ -72,14 +76,16 @@ function UsersListItem({
                   setIsShown={setIsShown}
                   type={type}
                   setActiveChannelId={setActiveChannelId}
-                  isBlocked={isBlockedOrBlocked}
+                  isBlocked={isBlocked}
+                  setIsBlocked={setIsBlocked}
                 />
               )}
               {userListType === UserListType.FRIENDS && (
                 <FriendsOptions
                   user={user}
                   setIsShown={setIsShown}
-                  isBlocked={isBlockedOrBlocked}
+                  isBlocked={isBlocked}
+                  setIsBlocked={setIsBlocked}
                 />
               )}
             </DropDownButton>

@@ -6,12 +6,12 @@ import LoadingSpinner from '../loading-spinner';
 interface BlockUserProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function BlockUser({ user, setIsShown }: BlockUserProps) {
+function BlockUser({ user, setIsShown, setIsBlocked }: BlockUserProps) {
   const listBlockedUser = useGetBlockedUsers();
 
-  console.log(listBlockedUser.data);
   let isBlocked = false;
 
   if (listBlockedUser.data && listBlockedUser.data.length > 0)
@@ -27,6 +27,7 @@ function BlockUser({ user, setIsShown }: BlockUserProps) {
         withCredentials: true,
       },
     );
+    setIsBlocked(true);
     // To do : if dm exists delete it
   };
 
@@ -39,6 +40,7 @@ function BlockUser({ user, setIsShown }: BlockUserProps) {
         withCredentials: true,
       },
     );
+    setIsBlocked(false);
   };
 
   return (
