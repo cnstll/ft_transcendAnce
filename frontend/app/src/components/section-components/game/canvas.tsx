@@ -224,29 +224,29 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     }
   }
 
-  function movePaddleTouch(event: React.TouchEvent) {
-    
-    event.preventDefault();
-    const touch = (event.changedTouches)[0];
-    const clientY = touch.clientY;
+  // function movePaddleTouch(event: React.TouchEvent) {
+  //   
+  //   event.preventDefault();
+  //   const touch = (event.changedTouches)[0];
+  //   const clientY = touch.clientY;
 
-    if (
-      gameInfo.context !== null &&
-      canvasRef.current !== null &&
-      gameStatus === GameStatus.PLAYING
-    ) {
-      gameInfo.context.textBaseline = 'middle';
-      gameInfo.context.textAlign = 'center';
-      const rect = canvasRef.current.getBoundingClientRect();
-      const posy: number = Math.round(
-        ((clientY - rect.top) / canvasRef.current.height) *
-          gameConstants.relativeGameWidth,
-      );
-      message.setYpos(posy);
-      encodedMessage = message.serializeBinary();
-      socket.volatile.emit('PP', encodedMessage.buffer);
-    }
-  }
+  //   if (
+  //     gameInfo.context !== null &&
+  //     canvasRef.current !== null &&
+  //     gameStatus === GameStatus.PLAYING
+  //   ) {
+  //     gameInfo.context.textBaseline = 'middle';
+  //     gameInfo.context.textAlign = 'center';
+  //     const rect = canvasRef.current.getBoundingClientRect();
+  //     const posy: number = Math.round(
+  //       ((clientY - rect.top) / canvasRef.current.height) *
+  //         gameConstants.relativeGameWidth,
+  //     );
+  //     message.setYpos(posy);
+  //     encodedMessage = message.serializeBinary();
+  //     socket.volatile.emit('PP', encodedMessage.buffer);
+  //   }
+  // }
 
   let opponentId: string | undefined = userId;
   if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
@@ -260,9 +260,10 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         {gameStatus === GameStatus.PLAYING && (
           <canvas
             onMouseMove={movePaddle}
-            onTouchMove={movePaddleTouch}
+            onTouchMove={(e) => e.preventDefault()}
             onTouchStart={(e) => e.preventDefault()}
             onTouchEnd={(e) => {e.preventDefault()}}
+            // onTouchMoveCapture{(e) => {e.preventDefault()}}
             ref={canvasRef}
             className="border-solid border-2 border-white"
           />
