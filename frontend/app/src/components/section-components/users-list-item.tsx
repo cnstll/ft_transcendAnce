@@ -50,7 +50,9 @@ function UsersListItem({
         </div>
       </div>
       <div className="w-32">
-        <p className="ml-3 truncate">{user.nickname}</p>
+        <Link to={'/profile/' + user.nickname}>
+          <p className="ml-3 truncate">{user.nickname}</p>
+        </Link>
         {role === channelRole.Owner &&
           <p className='ml-3 text-xs text-purple-light'>
             <FontAwesomeIcon className="mr-1" icon={faCrown} />

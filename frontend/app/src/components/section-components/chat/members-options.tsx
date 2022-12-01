@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-// import { useMyChannelRole } from 'src/components/query-hooks/useGetChannels';
 import {
   channelRole,
   User,
@@ -32,9 +30,6 @@ function MembersOptions({
 
   return (
     <div>
-      <Link to={`/profile/${user.nickname}`}>
-        <p className="text-center hover:underline my-2">Go to profile</p>
-      </Link>
       {user.status !== UserConnectionStatus.PLAYING && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
