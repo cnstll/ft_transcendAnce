@@ -23,12 +23,9 @@ function NickNameForm({
   function onChangeHandler() {
     setInputStatus('editing');
     const input = nickNameRef.current ? nickNameRef.current.value : '';
-    if (input.length > 15)
-    setInputStatus('invalidLength');
-    else if (!validateNameInput(input))
-    setInputStatus('invalidName');
-    if (input.length < 1)
-      setInputStatus('invalidLengthZero');
+    if (input.length > 15) setInputStatus('invalidLength');
+    else if (!validateNameInput(input)) setInputStatus('invalidName');
+    if (input.length < 1) setInputStatus('invalidLengthZero');
   }
 
   // When pressing enter the new nickname is submitted
@@ -40,12 +37,10 @@ function NickNameForm({
     if (input.length > 15) {
       setInputStatus('invalidLength');
       return;
-    }
-    else if (input.length < 1) {
+    } else if (input.length < 1) {
       setInputStatus('invalidLengthZero');
       return;
-    }
-    else if (!validateNameInput(input)) {
+    } else if (!validateNameInput(input)) {
       setInputStatus('invalidName');
       return;
     }
@@ -82,14 +77,12 @@ function NickNameForm({
               Your nickname
             </h3>
             <form onSubmit={onSubmitHandler}>
-              <div
-                id="form-nickname"
-                className="form-group mt-4"
-              >
+              <div id="form-nickname" className="form-group mt-4">
                 <label
                   className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
                       text-purple-light my-3 font-bold"
-                  htmlFor="editNickName">
+                  htmlFor="editNickName"
+                >
                   Enter a name
                 </label>
                 <input
@@ -119,7 +112,7 @@ function NickNameForm({
                     Name must be less than 15 characters
                   </p>
                 )}
-                {inputStatus === 'invalidTaken' && (
+                {inputStatus === 'invalidNameTaken' && (
                   <p className="text-red-500 text-xs font-medium">
                     Name already taken
                   </p>
@@ -144,13 +137,13 @@ function NickNameForm({
                   className="text-white bg-purple-light hover:bg-purple-medium font-medium rounded-lg
                     text-sm px-5 py-2.5 text-center"
                 >
-                  Enter
+                  Change
                 </button>
               </div>
             </form>
           </div>
-          </div>
         </div>
+      </div>
     </>
   );
 }
