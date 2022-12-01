@@ -100,6 +100,7 @@ function NickNameForm({
                   autoComplete="off"
                   ref={nickNameRef}
                   onChange={onChangeHandler}
+                  placeholder="Name should be between 1 and 15 alphanumeric characters"
                 ></input>
                 {inputStatus === 'invalidName' && (
                   <p className="text-red-500 text-xs font-medium">
