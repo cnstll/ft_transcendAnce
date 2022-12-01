@@ -30,7 +30,6 @@ describe('AppController (e2e)', () => {
     async () => {
       const deleteMatch = prisma.match.deleteMany()
       const deleteMessage = prisma.message.deleteMany()
-      const deleteBan = prisma.ban.deleteMany()
       const deleteChannel = prisma.channel.deleteMany()
       const deleteFriendship = prisma.friendship.deleteMany()
       const deleteUser = prisma.user.deleteMany()
@@ -38,7 +37,6 @@ describe('AppController (e2e)', () => {
       await prisma.$transaction([
         deleteMatch,
         deleteMessage,
-        deleteBan,
         deleteChannel,
         deleteFriendship,
         deleteUser,
@@ -62,7 +60,6 @@ describe('AppController (e2e)', () => {
         .send({
           nickname: 'a',
           immutableId: 'i',
-          passwordHash: 'b'
         })
         .expect(201)
         .then((response) => {
@@ -76,7 +73,6 @@ describe('AppController (e2e)', () => {
         .send({
           nickname: 'b',
           immutableId: 'j',
-          passwordHash: 'd'
         })
         .expect(201)
         .then((response) => {

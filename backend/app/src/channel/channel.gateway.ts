@@ -10,11 +10,15 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
-import { CreateChannelDto, EditChannelDto } from './dto';
-import { JoinChannelDto } from './dto/joinChannel.dto';
-import { LeaveChannelDto } from './dto/leaveChannel.dto';
-import { InviteChannelDto } from './dto/inviteChannel.dto';
-import { IncomingMessageDto } from './dto/incomingMessage.dto';
+import {
+  CreateChannelDto,
+  EditChannelDto,
+  EditRoleChannelDto,
+  JoinChannelDto,
+  LeaveChannelDto,
+  InviteChannelDto,
+  IncomingMessageDto,
+} from './dto';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -192,5 +196,25 @@ export class ChannelGateway {
         .to([clientSocket.id, inviteChannelDto.channelId])
         .emit('inviteSucceeded', inviteToChannel);
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('updateRole')
+  async editRole(
+    @GetCurrentUserId() userId: string,
+    @MessageBody('channelId') channelId: string,
+    @MessageBody('targetInfo') editRoleDto: EditRoleChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const roleUpdated = await this.channelService.updateAdminRoleByChannelIdWS(
+      userId,
+      channelId,
+      editRoleDto,
+    );
+    roleUpdated == null ||
+    roleUpdated === 'PromotionNotAuthorized' ||
+    roleUpdated === 'noEligibleRights'
+      ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)
+      : this.server.in(channelId).emit('roleUpdated', roleUpdated);
   }
 }

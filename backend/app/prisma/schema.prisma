@@ -14,7 +14,6 @@ model User {
   id                            String            @id @default(cuid())
   immutableId                   String            @unique()
   nickname                      String            @unique()
-  passwordHash                  String
   createdAt                     DateTime          @default(now())
   updatedAt                     DateTime          @updatedAt
   status                        UserStatus        @default(OFFLINE)

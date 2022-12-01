@@ -33,7 +33,7 @@ export class AuthService {
     return this.jwtService.sign(jwtPayload);
   }
 
-  public async loginIntra(userData: AuthDto, accessToken: string) {
+  public async loginIntra(userData: AuthDto) {
     const user: User = await this.userService.findOneFromImmutableId(
       userData.id.toString(),
     );
@@ -41,7 +41,6 @@ export class AuthService {
       const data = {
         nickname: userData.login,
         immutableId: userData.id.toString(),
-        passwordHash: accessToken,
         avatarImg: userData.image.link,
       };
       return await this.userService.createUser(data);
@@ -57,7 +56,6 @@ export class AuthService {
       const data = {
         nickname: userData.nickname,
         immutableId: userData.immutableId,
-        passwordHash: userData.passwordHash,
         avatarImg: userData.avatarImg,
       };
       return await this.userService.createUser(data);
