@@ -13,7 +13,7 @@ import {
   UserConnectionStatus,
   UserListType,
 } from '../global-components/interface';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
 
@@ -40,12 +40,13 @@ function UsersListItem({
   channelId,
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(() => {
-    if (blockRelationUserList?.includes(user.id)) {
-      return blockRelationUserList.includes(user.id);
-    }
-    return false;
-  });
+  let resultBlock = false;
+  if (blockRelationUserList?.includes(user.id)) resultBlock = true;
+  const [isBlocked, setIsBlocked] = useState(resultBlock);
+
+  useEffect(() => {
+    setIsBlocked(resultBlock);
+  }, [resultBlock]);
 
   return (
     <div className="flex items-center justify-center">

@@ -7,6 +7,8 @@ import {
 } from '../global-components/interface';
 import { useGetBlockRelations } from '../query-hooks/useBlockedUser';
 import LoadingSpinner from './loading-spinner';
+import { useEffect } from 'react';
+import { useQueryClient } from 'react-query';
 
 interface UsersListProps {
   users: User[];
@@ -29,6 +31,11 @@ function UsersList({
   channelId,
 }: UsersListProps) {
   const usersWithBlockRelation = useGetBlockRelations();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    void queryClient.invalidateQueries('blockedUsers');
+  }, [channelId, setActiveChannelId, userListType]);
 
   return (
     <>
