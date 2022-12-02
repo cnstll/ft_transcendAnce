@@ -31,7 +31,9 @@ const fetchCurrentChannel = (channelId: string) =>
     })
     .then((res) => res.data);
 
-export function getCurrentChannel(channelId: string): UseQueryResult<Channel | undefined> {
+export function getCurrentChannel(
+  channelId: string,
+): UseQueryResult<Channel | undefined> {
   return useQuery(['currentChannel', channelId], () => fetchCurrentChannel);
 }
 
@@ -42,8 +44,9 @@ const fetchMyRoleInChannel = (channelId: string) =>
     })
     .then((res) => res.data);
 
-export function useMyChannelRole(channelId: string):
-  UseQueryResult< { role: channelRole } | undefined > {
+export function useMyChannelRole(
+  channelId: string,
+): UseQueryResult<{ role: channelRole } | undefined> {
   return useQuery(['myRoleInChannel', channelId], () =>
     fetchMyRoleInChannel(channelId),
   );
@@ -51,12 +54,39 @@ export function useMyChannelRole(channelId: string):
 
 const fetchRolesInChannel = (channelId: string) =>
   axios
-    .get<{ userId: string; role: channelRole; }[]>(`${apiUrl}/channels/get-roles-users-channel/${channelId}`, {
-      withCredentials: true,
-  }).then((res) => res.data);
+    .get<{ userId: string; role: channelRole }[]>(
+      `${apiUrl}/channels/get-roles-users-channel/${channelId}`,
+      {
+        withCredentials: true,
+      },
+    )
+    .then((res) => res.data);
 
-export function useChannelRoles(channelId: string):
-  UseQueryResult< { userId: string; role: channelRole; }[] > {
+export function useChannelRoles(
+  channelId: string,
+): UseQueryResult<{ userId: string; role: channelRole }[]> {
   return useQuery(['rolesInChannel', channelId], () =>
-    fetchRolesInChannel(channelId));
+    fetchRolesInChannel(channelId),
+  );
+}
+
+const getDirectMessageIdBetweenUsers = (targetId: string) =>
+  axios
+    .post<string>(
+      `${apiUrl}/channels/get-direct-message-between-users`,
+      {
+        targetId: targetId,
+      },
+      {
+        withCredentials: true,
+      },
+    )
+    .then((res) => res.data);
+
+export function useGetDirectMessageIdBetweenUsers(
+  targetId: string,
+): UseQueryResult<string> {
+  return useQuery(['directMessageId', targetId], () =>
+    getDirectMessageIdBetweenUsers(targetId),
+  );
 }

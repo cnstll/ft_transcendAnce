@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ChannelActionType } from '@prisma/client';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
@@ -76,6 +84,20 @@ export class ChannelController {
   @Get('get-authors-from-channel/:id')
   getAuthorsFromAChannel(@Param('id') channelId: string) {
     return this.channelService.getChannelAuthors(channelId);
+  }
+
+  @Post('get-direct-message-between-users')
+  async getDirectMessageBetweenUsers(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { targetId: string },
+    @Res() res: Response,
+  ) {
+    const channel = await this.channelService.getDirectMessageByUserId(
+      userId,
+      data.targetId,
+    );
+    if (channel) return res.status(200).send(channel.id);
+    else return res.status(200).send(null);
   }
 
   @Get('get-users-under-moderation-action/:channelId/:actionType')

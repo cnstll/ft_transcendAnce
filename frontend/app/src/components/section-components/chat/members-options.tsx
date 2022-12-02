@@ -9,7 +9,7 @@ import {
   User,
   UserConnectionStatus,
 } from '../../global-components/interface';
-import BlockFriends from './block-friends';
+import BlockUser from './block-user';
 import InviteToPlay from '../game/invite-to-play';
 import PromoteToAdmin from './promote-to-admin';
 import WatchGame from '../game/watch-game-options';
@@ -21,17 +21,23 @@ interface UserOptionsProps {
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  blocked: boolean | undefined;
+  setBlocked: React.Dispatch<React.SetStateAction<boolean>>;
+  isBlocked: boolean | undefined;
   channelId: string;
   role: channelRole;
 }
 
 function MembersOptions({
   user,
-  setIsShown,
   channelId,
   role,
+  setIsShown,
   type,
   setActiveChannelId,
+  blocked,
+  setBlocked,
+  isBlocked,
 }: UserOptionsProps) {
   //   const myRole = useMyChannelRole(channelId);
   const queryClient = useQueryClient();
@@ -68,13 +74,14 @@ function MembersOptions({
       {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
-      {type !== channelType.DirectMessage && (
+      {type !== channelType.DirectMessage && !blocked && !isBlocked && (
         <SendDM
           user={user}
           setIsShown={setIsShown}
           setActiveChannelId={setActiveChannelId}
         />
       )}
+      <BlockUser user={user} setIsShown={setIsShown} setBlocked={setBlocked} />
       {myRoleQueryData &&
         (myRoleQueryData.role === channelRole.Owner ||
           myRoleQueryData.role === channelRole.Admin) && (
@@ -85,7 +92,6 @@ function MembersOptions({
             role={role}
           />
         )}
-      <BlockFriends user={user} setIsShown={setIsShown} />
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />
       )}

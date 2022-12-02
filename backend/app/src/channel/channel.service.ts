@@ -26,13 +26,15 @@ import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
 import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
-import { UserService } from 'src/user/user.service';
+import { BlockService } from 'src/block/block.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ChannelService {
   constructor(
     private prisma: PrismaService,
-    private readonly userService: UserService,
+    private readonly blockService: BlockService,
+    private readonly blockService: UserService,
   ) {}
 
   getChannels() {
@@ -417,15 +419,9 @@ export class ChannelService {
     clientSocket: Socket,
   ) {
     try {
-      /* Get the socket of the second user of the dm */
-      // const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
-      // console.log("test 1 ", secondUserSocket);
-
       /* Check if one of the user is blocked by the other */
-      const usersBlockedEachOther = await this.userService.checkUserIsBlocked(
-        userId,
-        dto.userId,
-      );
+      const usersBlockedEachOther =
+        await this.blockService.checkUsersBlockRelation(userId, dto.userId);
       if (usersBlockedEachOther) return 'Users blocked each other';
 
       /* Check if a DM between the 2 users already exists */

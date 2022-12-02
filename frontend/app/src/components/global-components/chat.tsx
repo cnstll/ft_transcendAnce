@@ -37,10 +37,14 @@ function Chat() {
     useChannelsByUserList();
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
+  const type = channels.data?.find(
+    (channel) => channel.id === activeChannel,
+  )?.type;
+
+  const queryClient = useQueryClient();
   const channelsData: UseQueryResult<Channel[] | undefined> =
     useGroupChannelsList();
 
-  const queryClient = useQueryClient();
   //const channelUsersQueryKey = 'channelUsers';
   const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
@@ -102,6 +106,7 @@ function Chat() {
         }
         //TODO User still in the room should get notified that a user left
         //void queryClient.invalidateQueries(channelUsersQueryKey);
+        void queryClient.invalidateQueries(channelsByUserListKey);
         void queryClient.invalidateQueries(groupChannelsKey);
       },
     );
@@ -202,13 +207,14 @@ function Chat() {
             </CenterBox>
             <SideBox>
               <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              {channelUsers.isSuccess && channelUsers.data && (
+              {channelUsers.isSuccess && channelUsers.data && type && (
                 <channelContext.Provider
                   value={{ activeChannelId: activeChannelId }}
                 >
                   <MembersList
                     channelUsers={channelUsers.data}
                     user={user.data}
+                    type={type}
                     setActiveChannelId={setActiveChannelId}
                     channelId={activeChannel ?? ''}
                   />
