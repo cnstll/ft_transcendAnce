@@ -151,7 +151,6 @@ export class GameService {
   rejoin(userId: string) {
     let game: Game;
     if ((game = this.GameMap.getGame(userId))) {
-      console.log(userId);
       return game.mode;
     }
     return null;
