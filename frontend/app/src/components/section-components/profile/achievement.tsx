@@ -47,7 +47,6 @@ function SelectedAchievement({
 }: AchievementModalProps) {
   const [showModal, setShowModal] = useState<boolean>(false);
   const { width } = useWindowDimensions();
-  console.log(width);
 
   function ShowAchievementInfo() {
     setShowModal((current) => !current);
