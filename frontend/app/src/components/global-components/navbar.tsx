@@ -127,7 +127,10 @@ function Navbar({ text, avatarImg }: BannerProps) {
         position: 'bottom-right',
         icon: '😭',
         autoClose: 1000,
-        onClose: () => navigate('/'),
+        onClose: () => {
+          if (location.pathname === '/play') {
+          navigate('/')}
+          },
       });
     });
 
