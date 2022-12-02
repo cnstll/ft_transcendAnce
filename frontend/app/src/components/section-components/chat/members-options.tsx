@@ -9,15 +9,18 @@ import {
   User,
   UserConnectionStatus,
 } from '../../global-components/interface';
-import BlockFriends from '../block-friends';
-import InviteToPlay from '../invite-to-play';
+import BlockFriends from './block-friends';
+import InviteToPlay from '../game/invite-to-play';
 import PromoteToAdmin from './promote-to-admin';
-import WatchGame from '../watch-game-options';
+import WatchGame from '../game/watch-game-options';
+import SendDM from './send-dm';
 import BanUser from './ban-user';
 
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  type: channelType | undefined;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   channelId: string;
   role: channelRole;
 }
@@ -27,7 +30,10 @@ function MembersOptions({
   setIsShown,
   channelId,
   role,
+  type,
+  setActiveChannelId,
 }: UserOptionsProps) {
+  //   const myRole = useMyChannelRole(channelId);
   const queryClient = useQueryClient();
   const channelCtx = useContext(channelContext);
   const myRoleQueryKey = 'myRoleInChannel';
@@ -59,8 +65,15 @@ function MembersOptions({
       <Link to={`/profile/${user.nickname}`}>
         <p className="text-center hover:underline my-2">Go to profile</p>
       </Link>
-      {user.status !== UserConnectionStatus.PLAYING && (
+      {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
+      )}
+      {type !== channelType.DirectMessage && (
+        <SendDM
+          user={user}
+          setIsShown={setIsShown}
+          setActiveChannelId={setActiveChannelId}
+        />
       )}
       {myRoleQueryData &&
         (myRoleQueryData.role === channelRole.Owner ||
@@ -76,7 +89,7 @@ function MembersOptions({
       {user.status === UserConnectionStatus.PLAYING && (
         <WatchGame user={user} setIsShown={setIsShown} />
       )}
-      {(hasBanRight() || isGroupChannel()) && (
+      {hasBanRight() && isGroupChannel() && (
         <BanUser user={user} setIsShown={setIsShown} />
       )}
     </div>

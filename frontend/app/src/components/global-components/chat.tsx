@@ -10,7 +10,10 @@ import DropDownButton from '../section-components/drop-down-button';
 import { Channel, User } from '../global-components/interface';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import { useChannelsByUserList } from '../query-hooks/useGetChannels';
+import {
+  useChannelsByUserList,
+  useGroupChannelsList,
+} from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
@@ -34,9 +37,13 @@ function Chat() {
     useChannelsByUserList();
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
+  const channelsData: UseQueryResult<Channel[] | undefined> =
+    useGroupChannelsList();
 
   const queryClient = useQueryClient();
-  const channelUsersQueryKey = 'channelUsers';
+  //const channelUsersQueryKey = 'channelUsers';
+  const groupChannelsKey = 'groupChannelsList';
+  const channelsByUserListKey = 'channelsByUserList';
 
   useEffect(() => {
     if (user.isError) {
@@ -70,12 +77,50 @@ function Chat() {
       navigate('../chat');
     }
 
-    socket.on('roomLeft', () => {
-      void queryClient.invalidateQueries(channelUsersQueryKey);
+    socket.on(
+      'roomLeft',
+      (leavingInfo: {
+        userId: string;
+        channelId: string;
+        secondUserId?: string;
+      }) => {
+        // Applies only if the current user have other channels to be redirected to and to his/her DM's mate
+        if (
+          channels.data &&
+          channels.data.length > 1 &&
+          (user.data?.id === leavingInfo.userId ||
+            (leavingInfo.secondUserId &&
+              user.data?.id === leavingInfo.secondUserId))
+        ) {
+          const deletedChannel = leavingInfo.channelId;
+          // Find another existing channel to redirect the user to after leaving current one
+          const nextChannelId =
+            channels.data.find((channel) => channel.id != deletedChannel)?.id ??
+            '';
+          setActiveChannelId(nextChannelId);
+          navigate(`../chat/${nextChannelId}`);
+        }
+        //TODO User still in the room should get notified that a user left
+        //void queryClient.invalidateQueries(channelUsersQueryKey);
+        void queryClient.invalidateQueries(groupChannelsKey);
+      },
+    );
+    socket.on('roomEdited', () => {
+      void queryClient.invalidateQueries(channelsByUserListKey);
+      void queryClient.invalidateQueries(groupChannelsKey);
     });
-
+    socket.on('roomCreated', (channelId: string, userId: string) => {
+      void queryClient.invalidateQueries(channelsByUserListKey);
+      void queryClient.invalidateQueries(groupChannelsKey);
+      if (userId === user.data?.id) {
+        setActiveChannelId(channelId);
+        navigate('../chat/' + channelId);
+      }
+    });
     return () => {
+      socket.off('roomCreated');
       socket.off('roomLeft');
+      socket.off('roomEdited');
     };
   }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
@@ -102,7 +147,10 @@ function Chat() {
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
           >
             <SideBox>
-              <ChannelHeader setActiveChannelId={setActiveChannelId} />
+              <ChannelHeader
+                setActiveChannelId={setActiveChannelId}
+                channels={channelsData}
+              />
               <MyChannelsList
                 activeChannelId={activeChannelId}
                 setActiveChannelId={setActiveChannelId}
@@ -138,6 +186,7 @@ function Chat() {
                           <ChannelOptions
                             setActiveChannelId={setActiveChannelId}
                             setIsShown={setIsShown}
+                            channels={channels}
                           />
                         </DropDownButton>
                       </div>
@@ -160,6 +209,7 @@ function Chat() {
                   <MembersList
                     channelUsers={channelUsers.data}
                     user={user.data}
+                    setActiveChannelId={setActiveChannelId}
                     channelId={activeChannel ?? ''}
                   />
                 </channelContext.Provider>

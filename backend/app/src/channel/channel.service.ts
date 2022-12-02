@@ -24,10 +24,14 @@ import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
 import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChannelService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
   getChannels() {
     return this.prisma.channel.findMany();
@@ -46,8 +50,8 @@ export class ChannelService {
     });
   }
 
-  getChannelsByUserId(userId: string) {
-    return this.prisma.channel.findMany({
+  async getAllChannelsByUserId(userId: string) {
+    const channels = await this.prisma.channel.findMany({
       where: {
         users: {
           some: {
@@ -61,6 +65,18 @@ export class ChannelService {
         type: true,
       },
     });
+    /** Check if the channnel is of type DIRECT MESSAGE and change the name
+     * according to the name of the current user
+     */
+    for (let i = 0; i < channels.length; i++) {
+      if (channels[i].type === 'DIRECTMESSAGE') {
+        const channelUser = await this.getUsersOfAChannel(channels[i].id);
+        if (channelUser[0].id === userId && channelUser[1])
+          channels[i].name = channelUser[1].nickname;
+        else channels[i].name = channelUser[0].nickname;
+      }
+    }
+    return channels;
   }
 
   getChannelById(channelId: string) {
@@ -83,6 +99,25 @@ export class ChannelService {
         channel: true,
       },
     });
+  }
+
+  async getDirectMessageByUserId(userId: string, participantId: string) {
+    const allDirectMessages = await this.prisma.channel.findMany({
+      where: {
+        type: 'DIRECTMESSAGE',
+      },
+    });
+    for (let i = 0; i < allDirectMessages.length; i++) {
+      const users = await this.getUsersOfAChannel(allDirectMessages[i].id);
+      if (
+        (users.length > 1 &&
+          users[0].id === userId &&
+          users[1].id === participantId) ||
+        (users[0].id === participantId && users[1].id === userId)
+      )
+        return allDirectMessages[i];
+    }
+    return null;
   }
 
   async getChannelAuthors(channelId: string) {
@@ -284,11 +319,7 @@ export class ChannelService {
     }
   }
 
-  async getMessagesFromChannel(
-    userId: string,
-    channelId: string,
-    res: Response,
-  ) {
+  async getMessagesFromChannel(channelId: string, res: Response) {
     // Use userId to verify that user requesting message belong to channel or is not banned
     // Retrieve all messages from channel using its id
     try {
@@ -360,6 +391,66 @@ export class ChannelService {
               userId: userId,
               role: 'OWNER',
             },
+          },
+        },
+      });
+      delete createdChannel.passwordHash;
+      /* create and join room instance */
+      clientSocket.join(createdChannel.id);
+      return createdChannel;
+    } catch (error) {
+      if (error.code === 'P2002') {
+        return 'alreadyUsed' + error.meta.target[0];
+      }
+      if (error == 'Error: WrongData') {
+        return 'WrongData';
+      }
+      return null;
+    }
+  }
+
+  async createDirectMessageWS(
+    dto: CreateChannelDto,
+    userId: string,
+    clientSocket: Socket,
+  ) {
+    try {
+      /* Get the socket of the second user of the dm */
+      // const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+      // console.log("test 1 ", secondUserSocket);
+
+      /* Check if one of the user is blocked by the other */
+      const usersBlockedEachOther = await this.userService.checkUserIsBlocked(
+        userId,
+        dto.userId,
+      );
+      if (usersBlockedEachOther) return 'Users blocked each other';
+
+      /* Check if a DM between the 2 users already exists */
+      const conversationAlreadyExist = await this.getDirectMessageByUserId(
+        userId,
+        dto.userId,
+      );
+      if (conversationAlreadyExist) {
+        delete conversationAlreadyExist.passwordHash;
+        return conversationAlreadyExist;
+      }
+
+      /* Create a DM between the 2 users */
+      const createdChannel: Channel = await this.prisma.channel.create({
+        data: {
+          type: 'DIRECTMESSAGE',
+          users: {
+            create: [
+              {
+                userId: userId,
+                role: 'USER',
+              },
+              {
+                userId: dto.userId,
+                role: 'USER',
+              },
+            ],
           },
         },
       });
@@ -650,7 +741,7 @@ export class ChannelService {
   async leaveChannelWS(userId: string, dto: LeaveChannelDto) {
     try {
       // Remove user from channel users ('user leave room')
-      const leavingUser = await this.prisma.channelUser.delete({
+      let leavingUser = await this.prisma.channelUser.delete({
         where: {
           userId_channelId: {
             userId: userId,
@@ -668,9 +759,27 @@ export class ChannelService {
             users: true,
           },
         });
+      /* Verify if channel is of type direct message */
+      const channel = await this.getChannelById(dto.id);
+      if (
+        channel.type === ChannelType.DIRECTMESSAGE &&
+        channelUsers.users.length > 0
+      ) {
+        leavingUser = await this.prisma.channelUser.delete({
+          where: {
+            userId_channelId: {
+              userId: channelUsers.users[0].userId,
+              channelId: dto.id,
+            },
+          },
+        });
+      }
       /* Then, delete channel */
-      // If user is the last one delete the channel
-      if (channelUsers.users.length == 0) {
+      // If user is the last one or channel is of type direct message delete the channel
+      if (
+        channelUsers.users.length === 0 ||
+        channel.type === ChannelType.DIRECTMESSAGE
+      ) {
         await this.prisma.channel.delete({
           where: {
             id: dto.id,

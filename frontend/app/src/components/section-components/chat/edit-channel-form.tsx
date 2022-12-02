@@ -2,7 +2,6 @@ import { Dispatch, useEffect, useState } from 'react';
 import { Channel, channelType } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import { validateNameInput, validatePwdInput } from './regex-input-validations';
-import { useQueryClient } from 'react-query';
 
 interface EditChannelFormProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
@@ -19,14 +18,12 @@ function EditChannelForm(props: EditChannelFormProps) {
   const [formData, setFormData] = useState(defaultFormData);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, passwordHash } = formData;
-  const queryClient = useQueryClient();
-  const channelsQueryKey = 'channelsByUserList';
   const specials = '!?@#$%^&*()+./\'${"}{-';
 
   useEffect(() => {
-    socket.on('roomEdited', async () => {
-      await queryClient.invalidateQueries(channelsQueryKey);
+    socket.on('roomEdited', () => {
       props.setShowModal(false);
+      props.setIsShown(false);
       setFormData(defaultFormData);
     });
     socket.on('editRoomFailed', (ret: null | string) => {
@@ -37,7 +34,6 @@ function EditChannelForm(props: EditChannelFormProps) {
       }
     });
     return () => {
-      socket.off('roomEdited');
       socket.off('editRoomFailed');
     };
   }, [formData]);
@@ -70,7 +66,6 @@ function EditChannelForm(props: EditChannelFormProps) {
       setInputStatus('invalidPassword');
     else {
       socket.emit('editRoom', { channelId, editInfo: formData });
-      props.setIsShown(false);
     }
   }
 

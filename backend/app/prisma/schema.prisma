@@ -90,7 +90,7 @@ model UserAchievement {
 
 model Channel {
   id           String      @id @default(cuid())
-  name         String      @unique
+  name         String      @unique @default(cuid())
   type         ChannelType @default(PUBLIC)
   passwordHash String?
 
@@ -148,7 +148,7 @@ model ChannelAction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@id([channelActionTargetId, channelActionOnChannelId, type])
+  @@id([channelActionTargetId, channelActionOnChannelId, channelActionRequesterId, type])
   @@unique([channelActionTargetId, channelActionOnChannelId])
   @@map("channel_actions")
 }
