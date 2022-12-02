@@ -14,7 +14,6 @@ import DropDownMenu from '../section-components/drop-down-menu';
 import { socket } from './client-socket';
 import useUserInfo from '../query-hooks/useUserInfo';
 import LoadingSpinner from '../section-components/loading-spinner';
-// import { socket } from './client-socket';
 
 interface BannerProps {
   children?: React.ReactNode;

@@ -22,7 +22,6 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
   const queryClient = useQueryClient();
 
   const channelsQueryKey = 'channelsByUserList';
- // const userQueryKey = 'userData';
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
@@ -33,9 +32,6 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
     (channel) => channel.id == activeChannel,
   );
 
-  // const userQueryData: User | undefined =
-  //   queryClient.getQueryData(userQueryKey);
-  //   const myRole = useMyChannelRole(channelInfo?.id ?? '');
   const myRoleQueryKey = 'myRoleInChannel';
   const myRoleQueryData: { role: channelRole } | undefined =
     queryClient.getQueryData([myRoleQueryKey, channelInfo?.id]);
@@ -85,8 +81,9 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {myRoleQueryData?.role === channelRole.Owner &&
-        channelInfo.type !== channelType.DirectMessage ? (
+        {channelInfo &&
+          myRoleQueryData?.role === channelRole.Owner &&
+          channelInfo.type !== channelType.DirectMessage ? (
           <div className="z-40">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
@@ -102,9 +99,10 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(myRoleQueryData?.role === channelRole.Owner ||
+        {(channelInfo &&
+          myRoleQueryData?.role === channelRole.Owner ||
           myRoleQueryData?.role === channelRole.Admin) &&
-        channelInfo.type === channelType.Private ? (
+          channelInfo.type === channelType.Private ? (
           <div className="z-40">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
