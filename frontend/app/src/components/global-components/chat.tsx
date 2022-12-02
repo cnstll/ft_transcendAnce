@@ -105,6 +105,7 @@ function Chat() {
         }
         //TODO User still in the room should get notified that a user left
         //void queryClient.invalidateQueries(channelUsersQueryKey);
+        void queryClient.invalidateQueries(channelsByUserListKey);
         void queryClient.invalidateQueries(groupChannelsKey);
       },
     );

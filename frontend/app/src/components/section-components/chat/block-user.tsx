@@ -25,7 +25,7 @@ function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
 
   useEffect(() => {
     void queryClient.invalidateQueries('blockedUsersList');
-  }, [setBlocked]);
+  }, [queryClient, setBlocked]);
 
   const onBlock = () => {
     setIsShown(false);
