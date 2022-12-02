@@ -1,12 +1,14 @@
-import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faMicrophoneSlash, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useEffect, useState } from 'react';
+import { useQueryClient, UseQueryResult } from 'react-query';
 import { socket } from '../../global-components/client-socket';
 import {
   AcknoledgementStatus,
+  channelActionType,
   Message,
 } from '../../global-components/interface';
+import { useGetUsersUnderModerationAction } from '../../query-hooks/getModerationActionInfo';
 
 interface ChatBoxProps {
   userId: string;
@@ -15,12 +17,34 @@ interface ChatBoxProps {
 
 function ChatBox({ userId, channelId }: ChatBoxProps) {
   const [messageContent, setMessageContent] = useState<string>('');
+  const [isMuted, setIsMuted] = useState<boolean>(false);
   const queryClient = useQueryClient();
+  const listOfMutedUsersQuery: UseQueryResult<string[] | undefined> =
+    useGetUsersUnderModerationAction(channelId, channelActionType.Mute);
+  useEffect(() => {
+    if (listOfMutedUsersQuery.isSuccess) {
+      userIsMuted() ? setIsMuted(true) : setIsMuted(false);
+    }
+    console.log('useeffect');
+  }, [channelId, listOfMutedUsersQuery.status]);
+
+  function userIsMuted() {
+    if (listOfMutedUsersQuery.data) {
+      console.log(listOfMutedUsersQuery.data);
+      return (
+        listOfMutedUsersQuery.data?.findIndex(
+          (mutedUserId) => mutedUserId === userId,
+        ) !== -1
+      );
+    } else {
+      return true;
+    }
+  }
 
   function onSendMessageHandler(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
     // If user is not trying to send an empty message go forward
-    if (messageContent != '') {
+    if (!isMuted && messageContent != '') {
       const newMessage = {
         channelId: channelId,
         content: messageContent,
@@ -72,18 +96,26 @@ function ChatBox({ userId, channelId }: ChatBoxProps) {
           className="w-11/12 bg-purple text-white font-bold px-3"
           type="text"
           name="sendMessage"
-          placeholder="Type your message here"
+          placeholder={
+            isMuted ? 'You have been muted.. ' : 'Type your message here..'
+          }
+          disabled={isMuted}
           value={messageContent}
           onChange={(e) => setMessageContent(e.target.value)}
         />
         <button
           type="submit"
+          disabled={isMuted}
           className="bg-blue hover:bg-dark-blue text-white p-4 w-1/12
         rounded-2xl flex justify-center text-center"
           onClick={(event) => onSendMessageHandler(event)}
         >
           <div className="text-xl sm:text-xl md:text-2xl lg:text-3xl">
-            <FontAwesomeIcon icon={faPlay} />
+            {isMuted ? (
+              <FontAwesomeIcon icon={faMicrophoneSlash} />
+            ) : (
+              <FontAwesomeIcon icon={faPlay} />
+            )}
           </div>
         </button>
       </form>

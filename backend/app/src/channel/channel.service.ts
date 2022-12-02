@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -13,6 +14,7 @@ import {
   User,
   Message,
   ChannelActionType,
+  ChannelAction,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto, EditRoleChannelDto } from './dto';
@@ -537,38 +539,72 @@ export class ChannelService {
     }
   }
 
+  async getListOfUsersUnderModerationInChannel(
+    channelId: string,
+    channelActionType: ChannelActionType,
+  ) {
+    const usersUnderModeration = await this.prisma.channelAction.findMany({
+      where: {
+        channelActionOnChannelId: channelId,
+        type: channelActionType,
+      },
+    });
+    return usersUnderModeration;
+  }
+
+  async listAndUpdateBannedUsers(
+    bannedList: ChannelAction[],
+    channelId: string,
+    banAction: ChannelActionType,
+  ) {
+    const banUsersList = [];
+    for (let index = 0; index < bannedList.length; index++) {
+      const banExpirationDate = Number(
+        Date.parse(bannedList[index].channelActionTime.toString()),
+      );
+      const currentTime = Date.now();
+      if (banExpirationDate - currentTime < 0) {
+        await this.deleteChannelAction(
+          channelId,
+          bannedList[index].channelActionTargetId,
+          banAction,
+        );
+      } else {
+        banUsersList.push(bannedList[index].channelActionTargetId);
+      }
+    }
+    return banUsersList;
+  }
+
+  async listMutedUsers(bannedList: ChannelAction[]) {
+    const mutedUsersList = [];
+    for (let index = 0; index < bannedList.length; index++) {
+      mutedUsersList.push(bannedList[index].channelActionTargetId);
+    }
+    return mutedUsersList;
+  }
+
   async getUsersUnderModerationAction(
     channelId: string,
     channelActionType: ChannelActionType,
   ) {
     try {
-      const usersUnderModeration = await this.prisma.channelAction.findMany({
-        where: {
-          channelActionOnChannelId: channelId,
-          type: channelActionType,
-        },
-      });
-      const flattenUsers = [];
-      for (let index = 0; index < usersUnderModeration.length; index++) {
-        const banExpirationDate = Number(
-          Date.parse(usersUnderModeration[index].channelActionTime.toString()),
+      const usersUnderModeration =
+        await this.getListOfUsersUnderModerationInChannel(
+          channelId,
+          channelActionType,
         );
-
-        const currentTime = Date.now();
-        // const diffBanTime = banStartTime.to - currentTime
-        console.log('Ban expiration: ', banExpirationDate - currentTime);
-        if (banExpirationDate - currentTime < 0) {
-          await this.deleteChannelAction(
-            channelId,
-            usersUnderModeration[index].channelActionTargetId,
-            channelActionType,
-          );
-        } else {
-          flattenUsers.push(usersUnderModeration[index].channelActionTargetId);
-        }
+      if (channelActionType === ChannelActionType.BAN) {
+        return this.listAndUpdateBannedUsers(
+          usersUnderModeration,
+          channelId,
+          channelActionType,
+        );
+      } else if (channelActionType === ChannelActionType.MUTE) {
+        return this.listMutedUsers(usersUnderModeration);
+      } else {
+        throw new BadRequestException();
       }
-      console.log('THESE USERS ARE BANNED: ', flattenUsers);
-      return flattenUsers;
     } catch (error) {
       console.log(error);
     }
