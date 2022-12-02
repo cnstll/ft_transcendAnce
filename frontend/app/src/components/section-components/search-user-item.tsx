@@ -11,7 +11,9 @@ function SearchUserItem({ user }: { user: User }) {
   return (
     <>
       <Link to={'/profile/' + user.nickname} onClick={OnClick}>
-        <li className="p-4">{user.nickname}</li>
+        <li className="p-4 flex-wrap break-words text-[8px] sm:text-xs md:text-xs lg:text-sm">
+          {user.nickname}
+        </li>
       </Link>
     </>
   );

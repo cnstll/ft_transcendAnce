@@ -4,7 +4,7 @@ import { Channel } from '../../global-components/interface';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { useState } from 'react';
 import CreateChannelForm from './create-channel-form';
-import SearchBoxChannel from '../search-box-channel';
+import SearchBoxChannel from './search-box-channel';
 import LoadingSpinner from '../loading-spinner';
 
 function ChannelHeader({
@@ -33,7 +33,7 @@ function ChannelHeader({
           <button className="mx-2" onClick={showCreateChannelForm}>
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
-          <div className="z-index-20">
+          <div className="z-20">
             {showForm && (
               <CreateChannelForm
                 setShowForm={setShowForm}

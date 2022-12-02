@@ -1,7 +1,9 @@
 import DropDownButton from './drop-down-button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGamepad, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faGamepad, faCircle, faCrown, faChessKnight } from '@fortawesome/free-solid-svg-icons';
 import {
+  channelRole,
+  channelType,
   User,
   UserConnectionStatus,
   UserListType,
@@ -10,13 +12,25 @@ import { useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
 
+interface UsersListProps {
+  user: User;
+  userListType?: UserListType;
+  type?: channelType;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  role?: {
+    userId: string;
+    role: channelRole;};
+  channelId?: string;
+}
+
 function UsersListItem({
   user,
   userListType,
-}: {
-  user: User;
-  userListType?: UserListType;
-}) {
+  type,
+  setActiveChannelId,
+  role,
+  channelId,
+}: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
 
   return (
@@ -43,15 +57,33 @@ function UsersListItem({
       </div>
       <div className="w-32">
         <p className="ml-3 truncate">{user.nickname}</p>
+        {role?.role === channelRole.Owner &&
+          <p className='ml-3 text-xs text-purple-light'>
+            <FontAwesomeIcon className="mr-1" icon={faCrown} />
+            Owner
+          </p>}
+        {role?.role === channelRole.Admin &&
+          <p className='ml-3 text-xs text-purple-light'>
+            <FontAwesomeIcon className="mx-1" icon={faChessKnight} />
+            Admin
+          </p>}
       </div>
       {userListType && (
         <div className="content-center mx-2 mt-1">
-          <DropDownButton setIsShown={setIsShown} isShown={isShown}>
+          <DropDownButton setIsShown={setIsShown} isShown={isShown} style="">
             {userListType === UserListType.MEMBERS && (
-              <MembersOptions user={user} setIsShown={setIsShown} />
+              <MembersOptions
+                user={user}
+                setIsShown={setIsShown}
+                type={type}
+                setActiveChannelId={setActiveChannelId}
+                channelId={channelId?? ''}
+                role={role?.role ?? channelRole.User}/>
             )}
             {userListType === UserListType.FRIENDS && (
-              <FriendsOptions user={user} setIsShown={setIsShown} />
+              <FriendsOptions
+                user={user}
+                setIsShown={setIsShown} />
             )}
           </DropDownButton>
         </div>

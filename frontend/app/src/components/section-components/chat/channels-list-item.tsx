@@ -34,7 +34,7 @@ function ChannelsListItem(p: ChannelsListProps) {
           {p.channelItem.type === channelType.DirectMessage && (
             <FontAwesomeIcon className="text-2xl mx-1" icon={faMessage} />
           )}
-          {!(p.channelItem.type === channelType.DirectMessage) && (
+          {p.channelItem.type !== channelType.DirectMessage && (
             <FontAwesomeIcon className="text-2xl" icon={faChannel} />
           )}
         </div>

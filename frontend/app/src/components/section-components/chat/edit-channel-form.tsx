@@ -84,7 +84,6 @@ function EditChannelForm(props: EditChannelFormProps) {
               Edit channel
             </h3>
             <form onSubmit={onSubmit}>
-              {/* Name section */}
               <div id="form-channel-creation-name" className="form-group my-3 ">
                 <label
                   htmlFor="ChannelName"
@@ -129,7 +128,6 @@ function EditChannelForm(props: EditChannelFormProps) {
                   </p>
                 )}
               </div>
-              {/* Type section */}
               <div
                 id="form-channel-creation-type"
                 className="form-group mb-3 mt-5"
@@ -210,7 +208,6 @@ function EditChannelForm(props: EditChannelFormProps) {
                   )}
                 </div>
               </div>
-              {/* Password section */}
               {formData.type === channelType.Protected && (
                 <div id="form-channel-creation-password" className="form-group">
                   <label
@@ -256,7 +253,6 @@ function EditChannelForm(props: EditChannelFormProps) {
                   )}
                 </div>
               )}
-              {/* Buttons section */}
               <div className="flex items-center py-2 space-x-2 mt-2">
                 <button
                   type="button"

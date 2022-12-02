@@ -19,9 +19,9 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-channel-by-user-id')
-  getChannelsByUserId(@GetCurrentUserId() userId: string) {
-    return this.channelService.getChannelsByUserId(userId);
+  @Get('get-all-channels-by-user-id')
+  getAllChannelsByUserId(@GetCurrentUserId() userId: string) {
+    return this.channelService.getAllChannelsByUserId(userId);
   }
 
   @Get(':id')
@@ -50,18 +50,15 @@ export class ChannelController {
     return this.channelService.getRoleOfUserChannel(userId, channelId);
   }
 
+  @Get('get-roles-users-channel/:id')
+  getRolesOfUsersChannel(@Param('id') channelId: string) {
+    return this.channelService.getRolesOfUsersChannel(channelId);
+  }
+
   @Get('get-invites/:id')
   getInvitesOfAChannel(@Param('id') channelId: string) {
     return this.channelService.getInvitesOfAChannel(channelId);
   }
-
-  // @Get('get-invite/:id')
-  // getIsInvitedInAChannel(
-  //   @GetCurrentUserId() userId: string,
-  //   @Param('id') channelId: string,
-  // ) {
-  //   return this.channelService.getIsInvitedInAChannel(userId, channelId);
-  // }
 
   @Get('get-invitable-users/:id')
   getInvitableUsers(
@@ -72,12 +69,8 @@ export class ChannelController {
   }
 
   @Get('get-messages-from-channel/:id')
-  getMessagesFromChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') channelId: string,
-    @Res() res: Response,
-  ) {
-    return this.channelService.getMessagesFromChannel(userId, channelId, res);
+  getMessagesFromChannel(@Param('id') channelId: string, @Res() res: Response) {
+    return this.channelService.getMessagesFromChannel(channelId, res);
   }
   @Get('get-authors-from-channel/:id')
   getAuthorsFromAChannel(@Param('id') channelId: string) {
