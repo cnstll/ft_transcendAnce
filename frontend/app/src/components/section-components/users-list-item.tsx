@@ -113,7 +113,6 @@ function UsersListItem({
                 user={user}
                 setIsShown={setIsShown}
                 isBlocked={isBlocked}
-                setIsBlocked={setIsBlocked}
               />
             )}
           </DropDownButton>
