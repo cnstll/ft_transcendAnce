@@ -81,8 +81,7 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
             Leave channel
           </p>
         </Link>
-        {channelInfo &&
-          myRoleQueryData?.role === channelRole.Owner &&
+        {myRoleQueryData?.role === channelRole.Owner &&
           channelInfo.type !== channelType.DirectMessage ? (
           <div className="z-40">
             <div onClick={handleEditModal}>
@@ -99,8 +98,7 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
             </div>
           </div>
         ) : null}
-        {(channelInfo &&
-          myRoleQueryData?.role === channelRole.Owner ||
+        {(myRoleQueryData?.role === channelRole.Owner ||
           myRoleQueryData?.role === channelRole.Admin) &&
           channelInfo.type === channelType.Private ? (
           <div className="z-40">
