@@ -37,6 +37,8 @@ function UsersList({
     void queryClient.invalidateQueries('blockedUsers');
   }, [channelId, setActiveChannelId, userListType]);
 
+  console.log(usersWithBlockRelation.data);
+
   return (
     <>
       {usersWithBlockRelation.isError && (

@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { useEffect } from 'react';
+import { useQueryClient } from 'react-query';
 import { socket } from 'src/components/global-components/client-socket';
 import { useGetBlockedUsers } from 'src/components/query-hooks/useBlockedUser';
 import { useGetDirectMessageIdBetweenUsers } from 'src/components/query-hooks/useGetChannels';
@@ -14,11 +16,16 @@ interface BlockUserProps {
 function BlockUser({ user, setIsShown, setIsBlocked }: BlockUserProps) {
   const listBlockedUser = useGetBlockedUsers();
   const directMessageId = useGetDirectMessageIdBetweenUsers(user.id);
+  const queryClient = useQueryClient();
 
   let isBlocked = false;
 
   if (listBlockedUser.data && listBlockedUser.data.length > 0)
     isBlocked = listBlockedUser.data.includes(user.id);
+
+  useEffect(() => {
+    void queryClient.invalidateQueries('blockedUsersList');
+  }, [setIsBlocked]);
 
   const onBlock = () => {
     setIsShown(false);
