@@ -36,7 +36,8 @@ function MyChannelsList({
           We encountered an error 🤷
         </p>
       )}
-      {channelsQueryState?.status === 'success' && (
+      {channelsQueryState?.status === 'success' &&
+      channelsQueryData && (
         <ChannelsList
           activeChannelId={activeChannelId}
           setActiveChannelId={setActiveChannelId}

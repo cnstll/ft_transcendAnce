@@ -84,16 +84,22 @@ export class GameGateway {
     );
   }
 
+  @SubscribeMessage('leaveWatch')
+  leaveWatchGame(
+    @MessageBody('playerId') playerId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    return this.gameService.leaveWatch(client, playerId);
+  }
+
   @SubscribeMessage('watchGame')
   watchGame(
     @MessageBody('playerId') playerId: string,
     @ConnectedSocket() client: Socket,
-    // @GetCurrentUserId() id: string,
   ) {
-    return this.gameService.watch(client, playerId);
-    // this.socketToId.set(client.id, id);
-    // return this.gameService.join(client, id, this.server, mode);
+    return this.gameService.watch(client, playerId, this.server);
   }
+
   @SubscribeMessage('joinGame')
   joinRoom(
     @MessageBody('mode') mode: GameMode,

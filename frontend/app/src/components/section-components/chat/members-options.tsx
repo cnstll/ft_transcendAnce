@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import {
   channelRole,
   channelType,
@@ -11,6 +10,7 @@ import PromoteToAdmin from './promote-to-admin';
 import WatchGame from '../game/watch-game-options';
 import SendDM from './send-dm';
 import { useQueryClient } from 'react-query';
+import { Link } from 'react-router-dom';
 
 interface UserOptionsProps {
   user: User;
@@ -39,7 +39,7 @@ function MembersOptions({
       <Link to={`/profile/${user.nickname}`}>
         <p className="text-center hover:underline my-2">Go to profile</p>
       </Link>
-      {user.status !== UserConnectionStatus.PLAYING && (
+      {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
       {type !== channelType.DirectMessage && (
