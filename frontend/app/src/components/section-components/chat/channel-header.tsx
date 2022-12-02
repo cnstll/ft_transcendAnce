@@ -5,7 +5,7 @@ import { useQueryClient, UseQueryResult } from 'react-query';
 import { useGroupChannelsList } from '../../query-hooks/useGetChannels';
 import { useState } from 'react';
 import CreateChannelForm from './create-channel-form';
-import SearchBoxChannel from '../search-box-channel';
+import SearchBoxChannel from './search-box-channel';
 import LoadingSpinner from '../loading-spinner';
 
 function ChannelHeader({

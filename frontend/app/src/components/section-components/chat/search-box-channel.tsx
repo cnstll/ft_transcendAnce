@@ -1,15 +1,15 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import { UseOutsideClick } from '../custom-hooks/use-outside-click';
-import { Channel, channelType, User } from '../global-components/interface';
+import { UseOutsideClick } from '../../custom-hooks/use-outside-click';
+import { Channel, channelType } from '../../global-components/interface';
 import { useNavigate } from 'react-router-dom';
-import SearchChannelItem from './chat/search-channel-item';
-import { socket } from '../global-components/client-socket';
-import JoinChannel from '../custom-hooks/emit-join-channel';
+import SearchChannelItem from './search-channel-item';
+import { socket } from '../../global-components/client-socket';
+import JoinChannel from '../../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
-import PasswordModal from './chat/password-modal';
-import { getMyChannelInvites } from '../query-hooks/getChannelInvites';
+import PasswordModal from './password-modal';
+import { getMyChannelInvites } from '../../query-hooks/getChannelInvites';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -36,8 +36,7 @@ function SearchBoxChannel({
   const { keyword } = searchData;
   const queryClient = useQueryClient();
   const userQueryKey = 'userData';
-  const userQueryData: User | undefined =
-    queryClient.getQueryData(userQueryKey);
+  queryClient.getQueryData(userQueryKey);
   const [showModal, setShowModal] = useState<boolean>(false);
   const channelInvites = getMyChannelInvites();
 
@@ -47,14 +46,11 @@ function SearchBoxChannel({
       async (joiningInfo: { userId: string; channelId: string }) => {
         await queryClient.invalidateQueries('channelsByUserList');
         //User joining the channel will navigate to this channel
-        if (userQueryData?.id.toString() == joiningInfo.userId) {
-          setIsShown(false);
-          setShowModal(false);
-          navigate(`../chat/${joiningInfo.channelId}`);
-          setActiveChannelId(joiningInfo.channelId);
-        } else {
-          //TODO notify other users that a new user joined
-        }
+        setIsShown(false);
+        setShowModal(false);
+        navigate(`../chat/${joiningInfo.channelId}`);
+        setActiveChannelId(joiningInfo.channelId);
+        //   //TODO notify other users that a new user joined
       },
     );
     socket.on('joinRoomFailed', () => {
@@ -148,15 +144,21 @@ function SearchBoxChannel({
             <ul>
               {filterChannels(channels, searchData.keyword)
                 ?.slice(0, 5)
-                .sort((a, b) => (a.name.toLowerCase() >= b.name.toLowerCase() ? 1 : -1))
+                .sort((a, b) =>
+                  a.name.toLowerCase() >= b.name.toLowerCase() ? 1 : -1,
+                )
                 .map((channelItem) => (
                   <div key={channelItem.id}>
-                    <SearchChannelItem channel={channelItem}
-                    invited={(
-                      channelInvites.data?.find((value) =>
-                      { return ((value.id === channelItem.id))}
-                      )?
-                      true : false)} />
+                    <SearchChannelItem
+                      channel={channelItem}
+                      invited={
+                        channelInvites.data?.find((value) => {
+                          return value.id === channelItem.id;
+                        })
+                          ? true
+                          : false
+                      }
+                    />
                     <div className="z-20">
                       {showModal && (
                         <PasswordModal

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { User } from '../global-components/interface';
+import { User } from '../../global-components/interface';
 
 interface WatchGameProps {
   user: User;
@@ -10,7 +10,7 @@ function WatchGame({ user, setIsShown }: WatchGameProps) {
   const navigate = useNavigate();
   const onWatch = () => {
     setIsShown(false);
-    navigate(`/watch/${user.id}`)
+    navigate(`/watch/${user.id}`);
   };
 
   return (
