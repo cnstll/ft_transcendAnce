@@ -28,7 +28,6 @@ function ChannelOptions({
 
   //   const channelsQueryKey = 'channelsByUserList';
   // const userQueryKey = 'userData';
-  const channelsQueryKey = 'channelsByUserList';
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
@@ -85,7 +84,7 @@ function ChannelOptions({
           </p>
         </Link>
         {myRoleQueryData?.role === channelRole.Owner &&
-          channelInfo.type !== channelType.DirectMessage ? (
+        channelInfo.type !== channelType.DirectMessage ? (
           <div className="z-40">
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
@@ -103,7 +102,7 @@ function ChannelOptions({
         ) : null}
         {(myRoleQueryData?.role === channelRole.Owner ||
           myRoleQueryData?.role === channelRole.Admin) &&
-          channelInfo.type === channelType.Private ? (
+        channelInfo.type === channelType.Private ? (
           <div className="z-40">
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>

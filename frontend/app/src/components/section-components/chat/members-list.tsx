@@ -3,6 +3,7 @@ import {
   User,
   UserListType,
   Channel,
+  channelType,
 } from '../../global-components/interface';
 import UsersList from '../users-list';
 import { useEffect } from 'react';
@@ -17,6 +18,7 @@ import {
 interface MembersListProps {
   channelUsers: User[];
   user: User;
+  type: channelType;
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
   channelId: string;
 }
@@ -26,11 +28,12 @@ function MembersList({
   user,
   channelId,
   setActiveChannelId,
- }: MembersListProps) {
+}: MembersListProps) {
   const customToastId = 'custom-toast-error-role';
   const channelRolesQueryKey = 'rolesInChannel';
   const myRoleQueryKey = 'myRoleInChannel';
-  const currentChannel: UseQueryResult<Channel | undefined> = getCurrentChannel(channelId);
+  const currentChannel: UseQueryResult<Channel | undefined> =
+    getCurrentChannel(channelId);
 
   const queryClient = useQueryClient();
 

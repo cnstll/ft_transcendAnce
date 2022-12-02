@@ -23,7 +23,7 @@ function SendDM({ user, setIsShown, setActiveChannelId }: BlockFriendsProps) {
     });
     socket.on('createRoomFailed', (channel: null | string) => {
       if (channel === null || typeof channel === 'string') {
-        alert('channel already exists');
+        alert('You can not speak to one another, someone is blocked');
       }
     });
     return () => {
