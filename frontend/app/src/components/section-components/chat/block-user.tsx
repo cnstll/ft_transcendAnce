@@ -10,10 +10,10 @@ import LoadingSpinner from '../loading-spinner';
 interface BlockUserProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
+  setBlocked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function BlockUser({ user, setIsShown, setIsBlocked }: BlockUserProps) {
+function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
   const listBlockedUser = useGetBlockedUsers();
   const directMessageId = useGetDirectMessageIdBetweenUsers(user.id);
   const queryClient = useQueryClient();
@@ -25,7 +25,7 @@ function BlockUser({ user, setIsShown, setIsBlocked }: BlockUserProps) {
 
   useEffect(() => {
     void queryClient.invalidateQueries('blockedUsersList');
-  }, [setIsBlocked]);
+  }, [setBlocked]);
 
   const onBlock = () => {
     setIsShown(false);
@@ -37,7 +37,7 @@ function BlockUser({ user, setIsShown, setIsBlocked }: BlockUserProps) {
         withCredentials: true,
       },
     );
-    setIsBlocked(true);
+    setBlocked(true);
 
     // If dm exists delete it
     if (directMessageId.data) {
@@ -59,7 +59,7 @@ function BlockUser({ user, setIsShown, setIsBlocked }: BlockUserProps) {
         withCredentials: true,
       },
     );
-    setIsBlocked(false);
+    setBlocked(false);
   };
 
   return (

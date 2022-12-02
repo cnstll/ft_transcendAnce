@@ -23,7 +23,8 @@ interface UsersListProps {
   userListType?: UserListType;
   type?: channelType;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
-  blockRelationUserList?: string[];
+  usersBlocked?: string[];
+  usersWhoBlocked?: string[];
   role?: {
     userId: string;
     role: channelRole;
@@ -36,23 +37,26 @@ function UsersListItem({
   userListType,
   type,
   setActiveChannelId,
-  blockRelationUserList,
+  usersBlocked,
+  usersWhoBlocked,
   role,
   channelId,
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
   let resultBlock = false;
-  if (blockRelationUserList?.includes(user.id)) resultBlock = true;
-  const [isBlocked, setIsBlocked] = useState(resultBlock);
+  const isBlocked = usersWhoBlocked?.includes(user.id);
+
+  if (usersBlocked?.includes(user.id)) resultBlock = true;
+  const [blocked, setBlocked] = useState(resultBlock);
 
   useEffect(() => {
-    setIsBlocked(resultBlock);
+    setBlocked(resultBlock);
   }, [resultBlock]);
 
   return (
     <div className="flex items-center justify-center">
       <div className="flex items-center justify-center mr-2">
-        {isBlocked ? (
+        {blocked || isBlocked ? (
           <Link to={'/profile/' + user.nickname}>
             <img
               className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full blur-sm"
@@ -111,8 +115,9 @@ function UsersListItem({
                 setActiveChannelId={setActiveChannelId}
                 channelId={channelId ?? ''}
                 role={role?.role ?? channelRole.User}
+                blocked={blocked}
                 isBlocked={isBlocked}
-                setIsBlocked={setIsBlocked}
+                setBlocked={setBlocked}
               />
             )}
             {userListType === UserListType.FRIENDS && (
@@ -120,6 +125,8 @@ function UsersListItem({
                 user={user}
                 setIsShown={setIsShown}
                 isBlocked={isBlocked}
+                blocked={blocked}
+                setBlocked={setBlocked}
               />
             )}
           </DropDownButton>

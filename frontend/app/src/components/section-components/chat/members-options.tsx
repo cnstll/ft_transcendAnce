@@ -17,8 +17,9 @@ interface UserOptionsProps {
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
   type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
+  blocked: boolean | undefined;
+  setBlocked: React.Dispatch<React.SetStateAction<boolean>>;
   isBlocked: boolean | undefined;
-  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
   channelId: string;
   role: channelRole;
 }
@@ -30,8 +31,9 @@ function MembersOptions({
   setIsShown,
   type,
   setActiveChannelId,
+  blocked,
+  setBlocked,
   isBlocked,
-  setIsBlocked,
 }: UserOptionsProps) {
   const queryClient = useQueryClient();
   const myRoleQueryKey = 'myRoleInChannel';
@@ -46,18 +48,14 @@ function MembersOptions({
       {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
-      {type !== channelType.DirectMessage && !isBlocked && (
+      {type !== channelType.DirectMessage && !blocked && !isBlocked && (
         <SendDM
           user={user}
           setIsShown={setIsShown}
           setActiveChannelId={setActiveChannelId}
         />
       )}
-      <BlockUser
-        user={user}
-        setIsShown={setIsShown}
-        setIsBlocked={setIsBlocked}
-      />
+      <BlockUser user={user} setIsShown={setIsShown} setBlocked={setBlocked} />
       {myRoleQueryData &&
         (myRoleQueryData.role === channelRole.Owner ||
           myRoleQueryData.role === channelRole.Admin) && (

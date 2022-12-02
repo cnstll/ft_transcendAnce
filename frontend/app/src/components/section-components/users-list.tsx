@@ -5,7 +5,10 @@ import {
   User,
   UserListType,
 } from '../global-components/interface';
-import { useGetBlockRelations } from '../query-hooks/useBlockedUser';
+import {
+  useGetBlockedUsers,
+  useGetUsersWhoBlocked,
+} from '../query-hooks/useBlockedUser';
 import LoadingSpinner from './loading-spinner';
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
@@ -30,20 +33,24 @@ function UsersList({
   roles,
   channelId,
 }: UsersListProps) {
-  const usersWithBlockRelation = useGetBlockRelations();
+  const usersBlocked = useGetBlockedUsers();
+  const usersWhoBlocked = useGetUsersWhoBlocked();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    void queryClient.invalidateQueries('blockedUsers');
+    void queryClient.invalidateQueries('blockedUsersList');
+    void queryClient.invalidateQueries('usersWhoBlockedList');
   }, [channelId, setActiveChannelId, userListType]);
 
   return (
     <>
-      {usersWithBlockRelation.isError && (
-        <p className="text-base text-gray-400">We encountered an error 🤷</p>
-      )}
-      {usersWithBlockRelation.isLoading && <LoadingSpinner />}
-      {usersWithBlockRelation.isSuccess && (
+      {usersBlocked.isError ||
+        (usersWhoBlocked.isError && (
+          <p className="text-base text-gray-400">We encountered an error 🤷</p>
+        ))}
+      {usersBlocked.isLoading ||
+        (usersWhoBlocked.isLoading && <LoadingSpinner />)}
+      {usersBlocked.isSuccess && usersWhoBlocked.isSuccess && (
         <div className="flex flex-col text-base my-4 gap-4">
           {users
             .sort((a, b) =>
@@ -56,7 +63,8 @@ function UsersList({
                 userListType={userListType}
                 type={type}
                 setActiveChannelId={setActiveChannelId}
-                blockRelationUserList={usersWithBlockRelation.data}
+                usersBlocked={usersBlocked.data}
+                usersWhoBlocked={usersWhoBlocked.data}
                 role={
                   channelId
                     ? roles?.find((role) => role.userId === user.id)

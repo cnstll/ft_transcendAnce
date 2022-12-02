@@ -79,27 +79,6 @@ export class BlockService {
     }
   }
 
-  async usersWithBlockRelation(userId: string) {
-    try {
-      const usersWithBlockRelation: string[] = [];
-      const usersBlocked = await this.usersBlockedByCurrentUser(userId);
-      const usersWhoBlocked = await this.usersWhoBlockedCurrentUser(userId);
-
-      // Add id of users who were blocked by the current user
-      for (let i = 0; i < usersBlocked.length; i++) {
-        usersWithBlockRelation.push(usersBlocked[i]);
-      }
-      // Add id of users who blocked the current user
-      for (let i = 0; i < usersWhoBlocked.length; i++) {
-        usersWithBlockRelation.push(usersWhoBlocked[i]);
-      }
-      return usersWithBlockRelation;
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }
-
   async checkUsersBlockRelation(userId: string, targetId: string) {
     try {
       const userIsBlocked = await this.prismaService.blockedUser.findFirst({

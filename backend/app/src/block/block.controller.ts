@@ -26,17 +26,6 @@ export class BlockController {
     return this.blockService.removeBlockedUser(userId, data.targetId);
   }
 
-  @Get('current-user-blocked-relations')
-  @UseGuards(JwtAuthGuard)
-  async usersWithBlockRelation(
-    @GetCurrentUserId() userId: string,
-    @Res() res: Response,
-  ) {
-    const list = await this.blockService.usersWithBlockRelation(userId);
-    if (list) return res.status(200).send(list);
-    else return res.status(500);
-  }
-
   @Get('users-blocked-by-current-user')
   @UseGuards(JwtAuthGuard)
   async usersBlockedByCurrentUser(
@@ -47,6 +36,18 @@ export class BlockController {
       userId,
     );
     if (listBlockedUsers) return res.status(200).send(listBlockedUsers);
+    else return res.status(500);
+  }
+
+  @Get('users-who-blocked-current-user')
+  @UseGuards(JwtAuthGuard)
+  async usersWhoBlockedCurrentUser(
+    @GetCurrentUserId() userId: string,
+    @Res() res: Response,
+  ) {
+    const listUsersWhoBlocked =
+      await this.blockService.usersWhoBlockedCurrentUser(userId);
+    if (listUsersWhoBlocked) return res.status(200).send(listUsersWhoBlocked);
     else return res.status(500);
   }
 }
