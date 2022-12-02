@@ -1,13 +1,10 @@
 import { Dispatch, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { channelType } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import { validateNameInput, validatePwdInput } from './regex-input-validations';
-import { useQueryClient } from 'react-query';
 
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
-  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const defaultFormData = {
@@ -20,18 +17,12 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   const [formData, setFormData] = useState(defaultFormData);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, passwordHash } = formData;
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const channelsQueryKey = 'channelsByUserList';
   const specials = '!?@#$%^&*()+./\'${"}{-';
 
   useEffect(() => {
-    socket.on('roomCreated', async (channelId: string) => {
+    socket.on('roomCreated', () => {
       props.setShowForm(false);
-      await queryClient.refetchQueries(channelsQueryKey);
-      props.setActiveChannelId(channelId);
       setFormData(defaultFormData);
-      navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
       if (channel === 'alreadyUsedname') {
@@ -39,7 +30,6 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       }
     });
     return () => {
-      socket.off('roomCreated');
       socket.off('createRoomFailed');
     };
   }, [formData]);

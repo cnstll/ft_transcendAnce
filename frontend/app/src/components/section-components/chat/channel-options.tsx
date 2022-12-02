@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useQueryClient } from 'react-query';
+import { useQueryClient, UseQueryResult } from 'react-query';
 import { Link, useParams } from 'react-router-dom';
 import {
   Channel,
@@ -13,22 +13,26 @@ import InviteModal from './invite-modal';
 /* review datafetching of role in channel to not refetch multiple times */
 
 interface ChannelOptions {
-  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
+  channels: UseQueryResult<Channel[] | undefined>;
 }
 
-function ChannelOptions({  setIsShown }: ChannelOptions) {
+function ChannelOptions({
+  //   setActiveChannelId,
+  setIsShown,
+  channels,
+}: ChannelOptions) {
   const { activeChannel } = useParams();
   const queryClient = useQueryClient();
 
+  //   const channelsQueryKey = 'channelsByUserList';
+  // const userQueryKey = 'userData';
   const channelsQueryKey = 'channelsByUserList';
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
-  const channelsQueryData: Channel[] | undefined =
-    queryClient.getQueryData(channelsQueryKey);
-
-  const channelInfo = channelsQueryData?.find(
+  const channelInfo = channels.data?.find(
     (channel) => channel.id == activeChannel,
   );
 
@@ -38,10 +42,9 @@ function ChannelOptions({  setIsShown }: ChannelOptions) {
 
   useEffect(() => {
     socket.on('roomLeft', () => {
-        // User receiving the event is the user leaving the room
-        setIsShown(false);
-      }
-    );
+      // User receiving the event is the user leaving the room
+      setIsShown(false);
+    });
     socket.on('leaveRoomFailed', () => alert('Failed to leave room'));
     return () => {
       socket.off('leaveRoomFailed');
