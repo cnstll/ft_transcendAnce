@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { UseOutsideClick } from 'src/components/custom-hooks/use-outside-click';
+import useWindowDimensions from 'src/components/custom-hooks/use-window-dimension';
 import { AchievementData } from 'src/components/global-components/interface';
 import useUserAchievements from 'src/components/query-hooks/useUserAchievements';
 import LoadingSpinner from '../loading-spinner';
@@ -45,6 +46,8 @@ function SelectedAchievement({
   nickname,
 }: AchievementModalProps) {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const { width } = useWindowDimensions();
+  console.log(width);
 
   function ShowAchievementInfo() {
     setShowModal((current) => !current);
@@ -58,13 +61,22 @@ function SelectedAchievement({
 
   return (
     <div ref={ref}>
-      <img
-        className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full cursor-pointer"
-        src={achievementData.image}
-        alt="Rounded achievement"
-        onMouseEnter={ShowAchievementInfo}
-        onMouseLeave={ShowAchievementInfo}
-      />
+      {width > 1093 ? (
+        <img
+          className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full cursor-pointer"
+          src={achievementData.image}
+          alt="Rounded achievement"
+          onMouseEnter={ShowAchievementInfo}
+          onMouseLeave={ShowAchievementInfo}
+        />
+      ) : (
+        <img
+          className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full cursor-pointer"
+          src={achievementData.image}
+          alt="Rounded achievement"
+          onClick={ShowAchievementInfo}
+        />
+      )}
       <div>
         {showModal && (
           <AchievementModal
