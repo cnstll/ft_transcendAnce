@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
+import { Link } from 'react-router-dom';
 
 interface UsersListProps {
   user: User;
@@ -52,17 +53,21 @@ function UsersListItem({
     <div className="flex items-center justify-center">
       <div className="flex items-center justify-center mr-2">
         {isBlocked ? (
-          <img
-            className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full blur-sm"
-            src={user.avatarImg}
-            alt="Rounded avatar"
-          />
+          <Link to={'/profile/' + user.nickname}>
+            <img
+              className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full blur-sm"
+              src={user.avatarImg}
+              alt="Rounded avatar"
+            />
+          </Link>
         ) : (
-          <img
-            className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
-            src={user.avatarImg}
-            alt="Rounded avatar"
-          />
+          <Link to={'/profile/' + user.nickname}>
+            <img
+              className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
+              src={user.avatarImg}
+              alt="Rounded avatar"
+            />
+          </Link>
         )}
         <div className="relative">
           <div className="absolute -left-2 z-10">
@@ -79,7 +84,9 @@ function UsersListItem({
         </div>
       </div>
       <div className="w-32">
-        <p className="ml-3 truncate">{user.nickname}</p>
+        <Link to={'/profile/' + user.nickname}>
+          <p className="ml-3 truncate">{user.nickname}</p>
+        </Link>
         {role?.role === channelRole.Owner && (
           <p className="ml-3 text-xs text-purple-light">
             <FontAwesomeIcon className="mr-1" icon={faCrown} />
