@@ -10,7 +10,10 @@ import DropDownButton from '../section-components/drop-down-button';
 import { Channel, User } from '../global-components/interface';
 import { useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
-import { useChannelsByUserList } from '../query-hooks/useGetChannels';
+import {
+  useChannelsByUserList,
+  useGroupChannelsList,
+} from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
 import MyChannelsList from '../section-components/chat/my-channels-list';
@@ -38,6 +41,11 @@ function Chat() {
   )?.type;
 
   const queryClient = useQueryClient();
+  const channelsData: UseQueryResult<Channel[] | undefined> =
+    useGroupChannelsList();
+
+  //const channelUsersQueryKey = 'channelUsers';
+  const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
 
   useEffect(() => {
@@ -96,12 +104,26 @@ function Chat() {
           navigate(`../chat/${nextChannelId}`);
         }
         //TODO User still in the room should get notified that a user left
-        void queryClient.invalidateQueries(channelsByUserListKey);
+        //void queryClient.invalidateQueries(channelUsersQueryKey);
+        void queryClient.invalidateQueries(groupChannelsKey);
       },
     );
-
+    socket.on('roomEdited', () => {
+      void queryClient.invalidateQueries(channelsByUserListKey);
+      void queryClient.invalidateQueries(groupChannelsKey);
+    });
+    socket.on('roomCreated', (channelId: string, userId: string) => {
+      void queryClient.invalidateQueries(channelsByUserListKey);
+      void queryClient.invalidateQueries(groupChannelsKey);
+      if (userId === user.data?.id) {
+        setActiveChannelId(channelId);
+        navigate('../chat/' + channelId);
+      }
+    });
     return () => {
+      socket.off('roomCreated');
       socket.off('roomLeft');
+      socket.off('roomEdited');
     };
   }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
@@ -128,7 +150,10 @@ function Chat() {
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
           >
             <SideBox>
-              <ChannelHeader setActiveChannelId={setActiveChannelId} />
+              <ChannelHeader
+                setActiveChannelId={setActiveChannelId}
+                channels={channelsData}
+              />
               <MyChannelsList
                 activeChannelId={activeChannelId}
                 setActiveChannelId={setActiveChannelId}
@@ -162,8 +187,9 @@ function Chat() {
                           style="backdrop-blur-sm bg-gray-900/50 p-6 md:p-5"
                         >
                           <ChannelOptions
-                            setActiveChannelId={setActiveChannelId}
+                            // setActiveChannelId={setActiveChannelId}
                             setIsShown={setIsShown}
+                            channels={channels}
                           />
                         </DropDownButton>
                       </div>
