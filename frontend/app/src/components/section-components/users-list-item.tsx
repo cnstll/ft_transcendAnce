@@ -41,8 +41,9 @@ function UsersListItem({
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
   const [isBlocked, setIsBlocked] = useState(() => {
-    if (blockRelationUserList?.includes(user.id))
+    if (blockRelationUserList?.includes(user.id)) {
       return blockRelationUserList.includes(user.id);
+    }
     return false;
   });
 

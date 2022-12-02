@@ -38,7 +38,6 @@ function Chat() {
   )?.type;
 
   const queryClient = useQueryClient();
-  //const channelUsersQueryKey = 'channelUsers';
   const channelsByUserListKey = 'channelsByUserList';
 
   useEffect(() => {
@@ -97,7 +96,6 @@ function Chat() {
           navigate(`../chat/${nextChannelId}`);
         }
         //TODO User still in the room should get notified that a user left
-        //void queryClient.invalidateQueries(channelUsersQueryKey);
         void queryClient.invalidateQueries(channelsByUserListKey);
       },
     );
