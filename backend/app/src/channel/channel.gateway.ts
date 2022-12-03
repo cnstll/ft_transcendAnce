@@ -255,6 +255,26 @@ export class ChannelGateway {
   }
 
   @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('muteUser')
+  async muteUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('muteInfo') muteInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const muteResult = await this.channelService.muteFromChannelWS(
+      requesterId,
+      muteInfo,
+    );
+    if (muteResult == null || typeof muteResult === 'string') {
+      this.server.to(clientSocket.id).emit('banFailed', muteResult);
+    } else {
+      this.server
+        .to(muteInfo.channelActionOnChannelId)
+        .emit('banSucceeded', muteResult);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('updateRole')
   async editRole(
     @GetCurrentUserId() userId: string,

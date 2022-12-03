@@ -150,6 +150,17 @@ export class ChannelService {
     }
   }
 
+  async getChannelType(channelId: string) {
+    return await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+      select: {
+        type: true,
+      },
+    });
+  }
+
   async checkChannel(channelId: string) {
     const channel: Channel = await this.prisma.channel.findFirst({
       where: {
@@ -604,10 +615,10 @@ export class ChannelService {
     }
   }
 
-  async getIsUserUnderModeration(
+  async isUserUnderModeration(
     channelId: string,
-    channelActionType: ChannelActionType,
     userTargetId: string,
+    channelActionType: ChannelActionType,
   ) {
     try {
       const userUnderModeration = await this.prisma.channelAction.findFirst({
@@ -879,19 +890,13 @@ export class ChannelService {
   async banFromChannelWS(requesterId: string, banInfo: ModerateChannelDto) {
     try {
       //Check if channel is not a direct channel
-      const typeOfChannel: { type: ChannelType } =
-        await this.prisma.channel.findUnique({
-          where: {
-            id: banInfo.channelActionOnChannelId,
-          },
-          select: {
-            type: true,
-          },
-        });
+      const typeOfChannel: { type: ChannelType } = await this.getChannelType(
+        banInfo.channelActionOnChannelId,
+      );
       if (typeOfChannel.type === ChannelType.DIRECTMESSAGE) {
         return 'cannotBanInDirectMessage';
       }
-      //Verify Admin or Owner Role
+      //Verify if current user is Admin or Owner
       const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
         requesterId,
         banInfo.channelActionOnChannelId,
@@ -902,40 +907,28 @@ export class ChannelService {
       ) {
         return 'noEligibleRights';
       }
-      // Target User is not owner of the channel
-      const targetRole: { role: ChannelRole } =
-        await this.prisma.channelUser.findUnique({
-          where: {
-            userId_channelId: {
-              userId: banInfo.channelActionTargetId,
-              channelId: banInfo.channelActionOnChannelId,
-            },
-          },
-          select: {
-            role: true,
-          },
-        });
+      // Verify if Target User is not owner of the channel
+      const targetRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        banInfo.channelActionTargetId,
+        banInfo.channelActionOnChannelId,
+      );
       if (targetRole.role === ChannelRole.OWNER) {
         return 'cannotBanOwner';
       }
       // Target User exist in channel and is not already banned
-      const isAlreadyBanned = await this.prisma.channelAction.findUnique({
-        where: {
-          channelActionTargetId_channelActionOnChannelId: {
-            channelActionTargetId: banInfo.channelActionTargetId,
-            channelActionOnChannelId: banInfo.channelActionOnChannelId,
-          },
-        },
-        select: {
-          channelActionTarget: true,
-        },
-      });
-      if (isAlreadyBanned !== null) {
+      const isAlreadyMuted = await this.isUserUnderModeration(
+        banInfo.channelActionOnChannelId,
+        banInfo.channelActionTargetId,
+        ChannelActionType.BAN,
+      );
+      if (isAlreadyMuted) {
         return 'userIsAlreadyBanned';
       }
+      // Getting ban timings
+      // TODO: Adapt time so its over 30s
       const banDurationInMS = 30 * 1000;
       const banExpirationDate = new Date(Date.now() + banDurationInMS);
-      console.log(banExpirationDate);
+      // Actual ban added in DB
       const bannedUser = await this.prisma.channelAction.create({
         data: {
           channelActionTargetId: banInfo.channelActionTargetId,
@@ -949,12 +942,69 @@ export class ChannelService {
           channelActionOnChannelId: true,
         },
       });
-      console.log(bannedUser);
       return bannedUser;
     } catch (error) {
-      console.log(error);
       return null;
     }
+  }
+
+  async muteFromChannelWS(requesterId: string, muteInfo: ModerateChannelDto) {
+    try {
+      //Check if channel is not a direct channel
+      const typeOfChannel: { type: ChannelType } = await this.getChannelType(
+        muteInfo.channelActionOnChannelId,
+      );
+      if (typeOfChannel.type === ChannelType.DIRECTMESSAGE) {
+        return 'cannotMuteInDirectMessage';
+      }
+      //Verify if current user is Admin or Owner
+      const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        requesterId,
+        muteInfo.channelActionOnChannelId,
+      );
+      if (
+        userRole.role !== ChannelRole.OWNER &&
+        userRole.role !== ChannelRole.ADMIN
+      ) {
+        return 'noEligibleRights';
+      }
+      // Verify if Target User is not owner of the channel
+      const targetRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        muteInfo.channelActionTargetId,
+        muteInfo.channelActionOnChannelId,
+      );
+      if (targetRole.role === ChannelRole.OWNER) {
+        return 'cannotMuteOwner';
+      }
+      // Target User exist in channel and is not already Muted
+      const isAlreadyMuted = await this.isUserUnderModeration(
+        muteInfo.channelActionOnChannelId,
+        muteInfo.channelActionTargetId,
+        ChannelActionType.MUTE,
+      );
+      if (isAlreadyMuted) {
+        return 'userIsAlreadyMuted';
+      }
+      // Getting ban timings
+      // TODO: Adapt time so its over 30s
+      const MuteDurationInMS = 30 * 1000;
+      const MuteExpirationDate = new Date(Date.now() + MuteDurationInMS);
+      // Actual Mute added in DB
+      const MutedUser = await this.prisma.channelAction.create({
+        data: {
+          channelActionTargetId: muteInfo.channelActionTargetId,
+          channelActionOnChannelId: muteInfo.channelActionOnChannelId,
+          channelActionTime: MuteExpirationDate,
+          type: ChannelActionType.MUTE,
+          channelActionRequesterId: requesterId,
+        },
+        select: {
+          channelActionTargetId: true,
+          channelActionOnChannelId: true,
+        },
+      });
+      return MutedUser;
+    } catch (error) {}
   }
 
   async updateAdminRoleByChannelIdWS(

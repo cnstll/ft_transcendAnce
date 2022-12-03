@@ -117,10 +117,10 @@ export class ChannelController {
     @Param('channelId') channelId: string,
     @Param('actionType') actionType: ChannelActionType,
   ) {
-    return this.channelService.getIsUserUnderModeration(
+    return this.channelService.isUserUnderModeration(
       channelId,
-      actionType,
       userId,
+      actionType,
     );
   }
 
@@ -130,10 +130,10 @@ export class ChannelController {
     @Param('userId') userId: string,
     @Param('actionType') actionType: ChannelActionType,
   ) {
-    return this.channelService.getIsUserUnderModeration(
+    return this.channelService.isUserUnderModeration(
       channelId,
-      actionType,
       userId,
+      actionType,
     );
   }
 }
