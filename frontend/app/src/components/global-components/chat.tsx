@@ -38,7 +38,7 @@ export const channelContext = createContext({
 });
 
 function Chat() {
-  const { activeChannel } = useParams<string>();
+  const { activeChannel } = useParams();
   const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
   const [isShown, setIsShown] = useState(false);
 

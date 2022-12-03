@@ -30,7 +30,7 @@ function ChatBox({ userId, channelId }: ChatBoxProps) {
   function userIsMuted() {
     if (listOfMutedUsersQuery.data) {
       return (
-        listOfMutedUsersQuery.data?.findIndex(
+        listOfMutedUsersQuery.data.findIndex(
           (mutedUserId) => mutedUserId === userId,
         ) !== -1
       );

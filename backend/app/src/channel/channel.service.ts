@@ -27,7 +27,6 @@ import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
 import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 import { BlockService } from 'src/block/block.service';
-import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ChannelService {
