@@ -1,14 +1,10 @@
 import { Dispatch, useContext } from 'react';
-import { useQueryClient } from 'react-query';
 import { socket } from 'src/components/global-components/client-socket';
 import {
   channelActionType,
   User,
 } from 'src/components/global-components/interface';
 import { channelContext } from '../../global-components/chat';
-// import { useGetUsersUnderModerationAction } from '../../query-hooks/getModerationActionInfo';
-// import { useGetUsersUnderModerationAction } from '../../query-hooks/getModerationActionInfo';
-// import { useChannelUsers } from '../../query-hooks/useGetChannelUsers';
 
 interface BanUserProps {
   user: User | undefined;
@@ -16,8 +12,6 @@ interface BanUserProps {
 }
 
 function BanUser(props: BanUserProps) {
-  const queryClient = useQueryClient();
-  queryClient;
   const activeChannelCtx = useContext(channelContext);
 
   function onBan() {
