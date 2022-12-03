@@ -5,39 +5,29 @@ import { useQueryClient, UseQueryResult } from 'react-query';
 import { socket } from '../../global-components/client-socket';
 import {
   AcknoledgementStatus,
-  channelActionType,
   Message,
 } from '../../global-components/interface';
-import { useGetUsersUnderModerationAction } from '../../query-hooks/getModerationActionInfo';
 
 interface ChatBoxProps {
   userId: string;
   channelId: string;
+  userIsMuted: UseQueryResult<boolean | undefined>;
 }
 
-function ChatBox({ userId, channelId }: ChatBoxProps) {
+function ChatBox({ userId, channelId, userIsMuted }: ChatBoxProps) {
   const [messageContent, setMessageContent] = useState<string>('');
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const queryClient = useQueryClient();
-  const listOfMutedUsersQuery: UseQueryResult<string[] | undefined> =
-    useGetUsersUnderModerationAction(channelId, channelActionType.Mute);
-  useEffect(() => {
-    if (listOfMutedUsersQuery.isSuccess) {
-      userIsMuted() ? setIsMuted(true) : setIsMuted(false);
-    }
-  }, [channelId, listOfMutedUsersQuery.status]);
 
-  function userIsMuted() {
-    if (listOfMutedUsersQuery.data) {
-      return (
-        listOfMutedUsersQuery.data.findIndex(
-          (mutedUserId) => mutedUserId === userId,
-        ) !== -1
-      );
-    } else {
-      return true;
+  useEffect(() => {
+    if (userIsMuted.isSuccess && userIsMuted.data?.valueOf()) {
+      setIsMuted(true);
     }
-  }
+    if (userIsMuted.isSuccess && !userIsMuted.data?.valueOf()) {
+      setIsMuted(false);
+    }
+    console.log(userIsMuted.data?.valueOf());
+  }, [queryClient]);
 
   function onSendMessageHandler(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();

@@ -31,15 +31,15 @@ function MembersList({
 }: MembersListProps) {
   const activeChannelCtx = useContext(channelContext);
   const roleToastId = 'toast-error-role';
-  const banToastId = 'toast-error-ban';
+  const moderationToastId = 'toast-error-ban';
 
   /* Interface with react query cache data to synchronize on events */
   const queryClient = useQueryClient();
-  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
-  const isCurrentUserBannedQueryKey = 'isCurrentUserUnderModeration';
+  const channelUsersUnderModeration = 'getUsersUnderModerationAction';
+  const isCurrentUserUnderModerationQueryKey = 'isCurrentUserUnderModeration';
   const channelRolesQueryKey = 'rolesInChannel';
   const myRoleQueryKey = 'myRoleInChannel';
-  const isUserBannedQueryKey = 'isUserUnderModeration';
+  const isUserUnderModerationQueryKey = 'isUserUnderModeration';
   /* Query Hooks to Fetch Data for the Chat */
   const roleUsers: UseQueryResult<
     | {
@@ -63,17 +63,17 @@ function MembersList({
     });
     socket.on('banSucceeded', async (banInfo: ModerationInfo) => {
       await queryClient.invalidateQueries([
-        isCurrentUserBannedQueryKey,
+        isCurrentUserUnderModerationQueryKey,
         banInfo.channelActionOnChannelId,
         channelActionType.Ban,
       ]);
       await queryClient.invalidateQueries([
-        channelUserBannedQueryKey,
+        channelUsersUnderModeration,
         banInfo.channelActionOnChannelId,
         channelActionType.Ban,
       ]);
       await queryClient.invalidateQueries([
-        isUserBannedQueryKey,
+        isUserUnderModerationQueryKey,
         banInfo.channelActionOnChannelId,
         banInfo.channelActionTargetId,
         channelActionType.Ban,
@@ -82,16 +82,66 @@ function MembersList({
     socket.on('banFailed', (banInfo: string) => {
       if (banInfo === 'userIsAlreadyBanned') {
         toast.error('User already banned', {
-          toastId: banToastId,
+          toastId: moderationToastId,
           position: toast.POSITION.TOP_RIGHT,
         });
       } else {
         toast.error('Cannot ban user 🤷', {
-          toastId: banToastId,
+          toastId: moderationToastId,
           position: toast.POSITION.TOP_RIGHT,
         });
       }
     });
+    socket.on('muteSucceeded', async (muteInfo: ModerationInfo) => {
+      await queryClient.invalidateQueries([
+        isCurrentUserUnderModerationQueryKey,
+        muteInfo.channelActionOnChannelId,
+        channelActionType.Mute,
+      ]);
+      await queryClient.invalidateQueries([
+        channelUsersUnderModeration,
+        muteInfo.channelActionOnChannelId,
+        channelActionType.Mute,
+      ]);
+      await queryClient.invalidateQueries([
+        isUserUnderModerationQueryKey,
+        muteInfo.channelActionOnChannelId,
+        muteInfo.channelActionTargetId,
+        channelActionType.Mute,
+      ]);
+    });
+    socket.on('muteFailed', () => {
+      toast.error('Cannot mute user 🤷', {
+        toastId: moderationToastId,
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    });
+
+    socket.on('unMuteSucceeded', async (muteInfo: ModerationInfo) => {
+      await queryClient.invalidateQueries([
+        isCurrentUserUnderModerationQueryKey,
+        muteInfo.channelActionOnChannelId,
+        channelActionType.Mute,
+      ]);
+      await queryClient.invalidateQueries([
+        channelUsersUnderModeration,
+        muteInfo.channelActionOnChannelId,
+        channelActionType.Mute,
+      ]);
+      await queryClient.invalidateQueries([
+        isUserUnderModerationQueryKey,
+        muteInfo.channelActionOnChannelId,
+        muteInfo.channelActionTargetId,
+        channelActionType.Mute,
+      ]);
+    });
+    socket.on('unMuteFailed', () => {
+      toast.error('Cannot unmute user 🤷', {
+        toastId: moderationToastId,
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    });
+
     return () => {
       socket.off('banSucceeded');
       socket.off('banFailed');

@@ -16,6 +16,7 @@ import PromoteToAdmin from './promote-to-admin';
 import WatchGame from '../game/watch-game-options';
 import SendDM from './send-dm';
 import BanUser from './ban-user';
+import MuteUser from './mute-user';
 
 interface UserOptionsProps {
   user: User;
@@ -107,6 +108,7 @@ function MembersOptions({
           {user.status === UserConnectionStatus.PLAYING && (
             <WatchGame user={user} setIsShown={setIsShown} />
           )}
+          <MuteUser user={user} setIsShown={setIsShown} />
           {hasBanRight() && isGroupChannel() && (
             <BanUser user={user} setIsShown={setIsShown} />
           )}

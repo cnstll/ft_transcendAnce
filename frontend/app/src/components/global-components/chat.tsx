@@ -59,12 +59,17 @@ function Chat() {
     useChannelUsers(activeChannelId);
   const currentChannel: UseQueryResult<Channel | undefined> =
     getCurrentChannel(activeChannelId);
-  //   const bannedUsers: UseQueryResult<string[] | undefined> =
   useGetUsersUnderModerationAction(activeChannelId, channelActionType.Ban);
+  useGetUsersUnderModerationAction(activeChannelId, channelActionType.Mute);
   const userIsBanned: UseQueryResult<boolean | undefined> =
     useIsCurrentUserUnderModerationInChannel(
       activeChannelId,
       channelActionType.Ban,
+    );
+  const userIsMuted: UseQueryResult<boolean | undefined> =
+    useIsCurrentUserUnderModerationInChannel(
+      activeChannelId,
+      channelActionType.Mute,
     );
 
   useEffect(() => {
@@ -234,7 +239,11 @@ function Chat() {
           </div>
           {userIsBanned.isSuccess && !userIsBanned.data?.valueOf() && (
             <div className="flex justify-center">
-              <ChatBox userId={user.data.id} channelId={activeChannelId} />
+              <ChatBox
+                userId={user.data.id}
+                channelId={activeChannelId}
+                userIsMuted={userIsMuted}
+              />
             </div>
           )}
         </div>
