@@ -1,5 +1,7 @@
 import {
+  channelActionType,
   channelRole,
+  ModerationInfo,
   User,
   UserListType,
 } from '../../global-components/interface';
@@ -28,10 +30,17 @@ function MembersList({
   setActiveChannelId,
 }: MembersListProps) {
   const activeChannelCtx = useContext(channelContext);
-  const customToastId = 'custom-toast-error-role';
+  const roleToastId = 'toast-error-role';
+  const banToastId = 'toast-error-ban';
+
+  /* Interface with react query cache data to synchronize on events */
+  const queryClient = useQueryClient();
+  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
+  const isCurrentUserBannedQueryKey = 'isCurrentUserUnderModeration';
   const channelRolesQueryKey = 'rolesInChannel';
   const myRoleQueryKey = 'myRoleInChannel';
-  const queryClient = useQueryClient();
+  const isUserBannedQueryKey = 'isUserUnderModeration';
+  /* Query Hooks to Fetch Data for the Chat */
   const roleUsers: UseQueryResult<
     | {
         userId: string;
@@ -47,12 +56,45 @@ function MembersList({
       await queryClient.invalidateQueries(myRoleQueryKey);
     });
     socket.on('updateRoleFailed', () => {
-      toast.error("Couldn't update the user's role", {
-        toastId: customToastId,
+      toast.error("Couldn't update the user's role 🤷", {
+        toastId: roleToastId,
         position: toast.POSITION.TOP_RIGHT,
       });
     });
+    socket.on('banSucceeded', async (banInfo: ModerationInfo) => {
+      await queryClient.invalidateQueries([
+        isCurrentUserBannedQueryKey,
+        banInfo.channelActionOnChannelId,
+        channelActionType.Ban,
+      ]);
+      await queryClient.invalidateQueries([
+        channelUserBannedQueryKey,
+        banInfo.channelActionOnChannelId,
+        channelActionType.Ban,
+      ]);
+      await queryClient.invalidateQueries([
+        isUserBannedQueryKey,
+        banInfo.channelActionOnChannelId,
+        banInfo.channelActionTargetId,
+        channelActionType.Ban,
+      ]);
+    });
+    socket.on('banFailed', (banInfo: string) => {
+      if (banInfo === 'userIsAlreadyBanned') {
+        toast.error('User already banned', {
+          toastId: banToastId,
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      } else {
+        toast.error('Cannot ban user 🤷', {
+          toastId: banToastId,
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      }
+    });
     return () => {
+      socket.off('banSucceeded');
+      socket.off('banFailed');
       socket.off('roleUpdated');
       socket.off('updateRoleFailed');
     };

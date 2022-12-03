@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { channelContext } from '../../global-components/chat';
 import {
   Channel,
+  channelActionType,
   channelRole,
   channelType,
   User,
@@ -40,10 +41,17 @@ function MembersOptions({
   const activeChannelCtx = useContext(channelContext);
   const myRoleQueryKey = 'myRoleInChannel';
   const channelsOfUserKey = 'channelsByUserList';
+  const isUserUnderModeration = 'isUserUnderModeration';
   const myRoleQueryData: { role: string } | undefined =
     queryClient.getQueryData([myRoleQueryKey, activeChannelCtx.id]);
   const channelsOfUserQueryData: Channel[] | undefined =
     queryClient.getQueryData([channelsOfUserKey]);
+  const isUserBanned: boolean | undefined = queryClient.getQueryData([
+    isUserUnderModeration,
+    activeChannelCtx.id,
+    user.id,
+    channelActionType.Ban,
+  ]);
 
   /*Begin of Helper functions for conditionnal display */
   function hasBanRight() {
@@ -67,34 +75,42 @@ function MembersOptions({
       <Link to={`/profile/${user.nickname}`}>
         <p className="text-center hover:underline my-2">Go to profile</p>
       </Link>
-      {user.status === UserConnectionStatus.ONLINE && (
-        <InviteToPlay user={user} setIsShown={setIsShown} />
-      )}
-      {activeChannelCtx.type !== channelType.DirectMessage &&
-        !blocked &&
-        !isBlocked && (
-          <SendDM
+      {!isUserBanned?.valueOf() && (
+        <>
+          {user.status === UserConnectionStatus.ONLINE && (
+            <InviteToPlay user={user} setIsShown={setIsShown} />
+          )}
+          {activeChannelCtx.type !== channelType.DirectMessage &&
+            !blocked &&
+            !isBlocked && (
+              <SendDM
+                user={user}
+                setIsShown={setIsShown}
+                setActiveChannelId={setActiveChannelId}
+              />
+            )}
+          <BlockUser
             user={user}
             setIsShown={setIsShown}
-            setActiveChannelId={setActiveChannelId}
+            setBlocked={setBlocked}
           />
-        )}
-      <BlockUser user={user} setIsShown={setIsShown} setBlocked={setBlocked} />
-      {myRoleQueryData &&
-        (myRoleQueryData.role === channelRole.Owner ||
-          myRoleQueryData.role === channelRole.Admin) && (
-          <PromoteToAdmin
-            user={user}
-            setIsShown={setIsShown}
-            channelId={activeChannelCtx.id}
-            role={role}
-          />
-        )}
-      {user.status === UserConnectionStatus.PLAYING && (
-        <WatchGame user={user} setIsShown={setIsShown} />
-      )}
-      {hasBanRight() && isGroupChannel() && (
-        <BanUser user={user} setIsShown={setIsShown} />
+          {myRoleQueryData &&
+            (myRoleQueryData.role === channelRole.Owner ||
+              myRoleQueryData.role === channelRole.Admin) && (
+              <PromoteToAdmin
+                user={user}
+                setIsShown={setIsShown}
+                channelId={activeChannelCtx.id}
+                role={role}
+              />
+            )}
+          {user.status === UserConnectionStatus.PLAYING && (
+            <WatchGame user={user} setIsShown={setIsShown} />
+          )}
+          {hasBanRight() && isGroupChannel() && (
+            <BanUser user={user} setIsShown={setIsShown} />
+          )}
+        </>
       )}
     </div>
   );

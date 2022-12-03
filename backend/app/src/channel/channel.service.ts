@@ -604,6 +604,23 @@ export class ChannelService {
     }
   }
 
+  async getIsUserUnderModeration(
+    channelId: string,
+    channelActionType: ChannelActionType,
+    userTargetId: string,
+  ) {
+    try {
+      const userUnderModeration = await this.prisma.channelAction.findFirst({
+        where: {
+          channelActionOnChannelId: channelId,
+          type: channelActionType,
+          channelActionTargetId: userTargetId,
+        },
+      });
+      return userUnderModeration !== null;
+    } catch (error) {}
+  }
+
   async joinChannelWS(
     channelDto: JoinChannelDto,
     userId: string,
@@ -914,10 +931,7 @@ export class ChannelService {
         },
       });
       if (isAlreadyBanned !== null) {
-        console.log('Cannot be banned: ', isAlreadyBanned);
-        return 'cannotBeBanned';
-      } else {
-        console.log('Can be banned: ', isAlreadyBanned);
+        return 'userIsAlreadyBanned';
       }
       const banDurationInMS = 30 * 1000;
       const banExpirationDate = new Date(Date.now() + banDurationInMS);

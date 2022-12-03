@@ -110,4 +110,30 @@ export class ChannelController {
       actionType,
     );
   }
+
+  @Get('get-is-current-user-under-moderation/:channelId/:actionType')
+  getIsCurrentUserUnderModeration(
+    @GetCurrentUserId() userId: string,
+    @Param('channelId') channelId: string,
+    @Param('actionType') actionType: ChannelActionType,
+  ) {
+    return this.channelService.getIsUserUnderModeration(
+      channelId,
+      actionType,
+      userId,
+    );
+  }
+
+  @Get('get-is-user-under-moderation/:channelId/:userId/:actionType')
+  getIsUserUnderModeration(
+    @Param('channelId') channelId: string,
+    @Param('userId') userId: string,
+    @Param('actionType') actionType: ChannelActionType,
+  ) {
+    return this.channelService.getIsUserUnderModeration(
+      channelId,
+      actionType,
+      userId,
+    );
+  }
 }

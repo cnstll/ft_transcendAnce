@@ -5,18 +5,23 @@ import {
   faCircle,
   faCrown,
   faChessKnight,
+  faBan,
 } from '@fortawesome/free-solid-svg-icons';
 import {
+  channelActionType,
   channelRole,
   channelType,
   User,
   UserConnectionStatus,
   UserListType,
 } from '../global-components/interface';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
 import { Link } from 'react-router-dom';
+import { channelContext } from '../global-components/chat';
+import { useIsUserUnderModerationInChannel } from '../query-hooks/useIsUserUnderModerationInChannel';
+import { UseQueryResult } from 'react-query';
 
 interface UsersListProps {
   user: User;
@@ -43,10 +48,15 @@ function UsersListItem({
   const [isShown, setIsShown] = useState(false);
   let resultBlock = false;
   const isBlocked = usersWhoBlocked?.includes(user.id);
-
   if (usersBlocked?.includes(user.id)) resultBlock = true;
   const [blocked, setBlocked] = useState(resultBlock);
-
+  const currentChannel = useContext(channelContext);
+  const userIsBanned: UseQueryResult<boolean | undefined> =
+    useIsUserUnderModerationInChannel(
+      currentChannel.id,
+      user.id,
+      channelActionType.Ban,
+    );
   useEffect(() => {
     setBlocked(resultBlock);
   }, [resultBlock]);
@@ -73,14 +83,21 @@ function UsersListItem({
         )}
         <div className="relative">
           <div className="absolute -left-2 z-10">
-            {user.status === UserConnectionStatus.ONLINE && (
-              <FontAwesomeIcon className="text-green-600" icon={faCircle} />
+            {userIsBanned.isSuccess && !userIsBanned.data?.valueOf() && (
+              <>
+                {user.status === UserConnectionStatus.ONLINE && (
+                  <FontAwesomeIcon className="text-green-600" icon={faCircle} />
+                )}
+                {user.status === UserConnectionStatus.OFFLINE && (
+                  <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
+                )}
+                {user.status === UserConnectionStatus.PLAYING && (
+                  <FontAwesomeIcon icon={faGamepad} />
+                )}
+              </>
             )}
-            {user.status === UserConnectionStatus.OFFLINE && (
-              <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
-            )}
-            {user.status === UserConnectionStatus.PLAYING && (
-              <FontAwesomeIcon icon={faGamepad} />
+            {userIsBanned.isSuccess && userIsBanned.data?.valueOf() && (
+              <FontAwesomeIcon className="text-purple-medium" icon={faBan} />
             )}
           </div>
         </div>

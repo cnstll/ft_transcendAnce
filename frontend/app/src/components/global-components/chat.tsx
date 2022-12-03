@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from './navbar';
 import SideBox from '../section-components/side-box';
@@ -9,7 +9,6 @@ import BackgroundGeneral from '../../img/disco2.png';
 import {
   Channel,
   channelActionType,
-  ModerationInfo,
   User,
 } from '../global-components/interface';
 import { createContext, useEffect, useState } from 'react';
@@ -30,6 +29,8 @@ import { useGetUsersUnderModerationAction } from '../query-hooks/getModerationAc
 import SideChannelList from '../section-components/chat/side-channel-list';
 import ChatTopBar from '../section-components/chat/chat-top-bar';
 import ErrorMessage from '../section-components/error-message';
+import { useIsCurrentUserUnderModerationInChannel } from '../query-hooks/useIsCurrentUserUnderModerationInChannel';
+import BanMessageBox from '../section-components/chat/ban-message-box';
 
 export const channelContext = createContext({
   id: '',
@@ -48,7 +49,6 @@ function Chat() {
   const queryClient = useQueryClient();
   const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
-  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
   /* Query Hooks to Fetch Data for the Chat */
   const user: UseQueryResult<User> = useUserInfo();
   const channels: UseQueryResult<Channel[] | undefined> =
@@ -61,6 +61,11 @@ function Chat() {
     getCurrentChannel(activeChannelId);
   //   const bannedUsers: UseQueryResult<string[] | undefined> =
   useGetUsersUnderModerationAction(activeChannelId, channelActionType.Ban);
+  const userIsBanned: UseQueryResult<boolean | undefined> =
+    useIsCurrentUserUnderModerationInChannel(
+      activeChannelId,
+      channelActionType.Ban,
+    );
 
   useEffect(() => {
     if (user.isError) {
@@ -135,27 +140,11 @@ function Chat() {
         navigate('../chat/' + channelId);
       }
     });
-    socket.on('banSucceeded', async (banInfo: ModerationInfo) => {
-      console.log('WOW THERE WAS A BAN HERE: ', banInfo);
-      await queryClient.invalidateQueries([
-        channelUserBannedQueryKey,
-        banInfo.channelActionOnChannelId,
-        channelActionType.Ban,
-      ]);
-    });
 
-    socket.on('banFailed', (banInfo: string | null) => {
-      console.log('WOW ITS A BAN FAIL');
-      if (banInfo !== null) {
-        alert(`Oups : ${banInfo} !`);
-      }
-    });
     return () => {
       socket.off('roomCreated');
       socket.off('roomLeft');
       socket.off('roomEdited');
-      socket.off('banSucceeded');
-      socket.off('banFailed');
     };
   }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
@@ -204,20 +193,32 @@ function Chat() {
                       setIsShown={setIsShown}
                     />
                     <div className="snap-end">
-                      <DisplayMessages
-                        userId={user.data.id}
-                        channelId={activeChannelId}
-                      />
+                      {userIsBanned.isSuccess &&
+                        !userIsBanned.data?.valueOf() && (
+                          <DisplayMessages
+                            userId={user.data.id}
+                            channelId={activeChannelId}
+                          />
+                        )}
+                      {userIsBanned.isSuccess &&
+                        userIsBanned.data?.valueOf() && <BanMessageBox />}
                     </div>
                   </div>
                 </CenterBox>
                 <SideBox>
                   <h2 className="flex justify-center font-bold">MEMBERS</h2>
-                  <MembersList
-                    channelUsers={channelUsers}
-                    user={user.data}
-                    setActiveChannelId={setActiveChannelId}
-                  />
+                  {userIsBanned.isSuccess && !userIsBanned.data?.valueOf() && (
+                    <MembersList
+                      channelUsers={channelUsers}
+                      user={user.data}
+                      setActiveChannelId={setActiveChannelId}
+                    />
+                  )}
+                  {userIsBanned.isSuccess && userIsBanned.data?.valueOf() && (
+                    <div className="flex flex-col justify-center py-10">
+                      <FontAwesomeIcon className="grow h-14" icon={faBan} />{' '}
+                    </div>
+                  )}
                 </SideBox>
               </channelContext.Provider>
             )}
@@ -231,9 +232,11 @@ function Chat() {
             )}
             {currentChannel.isError && <ErrorMessage />}
           </div>
-          <div className="flex justify-center">
-            <ChatBox userId={user.data.id} channelId={activeChannelId} />
-          </div>
+          {userIsBanned.isSuccess && !userIsBanned.data?.valueOf() && (
+            <div className="flex justify-center">
+              <ChatBox userId={user.data.id} channelId={activeChannelId} />
+            </div>
+          )}
         </div>
       )}
     </>

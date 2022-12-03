@@ -245,9 +245,7 @@ export class ChannelGateway {
       requesterId,
       banInfo,
     );
-    console.log(banResult);
     if (banResult == null || typeof banResult === 'string') {
-      console.log('FAILED TO BAN');
       this.server.to(clientSocket.id).emit('banFailed', banResult);
     } else {
       this.server
