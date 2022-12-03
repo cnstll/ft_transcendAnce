@@ -13,9 +13,11 @@ import {
   useMyChannelRole,
 } from 'src/components/query-hooks/useGetChannels';
 import { channelContext } from '../../global-components/chat';
+import LoadingSpinner from '../loading-spinner';
+import ErrorMessage from '../error-message';
 
 interface MembersListProps {
-  channelUsers: User[];
+  channelUsers: UseQueryResult<User[] | undefined>;
   user: User;
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -58,12 +60,18 @@ function MembersList({
 
   return (
     <>
-      <UsersList
-        users={channelUsers.filter((channelUser) => channelUser.id != user.id)}
-        userListType={UserListType.MEMBERS}
-        roles={roleUsers.data}
-        setActiveChannelId={setActiveChannelId}
-      />
+      {channelUsers.isSuccess && channelUsers.data && (
+        <UsersList
+          users={channelUsers.data.filter(
+            (channelUser) => channelUser.id != user.id,
+          )}
+          userListType={UserListType.MEMBERS}
+          roles={roleUsers.data}
+          setActiveChannelId={setActiveChannelId}
+        />
+      )}
+      {channelUsers.isLoading && <LoadingSpinner />}
+      {channelUsers.isError && <ErrorMessage />}
     </>
   );
 }

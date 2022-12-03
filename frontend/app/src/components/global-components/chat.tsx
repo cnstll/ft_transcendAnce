@@ -6,7 +6,6 @@ import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
-import DropDownButton from '../section-components/drop-down-button';
 import {
   Channel,
   channelActionType,
@@ -20,7 +19,6 @@ import {
   useChannelsByUserList,
   useGroupChannelsList,
 } from '../query-hooks/useGetChannels';
-import ChannelOptions from '../section-components/chat/channel-options';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
@@ -30,6 +28,8 @@ import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
 import { useGetUsersUnderModerationAction } from '../query-hooks/getModerationActionInfo';
 import SideChannelList from '../section-components/chat/side-channel-list';
+import ChatTopBar from '../section-components/chat/chat-top-bar';
+import ErrorMessage from '../section-components/error-message';
 
 export const channelContext = createContext({
   id: '',
@@ -185,75 +185,51 @@ function Chat() {
               setActiveChannelId={setActiveChannelId}
               channelsList={groupChannelsList}
             />
-            <CenterBox>
+            {currentChannel.isSuccess && currentChannel.data && (
+              <channelContext.Provider
+                value={{
+                  id: currentChannel.data.id,
+                  name: currentChannel.data.name,
+                  type: currentChannel.data.type,
+                }}
+              >
+                <CenterBox>
+                  <div
+                    className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
+                    style={{ backgroundImage: `url(${BackgroundGeneral})` }}
+                  >
+                    <ChatTopBar
+                      currentChannel={currentChannel}
+                      isShown={isShown}
+                      setIsShown={setIsShown}
+                    />
+                    <div className="snap-end">
+                      <DisplayMessages
+                        userId={user.data.id}
+                        channelId={activeChannelId}
+                      />
+                    </div>
+                  </div>
+                </CenterBox>
+                <SideBox>
+                  <h2 className="flex justify-center font-bold">MEMBERS</h2>
+                  <MembersList
+                    channelUsers={channelUsers}
+                    user={user.data}
+                    setActiveChannelId={setActiveChannelId}
+                  />
+                </SideBox>
+              </channelContext.Provider>
+            )}
+            {currentChannel.isLoading && (
               <div
                 className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                 style={{ backgroundImage: `url(${BackgroundGeneral})` }}
               >
-                {channels.isSuccess &&
-                  channels.data &&
-                  channels.data.length > 0 && (
-                    <div className="flex sticky top-0">
-                      <div
-                        className="flex-1 flex flex-wrap sm:justify-center content-center
-                    backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20"
-                      >
-                        <h2 className="font-bold">
-                          {
-                            channels.data.find(
-                              (channel) => channel.id === activeChannel,
-                            )?.name
-                          }
-                        </h2>
-                      </div>
-                      <div className="flex justify-center">
-                        <DropDownButton
-                          isShown={isShown}
-                          setIsShown={setIsShown}
-                          style="backdrop-blur-sm bg-gray-900/50 p-6 md:p-5"
-                        >
-                          <ChannelOptions
-                            setActiveChannelId={setActiveChannelId}
-                            setIsShown={setIsShown}
-                            channels={channels}
-                          />
-                        </DropDownButton>
-                      </div>
-                    </div>
-                  )}
-                <div className="snap-end">
-                  <DisplayMessages
-                    userId={user.data.id}
-                    channelId={activeChannelId}
-                  />
-                </div>
+                <LoadingSpinner />
               </div>
-            </CenterBox>
-            <SideBox>
-              <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              {channelUsers.isSuccess &&
-                channelUsers.data &&
-                currentChannel.isSuccess &&
-                currentChannel.data && (
-                  <channelContext.Provider
-                    value={{
-                      id: currentChannel.data.id,
-                      name: currentChannel.data.name,
-                      type: currentChannel.data.type,
-                    }}
-                  >
-                    <MembersList
-                      channelUsers={channelUsers.data}
-                      user={user.data}
-                      setActiveChannelId={setActiveChannelId}
-                    />
-                  </channelContext.Provider>
-                )}{' '}
-              {channelUsers.isLoading && <LoadingSpinner />}
-              {channelUsers.isError && (
-                <div>Woops somethin went wrong here</div>
-              )}
-            </SideBox>
+            )}
+            {currentChannel.isError && <ErrorMessage />}
           </div>
           <div className="flex justify-center">
             <ChatBox userId={user.data.id} channelId={activeChannelId} />

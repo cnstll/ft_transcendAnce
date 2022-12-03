@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Channel,
   channelRole,
@@ -10,61 +10,48 @@ import {
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
 import InviteModal from './invite-modal';
+import LoadingSpinner from '../loading-spinner';
+import ErrorMessage from '../error-message';
 
 /* review datafetching of role in channel to not refetch multiple times */
 
 interface ChannelOptions {
-  setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
-  channels: UseQueryResult<Channel[] | undefined>;
+  currentChannel: UseQueryResult<Channel | undefined>;
 }
 
-function ChannelOptions({
-  //   setActiveChannelId,
-  setIsShown,
-  channels,
-}: ChannelOptions) {
-  const { activeChannel } = useParams();
-  const queryClient = useQueryClient();
-
-  //   const channelsQueryKey = 'channelsByUserList';
-  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
-  const userQueryKey = 'userData';
+function ChannelOptions({ setIsShown, currentChannel }: ChannelOptions) {
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
-  const channelInfo = channels.data?.find(
-    (channel) => channel.id == activeChannel,
-  );
+  /* Interface with react query cache data to synchronize on events */
+  const queryClient = useQueryClient();
+  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
+  const userQueryKey = 'userData';
+  const myRoleQueryKey = 'myRoleInChannel';
 
+  /* Getting cached data from react query */
   const userQueryData: User | undefined =
     queryClient.getQueryData(userQueryKey);
-  const myRoleQueryKey = 'myRoleInChannel';
   const myRoleQueryData: { role: channelRole } | undefined =
-    queryClient.getQueryData([myRoleQueryKey, channelInfo?.id]);
-
+    queryClient.getQueryData([myRoleQueryKey, currentChannel.data?.id]);
   const channelUserBannedQueryData: string[] | undefined =
     queryClient.getQueryData(channelUserBannedQueryKey);
-  useEffect(() => {
-    socket.on('roomLeft', () => {
-      // User receiving the event is the user leaving the room
-      setIsShown(false);
-    });
-    socket.on('leaveRoomFailed', () => alert('Failed to leave room'));
-    return () => {
-      socket.off('leaveRoomFailed');
-    };
-  }, [queryClient]);
 
   function leaveChannel(channelInfo: Channel) {
     socket.emit('leaveRoom', {
       leaveInfo: { id: channelInfo.id, type: channelInfo.type },
     });
+    setIsShown(false);
   }
 
   function leaveChannelHandler() {
-    if (channelInfo != undefined) {
-      leaveChannel(channelInfo);
+    if (
+      currentChannel.data &&
+      currentChannel.data?.id !== undefined &&
+      currentChannel.data?.id !== ''
+    ) {
+      leaveChannel(currentChannel.data);
     } else {
       alert('Failed to leave room');
     }
@@ -78,56 +65,63 @@ function ChannelOptions({
     setShowInviteModal(!showInviteModal);
   }
 
-  if (channelInfo !== undefined)
-    return (
-      <div>
-        <Link to="/chat">
-          <p
-            className="text-center hover:underline my-2"
-            onClick={leaveChannelHandler}
-          >
-            Leave channel
-          </p>
-        </Link>
-        {myRoleQueryData?.role === channelRole.Owner &&
-        channelInfo.type !== channelType.DirectMessage ? (
-          <div className="z-40">
-            <div onClick={handleEditModal}>
-              <p className="text-center hover:underline my-2">Edit channel</p>
+  return (
+    <>
+      {currentChannel.isSuccess && currentChannel.data !== undefined && (
+        <div>
+          <Link to="/chat">
+            <p
+              className="text-center hover:underline my-2"
+              onClick={leaveChannelHandler}
+            >
+              Leave channel
+            </p>
+          </Link>
+
+          {myRoleQueryData?.role === channelRole.Owner &&
+          currentChannel.data.type !== channelType.DirectMessage ? (
+            <div className="z-40">
+              <div onClick={handleEditModal}>
+                <p className="text-center hover:underline my-2">Edit channel</p>
+              </div>
+              <div>
+                {showEditModal && (
+                  <EditChannelForm
+                    setShowModal={setShowEditModal}
+                    currentChannel={currentChannel.data}
+                    setIsShown={setIsShown}
+                  />
+                )}
+              </div>
             </div>
-            <div>
-              {showEditModal && (
-                <EditChannelForm
-                  setShowModal={setShowEditModal}
-                  currentChannel={channelInfo}
-                  setIsShown={setIsShown}
-                />
-              )}
+          ) : null}
+          {(myRoleQueryData?.role === channelRole.Owner ||
+            myRoleQueryData?.role === channelRole.Admin) &&
+          currentChannel.data.type === channelType.Private &&
+          channelUserBannedQueryData?.some(
+            (bannedUserId) => bannedUserId === userQueryData?.id,
+          ) ? (
+            <div className="z-40">
+              <div onClick={handleInviteModal}>
+                <p className="text-center hover:underline my-2">
+                  Invite members
+                </p>
+              </div>
+              <div>
+                {showInviteModal && (
+                  <InviteModal
+                    setShowModal={setShowInviteModal}
+                    channel={currentChannel.data}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        ) : null}
-        {(myRoleQueryData?.role === channelRole.Owner ||
-          myRoleQueryData?.role === channelRole.Admin) &&
-        channelInfo.type === channelType.Private &&
-        channelUserBannedQueryData?.some(
-          (bannedUserId) => bannedUserId === userQueryData?.id,
-        ) ? (
-          <div className="z-40">
-            <div onClick={handleInviteModal}>
-              <p className="text-center hover:underline my-2">Invite members</p>
-            </div>
-            <div>
-              {showInviteModal && (
-                <InviteModal
-                  setShowModal={setShowInviteModal}
-                  channel={channelInfo}
-                />
-              )}
-            </div>
-          </div>
-        ) : null}
-      </div>
-    );
-  else return <></>;
+          ) : null}
+        </div>
+      )}
+      {currentChannel.isLoading && <LoadingSpinner />}
+      {currentChannel.isError && <ErrorMessage />}
+    </>
+  );
 }
 export default ChannelOptions;
