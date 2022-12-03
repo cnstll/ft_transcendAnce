@@ -12,6 +12,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('channels')
@@ -117,11 +118,12 @@ export class ChannelController {
     @Param('channelId') channelId: string,
     @Param('actionType') actionType: ChannelActionType,
   ) {
-    return this.channelService.isUserUnderModeration(
-      channelId,
-      userId,
-      actionType,
-    );
+    const moderationInfo: ModerateChannelDto = {
+      channelActionTargetId: userId,
+      channelActionOnChannelId: channelId,
+      type: actionType,
+    };
+    return this.channelService.isUserUnderModeration(moderationInfo);
   }
 
   @Get('get-is-user-under-moderation/:channelId/:userId/:actionType')
@@ -130,10 +132,11 @@ export class ChannelController {
     @Param('userId') userId: string,
     @Param('actionType') actionType: ChannelActionType,
   ) {
-    return this.channelService.isUserUnderModeration(
-      channelId,
-      userId,
-      actionType,
-    );
+    const moderationInfo: ModerateChannelDto = {
+      channelActionTargetId: userId,
+      channelActionOnChannelId: channelId,
+      type: actionType,
+    };
+    return this.channelService.isUserUnderModeration(moderationInfo);
   }
 }

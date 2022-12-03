@@ -615,17 +615,13 @@ export class ChannelService {
     }
   }
 
-  async isUserUnderModeration(
-    channelId: string,
-    userTargetId: string,
-    channelActionType: ChannelActionType,
-  ) {
+  async isUserUnderModeration(moderationInfo: ModerateChannelDto) {
     try {
       const userUnderModeration = await this.prisma.channelAction.findFirst({
         where: {
-          channelActionOnChannelId: channelId,
-          type: channelActionType,
-          channelActionTargetId: userTargetId,
+          channelActionOnChannelId: moderationInfo.channelActionOnChannelId,
+          channelActionTargetId: moderationInfo.channelActionTargetId,
+          type: moderationInfo.type,
         },
       });
       return userUnderModeration !== null;
@@ -886,20 +882,22 @@ export class ChannelService {
       console.log(error);
     }
   }
-
-  async banFromChannelWS(requesterId: string, banInfo: ModerateChannelDto) {
+  async checkIfCanEnforceModeration(
+    requesterId: string,
+    moderationInfo: ModerateChannelDto,
+  ) {
     try {
       //Check if channel is not a direct channel
       const typeOfChannel: { type: ChannelType } = await this.getChannelType(
-        banInfo.channelActionOnChannelId,
+        moderationInfo.channelActionOnChannelId,
       );
       if (typeOfChannel.type === ChannelType.DIRECTMESSAGE) {
-        return 'cannotBanInDirectMessage';
+        return 'cannotModerateInDirectMessage';
       }
       //Verify if current user is Admin or Owner
       const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
         requesterId,
-        banInfo.channelActionOnChannelId,
+        moderationInfo.channelActionOnChannelId,
       );
       if (
         userRole.role !== ChannelRole.OWNER &&
@@ -909,20 +907,28 @@ export class ChannelService {
       }
       // Verify if Target User is not owner of the channel
       const targetRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
-        banInfo.channelActionTargetId,
-        banInfo.channelActionOnChannelId,
+        moderationInfo.channelActionTargetId,
+        moderationInfo.channelActionOnChannelId,
       );
       if (targetRole.role === ChannelRole.OWNER) {
-        return 'cannotBanOwner';
+        return 'cannotModerateOwner';
       }
-      // Target User exist in channel and is not already banned
-      const isAlreadyMuted = await this.isUserUnderModeration(
-        banInfo.channelActionOnChannelId,
-        banInfo.channelActionTargetId,
-        ChannelActionType.BAN,
+      return 'Ok';
+    } catch (error) {}
+  }
+
+  async banFromChannelWS(requesterId: string, banInfo: ModerateChannelDto) {
+    try {
+      const checksResults = await this.checkIfCanEnforceModeration(
+        requesterId,
+        banInfo,
       );
-      if (isAlreadyMuted) {
-        return 'userIsAlreadyBanned';
+      if (checksResults !== 'Ok') {
+        return checksResults;
+      }
+      const isAlreadyBanned = await this.isUserUnderModeration(banInfo);
+      if (isAlreadyBanned) {
+        return 'isAlreadyBanned';
       }
       // Getting ban timings
       // TODO: Adapt time so its over 30s
@@ -950,41 +956,19 @@ export class ChannelService {
 
   async muteFromChannelWS(requesterId: string, muteInfo: ModerateChannelDto) {
     try {
-      //Check if channel is not a direct channel
-      const typeOfChannel: { type: ChannelType } = await this.getChannelType(
-        muteInfo.channelActionOnChannelId,
-      );
-      if (typeOfChannel.type === ChannelType.DIRECTMESSAGE) {
-        return 'cannotMuteInDirectMessage';
-      }
-      //Verify if current user is Admin or Owner
-      const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+      const checksResults = await this.checkIfCanEnforceModeration(
         requesterId,
-        muteInfo.channelActionOnChannelId,
+        muteInfo,
       );
-      if (
-        userRole.role !== ChannelRole.OWNER &&
-        userRole.role !== ChannelRole.ADMIN
-      ) {
-        return 'noEligibleRights';
+      if (checksResults !== 'Ok') {
+        return checksResults;
       }
-      // Verify if Target User is not owner of the channel
-      const targetRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
-        muteInfo.channelActionTargetId,
-        muteInfo.channelActionOnChannelId,
-      );
-      if (targetRole.role === ChannelRole.OWNER) {
-        return 'cannotMuteOwner';
-      }
-      // Target User exist in channel and is not already Muted
-      const isAlreadyMuted = await this.isUserUnderModeration(
-        muteInfo.channelActionOnChannelId,
-        muteInfo.channelActionTargetId,
-        ChannelActionType.MUTE,
-      );
+      // Target User exist in channel and is not already banned
+      const isAlreadyMuted = await this.isUserUnderModeration(muteInfo);
       if (isAlreadyMuted) {
-        return 'userIsAlreadyMuted';
+        return 'isAlreadyMuted';
       }
+
       // Getting ban timings
       // TODO: Adapt time so its over 30s
       const MuteDurationInMS = 30 * 1000;
@@ -1005,6 +989,35 @@ export class ChannelService {
       });
       return MutedUser;
     } catch (error) {}
+  }
+
+  async unMuteFromChannelWS(
+    requesterId: string,
+    unMuteInfo: ModerateChannelDto,
+  ) {
+    try {
+      const checksResults = await this.checkIfCanEnforceModeration(
+        requesterId,
+        unMuteInfo,
+      );
+      if (checksResults !== 'Ok') {
+        return checksResults;
+      }
+      const unMuteResult = this.prisma.channelAction.delete({
+        where: {
+          channelActionTargetId_channelActionOnChannelId_channelActionRequesterId_type:
+            {
+              channelActionOnChannelId: unMuteInfo.channelActionOnChannelId,
+              channelActionRequesterId: requesterId,
+              channelActionTargetId: unMuteInfo.channelActionTargetId,
+              type: unMuteInfo.type,
+            },
+        },
+      });
+      return unMuteResult;
+    } catch (error) {
+      return null;
+    }
   }
 
   async updateAdminRoleByChannelIdWS(

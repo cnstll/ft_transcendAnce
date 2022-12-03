@@ -52,13 +52,14 @@ export class ChannelGateway {
     @MessageBody('channelId') channelId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    const sockets = await this.server.in(channelId).fetchSockets();
-    console.log(
-      'ROOM: ',
-      channelId,
-      ' Socket COnnected: ',
-      sockets.map((socket) => socket.id),
-    );
+    //FOR MONITORING SOCKET CONNECTIONS
+    // const sockets = await this.server.in(channelId).fetchSockets();
+    // console.log(
+    //   'ROOM: ',
+    //   channelId,
+    //   ' Socket COnnected: ',
+    //   sockets.map((socket) => socket.id),
+    // );
     const userOnChannel = await this.channelService.connectToChannel(
       userId,
       channelId,
@@ -266,11 +267,30 @@ export class ChannelGateway {
       muteInfo,
     );
     if (muteResult == null || typeof muteResult === 'string') {
-      this.server.to(clientSocket.id).emit('banFailed', muteResult);
+      this.server.to(clientSocket.id).emit('muteFailed', muteResult);
     } else {
       this.server
         .to(muteInfo.channelActionOnChannelId)
-        .emit('banSucceeded', muteResult);
+        .emit('muteSucceeded', muteResult);
+    }
+  }
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('unMuteUser')
+  async unMuteUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('unMuteInfo') muteInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const muteResult = await this.channelService.unMuteFromChannelWS(
+      requesterId,
+      muteInfo,
+    );
+    if (muteResult == null || typeof muteResult === 'string') {
+      this.server.to(clientSocket.id).emit('unMuteFailed', muteResult);
+    } else {
+      this.server
+        .to(muteInfo.channelActionOnChannelId)
+        .emit('unMuteSucceeded', muteResult);
     }
   }
 
