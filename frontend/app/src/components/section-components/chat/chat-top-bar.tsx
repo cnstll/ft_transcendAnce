@@ -19,7 +19,7 @@ function ChatTopBar({ currentChannel, isShown, setIsShown }: ChatTopBarProps) {
   backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20"
       >
         {currentChannel.isSuccess && currentChannel.data && (
-          <h2 className="font-bold">{currentChannel.data?.name}</h2>
+          <h2 className="font-bold">{currentChannel.data.name}</h2>
         )}
         {currentChannel.isLoading && <LoadingSpinner />}
         {currentChannel.isError && <ErrorMessage />}

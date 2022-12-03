@@ -46,11 +46,7 @@ function ChannelOptions({ setIsShown, currentChannel }: ChannelOptions) {
   }
 
   function leaveChannelHandler() {
-    if (
-      currentChannel.data &&
-      currentChannel.data?.id !== undefined &&
-      currentChannel.data?.id !== ''
-    ) {
+    if (currentChannel.data && currentChannel.data.id !== '') {
       leaveChannel(currentChannel.data);
     } else {
       alert('Failed to leave room');
