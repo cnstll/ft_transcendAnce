@@ -7,18 +7,20 @@ import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
 import DropDownButton from '../section-components/drop-down-button';
-import { Channel, User } from '../global-components/interface';
+import {
+  Channel,
+  channelActionType,
+  ModerationInfo,
+  User,
+} from '../global-components/interface';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import {
   getCurrentChannel,
   useChannelsByUserList,
   useGroupChannelsList,
-  useMyChannelRole,
 } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
-import ChannelHeader from '../section-components/chat/channel-header';
-import MyChannelsList from '../section-components/chat/my-channels-list';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
@@ -26,6 +28,8 @@ import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
 import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
+import { useGetUsersUnderModerationAction } from '../query-hooks/getModerationActionInfo';
+import SideChannelList from '../section-components/chat/side-channel-list';
 
 export const channelContext = createContext({
   id: '',
@@ -44,18 +48,19 @@ function Chat() {
   const queryClient = useQueryClient();
   const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
-
+  const channelUserBannedQueryKey = 'getUsersUnderModerationAction';
   /* Query Hooks to Fetch Data for the Chat */
   const user: UseQueryResult<User> = useUserInfo();
   const channels: UseQueryResult<Channel[] | undefined> =
     useChannelsByUserList();
-  const channelsData: UseQueryResult<Channel[] | undefined> =
+  const groupChannelsList: UseQueryResult<Channel[] | undefined> =
     useGroupChannelsList();
   const channelUsers: UseQueryResult<User[] | undefined> =
     useChannelUsers(activeChannelId);
   const currentChannel: UseQueryResult<Channel | undefined> =
     getCurrentChannel(activeChannelId);
-  useMyChannelRole(activeChannelId);
+  //   const bannedUsers: UseQueryResult<string[] | undefined> =
+  useGetUsersUnderModerationAction(activeChannelId, channelActionType.Ban);
 
   useEffect(() => {
     if (user.isError) {
@@ -130,10 +135,27 @@ function Chat() {
         navigate('../chat/' + channelId);
       }
     });
+    socket.on('banSucceeded', async (banInfo: ModerationInfo) => {
+      console.log('WOW THERE WAS A BAN HERE: ', banInfo);
+      await queryClient.invalidateQueries([
+        channelUserBannedQueryKey,
+        banInfo.channelActionOnChannelId,
+        channelActionType.Ban,
+      ]);
+    });
+
+    socket.on('banFailed', (banInfo: string | null) => {
+      console.log('WOW ITS A BAN FAIL');
+      if (banInfo !== null) {
+        alert(`Oups : ${banInfo} !`);
+      }
+    });
     return () => {
       socket.off('roomCreated');
       socket.off('roomLeft');
       socket.off('roomEdited');
+      socket.off('banSucceeded');
+      socket.off('banFailed');
     };
   }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
@@ -159,16 +181,10 @@ function Chat() {
             className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
           >
-            <SideBox>
-              <ChannelHeader
-                setActiveChannelId={setActiveChannelId}
-                channels={channelsData}
-              />
-              <MyChannelsList
-                activeChannelId={activeChannelId}
-                setActiveChannelId={setActiveChannelId}
-              />
-            </SideBox>
+            <SideChannelList
+              setActiveChannelId={setActiveChannelId}
+              channelsList={groupChannelsList}
+            />
             <CenterBox>
               <div
                 className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"

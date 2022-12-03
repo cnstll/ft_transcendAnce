@@ -9,7 +9,7 @@ import LoadingSpinner from '../loading-spinner';
 
 function ChannelHeader({
   setActiveChannelId,
-  channels
+  channels,
 }: {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
   channels: UseQueryResult<Channel[] | undefined>;
@@ -25,6 +25,14 @@ function ChannelHeader({
     setShowForm(!showForm);
   }
 
+  function filterOutAlreadyJoinedChannels() {
+    const filteredOutChannels = channels.data?.filter(
+      (channel) =>
+        !myChannelsQueryData?.map((channel) => channel.id).includes(channel.id),
+    );
+    return filteredOutChannels;
+  }
+
   return (
     <div className="flex items-center flex-col gap-4 font-bold">
       <div className="flex items-center">
@@ -34,11 +42,7 @@ function ChannelHeader({
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
           <div className="z-20">
-            {showForm && (
-              <CreateChannelForm
-                setShowForm={setShowForm}
-              />
-            )}
+            {showForm && <CreateChannelForm setShowForm={setShowForm} />}
           </div>
         </div>
       </div>
@@ -55,12 +59,7 @@ function ChannelHeader({
           width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
           placeholder="channel"
           setActiveChannelId={setActiveChannelId}
-          channels={channels.data.filter(
-            (channel) =>
-              !myChannelsQueryData
-                ?.map((channel) => channel.id)
-                .includes(channel.id),
-          )}
+          channels={filterOutAlreadyJoinedChannels()}
         />
       )}
     </div>

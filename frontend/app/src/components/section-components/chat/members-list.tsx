@@ -8,7 +8,10 @@ import { useContext, useEffect } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { toast } from 'react-toastify';
 import { socket } from 'src/components/global-components/client-socket';
-import { useChannelRoles } from 'src/components/query-hooks/useGetChannels';
+import {
+  useChannelRoles,
+  useMyChannelRole,
+} from 'src/components/query-hooks/useGetChannels';
 import { channelContext } from '../../global-components/chat';
 
 interface MembersListProps {
@@ -34,6 +37,7 @@ function MembersList({
       }[]
     | undefined
   > = useChannelRoles(activeChannelCtx.id);
+  useMyChannelRole(activeChannelCtx.id);
 
   useEffect(() => {
     socket.on('roleUpdated', async () => {
