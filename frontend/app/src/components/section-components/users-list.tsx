@@ -1,7 +1,6 @@
 import UsersListItem from './users-list-item';
 import {
   channelRole,
-  channelType,
   User,
   UserListType,
 } from '../global-components/interface';
@@ -10,37 +9,35 @@ import {
   useGetUsersWhoBlocked,
 } from '../query-hooks/useBlockedUser';
 import LoadingSpinner from './loading-spinner';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
+import { channelContext } from '../global-components/chat';
 
 interface UsersListProps {
   users: User[];
   userListType: UserListType;
-  type?: channelType;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   roles?: {
     userId: string;
     role: channelRole;
   }[];
-  channelId?: string;
 }
 
 function UsersList({
   users,
   userListType,
-  type,
   setActiveChannelId,
   roles,
-  channelId,
 }: UsersListProps) {
+  const activeChannelCtx = useContext(channelContext);
+  const queryClient = useQueryClient();
   const usersBlocked = useGetBlockedUsers();
   const usersWhoBlocked = useGetUsersWhoBlocked();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     void queryClient.invalidateQueries('blockedUsersList');
     void queryClient.invalidateQueries('usersWhoBlockedList');
-  }, [channelId, setActiveChannelId, userListType]);
+  }, [setActiveChannelId, userListType, queryClient]);
 
   return (
     <>
@@ -61,16 +58,15 @@ function UsersList({
                 key={user.id}
                 user={user}
                 userListType={userListType}
-                type={type}
                 setActiveChannelId={setActiveChannelId}
                 usersBlocked={usersBlocked.data}
                 usersWhoBlocked={usersWhoBlocked.data}
                 role={
-                  channelId
+                  activeChannelCtx.id
                     ? roles?.find((role) => role.userId === user.id)
                     : undefined
                 }
-                channelId={channelId}
+                channelId={activeChannelCtx.id}
               />
             ))}
         </div>

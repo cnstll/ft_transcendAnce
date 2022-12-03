@@ -35,12 +35,10 @@ interface UsersListProps {
 function UsersListItem({
   user,
   userListType,
-  type,
   setActiveChannelId,
   usersBlocked,
   usersWhoBlocked,
   role,
-  channelId,
 }: UsersListProps) {
   const [isShown, setIsShown] = useState(false);
   let resultBlock = false;
@@ -111,9 +109,7 @@ function UsersListItem({
               <MembersOptions
                 user={user}
                 setIsShown={setIsShown}
-                type={type}
                 setActiveChannelId={setActiveChannelId}
-                channelId={channelId ?? ''}
                 role={role?.role ?? channelRole.User}
                 blocked={blocked}
                 isBlocked={isBlocked}

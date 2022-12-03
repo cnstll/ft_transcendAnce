@@ -34,7 +34,6 @@ export class ChannelService {
   constructor(
     private prisma: PrismaService,
     private readonly blockService: BlockService,
-    private readonly blockService: UserService,
   ) {}
 
   getChannels() {

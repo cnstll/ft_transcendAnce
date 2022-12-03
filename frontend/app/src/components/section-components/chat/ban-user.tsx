@@ -18,13 +18,13 @@ interface BanUserProps {
 function BanUser(props: BanUserProps) {
   const queryClient = useQueryClient();
   queryClient;
-  const channelCtx: { activeChannelId: string } = useContext(channelContext);
+  const activeChannelCtx = useContext(channelContext);
 
   function onBan() {
     socket.emit('banUser', {
       banInfo: {
         channelActionTargetId: props.user?.id,
-        channelActionOnChannelId: channelCtx.activeChannelId,
+        channelActionOnChannelId: activeChannelCtx.id,
         type: channelActionType.Ban,
       },
     });

@@ -2,48 +2,38 @@ import {
   channelRole,
   User,
   UserListType,
-  Channel,
-  channelType,
 } from '../../global-components/interface';
 import UsersList from '../users-list';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { toast } from 'react-toastify';
 import { socket } from 'src/components/global-components/client-socket';
-import {
-  getCurrentChannel,
-  useChannelRoles,
-} from 'src/components/query-hooks/useGetChannels';
+import { useChannelRoles } from 'src/components/query-hooks/useGetChannels';
+import { channelContext } from '../../global-components/chat';
 
 interface MembersListProps {
   channelUsers: User[];
   user: User;
-  type: channelType;
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
-  channelId: string;
 }
 
 function MembersList({
   channelUsers,
   user,
-  channelId,
   setActiveChannelId,
 }: MembersListProps) {
+  const activeChannelCtx = useContext(channelContext);
   const customToastId = 'custom-toast-error-role';
   const channelRolesQueryKey = 'rolesInChannel';
   const myRoleQueryKey = 'myRoleInChannel';
-  const currentChannel: UseQueryResult<Channel | undefined> =
-    getCurrentChannel(channelId);
-
   const queryClient = useQueryClient();
-
   const roleUsers: UseQueryResult<
     | {
         userId: string;
         role: channelRole;
       }[]
     | undefined
-  > = useChannelRoles(channelId);
+  > = useChannelRoles(activeChannelCtx.id);
 
   useEffect(() => {
     socket.on('roleUpdated', async () => {
@@ -68,8 +58,6 @@ function MembersList({
         users={channelUsers.filter((channelUser) => channelUser.id != user.id)}
         userListType={UserListType.MEMBERS}
         roles={roleUsers.data}
-        channelId={channelId}
-        type={currentChannel.data?.type}
         setActiveChannelId={setActiveChannelId}
       />
     </>

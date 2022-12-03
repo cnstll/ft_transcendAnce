@@ -11,8 +11,10 @@ import { Channel, User } from '../global-components/interface';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import {
+  getCurrentChannel,
   useChannelsByUserList,
   useGroupChannelsList,
+  useMyChannelRole,
 } from '../query-hooks/useGetChannels';
 import ChannelOptions from '../section-components/chat/channel-options';
 import ChannelHeader from '../section-components/chat/channel-header';
@@ -25,29 +27,35 @@ import LoadingSpinner from '../section-components/loading-spinner';
 import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
 
-export const channelContext = createContext({ activeChannelId: '' });
+export const channelContext = createContext({
+  id: '',
+  name: '',
+  type: '',
+});
+
 function Chat() {
-  const user = useUserInfo();
-  const { activeChannel } = useParams();
+  const { activeChannel } = useParams<string>();
   const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
   const [isShown, setIsShown] = useState(false);
 
   const navigate = useNavigate();
-  const channels: UseQueryResult<Channel[] | undefined> =
-    useChannelsByUserList();
-  const channelUsers: UseQueryResult<User[] | undefined> =
-    useChannelUsers(activeChannelId);
-  const type = channels.data?.find(
-    (channel) => channel.id === activeChannel,
-  )?.type;
 
+  /* Interface with react query cache data to synchronize on events */
   const queryClient = useQueryClient();
-  const channelsData: UseQueryResult<Channel[] | undefined> =
-    useGroupChannelsList();
-
-  //const channelUsersQueryKey = 'channelUsers';
   const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
+
+  /* Query Hooks to Fetch Data for the Chat */
+  const user: UseQueryResult<User> = useUserInfo();
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
+  const channelsData: UseQueryResult<Channel[] | undefined> =
+    useGroupChannelsList();
+  const channelUsers: UseQueryResult<User[] | undefined> =
+    useChannelUsers(activeChannelId);
+  const currentChannel: UseQueryResult<Channel | undefined> =
+    getCurrentChannel(activeChannelId);
+  useMyChannelRole(activeChannelId);
 
   useEffect(() => {
     if (user.isError) {
@@ -207,19 +215,24 @@ function Chat() {
             </CenterBox>
             <SideBox>
               <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              {channelUsers.isSuccess && channelUsers.data && type && (
-                <channelContext.Provider
-                  value={{ activeChannelId: activeChannelId }}
-                >
-                  <MembersList
-                    channelUsers={channelUsers.data}
-                    user={user.data}
-                    type={type}
-                    setActiveChannelId={setActiveChannelId}
-                    channelId={activeChannel ?? ''}
-                  />
-                </channelContext.Provider>
-              )}{' '}
+              {channelUsers.isSuccess &&
+                channelUsers.data &&
+                currentChannel.isSuccess &&
+                currentChannel.data && (
+                  <channelContext.Provider
+                    value={{
+                      id: currentChannel.data.id,
+                      name: currentChannel.data.name,
+                      type: currentChannel.data.type,
+                    }}
+                  >
+                    <MembersList
+                      channelUsers={channelUsers.data}
+                      user={user.data}
+                      setActiveChannelId={setActiveChannelId}
+                    />
+                  </channelContext.Provider>
+                )}{' '}
               {channelUsers.isLoading && <LoadingSpinner />}
               {channelUsers.isError && (
                 <div>Woops somethin went wrong here</div>

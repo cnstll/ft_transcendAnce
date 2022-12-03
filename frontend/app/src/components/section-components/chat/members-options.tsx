@@ -19,21 +19,17 @@ import BanUser from './ban-user';
 interface UserOptionsProps {
   user: User;
   setIsShown: React.Dispatch<React.SetStateAction<boolean>>;
-  type: channelType | undefined;
   setActiveChannelId?: React.Dispatch<React.SetStateAction<string>>;
   blocked: boolean | undefined;
   setBlocked: React.Dispatch<React.SetStateAction<boolean>>;
   isBlocked: boolean | undefined;
-  channelId: string;
   role: channelRole;
 }
 
 function MembersOptions({
   user,
-  channelId,
   role,
   setIsShown,
-  type,
   setActiveChannelId,
   blocked,
   setBlocked,
@@ -41,11 +37,11 @@ function MembersOptions({
 }: UserOptionsProps) {
   //   const myRole = useMyChannelRole(channelId);
   const queryClient = useQueryClient();
-  const channelCtx = useContext(channelContext);
+  const activeChannelCtx = useContext(channelContext);
   const myRoleQueryKey = 'myRoleInChannel';
   const channelsOfUserKey = 'channelsByUserList';
   const myRoleQueryData: { role: string } | undefined =
-    queryClient.getQueryData([myRoleQueryKey, channelCtx.activeChannelId]);
+    queryClient.getQueryData([myRoleQueryKey, activeChannelCtx.id]);
   const channelsOfUserQueryData: Channel[] | undefined =
     queryClient.getQueryData([channelsOfUserKey]);
 
@@ -60,7 +56,7 @@ function MembersOptions({
   function isGroupChannel() {
     const activeChannelType: channelType | undefined =
       channelsOfUserQueryData?.find(
-        (channel) => channel.id === channelCtx.activeChannelId,
+        (channel) => channel.id === activeChannelCtx.id,
       )?.type;
     return activeChannelType && activeChannelType !== channelType.DirectMessage;
   }
@@ -74,13 +70,15 @@ function MembersOptions({
       {user.status === UserConnectionStatus.ONLINE && (
         <InviteToPlay user={user} setIsShown={setIsShown} />
       )}
-      {type !== channelType.DirectMessage && !blocked && !isBlocked && (
-        <SendDM
-          user={user}
-          setIsShown={setIsShown}
-          setActiveChannelId={setActiveChannelId}
-        />
-      )}
+      {activeChannelCtx.type !== channelType.DirectMessage &&
+        !blocked &&
+        !isBlocked && (
+          <SendDM
+            user={user}
+            setIsShown={setIsShown}
+            setActiveChannelId={setActiveChannelId}
+          />
+        )}
       <BlockUser user={user} setIsShown={setIsShown} setBlocked={setBlocked} />
       {myRoleQueryData &&
         (myRoleQueryData.role === channelRole.Owner ||
@@ -88,7 +86,7 @@ function MembersOptions({
           <PromoteToAdmin
             user={user}
             setIsShown={setIsShown}
-            channelId={channelId}
+            channelId={activeChannelCtx.id}
             role={role}
           />
         )}
