@@ -28,7 +28,7 @@ function ChannelOptions({
 
   //   const channelsQueryKey = 'channelsByUserList';
   // const userQueryKey = 'userData';
-  const channelsQueryKey = 'channelsByUserList';
+
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
 
