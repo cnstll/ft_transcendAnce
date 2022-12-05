@@ -14,6 +14,7 @@ import {
   Message,
   ChannelActionType,
   ChannelAction,
+  UserStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto, EditRoleChannelDto } from './dto';
@@ -52,7 +53,11 @@ export class ChannelService {
   }
 
   async getAllChannelsByUserId(userId: string) {
-    const channels = await this.prisma.channel.findMany({
+    const channels: {
+      id: string;
+      name: string;
+      type: ChannelType;
+    }[] = await this.prisma.channel.findMany({
       where: {
         users: {
           some: {
@@ -69,12 +74,19 @@ export class ChannelService {
     /** Check if the channnel is of type DIRECT MESSAGE and change the name
      * according to the name of the current user
      */
-    for (let i = 0; i < channels.length; i++) {
-      if (channels[i].type === 'DIRECTMESSAGE') {
-        const channelUser = await this.getUsersOfAChannel(channels[i].id);
+    for (const channel of channels) {
+      if (channel.type === 'DIRECTMESSAGE') {
+        const channelUser: {
+          id: string;
+          avatarImg: string;
+          nickname: string;
+          eloScore: number;
+          status: UserStatus;
+          twoFactorAuthenticationSet: boolean;
+        }[] = await this.getUsersOfAChannel(channel.id);
         if (channelUser[0].id === userId && channelUser[1])
-          channels[i].name = channelUser[1].nickname;
-        else channels[i].name = channelUser[0].nickname;
+          channel.name = channelUser[1].nickname;
+        else channel.name = channelUser[0].nickname;
       }
     }
     return channels;
@@ -108,22 +120,28 @@ export class ChannelService {
         type: 'DIRECTMESSAGE',
       },
     });
-    for (let i = 0; i < allDirectMessages.length; i++) {
-      const users = await this.getUsersOfAChannel(allDirectMessages[i].id);
+    for (const message of allDirectMessages) {
+      const users = await this.getUsersOfAChannel(message.id);
       if (
         (users.length > 1 &&
           users[0].id === userId &&
           users[1].id === participantId) ||
         (users[0].id === participantId && users[1].id === userId)
       )
-        return allDirectMessages[i];
+        return message;
     }
     return null;
   }
 
   async getChannelAuthors(channelId: string) {
     try {
-      const authors = await this.prisma.message.findMany({
+      const authors: {
+        sender: {
+          id: string;
+          nickname: string;
+          avatarImg: string;
+        };
+      }[] = await this.prisma.message.findMany({
         where: {
           channelId: channelId,
         },
@@ -138,9 +156,13 @@ export class ChannelService {
         },
         distinct: ['senderId'],
       });
-      const flattenAuthors = [];
-      for (let index = 0; index < authors.length; index++) {
-        flattenAuthors.push(authors[index].sender);
+      const flattenAuthors: {
+        id: string;
+        nickname: string;
+        avatarImg: string;
+      }[] = [];
+      for (const author of authors) {
+        flattenAuthors.push(author.sender);
       }
       return flattenAuthors;
     } catch (error) {
@@ -174,7 +196,16 @@ export class ChannelService {
   async getUsersOfAChannel(channelId: string) {
     try {
       await this.checkChannel(channelId);
-      const users = await this.prisma.channelUser.findMany({
+      const users: {
+        user: {
+          id: string;
+          avatarImg: string;
+          nickname: string;
+          eloScore: number;
+          status: UserStatus;
+          twoFactorAuthenticationSet: boolean;
+        };
+      }[] = await this.prisma.channelUser.findMany({
         where: {
           channelId: channelId,
         },
@@ -191,7 +222,14 @@ export class ChannelService {
           },
         },
       });
-      const flattenUsers = [];
+      const flattenUsers: {
+        id: string;
+        avatarImg: string;
+        nickname: string;
+        eloScore: number;
+        status: UserStatus;
+        twoFactorAuthenticationSet: boolean;
+      }[] = [];
       for (let index = 0; index < users.length; index++) {
         flattenUsers.push(users[index].user);
       }
@@ -421,7 +459,7 @@ export class ChannelService {
       clientSocket.join(createdChannel.id);
       return createdChannel;
     } catch (error) {
-      if (error.code === 'P2002') {
+      if (error === Error && error.code === 'P2002') {
         return 'alreadyUsed' + error.meta.target[0];
       }
       if (error == 'Error: WrongData') {

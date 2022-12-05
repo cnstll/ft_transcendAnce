@@ -6,6 +6,9 @@ import { Server } from 'socket.io';
 export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
+export interface JwtRequest extends Request {
+  cookies: { jwtToken: string };
+}
 
 export enum UserConnectionStatus {
   OFFLINE = 'OFFLINE',
