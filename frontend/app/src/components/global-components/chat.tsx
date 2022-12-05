@@ -1,22 +1,23 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from './navbar';
 import SideBox from '../section-components/side-box';
 import CenterBox from '../section-components/center-box';
 import ChatBox from '../section-components/chat/chat-box';
 import BackgroundGeneral from '../../img/disco2.png';
-import DropDownButton from '../section-components/drop-down-button';
-import { Channel, User } from '../global-components/interface';
-import { useEffect, useState } from 'react';
+import {
+  Channel,
+  channelActionType,
+  User,
+} from '../global-components/interface';
+import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import {
+  getCurrentChannel,
   useChannelsByUserList,
   useGroupChannelsList,
 } from '../query-hooks/useGetChannels';
-import ChannelOptions from '../section-components/chat/channel-options';
-import ChannelHeader from '../section-components/chat/channel-header';
-import MyChannelsList from '../section-components/chat/my-channels-list';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import DisplayMessages from '../section-components/chat/display-messages';
 import { socket } from './client-socket';
@@ -24,29 +25,51 @@ import { useChannelUsers } from '../query-hooks/useGetChannelUsers';
 import LoadingSpinner from '../section-components/loading-spinner';
 import PageNotFound from './page-not-found';
 import MembersList from '../section-components/chat/members-list';
+import { useGetUsersUnderModerationAction } from '../query-hooks/getModerationActionInfo';
+import SideChannelList from '../section-components/chat/side-channel-list';
+import ChatTopBar from '../section-components/chat/chat-top-bar';
+import ErrorMessage from '../section-components/error-message';
+import { useIsCurrentUserUnderModerationInChannel } from '../query-hooks/useIsCurrentUserUnderModerationInChannel';
+import BanMessageBox from '../section-components/chat/ban-message-box';
+
+export const channelContext = createContext({
+  id: '',
+  name: '',
+  type: '',
+});
 
 function Chat() {
-  const user = useUserInfo();
   const { activeChannel } = useParams();
   const [activeChannelId, setActiveChannelId] = useState(activeChannel ?? '');
   const [isShown, setIsShown] = useState(false);
 
   const navigate = useNavigate();
-  const channels: UseQueryResult<Channel[] | undefined> =
-    useChannelsByUserList();
-  const channelUsers: UseQueryResult<User[] | undefined> =
-    useChannelUsers(activeChannelId);
-  const type = channels.data?.find(
-    (channel) => channel.id === activeChannel,
-  )?.type;
 
+  /* Interface with react query cache data to synchronize on events */
   const queryClient = useQueryClient();
-  const channelsData: UseQueryResult<Channel[] | undefined> =
-    useGroupChannelsList();
-
-  //const channelUsersQueryKey = 'channelUsers';
   const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
+  /* Query Hooks to Fetch Data for the Chat */
+  const user: UseQueryResult<User> = useUserInfo();
+  const channels: UseQueryResult<Channel[] | undefined> =
+    useChannelsByUserList();
+  const groupChannelsList: UseQueryResult<Channel[] | undefined> =
+    useGroupChannelsList();
+  const channelUsers: UseQueryResult<User[] | undefined> =
+    useChannelUsers(activeChannelId);
+  const currentChannel: UseQueryResult<Channel | undefined> =
+    getCurrentChannel(activeChannelId);
+  useGetUsersUnderModerationAction(activeChannelId, channelActionType.Ban);
+  useGetUsersUnderModerationAction(activeChannelId, channelActionType.Mute);
+  const userIsBanned: UseQueryResult<boolean | undefined> =
+    useIsCurrentUserUnderModerationInChannel(
+      activeChannelId,
+      channelActionType.Ban,
+    );
+  useIsCurrentUserUnderModerationInChannel(
+    activeChannelId,
+    channelActionType.Mute,
+  );
 
   useEffect(() => {
     if (user.isError) {
@@ -121,6 +144,7 @@ function Chat() {
         navigate('../chat/' + channelId);
       }
     });
+
     return () => {
       socket.off('roomCreated');
       socket.off('roomLeft');
@@ -150,80 +174,73 @@ function Chat() {
             className="flex flex-row xl:flex-nowrap lg:flex-nowrap md:flex-wrap sm:flex-wrap flex-wrap
                 gap-10 px-5 justify-center mt-6 text-white text-3xl"
           >
-            <SideBox>
-              <ChannelHeader
-                setActiveChannelId={setActiveChannelId}
-                channels={channelsData}
-              />
-              <MyChannelsList
-                activeChannelId={activeChannelId}
-                setActiveChannelId={setActiveChannelId}
-              />
-            </SideBox>
-            <CenterBox>
+            <SideChannelList
+              setActiveChannelId={setActiveChannelId}
+              channelsList={groupChannelsList}
+            />
+            {currentChannel.isSuccess && currentChannel.data && (
+              <channelContext.Provider
+                value={{
+                  id: currentChannel.data.id,
+                  name: currentChannel.data.name,
+                  type: currentChannel.data.type,
+                }}
+              >
+                <CenterBox>
+                  <div
+                    className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
+                    style={{ backgroundImage: `url(${BackgroundGeneral})` }}
+                  >
+                    <ChatTopBar
+                      currentChannel={currentChannel}
+                      isShown={isShown}
+                      setIsShown={setIsShown}
+                    />
+                    <div className="snap-end">
+                      {userIsBanned.isSuccess &&
+                        !userIsBanned.data?.valueOf() && (
+                          <DisplayMessages
+                            userId={user.data.id}
+                            channelId={activeChannelId}
+                          />
+                        )}
+                      {userIsBanned.isSuccess &&
+                        userIsBanned.data?.valueOf() && <BanMessageBox />}
+                    </div>
+                  </div>
+                </CenterBox>
+                <SideBox>
+                  <h2 className="flex justify-center font-bold">MEMBERS</h2>
+                  {userIsBanned.isSuccess && !userIsBanned.data?.valueOf() && (
+                    <MembersList
+                      channelUsers={channelUsers}
+                      user={user.data}
+                      setActiveChannelId={setActiveChannelId}
+                    />
+                  )}
+                  {userIsBanned.isSuccess && userIsBanned.data?.valueOf() && (
+                    <div className="flex flex-col justify-center py-10">
+                      <FontAwesomeIcon className="grow h-14" icon={faBan} />{' '}
+                    </div>
+                  )}
+                </SideBox>
+              </channelContext.Provider>
+            )}
+            {currentChannel.isLoading && (
               <div
                 className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                 style={{ backgroundImage: `url(${BackgroundGeneral})` }}
               >
-                {channels.isSuccess &&
-                  channels.data &&
-                  channels.data.length > 0 && (
-                    <div className="flex sticky top-0">
-                      <div
-                        className="flex-1 flex flex-wrap justify-center content-center
-                    backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20"
-                      >
-                        <h2 className="font-bold">
-                          {
-                            channels.data.find(
-                              (channel) => channel.id === activeChannel,
-                            )?.name
-                          }
-                        </h2>
-                      </div>
-                      <div className="flex justify-center">
-                        <DropDownButton
-                          isShown={isShown}
-                          setIsShown={setIsShown}
-                          style="backdrop-blur-sm bg-gray-900/50 p-6 md:p-5"
-                        >
-                          <ChannelOptions
-                            // setActiveChannelId={setActiveChannelId}
-                            setIsShown={setIsShown}
-                            channels={channels}
-                          />
-                        </DropDownButton>
-                      </div>
-                    </div>
-                  )}
-                <div className="snap-end">
-                  <DisplayMessages
-                    userId={user.data.id}
-                    channelId={activeChannelId}
-                  />
-                </div>
+                <LoadingSpinner />
               </div>
-            </CenterBox>
-            <SideBox>
-              <h2 className="flex justify-center font-bold">MEMBERS</h2>
-              {channelUsers.isSuccess && channelUsers.data && type && (
-                <MembersList
-                  channelUsers={channelUsers.data}
-                  user={user.data}
-                  type={type}
-                  setActiveChannelId={setActiveChannelId}
-                  channelId={activeChannel ?? ''}
-                />
-              )}{' '}
-              {channelUsers.isLoading && <LoadingSpinner />}
-              {channelUsers.isError && (
-                <div>Woops somethin went wrong here</div>
-              )}
-            </SideBox>
+            )}
+            {currentChannel.isError && <ErrorMessage />}
           </div>
-          <div className="flex justify-center">
-            <ChatBox userId={user.data.id} channelId={activeChannelId} />
-          </div>
+          {userIsBanned.isSuccess && !userIsBanned.data?.valueOf() && (
+            <div className="flex justify-center">
+              <ChatBox userId={user.data.id} channelId={activeChannelId} />
+            </div>
+          )}
         </div>
       )}
     </>

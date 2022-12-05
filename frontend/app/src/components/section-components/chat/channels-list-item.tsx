@@ -8,14 +8,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 interface ChannelsListProps {
   channelItem: Channel;
-  activeChannel: string;
   setActiveChannel: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function ChannelsListItem(p: ChannelsListProps) {
   const navigate = useNavigate();
   const { activeChannel } = useParams();
-
   function onClickHandler() {
     p.setActiveChannel(p.channelItem.id);
     navigate(`../chat/${p.channelItem.id}`);
@@ -25,7 +23,7 @@ function ChannelsListItem(p: ChannelsListProps) {
     <div onClick={onClickHandler}>
       <div
         className={
-          (activeChannel !== undefined && activeChannel === p.channelItem.id)
+          activeChannel !== undefined && activeChannel === p.channelItem.id
             ? 'bg-purple-light flex items-center justify-start'
             : 'flex items-center justify-start'
         }

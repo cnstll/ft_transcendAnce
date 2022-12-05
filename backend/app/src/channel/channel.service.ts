@@ -12,6 +12,8 @@ import {
   ChannelUser,
   User,
   Message,
+  ChannelActionType,
+  ChannelAction,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChannelDto, EditChannelDto, EditRoleChannelDto } from './dto';
@@ -22,6 +24,7 @@ import * as argon from 'argon2';
 import { InviteChannelDto } from './dto/inviteChannel.dto';
 import { IncomingMessageDto } from './dto/incomingMessage.dto';
 import { Response } from 'express';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 import { BlockService } from 'src/block/block.service';
 
 @Injectable()
@@ -144,6 +147,17 @@ export class ChannelService {
       if (error.status === 404) throw new NotFoundException(error);
       else throw new ForbiddenException(error);
     }
+  }
+
+  async getChannelType(channelId: string) {
+    return await this.prisma.channel.findUnique({
+      where: {
+        id: channelId,
+      },
+      select: {
+        type: true,
+      },
+    });
   }
 
   async checkChannel(channelId: string) {
@@ -317,10 +331,20 @@ export class ChannelService {
     }
   }
 
-  async getMessagesFromChannel(channelId: string, res: Response) {
-    // Use userId to verify that user requesting message belong to channel or is not banned
-    // Retrieve all messages from channel using its id
+  async getMessagesFromChannel(
+    channelId: string,
+    userRequesting: string,
+    res: Response,
+  ) {
     try {
+      const userIsBanned = await this.isUserUnderModeration({
+        channelActionOnChannelId: channelId,
+        channelActionTargetId: userRequesting,
+        type: ChannelActionType.BAN,
+      });
+      if (userIsBanned) {
+        return res.status(401).send();
+      }
       const objMessages = await this.prisma.channel.findFirst({
         where: {
           id: channelId,
@@ -481,6 +505,125 @@ export class ChannelService {
       : false;
   }
 
+  async getModerationActionInfo(
+    userTargetId: string,
+    channelId: string,
+    channelActionType: ChannelActionType,
+  ) {
+    try {
+      const moderationAction = await this.prisma.channelAction.findUnique({
+        where: {
+          channelActionTargetId_channelActionOnChannelId_type: {
+            channelActionTargetId: userTargetId,
+            channelActionOnChannelId: channelId,
+            type: channelActionType,
+          },
+        },
+        select: {
+          type: true,
+          channelActionTargetId: true,
+          channelActionTime: true,
+        },
+      });
+      return moderationAction;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async deleteChannelAction(
+    channelId: string,
+    targetUserId: string,
+    actionType: ChannelActionType,
+  ) {
+    try {
+      await this.prisma.channelAction.deleteMany({
+        where: {
+          AND: [
+            { channelActionTargetId: targetUserId },
+            {
+              channelActionOnChannelId: channelId,
+            },
+            { type: actionType },
+          ],
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getListOfUsersUnderModerationInChannel(
+    channelId: string,
+    channelActionType: ChannelActionType,
+  ) {
+    const usersUnderModeration = await this.prisma.channelAction.findMany({
+      where: {
+        channelActionOnChannelId: channelId,
+        type: channelActionType,
+      },
+    });
+    return usersUnderModeration;
+  }
+
+  async updateUsersUnderModeration(
+    moderationActions: ChannelAction[],
+    channelId: string,
+    actionType: ChannelActionType,
+  ) {
+    const userUnderModerationList = [];
+    const currentTime = Date.now();
+    for (let index = 0; index < moderationActions.length; index++) {
+      const banExpirationDate = Number(
+        Date.parse(moderationActions[index].channelActionTime.toString()),
+      );
+      if (banExpirationDate - currentTime < 0) {
+        await this.deleteChannelAction(
+          channelId,
+          moderationActions[index].channelActionTargetId,
+          actionType,
+        );
+      } else {
+        userUnderModerationList.push(
+          moderationActions[index].channelActionTargetId,
+        );
+      }
+    }
+    return userUnderModerationList;
+  }
+
+  async getUsersUnderModerationAction(
+    channelId: string,
+    channelActionType: ChannelActionType,
+  ) {
+    try {
+      const usersUnderModeration =
+        await this.getListOfUsersUnderModerationInChannel(
+          channelId,
+          channelActionType,
+        );
+      //return a list of userId for target still under moderation
+      return this.updateUsersUnderModeration(
+        usersUnderModeration,
+        channelId,
+        channelActionType,
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async isUserUnderModeration(moderationInfo: ModerateChannelDto) {
+    try {
+      const usersUnderModeration = await this.getUsersUnderModerationAction(
+        moderationInfo.channelActionOnChannelId,
+        moderationInfo.type,
+      );
+      return usersUnderModeration.some(
+        (targetId) => targetId === moderationInfo.channelActionTargetId,
+      );
+    } catch (error) {}
+  }
+
   async joinChannelWS(
     channelDto: JoinChannelDto,
     userId: string,
@@ -551,7 +694,22 @@ export class ChannelService {
 
   async storeMessage(userId: string, messageInfo: IncomingMessageDto) {
     try {
-      //TODO Check if user is muted/banned
+      const userIsBanned = await this.isUserUnderModeration({
+        channelActionOnChannelId: messageInfo.channelId,
+        channelActionTargetId: userId,
+        type: ChannelActionType.BAN,
+      });
+      if (userIsBanned) {
+        return null;
+      }
+      const userIsMuted = await this.isUserUnderModeration({
+        channelActionOnChannelId: messageInfo.channelId,
+        channelActionTargetId: userId,
+        type: ChannelActionType.MUTE,
+      });
+      if (userIsMuted) {
+        return null;
+      }
       const messagesObj: { messages: Message[] } =
         await this.prisma.channel.update({
           where: {
@@ -734,6 +892,115 @@ export class ChannelService {
       }
       console.log(error);
     }
+  }
+  async checkIfCanEnforceModeration(
+    requesterId: string,
+    moderationInfo: ModerateChannelDto,
+  ) {
+    try {
+      //Check if channel is not a direct channel
+      const typeOfChannel: { type: ChannelType } = await this.getChannelType(
+        moderationInfo.channelActionOnChannelId,
+      );
+      if (typeOfChannel.type === ChannelType.DIRECTMESSAGE) {
+        return 'cannotModerateInDirectMessage';
+      }
+      //Verify if current user is Admin or Owner
+      const userRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        requesterId,
+        moderationInfo.channelActionOnChannelId,
+      );
+      if (
+        userRole.role !== ChannelRole.OWNER &&
+        userRole.role !== ChannelRole.ADMIN
+      ) {
+        return 'noEligibleRights';
+      }
+      // Verify if Target User is not owner of the channel
+      const targetRole: { role: ChannelRole } = await this.getRoleOfUserChannel(
+        moderationInfo.channelActionTargetId,
+        moderationInfo.channelActionOnChannelId,
+      );
+      if (targetRole.role === ChannelRole.OWNER) {
+        return 'cannotModerateOwner';
+      }
+      return 'Ok';
+    } catch (error) {}
+  }
+
+  async banFromChannelWS(requesterId: string, banInfo: ModerateChannelDto) {
+    try {
+      const checksResults = await this.checkIfCanEnforceModeration(
+        requesterId,
+        banInfo,
+      );
+      if (checksResults !== 'Ok') {
+        return checksResults;
+      }
+      const isAlreadyBanned = await this.isUserUnderModeration(banInfo);
+      if (isAlreadyBanned) {
+        return 'isAlreadyBanned';
+      }
+      // Getting ban timings
+      // TODO: Adapt time so its over 30s
+      const banDurationInMS = 30 * 1000;
+      const banExpirationDate = new Date(Date.now() + banDurationInMS);
+      // Actual ban added in DB
+      const bannedUser = await this.prisma.channelAction.create({
+        data: {
+          channelActionTargetId: banInfo.channelActionTargetId,
+          channelActionOnChannelId: banInfo.channelActionOnChannelId,
+          channelActionTime: banExpirationDate,
+          type: ChannelActionType.BAN,
+          channelActionRequesterId: requesterId,
+        },
+        select: {
+          channelActionTargetId: true,
+          channelActionOnChannelId: true,
+        },
+      });
+      return bannedUser;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  async muteFromChannelWS(requesterId: string, muteInfo: ModerateChannelDto) {
+    try {
+      const checksResults = await this.checkIfCanEnforceModeration(
+        requesterId,
+        muteInfo,
+      );
+      if (checksResults !== 'Ok') {
+        return checksResults;
+      }
+      // Target User exist in channel and is not already banned
+      const isAlreadyMuted = await this.isUserUnderModeration(muteInfo);
+      if (isAlreadyMuted) {
+        return 'isAlreadyMuted';
+      }
+
+      // Getting ban timings
+      // TODO: Adapt time so its over 30s
+      const MuteDurationInMS = 30 * 1000;
+      const MuteExpirationDate = new Date(Date.now() + MuteDurationInMS);
+      // Actual Mute added in DB
+      const MutedUser = await this.prisma.channelAction.create({
+        data: {
+          channelActionTargetId: muteInfo.channelActionTargetId,
+          channelActionOnChannelId: muteInfo.channelActionOnChannelId,
+          channelActionTime: MuteExpirationDate,
+          type: ChannelActionType.MUTE,
+          channelActionRequesterId: requesterId,
+        },
+        select: {
+          channelActionTargetId: true,
+          channelActionOnChannelId: true,
+        },
+      });
+      return MutedUser;
+    } catch (error) {}
   }
 
   async updateAdminRoleByChannelIdWS(

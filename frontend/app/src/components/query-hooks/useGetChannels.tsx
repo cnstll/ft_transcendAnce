@@ -34,7 +34,9 @@ const fetchCurrentChannel = (channelId: string) =>
 export function getCurrentChannel(
   channelId: string,
 ): UseQueryResult<Channel | undefined> {
-  return useQuery(['currentChannel', channelId], () => fetchCurrentChannel);
+  return useQuery(['currentChannel', channelId], () =>
+    fetchCurrentChannel(channelId),
+  );
 }
 
 const fetchMyRoleInChannel = (channelId: string) =>
