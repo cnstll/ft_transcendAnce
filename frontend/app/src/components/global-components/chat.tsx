@@ -201,6 +201,7 @@ function Chat() {
                         !userIsBanned.data?.valueOf() && (
                           <DisplayMessages
                             userId={user.data.id}
+                            avatarImg={user.data.avatarImg}
                             channelId={activeChannelId}
                           />
                         )}
