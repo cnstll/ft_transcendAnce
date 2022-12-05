@@ -536,7 +536,7 @@ export class ChannelService {
     actionType: ChannelActionType,
   ) {
     try {
-      const deletedChannelAction = await this.prisma.channelAction.deleteMany({
+      await this.prisma.channelAction.deleteMany({
         where: {
           AND: [
             { channelActionTargetId: targetUserId },
