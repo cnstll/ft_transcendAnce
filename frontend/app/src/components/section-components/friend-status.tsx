@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Tooltip from './tooltip';
 import useCreateFriendship from '../query-hooks/useCreateFriendship';
 import useUpdateFriendship from '../query-hooks/useUpdateFriendship';
+import LoadingSpinner from './loading-spinner';
 
 interface FriendStatusProps {
   status: string | null | undefined;
@@ -21,7 +22,10 @@ function FriendStatus(props: FriendStatusProps) {
 
   return (
     <>
-      <p>
+    {(friendRequest.isLoading || friendUpdate.isLoading)?
+    <LoadingSpinner /> :
+      <div>
+        <div>
         {props.status === null && (
           <button
             onClick={() => friendRequest.mutate({ target: props.nickname })}
@@ -33,8 +37,8 @@ function FriendStatus(props: FriendStatusProps) {
             />{' '}
           </button>
         )}{' '}
-      </p>
-      <p>
+      </div>
+      <div>
         {props.status === 'PENDING' && (
           <button
             onClick={() =>
@@ -48,8 +52,8 @@ function FriendStatus(props: FriendStatusProps) {
             </a>{' '}
           </button>
         )}{' '}
-      </p>
-      <p>
+      </div>
+      <div>
         {props.status === 'ACCEPTED' && (
           <button
             onClick={() =>
@@ -63,8 +67,8 @@ function FriendStatus(props: FriendStatusProps) {
             </a>{' '}
           </button>
         )}{' '}
-      </p>
-      <p>
+      </div>
+      <div>
         {props.status === 'REQUESTED' && (
           <button
             onClick={() =>
@@ -78,7 +82,9 @@ function FriendStatus(props: FriendStatusProps) {
             </a>{' '}
           </button>
         )}{' '}
-      </p>
+        </div>
+      </div>
+    }
     </>
   );
 }
