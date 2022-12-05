@@ -196,20 +196,6 @@ export class UserController {
     return this.userService.setAchievement(userId, data.achievementId);
   }
 
-  /** Ban, mute,block management */
-
-  @Post('check-current-user-blocked-target')
-  @UseGuards(JwtAuthGuard)
-  checkCurrentUserBlockedTarget(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.checkCurrentUserBlockedTarget(
-      userId,
-      data.targetId,
-    );
-  }
-
   /** Channel invitations */
   @Get('get-channel-invites')
   @UseGuards(JwtAuthGuard)
