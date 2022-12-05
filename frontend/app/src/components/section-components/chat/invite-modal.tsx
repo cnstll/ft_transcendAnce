@@ -35,7 +35,6 @@ function InviteModal(props: InviteModalProps) {
       }
     });
     return () => {
-      socket.off('invitationSent');
       socket.off('invitationFailed');
     };
   }, [formData, invitableUsers]);
