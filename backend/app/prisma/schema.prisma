@@ -165,7 +165,7 @@ model ChannelAction {
   updatedAt DateTime @updatedAt
 
   @@id([channelActionTargetId, channelActionOnChannelId, channelActionRequesterId, type])
-  @@unique([channelActionTargetId, channelActionOnChannelId])
+  @@unique([channelActionTargetId, channelActionOnChannelId, type])
   @@map("channel_actions")
 }
 

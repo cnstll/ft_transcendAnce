@@ -557,7 +557,7 @@ export class ChannelService {
     return usersUnderModeration;
   }
 
-  async listAndUpdateUsersUnderModeration(
+  async updateUsersUnderModeration(
     moderationActions: ChannelAction[],
     channelId: string,
     actionType: ChannelActionType,
@@ -593,7 +593,8 @@ export class ChannelService {
           channelId,
           channelActionType,
         );
-      return this.listAndUpdateUsersUnderModeration(
+      //return a list of userId for target still under moderation
+      return this.updateUsersUnderModeration(
         usersUnderModeration,
         channelId,
         channelActionType,
@@ -922,6 +923,7 @@ export class ChannelService {
       const banDurationInMS = 30 * 1000;
       const banExpirationDate = new Date(Date.now() + banDurationInMS);
       // Actual ban added in DB
+      console.log(banInfo);
       const bannedUser = await this.prisma.channelAction.create({
         data: {
           channelActionTargetId: banInfo.channelActionTargetId,
@@ -937,6 +939,7 @@ export class ChannelService {
       });
       return bannedUser;
     } catch (error) {
+      console.log(error);
       return null;
     }
   }

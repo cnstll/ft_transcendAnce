@@ -230,6 +230,7 @@ export class ChannelGateway {
       requesterId,
       banInfo,
     );
+    console.log('Banned result: ', banResult);
     if (banResult == null || typeof banResult === 'string') {
       this.server.to(clientSocket.id).emit('banFailed', banResult);
     } else {
@@ -249,6 +250,7 @@ export class ChannelGateway {
       requesterId,
       muteInfo,
     );
+    console.log('Muted result: ', muteResult);
     if (muteResult == null || typeof muteResult === 'string') {
       this.server.to(clientSocket.id).emit('muteFailed', muteResult);
     } else {
