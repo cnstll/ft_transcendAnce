@@ -19,9 +19,10 @@ import {
   InviteChannelDto,
   IncomingMessageDto,
 } from './dto';
-import { ChannelType } from '@prisma/client';
+import { Channel, ChannelRole, ChannelType } from '@prisma/client';
 import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
 import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
+import * as msgpack from 'socket.io-msgpack-parser';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -38,7 +39,7 @@ enum acknoledgementStatus {
     ],
     credentials: true,
   },
-  parser: require('socket.io-msgpack-parser'),
+  parser: msgpack,
 })
 @UseGuards(JwtAuthGuard)
 export class ChannelGateway {
@@ -52,14 +53,6 @@ export class ChannelGateway {
     @MessageBody('channelId') channelId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    //FOR MONITORING SOCKET CONNECTIONS
-    // const sockets = await this.server.in(channelId).fetchSockets();
-    // console.log(
-    //   'ROOM: ',
-    //   channelId,
-    //   ' Socket COnnected: ',
-    //   sockets.map((socket) => socket.id),
-    // );
     const userOnChannel = await this.channelService.connectToChannel(
       userId,
       channelId,
@@ -80,7 +73,7 @@ export class ChannelGateway {
     dto = {
       ...dto,
     };
-    let channel;
+    let channel: Channel | string | null;
     if (dto.type === ChannelType.DIRECTMESSAGE) {
       channel = await this.channelService.createDirectMessageWS(
         dto,
@@ -88,9 +81,11 @@ export class ChannelGateway {
         clientSocket,
       );
       /** Get the second user's socketId and make it join the channel's room */
-      const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
-      if (secondUserSocket)
-        this.server.in([secondUserSocket]).socketsJoin(channel.id);
+      if (typeof dto.userId === 'string') {
+        const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+        if (secondUserSocket && channel && typeof channel !== 'string')
+          this.server.in([secondUserSocket]).socketsJoin(channel.id);
+      }
     } else {
       channel = await this.channelService.createChannelWS(
         dto,
@@ -98,7 +93,7 @@ export class ChannelGateway {
         clientSocket,
       );
     }
-    channel === null || typeof channel === 'string'
+    typeof channel === 'string' || !channel
       ? this.server.to(clientSocket.id).emit('createRoomFailed', channel)
       : this.server.emit('roomCreated', channel.id, userId);
   }
@@ -118,11 +113,11 @@ export class ChannelGateway {
     );
     typeof joinedRoom === 'string'
       ? this.server.to(clientSocket.id).emit('joinRoomError', joinedRoom)
-      : typeof joinedRoom === null
-      ? this.server.to(clientSocket.id).emit('joinRoomFailed')
-      : this.server
+      : joinedRoom
+      ? this.server
           .to(dto.id)
-          .emit('roomJoined', { userId: userId, channelId: joinedRoom.id });
+          .emit('roomJoined', { userId: userId, channelId: joinedRoom.id })
+      : this.server.to(clientSocket.id).emit('joinRoomFailed');
   }
 
   //   When a user send a message in a channel, all the users within the room receive the message
@@ -178,7 +173,7 @@ export class ChannelGateway {
       userId,
       leaveChannelDto,
     );
-    if (userLeaving === null) {
+    if (!userLeaving || typeof userLeaving === 'string') {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
     } else if (leaveChannelDto.type === ChannelType.DIRECTMESSAGE) {
       this.server.to(leaveChannelDto.id).emit('roomLeft', {
@@ -187,16 +182,20 @@ export class ChannelGateway {
         secondUserId: userLeaving.userId,
       });
       /** Get the first user's socketId to leave the channel's room */
-      clientSocket.leave(leaveChannelDto.id);
+      await clientSocket.leave(leaveChannelDto.id);
       /** Get the second user's socketId to leave the channel's room */
-      const secondUserSocket = socketToUserId.getFromUserId(userLeaving.userId);
-      if (secondUserSocket)
-        this.server.in(secondUserSocket).socketsLeave(userLeaving.channelId);
+      if (typeof userLeaving !== 'string') {
+        const secondUserSocket = socketToUserId.getFromUserId(
+          userLeaving.userId,
+        );
+        if (secondUserSocket && typeof userLeaving !== 'string')
+          this.server.in(secondUserSocket).socketsLeave(userLeaving.channelId);
+      }
     } else {
       this.server
         .to(leaveChannelDto.id)
         .emit('roomLeft', { userId: userId, channelId: leaveChannelDto.id });
-      clientSocket.leave(leaveChannelDto.id);
+      await clientSocket.leave(leaveChannelDto.id);
     }
   }
 
@@ -211,7 +210,7 @@ export class ChannelGateway {
       userId,
       inviteChannelDto,
     );
-    if (inviteToChannel === null || typeof inviteToChannel === 'string') {
+    if (!inviteToChannel || typeof inviteToChannel === 'string') {
       this.server.to(clientSocket.id).emit('inviteFailed', inviteToChannel);
     } else {
       this.server
@@ -230,7 +229,7 @@ export class ChannelGateway {
       requesterId,
       banInfo,
     );
-    if (banResult === null || typeof banResult === 'string') {
+    if (!banResult || typeof banResult === 'string') {
       this.server.to(clientSocket.id).emit('banFailed', banResult);
     } else {
       this.server
@@ -249,7 +248,7 @@ export class ChannelGateway {
       requesterId,
       muteInfo,
     );
-    if (muteResult === null || typeof muteResult === 'string') {
+    if (!muteResult || typeof muteResult === 'string') {
       this.server.to(clientSocket.id).emit('muteFailed', muteResult);
     } else {
       this.server
@@ -270,10 +269,10 @@ export class ChannelGateway {
       channelId,
       editRoleDto,
     );
-    roleUpdated === null ||
-    roleUpdated === 'PromotionNotAuthorized' ||
-    roleUpdated === 'noEligibleRights'
-      ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)
-      : this.server.in(channelId).emit('roleUpdated', roleUpdated);
+    roleUpdated === ChannelRole.ADMIN ||
+    roleUpdated === ChannelRole.OWNER ||
+    roleUpdated === ChannelRole.USER
+      ? this.server.in(channelId).emit('roleUpdated', roleUpdated)
+      : this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated);
   }
 }

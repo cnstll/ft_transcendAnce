@@ -25,7 +25,6 @@ import * as msgpack from 'socket.io-msgpack-parser';
     ],
     credentials: true,
   },
-  // parser: require('socket.io-msgpack-parser'),
   parser: msgpack,
 })
 @UseGuards(JwtAuthGuard)
