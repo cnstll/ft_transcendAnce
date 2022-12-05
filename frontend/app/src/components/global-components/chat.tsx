@@ -196,7 +196,12 @@ function Chat() {
                     className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                     style={{ backgroundImage: `url(${BackgroundGeneral})` }}
                   >
-                    <ChatTopBar isShown={isShown} setIsShown={setIsShown} />
+                    <ChatTopBar
+                      isShown={isShown}
+                      setIsShown={setIsShown}
+                      channelUsers={channelUsers}
+                      currentUser={user.data}
+                    />
                     <div className="snap-end">
                       {userIsBanned.isSuccess &&
                         !userIsBanned.data?.valueOf() && (
