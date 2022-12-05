@@ -108,9 +108,11 @@ function MembersOptions({
           {user.status === UserConnectionStatus.PLAYING && (
             <WatchGame user={user} setIsShown={setIsShown} />
           )}
-          <MuteUser user={user} setIsShown={setIsShown} />
           {hasBanRight() && isGroupChannel() && (
-            <BanUser user={user} setIsShown={setIsShown} />
+            <>
+              <MuteUser user={user} setIsShown={setIsShown} />
+              <BanUser user={user} setIsShown={setIsShown} />
+            </>
           )}
         </>
       )}
