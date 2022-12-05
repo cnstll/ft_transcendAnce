@@ -40,12 +40,12 @@ enum acknoledgementStatus {
   },
   parser: require('socket.io-msgpack-parser'),
 })
+@UseGuards(JwtAuthGuard)
 export class ChannelGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly channelService: ChannelService) {}
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('connectToRoom')
   async connectToChannel(
     @GetCurrentUserId() userId: string,
@@ -71,7 +71,6 @@ export class ChannelGateway {
   }
 
   //When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createRoom')
   async createChannel(
     @GetCurrentUserId() userId: string,
@@ -105,7 +104,6 @@ export class ChannelGateway {
   }
 
   // When a user join a channel, her ids are added to the users in the corresponding room
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
   async joinChannel(
     @GetCurrentUserId() userId: string,
@@ -128,7 +126,6 @@ export class ChannelGateway {
   }
 
   //   When a user send a message in a channel, all the users within the room receive the message
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messageRoom')
   async sendMessage(
     @GetCurrentUserId() senderId: string,
@@ -151,16 +148,6 @@ export class ChannelGateway {
     }
   }
 
-  // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room
-  @SubscribeMessage('typing')
-  someoneIsTyping(
-    @MessageBody('roomId') roomId: string,
-    @ConnectedSocket() clientSocket: Socket,
-  ) {
-    return clientSocket.to(roomId).emit('typing');
-  }
-
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('editRoom')
   async editRoom(
     @GetCurrentUserId() userId: string,
@@ -181,7 +168,6 @@ export class ChannelGateway {
   }
 
   //Delete channel
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('leaveRoom')
   async deleteRoom(
     @GetCurrentUserId() userId: string,
@@ -215,7 +201,6 @@ export class ChannelGateway {
   }
 
   // Invite other users to a private channel
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('inviteToChannel')
   async inviteToChannel(
     @GetCurrentUserId() userId: string,
@@ -235,7 +220,6 @@ export class ChannelGateway {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('banUser')
   async banUserFromChannel(
     @GetCurrentUserId() requesterId: string,
@@ -255,7 +239,6 @@ export class ChannelGateway {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('muteUser')
   async muteUserFromChannel(
     @GetCurrentUserId() requesterId: string,
@@ -274,7 +257,6 @@ export class ChannelGateway {
         .emit('muteSucceeded', muteResult);
     }
   }
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('unMuteUser')
   async unMuteUserFromChannel(
     @GetCurrentUserId() requesterId: string,
@@ -294,7 +276,6 @@ export class ChannelGateway {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('updateRole')
   async editRole(
     @GetCurrentUserId() userId: string,
