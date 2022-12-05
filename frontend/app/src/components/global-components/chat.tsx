@@ -57,20 +57,34 @@ function Chat() {
     useChannelsByUserList();
   const groupChannelsList: UseQueryResult<Channel[] | undefined> =
     useGroupChannelsList();
-  const channelUsers: UseQueryResult<User[] | undefined> =
-    useChannelUsers(activeChannelId);
-  const currentChannel: UseQueryResult<Channel | undefined> =
-    getCurrentChannel(activeChannelId);
-  useGetUsersUnderModerationAction(activeChannelId, channelActionType.Ban);
-  useGetUsersUnderModerationAction(activeChannelId, channelActionType.Mute);
+  const channelUsers: UseQueryResult<User[] | undefined> = useChannelUsers(
+    activeChannelId,
+    !!activeChannel,
+  );
+  const currentChannel: UseQueryResult<Channel | undefined> = getCurrentChannel(
+    activeChannelId,
+    !!activeChannel,
+  );
+  useGetUsersUnderModerationAction(
+    activeChannelId,
+    channelActionType.Ban,
+    !!activeChannel,
+  );
+  useGetUsersUnderModerationAction(
+    activeChannelId,
+    channelActionType.Mute,
+    !!activeChannel,
+  );
   const userIsBanned: UseQueryResult<boolean | undefined> =
     useIsCurrentUserUnderModerationInChannel(
       activeChannelId,
       channelActionType.Ban,
+      !!activeChannel,
     );
   useIsCurrentUserUnderModerationInChannel(
     activeChannelId,
     channelActionType.Mute,
+    !!activeChannel,
   );
 
   useEffect(() => {
