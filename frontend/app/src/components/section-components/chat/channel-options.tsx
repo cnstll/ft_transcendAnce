@@ -12,6 +12,7 @@ import EditChannelForm from './edit-channel-form';
 import InviteModal from './invite-modal';
 import LoadingSpinner from '../loading-spinner';
 import ErrorMessage from '../error-message';
+import { toast } from 'react-toastify';
 
 /* review datafetching of role in channel to not refetch multiple times */
 
@@ -49,7 +50,10 @@ function ChannelOptions({ setIsShown, currentChannel }: ChannelOptions) {
     if (currentChannel.data && currentChannel.data.id !== '') {
       leaveChannel(currentChannel.data);
     } else {
-      alert('Failed to leave room');
+      toast.error("Couldn't leave the channel sorry 🤷", {
+        toastId: 'toast-error-leave-channel',
+        position: toast.POSITION.TOP_RIGHT,
+      });
     }
   }
 
