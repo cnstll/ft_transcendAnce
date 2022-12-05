@@ -124,14 +124,9 @@ function DisplayMessages({
           </div>
         )}
       {messageQuery.isLoading && <LoadingSpinner />}
-      {messageQuery.isError && (
+      {(messageQuery.isError || channelAuthorsQuery.isError) && (
         <div className="text-xl text-center">
           Woops could not find any messages 😔
-        </div>
-      )}
-      {channelAuthorsQuery.isError && (
-        <div className="text-xl text-center">
-          Woops could not load your messages 😔
         </div>
       )}
     </div>

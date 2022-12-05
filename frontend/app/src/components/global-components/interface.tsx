@@ -19,23 +19,27 @@ export enum channelRole {
   Admin = 'ADMIN',
   Owner = 'OWNER',
 }
+export enum channelActionType {
+  Ban = 'BAN',
+  Mute = 'MUTE',
+}
 
 export interface GameInformation {
-  p1x: number,
-  p2x: number,
+  p1x: number;
+  p2x: number;
   playerOneScore: number;
   playerTwoScore: number;
-  gameCoordinates: GameCoords,
-  ballWidth: number,
-  heightScalar: number,
-  widthScalar: number,
-  paddleWidth: number,
-  paddleHeight: number,
-  canvas: HTMLCanvasElement | null,
-  context: CanvasRenderingContext2D | null, 
-  cacheCanvas: OffscreenCanvas | null,
-  fontSize: number,
-  playerNumber: number,
+  gameCoordinates: GameCoords;
+  ballWidth: number;
+  heightScalar: number;
+  widthScalar: number;
+  paddleWidth: number;
+  paddleHeight: number;
+  canvas: HTMLCanvasElement | null;
+  context: CanvasRenderingContext2D | null;
+  cacheCanvas: OffscreenCanvas | null;
+  fontSize: number;
+  playerNumber: number;
 }
 
 export interface Channel {
@@ -138,4 +142,9 @@ export interface GameCoords {
   by: number;
   p1s: number;
   p2s: number;
+}
+
+export interface ModerationInfo {
+  channelActionTargetId: string;
+  channelActionOnChannelId: string;
 }

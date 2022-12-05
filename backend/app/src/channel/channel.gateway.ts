@@ -21,6 +21,7 @@ import {
 } from './dto';
 import { ChannelType } from '@prisma/client';
 import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -39,18 +40,26 @@ enum acknoledgementStatus {
   },
   parser: require('socket.io-msgpack-parser'),
 })
+@UseGuards(JwtAuthGuard)
 export class ChannelGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly channelService: ChannelService) {}
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('connectToRoom')
   async connectToChannel(
     @GetCurrentUserId() userId: string,
     @MessageBody('channelId') channelId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    //FOR MONITORING SOCKET CONNECTIONS
+    // const sockets = await this.server.in(channelId).fetchSockets();
+    // console.log(
+    //   'ROOM: ',
+    //   channelId,
+    //   ' Socket COnnected: ',
+    //   sockets.map((socket) => socket.id),
+    // );
     const userOnChannel = await this.channelService.connectToChannel(
       userId,
       channelId,
@@ -62,7 +71,6 @@ export class ChannelGateway {
   }
 
   //When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createRoom')
   async createChannel(
     @GetCurrentUserId() userId: string,
@@ -96,7 +104,6 @@ export class ChannelGateway {
   }
 
   // When a user join a channel, her ids are added to the users in the corresponding room
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
   async joinChannel(
     @GetCurrentUserId() userId: string,
@@ -119,7 +126,6 @@ export class ChannelGateway {
   }
 
   //   When a user send a message in a channel, all the users within the room receive the message
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messageRoom')
   async sendMessage(
     @GetCurrentUserId() senderId: string,
@@ -142,16 +148,6 @@ export class ChannelGateway {
     }
   }
 
-  // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room
-  @SubscribeMessage('typing')
-  someoneIsTyping(
-    @MessageBody('roomId') roomId: string,
-    @ConnectedSocket() clientSocket: Socket,
-  ) {
-    return clientSocket.to(roomId).emit('typing');
-  }
-
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('editRoom')
   async editRoom(
     @GetCurrentUserId() userId: string,
@@ -172,7 +168,6 @@ export class ChannelGateway {
   }
 
   //Delete channel
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('leaveRoom')
   async deleteRoom(
     @GetCurrentUserId() userId: string,
@@ -183,7 +178,7 @@ export class ChannelGateway {
       userId,
       leaveChannelDto,
     );
-    if (userLeaving == null) {
+    if (userLeaving === null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
     } else if (leaveChannelDto.type === ChannelType.DIRECTMESSAGE) {
       this.server.to(leaveChannelDto.id).emit('roomLeft', {
@@ -206,7 +201,6 @@ export class ChannelGateway {
   }
 
   // Invite other users to a private channel
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('inviteToChannel')
   async inviteToChannel(
     @GetCurrentUserId() userId: string,
@@ -217,7 +211,7 @@ export class ChannelGateway {
       userId,
       inviteChannelDto,
     );
-    if (inviteToChannel == null || typeof inviteToChannel === 'string') {
+    if (inviteToChannel === null || typeof inviteToChannel === 'string') {
       this.server.to(clientSocket.id).emit('inviteFailed', inviteToChannel);
     } else {
       this.server
@@ -226,7 +220,44 @@ export class ChannelGateway {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('banUser')
+  async banUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('banInfo') banInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const banResult = await this.channelService.banFromChannelWS(
+      requesterId,
+      banInfo,
+    );
+    if (banResult === null || typeof banResult === 'string') {
+      this.server.to(clientSocket.id).emit('banFailed', banResult);
+    } else {
+      this.server
+        .to(banInfo.channelActionOnChannelId)
+        .emit('banSucceeded', banResult);
+    }
+  }
+
+  @SubscribeMessage('muteUser')
+  async muteUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('muteInfo') muteInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const muteResult = await this.channelService.muteFromChannelWS(
+      requesterId,
+      muteInfo,
+    );
+    if (muteResult === null || typeof muteResult === 'string') {
+      this.server.to(clientSocket.id).emit('muteFailed', muteResult);
+    } else {
+      this.server
+        .to(muteInfo.channelActionOnChannelId)
+        .emit('muteSucceeded', muteResult);
+    }
+  }
+
   @SubscribeMessage('updateRole')
   async editRole(
     @GetCurrentUserId() userId: string,
@@ -239,7 +270,7 @@ export class ChannelGateway {
       channelId,
       editRoleDto,
     );
-    roleUpdated == null ||
+    roleUpdated === null ||
     roleUpdated === 'PromotionNotAuthorized' ||
     roleUpdated === 'noEligibleRights'
       ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)

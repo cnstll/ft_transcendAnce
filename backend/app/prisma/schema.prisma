@@ -155,7 +155,7 @@ model ChannelAction {
   channelActionTarget      User              @relation("channelActionTarget", fields: [channelActionTargetId], references: [id], onDelete: Cascade)
   channelActionOnChannelId String
   channelActionOnChannel   Channel           @relation("channelActionOnChannel", fields: [channelActionOnChannelId], references: [id], onDelete: Cascade)
-  channelActionTime        DateTime          @db.Time
+  channelActionTime        DateTime
   type                     ChannelActionType
 
   channelActionRequesterId String
@@ -165,7 +165,7 @@ model ChannelAction {
   updatedAt DateTime @updatedAt
 
   @@id([channelActionTargetId, channelActionOnChannelId, channelActionRequesterId, type])
-  @@unique([channelActionTargetId, channelActionOnChannelId])
+  @@unique([channelActionTargetId, channelActionOnChannelId, type])
   @@map("channel_actions")
 }
 
