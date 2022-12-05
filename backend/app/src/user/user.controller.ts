@@ -24,9 +24,10 @@ export const storage = {
   storage: diskStorage({
     destination: './avatar',
     filename: (req, file, cb) => {
-      const filename: string = path
+      const initialFilename: string = path
         .parse(file.originalname)
         .name.replace(/\s/g, '');
+      const filename = Buffer.from(initialFilename, 'latin1').toString('utf8');
       const extension: string = path.parse(file.originalname).ext;
 
       cb(null, `${filename}${extension}`);
@@ -193,20 +194,6 @@ export class UserController {
     @Body() data: { achievementId: string },
   ) {
     return this.userService.setAchievement(userId, data.achievementId);
-  }
-
-  /** Ban, mute,block management */
-
-  @Post('check-current-user-blocked-target')
-  @UseGuards(JwtAuthGuard)
-  checkCurrentUserBlockedTarget(
-    @GetCurrentUserId() userId: string,
-    @Body() data: { targetId: string },
-  ) {
-    return this.userService.checkCurrentUserBlockedTarget(
-      userId,
-      data.targetId,
-    );
   }
 
   /** Channel invitations */

@@ -28,6 +28,8 @@ model User {
   userOnChannels                ChannelUser[]     @relation("userOnChannel")
   channelActionRequester        ChannelAction[]   @relation("channelActionRequester")
   channelActionTarget           ChannelAction[]   @relation("channelActionTarget")
+  channelBlockedRequester       BlockedUser[]     @relation("channelBlockedRequester")
+  channelBlockedTarget          BlockedUser[]     @relation("channelBlockedTarget")
   playerOneMatch                Match[]           @relation("playerOne")
   playerTwoMatch                Match[]           @relation("playerTwo")
   invites                       Channel[]         @relation("inviteOnChannel")
@@ -134,6 +136,20 @@ model ChannelUser {
   @@map("channel_users")
 }
 
+model BlockedUser {
+  channelBlockedTargetId    String
+  channelBlockedTarget      User   @relation("channelBlockedTarget", fields: [channelBlockedTargetId], references: [id], onDelete: Cascade)
+  channelBlockedRequesterId String
+  channelBlockedRequester   User   @relation("channelBlockedRequester", fields: [channelBlockedRequesterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([channelBlockedTargetId, channelBlockedRequesterId])
+  @@unique(fields: [channelBlockedRequesterId, channelBlockedTargetId], name: "blockedId")
+  @@map("blocked")
+}
+
 model ChannelAction {
   channelActionTargetId    String
   channelActionTarget      User              @relation("channelActionTarget", fields: [channelActionTargetId], references: [id], onDelete: Cascade)
@@ -155,7 +171,6 @@ model ChannelAction {
 
 enum ChannelActionType {
   BAN
-  BLOCK
   MUTE
 }
 
