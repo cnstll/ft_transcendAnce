@@ -101,17 +101,17 @@ export class GameService {
   }
 
   // <<<<<<< Updated upstream
-  leaveWatch(client: Socket, playerId: string) {
+  async leaveWatch(client: Socket, playerId: string) {
     const game = this.GameMap.getGame(playerId);
     if (game !== null) {
-      client.leave(game.gameRoomId);
+      await client.leave(game.gameRoomId);
     }
   }
 
-  watch(client: Socket, playerId: string, server: Server) {
+  async watch(client: Socket, playerId: string, server: Server) {
     const game = this.GameMap.getGame(playerId);
     if (game !== null) {
-      client.join(game.gameRoomId);
+      await client.join(game.gameRoomId);
       server.to(client.id).emit('gameStatus', {
         gameId: game.gameRoomId,
         status: game.status,

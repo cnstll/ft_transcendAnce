@@ -11,6 +11,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt.auth-guard';
 import { Body, UseGuards } from '@nestjs/common';
 import { GetCurrentUserId } from 'src/common/decorators/getCurrentUserId.decorator';
 import { FrontendUser, GameMode } from './entities/game.entities';
+import * as msgpack from 'socket.io-msgpack-parser';
 
 @WebSocketGateway(3333, {
   cors: {
@@ -22,7 +23,7 @@ import { FrontendUser, GameMode } from './entities/game.entities';
     ],
     credentials: true,
   },
-  parser: require('socket.io-msgpack-parser'),
+  parser: msgpack,
 })
 @UseGuards(JwtAuthGuard)
 export class GameGateway {
@@ -33,10 +34,7 @@ export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
   @SubscribeMessage('PP')
-  async create(
-    @MessageBody() encoded: Uint8Array,
-    @GetCurrentUserId() id: string,
-  ) {
+  create(@MessageBody() encoded: Uint8Array, @GetCurrentUserId() id: string) {
     this.gameService.create(encoded, id);
   }
 

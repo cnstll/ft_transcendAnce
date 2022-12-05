@@ -1,6 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
+// import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { TwoFaRequest } from 'src/pong/entities/game.entities';
 import { JwtPayload } from '../auth/types';
 
 export class TwoFaStrategy extends PassportStrategy(
@@ -10,7 +11,17 @@ export class TwoFaStrategy extends PassportStrategy(
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        TwoFaStrategy.extractJWT,
+        (req: TwoFaRequest) => {
+          if (
+            'temporaryToken' in req.cookies &&
+            req.cookies.temporaryToken.length > 0
+          ) {
+            return req.cookies.temporaryToken;
+          } else {
+            return null;
+          }
+        },
+        // TwoFaStrategy.extractJWT,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
@@ -22,15 +33,15 @@ export class TwoFaStrategy extends PassportStrategy(
     return jwtPayload;
   }
 
-  private static extractJWT(req: Request): string | null {
-    if (
-      req.cookies &&
-      'temporaryToken' in req.cookies &&
-      req.cookies.temporaryToken.length > 0
-    ) {
-      return req.cookies.temporaryToken;
-    } else {
-      return null;
-    }
-  }
+  // private static extractJWT(req: Request): string | null {
+  //   if (
+  //     req.cookies &&
+  //     'temporaryToken' in req.cookies &&
+  //     req.cookies.temporaryToken.length > 0
+  //   ) {
+  //     return req.cookies?.temporaryToken;
+  //   } else {
+  //     return null;
+  //   }
+  // }
 }
