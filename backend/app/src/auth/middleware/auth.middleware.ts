@@ -7,7 +7,7 @@ export class AuthMiddleware implements NestMiddleware {
   constructor(private jwtService: JwtService) {}
   use(req: Request, res: Response, next: () => void) {
     try {
-      this.jwtService.verify(req.cookies['jwtToken']);
+      this.jwtService.verify(req.cookies.jwtToken);
       next();
     } catch (error) {
       next();

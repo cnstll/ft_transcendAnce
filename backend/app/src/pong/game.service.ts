@@ -38,16 +38,23 @@ export class GameService {
 
   refuseInvite(client: Socket, userId: string) {
     const challengerSocket = socketToUserId.getFromUserId(userId);
-    if (this.GameMap.getGame(userId)) {
-      client.to(challengerSocket).emit('inviteRefused', 'invite refused');
+    if (challengerSocket) {
+      if (this.GameMap.getGame(userId)) {
+        client.to(challengerSocket).emit('inviteRefused', 'invite refused');
+      }
+      try {
+        const game = this.GameMap.getGame(userId);
+        if (game) {
+          this.deleteTimeout(game.gameRoomId);
+        }
+        this.GameMap.delete(userId);
+      } catch (error) {}
     }
-    try {
-      this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
-      this.GameMap.delete(userId);
-    } catch (error) {}
   }
+
   acceptInvite(userId: string) {
-    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+    const game = this.GameMap.getGame(userId);
+    if (game) this.deleteTimeout(game.gameRoomId);
   }
 
   async createInvitationGame(
@@ -58,39 +65,42 @@ export class GameService {
     gameMode: GameMode,
   ) {
     const opponentSocket = socketToUserId.getFromUserId(p2id);
-    if (this.GameMap.getGame(p2id) !== null) {
-      server
-        .to(client.id)
-        .emit(
-          'inviteRefused',
-          'Your opponent already has an invite pending, try again later',
-        );
-      return 'inviteFailed';
-    }
-    try {
-      const challenger = await this.prismaService.user.findUnique({
-        where: {
-          id: p1id,
-        },
-        select: {
-          id: true,
-          avatarImg: true,
-          nickname: true,
-          eloScore: true,
-          status: true,
-          twoFactorAuthenticationSet: true,
-        },
-      });
+    if (opponentSocket) {
+      if (this.GameMap.getGame(p2id) !== null) {
+        server
+          .to(client.id)
+          .emit(
+            'inviteRefused',
+            'Your opponent already has an invite pending, try again later',
+          );
+        return 'inviteFailed';
+      }
+      try {
+        const challenger = await this.prismaService.user.findUnique({
+          where: {
+            id: p1id,
+          },
+          select: {
+            id: true,
+            avatarImg: true,
+            nickname: true,
+            eloScore: true,
+            status: true,
+            twoFactorAuthenticationSet: true,
+          },
+        });
 
-      this.createGame(p1id, gameMode, p2id);
-      this.join(client, p1id, server, gameMode);
-      client.to(opponentSocket).emit('invitedToGame', challenger);
-      return 'gameJoined';
-    } catch (error) {
-      return error;
+        this.createGame(p1id, gameMode, p2id);
+        await this.join(client, p1id, server, gameMode);
+        client.to(opponentSocket).emit('invitedToGame', challenger);
+        return 'gameJoined';
+      } catch (error) {
+        return;
+      }
     }
   }
 
+  // <<<<<<< Updated upstream
   leaveWatch(client: Socket, playerId: string) {
     const game = this.GameMap.getGame(playerId);
     if (game !== null) {
@@ -112,19 +122,24 @@ export class GameService {
       });
     }
     //TODO make this return dynamic
+    // =======
+    //   async watch(client: Socket, playerId: string) {
+    //     const game = this.GameMap.getGame(playerId);
+    //     if (game) await client.join(game.gameRoomId);
+    // >>>>>>> Stashed changes
     return { playerNumber: 1 };
   }
 
-  join(client: Socket, userId: string, server: Server, mode: GameMode) {
-    let game: Game;
+  async join(client: Socket, userId: string, server: Server, mode: GameMode) {
+    let game: Game | null;
 
     if (this.GameMap.size === 0) {
       game = this.createGame(userId, mode);
-      client.join(game.gameRoomId);
+      await client.join(game.gameRoomId);
       return { playerNumber: 1 };
     } else {
       if ((game = this.GameMap.rejoinGame(userId)) != null) {
-        client.join(game.gameRoomId);
+        await client.join(game.gameRoomId);
         if (game.status === Status.PAUSED) {
           this.mutateGameStatus(game, Status.PLAYING, server);
           this.deleteTimeout(game.gameRoomId);
@@ -137,19 +152,19 @@ export class GameService {
         return { playerNumber: 1 };
       }
       if ((game = this.GameMap.matchPlayer(userId))) {
-        client.join(game.gameRoomId);
+        await client.join(game.gameRoomId);
         this.mutateGameStatus(game, Status.PLAYING, server);
         this.addInterval(game.gameRoomId, userId, 16, server);
         return { playerNumber: 2 };
       }
       game = this.createGame(userId, mode);
-      client.join(game.gameRoomId);
+      await client.join(game.gameRoomId);
       return { playerNumber: 1 };
     }
   }
 
   rejoin(userId: string) {
-    let game: Game;
+    let game: Game | null;
     if ((game = this.GameMap.getGame(userId))) {
       return game.mode;
     }
@@ -171,6 +186,7 @@ export class GameService {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
 
+      if (!game) return;
       if (winnerId === game.p1id) game.p1s = 10;
       else game.p2s = 10;
       if (game.status !== Status.PAUSED) this.deleteInterval(name);
@@ -203,7 +219,8 @@ export class GameService {
   addWinningTimeout(milliseconds: number, server: Server, winnerId: string) {
     const callback = () => {
       const game = this.GameMap.getGame(winnerId);
-      game.saveGameResults(this.prismaService);
+      if (!game) return;
+      void game.saveGameResults(this.prismaService);
       this.mutateGameStatus(game, Status.DONE, server);
     };
 
@@ -230,8 +247,9 @@ export class GameService {
 
   create(encoded: Uint8Array, userId: string) {
     const decoded = this.playerInfo.decode(encoded).toJSON();
-    const y = decoded.yPos;
-    const game: Game = this.GameMap.getGame(userId);
+    const y: number = decoded.yPos;
+    const game: Game | null = this.GameMap.getGame(userId);
+    if (!game) return;
     if (game !== undefined) {
       if (game.p1id === userId) {
         game.movePaddle(1, y);
@@ -242,7 +260,8 @@ export class GameService {
   }
 
   moveBall(id: string, server: Server) {
-    const game: Game = this.GameMap.getGame(id);
+    const game: Game | null = this.GameMap.getGame(id);
+    if (!game) return;
     game.moveBall(this, server);
     return game.returnGameInfo();
   }
@@ -271,6 +290,7 @@ export class GameService {
   ) {
     const callback = () => {
       const payload = this.moveBall(userId, server);
+      if (!payload) return;
       this.gameInfo.verify(payload);
       const message = this.gameInfo.create(payload);
       const encoded = this.gameInfo.encode(message).finish();

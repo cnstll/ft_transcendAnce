@@ -42,12 +42,14 @@ export class GameGateway {
 
   @SubscribeMessage('disconnect')
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.gameService.pause(this.socketToId.get(client.id), this.server);
+    const id = this.socketToId.get(client.id);
+    if (id) this.gameService.pause(id, this.server);
   }
 
   @SubscribeMessage('leaveGame')
   handleAbandon(@ConnectedSocket() client: Socket) {
-    this.gameService.pause(this.socketToId.get(client.id), this.server);
+    const id = this.socketToId.get(client.id);
+    if (id) this.gameService.pause(id, this.server);
   }
   @SubscribeMessage('reJoin')
   rejoin(@GetCurrentUserId() userId: string) {
@@ -97,7 +99,11 @@ export class GameGateway {
     @MessageBody('playerId') playerId: string,
     @ConnectedSocket() client: Socket,
   ) {
+    // <<<<<<< Updated upstream
     return this.gameService.watch(client, playerId, this.server);
+    // =======
+    //     return this.gameService.watch(client, playerId);
+    // >>>>>>> Stashed changes
   }
 
   @SubscribeMessage('joinGame')

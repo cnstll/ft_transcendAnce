@@ -12,6 +12,7 @@ import { JwtPayload } from '../auth/types';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { socketToUserId } from './socketToUserIdStorage.service';
 import { UserService } from './user.service';
+import * as msgpack from 'socket.io-msgpack-parser';
 
 @WebSocketGateway(3333, {
   cors: {
@@ -24,7 +25,8 @@ import { UserService } from './user.service';
     ],
     credentials: true,
   },
-  parser: require('socket.io-msgpack-parser'),
+  // parser: require('socket.io-msgpack-parser'),
+  parser: msgpack,
 })
 @UseGuards(JwtAuthGuard)
 export class UserGateway {
@@ -39,7 +41,7 @@ export class UserGateway {
     @GetCurrentUserId() userId: string,
     @ConnectedSocket() clientSocket: Socket,
   ) {
-    this.userService.updateConnectionStatus(userId, UserStatus.ONLINE);
+    void this.userService.updateConnectionStatus(userId, UserStatus.ONLINE);
     clientSocket.broadcast.emit('userConnected');
   }
 
@@ -53,7 +55,7 @@ export class UserGateway {
     @ConnectedSocket() clientSocket: Socket,
     @GetCurrentUserId() userId: string,
   ) {
-    this.userService.updateConnectionStatus(userId, UserStatus.PLAYING);
+    void this.userService.updateConnectionStatus(userId, UserStatus.PLAYING);
     clientSocket.broadcast.emit('userInGame');
   }
 
@@ -62,7 +64,7 @@ export class UserGateway {
     @ConnectedSocket() clientSocket: Socket,
     @GetCurrentUserId() userId: string,
   ) {
-    this.userService.updateConnectionStatus(userId, UserStatus.ONLINE);
+    void this.userService.updateConnectionStatus(userId, UserStatus.ONLINE);
     clientSocket.broadcast.emit('userGameEnded');
   }
   @SubscribeMessage('connect')
@@ -73,7 +75,6 @@ export class UserGateway {
       const user: JwtPayload = JSON.parse(
         payloadBuffer.toString(),
       ) as JwtPayload;
-      // this.socketToIdService.set(clientSocket.id, user.id);
       socketToUserId.set(clientSocket.id, user.id);
       clientSocket.emit('userConnected');
     }
@@ -84,7 +85,7 @@ export class UserGateway {
     // const userId = this.socketToIdService.get(clientSocket.id);
     const userId = socketToUserId.get(clientSocket.id);
     if (userId) {
-      this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
+      void this.userService.updateConnectionStatus(userId, UserStatus.OFFLINE);
       // this.socketToIdService.delete(clientSocket.id);
       socketToUserId.delete(clientSocket.id);
       clientSocket.broadcast.emit('userDisconnected');
