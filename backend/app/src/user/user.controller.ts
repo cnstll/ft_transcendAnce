@@ -24,9 +24,10 @@ export const storage = {
   storage: diskStorage({
     destination: './avatar',
     filename: (req, file, cb) => {
-      const filename: string = path
+      const initialFilename: string = path
         .parse(file.originalname)
         .name.replace(/\s/g, '');
+      const filename = Buffer.from(initialFilename, 'latin1').toString('utf8');
       const extension: string = path.parse(file.originalname).ext;
 
       cb(null, `${filename}${extension}`);
