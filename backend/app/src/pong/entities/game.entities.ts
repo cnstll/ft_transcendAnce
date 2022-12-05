@@ -54,7 +54,7 @@ export class DoubleKeyMap {
   }
 
   rejoinGame(playerId: string) {
-    const game: Game = this.playerMap.get(playerId);
+    const game: Game | undefined = this.playerMap.get(playerId);
     if (game !== undefined) {
       return game;
     }
@@ -63,7 +63,7 @@ export class DoubleKeyMap {
 
   matchPlayer(player2Id: string) {
     for (const [_, game] of this.playerMap) {
-      if (game.p2id === null && _) {
+      if (game.p2id === undefined && _) {
         // the above is ugly but a linting rule is forcing me to add it
         game.p2id = player2Id;
         this.playerMap.set(player2Id, game);
@@ -318,7 +318,7 @@ export class Game {
           eloScore: true,
         },
       });
-      return user.eloScore;
+      if (user) return user.eloScore;
     } catch (error) {
       console.log(error);
       //TODO should this error be handled? should be excedingly rare
@@ -357,30 +357,32 @@ export class Game {
     const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
     const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
 
-    const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
+    if (eloPlayer1 && eloPlayer2) {
+      const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
 
-    if (winner) {
-      newElos.eloPlayer1 = Math.ceil(
-        eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
-      );
-      newElos.eloPlayer2 = Math.ceil(
-        eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
-      );
-    } else {
-      newElos.eloPlayer1 = Math.ceil(
-        eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
-      );
-      newElos.eloPlayer2 = Math.ceil(
-        eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
-      );
+      if (winner) {
+        newElos.eloPlayer1 = Math.ceil(
+          eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
+        );
+        newElos.eloPlayer2 = Math.ceil(
+          eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
+        );
+      } else {
+        newElos.eloPlayer1 = Math.ceil(
+          eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
+        );
+        newElos.eloPlayer2 = Math.ceil(
+          eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
+        );
+      }
+      if (newElos.eloPlayer2 < 100) {
+        newElos.eloPlayer2 = 100;
+      }
+      if (newElos.eloPlayer1 < 100) {
+        newElos.eloPlayer2 = 100;
+      }
+      return newElos;
     }
-    if (newElos.eloPlayer2 < 100) {
-      newElos.eloPlayer2 = 100;
-    }
-    if (newElos.eloPlayer1 < 100) {
-      newElos.eloPlayer2 = 100;
-    }
-    return newElos;
   }
 
   async saveGameResults(prismaService: PrismaService) {
@@ -403,8 +405,10 @@ export class Game {
     });
 
     const newElos = await this.getNewElos(prismaService, this.p1s >= 10);
-    this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
-    this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
+    if (newElos) {
+      await this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
+      await this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
+    }
   }
 }
 
