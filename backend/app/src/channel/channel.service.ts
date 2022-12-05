@@ -331,10 +331,20 @@ export class ChannelService {
     }
   }
 
-  async getMessagesFromChannel(channelId: string, res: Response) {
-    // Use userId to verify that user requesting message belong to channel or is not banned
-    // Retrieve all messages from channel using its id
+  async getMessagesFromChannel(
+    channelId: string,
+    userRequesting: string,
+    res: Response,
+  ) {
     try {
+      const userIsBanned = await this.isUserUnderModeration({
+        channelActionOnChannelId: channelId,
+        channelActionTargetId: userRequesting,
+        type: ChannelActionType.BAN,
+      });
+      if (userIsBanned) {
+        return res.status(401).send();
+      }
       const objMessages = await this.prisma.channel.findFirst({
         where: {
           id: channelId,
@@ -685,7 +695,22 @@ export class ChannelService {
 
   async storeMessage(userId: string, messageInfo: IncomingMessageDto) {
     try {
-      //TODO Check if user is muted/banned
+      const userIsBanned = await this.isUserUnderModeration({
+        channelActionOnChannelId: messageInfo.channelId,
+        channelActionTargetId: userId,
+        type: ChannelActionType.BAN,
+      });
+      if (userIsBanned) {
+        return null;
+      }
+      const userIsMuted = await this.isUserUnderModeration({
+        channelActionOnChannelId: messageInfo.channelId,
+        channelActionTargetId: userId,
+        type: ChannelActionType.MUTE,
+      });
+      if (userIsMuted) {
+        return null;
+      }
       const messagesObj: { messages: Message[] } =
         await this.prisma.channel.update({
           where: {
