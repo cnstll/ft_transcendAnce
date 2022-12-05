@@ -54,7 +54,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
         className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0
           h-modal h-full bg-[#222] bg-opacity-50 "
       >
-        <div className="relative p-4 w-full max-w-xl h-full md:h-auto left-1/2 -translate-x-1/2">
+        <div className="relative p-4 w-full max-w-sm h-full md:h-auto left-1/2 -translate-x-1/2">
           <div className="relative bg-white rounded-lg shadow text-black p-6">
             <h3
               className="xl:text-xl lg:text-lg md:text-base sm:text-base text-base font-semibold text-gray-900
@@ -72,8 +72,8 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
                   Upload a new picture
                 </label>
                 <input
-                  className="form-control text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200
-                  text-sm font-medium px-5 py-2.5 hover:text-gray-900"
+                  className="form-control text-gray-500 bg-white hover:bg-gray-100 rounded-lg
+                  text-xs px-2 py-2.5 hover:text-gray-900"
                   type="file"
                   id="avatarImgInput"
                   accept="image/png, image/jpeg, image/webp"
