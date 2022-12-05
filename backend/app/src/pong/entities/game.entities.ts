@@ -6,6 +6,14 @@ import { Server } from 'socket.io';
 export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
+
+export interface TwoFaRequest extends Request {
+  // req.cookies &&
+  // 'temporaryToken' in req.cookies &&
+  // req.cookies.temporaryToken.length > 0
+  cookies: { temporaryToken: string };
+}
+
 export interface JwtRequest extends Request {
   cookies: { jwtToken: string };
 }
