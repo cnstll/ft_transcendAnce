@@ -18,9 +18,11 @@ const fetchUsersUnderModerationAction = (
 export function useGetUsersUnderModerationAction(
   channelId: string,
   actionType: channelActionType,
+  activateQuery: boolean,
 ): UseQueryResult<string[] | undefined> {
   return useQuery(
     ['getUsersUnderModerationAction', channelId, actionType],
     () => fetchUsersUnderModerationAction(channelId, actionType),
+    { enabled: activateQuery },
   );
 }

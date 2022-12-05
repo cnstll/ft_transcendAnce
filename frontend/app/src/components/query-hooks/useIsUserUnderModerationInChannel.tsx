@@ -20,9 +20,11 @@ export function useIsUserUnderModerationInChannel(
   channelId: string,
   userId: string,
   actionType: channelActionType,
+  activateQuery: boolean,
 ): UseQueryResult<boolean | undefined> {
   return useQuery(
     ['isUserUnderModeration', channelId, userId, actionType],
     () => fetchIsCurrentUserUnderModeration(channelId, userId, actionType),
+    { enabled: activateQuery },
   );
 }
