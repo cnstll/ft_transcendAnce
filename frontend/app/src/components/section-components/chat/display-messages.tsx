@@ -49,9 +49,11 @@ function CurrentUserMessage({ content, image }: UserMessagesProps) {
 
 function DisplayMessages({
   userId,
+  avatarImg,
   channelId,
 }: {
   userId: string;
+  avatarImg: string;
   channelId: string;
 }) {
   const messageQuery: UseQueryResult<Message[] | undefined> =
@@ -102,11 +104,7 @@ function DisplayMessages({
             <CurrentUserMessage
               key={message.id}
               content={message.content}
-              image={
-                channelAuthorsQuery.data?.filter(
-                  (user) => user.id === message.senderId,
-                )[0]?.avatarImg
-              }
+              image={avatarImg}
             />
           ) : (
             <OtherUserMessage

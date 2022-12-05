@@ -11,6 +11,7 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import { RankingData } from './interface';
 import useLeaderboard from '../query-hooks/useLeaderboard';
 import { socket } from './client-socket';
+import LoadingSpinner from '../section-components/loading-spinner';
 
 interface RankingDataProps {
   rankingData: RankingData;
@@ -73,6 +74,7 @@ function Ranking() {
 
   return (
     <>
+      {user.isLoading && <LoadingSpinner />}
       {user.isError ||
         (leaderboard.isError && (
           <p className="text-base text-gray-400">We encountered an error 🤷</p>
