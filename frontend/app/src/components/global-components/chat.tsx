@@ -9,6 +9,7 @@ import BackgroundGeneral from '../../img/disco2.png';
 import {
   Channel,
   channelActionType,
+  channelType,
   User,
 } from '../global-components/interface';
 import { createContext, useEffect, useState } from 'react';
@@ -35,7 +36,7 @@ import BanMessageBox from '../section-components/chat/ban-message-box';
 export const channelContext = createContext({
   id: '',
   name: '',
-  type: '',
+  type: channelType.Public,
 });
 
 function Chat() {
@@ -49,6 +50,7 @@ function Chat() {
   const queryClient = useQueryClient();
   const groupChannelsKey = 'groupChannelsList';
   const channelsByUserListKey = 'channelsByUserList';
+  const getCurrentChannelKey = 'currentChannel';
   /* Query Hooks to Fetch Data for the Chat */
   const user: UseQueryResult<User> = useUserInfo();
   const channels: UseQueryResult<Channel[] | undefined> =
@@ -128,15 +130,18 @@ function Chat() {
         }
         //TODO User still in the room should get notified that a user left
         //void queryClient.invalidateQueries(channelUsersQueryKey);
+        void queryClient.invalidateQueries(getCurrentChannelKey);
         void queryClient.invalidateQueries(channelsByUserListKey);
         void queryClient.invalidateQueries(groupChannelsKey);
       },
     );
     socket.on('roomEdited', () => {
+      void queryClient.invalidateQueries(getCurrentChannelKey);
       void queryClient.invalidateQueries(channelsByUserListKey);
       void queryClient.invalidateQueries(groupChannelsKey);
     });
     socket.on('roomCreated', (channelId: string, userId: string) => {
+      void queryClient.invalidateQueries(getCurrentChannelKey);
       void queryClient.invalidateQueries(channelsByUserListKey);
       void queryClient.invalidateQueries(groupChannelsKey);
       if (userId === user.data?.id) {
@@ -191,11 +196,7 @@ function Chat() {
                     className="h-full bg-cover bg-no-repeat border-2 border-purple overflow-y-auto snap-y"
                     style={{ backgroundImage: `url(${BackgroundGeneral})` }}
                   >
-                    <ChatTopBar
-                      currentChannel={currentChannel}
-                      isShown={isShown}
-                      setIsShown={setIsShown}
-                    />
+                    <ChatTopBar isShown={isShown} setIsShown={setIsShown} />
                     <div className="snap-end">
                       {userIsBanned.isSuccess &&
                         !userIsBanned.data?.valueOf() && (
