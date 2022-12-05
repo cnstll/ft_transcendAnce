@@ -571,11 +571,11 @@ export class ChannelService {
     actionType: ChannelActionType,
   ) {
     const userUnderModerationList = [];
+    const currentTime = Date.now();
     for (let index = 0; index < moderationActions.length; index++) {
       const banExpirationDate = Number(
         Date.parse(moderationActions[index].channelActionTime.toString()),
       );
-      const currentTime = Date.now();
       if (banExpirationDate - currentTime < 0) {
         await this.deleteChannelAction(
           channelId,
