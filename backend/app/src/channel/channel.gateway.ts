@@ -178,7 +178,7 @@ export class ChannelGateway {
       userId,
       leaveChannelDto,
     );
-    if (userLeaving == null) {
+    if (userLeaving === null) {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
     } else if (leaveChannelDto.type === ChannelType.DIRECTMESSAGE) {
       this.server.to(leaveChannelDto.id).emit('roomLeft', {
@@ -211,7 +211,7 @@ export class ChannelGateway {
       userId,
       inviteChannelDto,
     );
-    if (inviteToChannel == null || typeof inviteToChannel === 'string') {
+    if (inviteToChannel === null || typeof inviteToChannel === 'string') {
       this.server.to(clientSocket.id).emit('inviteFailed', inviteToChannel);
     } else {
       this.server
@@ -230,7 +230,7 @@ export class ChannelGateway {
       requesterId,
       banInfo,
     );
-    if (banResult == null || typeof banResult === 'string') {
+    if (banResult === null || typeof banResult === 'string') {
       this.server.to(clientSocket.id).emit('banFailed', banResult);
     } else {
       this.server
@@ -249,7 +249,7 @@ export class ChannelGateway {
       requesterId,
       muteInfo,
     );
-    if (muteResult == null || typeof muteResult === 'string') {
+    if (muteResult === null || typeof muteResult === 'string') {
       this.server.to(clientSocket.id).emit('muteFailed', muteResult);
     } else {
       this.server
@@ -270,7 +270,7 @@ export class ChannelGateway {
       channelId,
       editRoleDto,
     );
-    roleUpdated == null ||
+    roleUpdated === null ||
     roleUpdated === 'PromotionNotAuthorized' ||
     roleUpdated === 'noEligibleRights'
       ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)
