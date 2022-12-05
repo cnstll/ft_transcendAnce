@@ -40,7 +40,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
         }
       },
       onError: () => {
-        toast.error("Your image doesn't fit requirements", {
+        toast.error("Your image doesn't meet requirements", {
           toastId: customToastId,
           position: toast.POSITION.TOP_RIGHT
         });
