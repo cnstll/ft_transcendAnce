@@ -21,7 +21,6 @@ export enum channelRole {
 }
 export enum channelActionType {
   Ban = 'BAN',
-  Block = 'BLOCK',
   Mute = 'MUTE',
 }
 
