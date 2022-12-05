@@ -42,12 +42,12 @@ export class GameService {
       client.to(challengerSocket).emit('inviteRefused', 'invite refused');
     }
     try {
-      this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+      this.deleteTimeout(this.GameMap.getGame(userId).gameRoomId);
       this.GameMap.delete(userId);
     } catch (error) {}
   }
   acceptInvite(userId: string) {
-    this.deleteTimeout(this.GameMap.getGame(userId)?.gameRoomId);
+    this.deleteTimeout(this.GameMap.getGame(userId).gameRoomId);
   }
 
   async createInvitationGame(
