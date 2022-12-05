@@ -93,7 +93,6 @@ function MembersList({
       }
     });
     socket.on('muteSucceeded', async (muteInfo: ModerationInfo) => {
-      console.log('USER MUTED: ', muteInfo);
       await queryClient.invalidateQueries([
         isCurrentUserUnderModerationQueryKey,
         muteInfo.channelActionOnChannelId,

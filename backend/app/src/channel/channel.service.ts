@@ -547,7 +547,6 @@ export class ChannelService {
           ],
         },
       });
-      console.log(deletedChannelAction);
     } catch (error) {
       console.log(error);
     }
@@ -947,7 +946,6 @@ export class ChannelService {
       const banDurationInMS = 30 * 1000;
       const banExpirationDate = new Date(Date.now() + banDurationInMS);
       // Actual ban added in DB
-      console.log(banInfo);
       const bannedUser = await this.prisma.channelAction.create({
         data: {
           channelActionTargetId: banInfo.channelActionTargetId,
