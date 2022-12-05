@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -504,9 +503,10 @@ export class ChannelService {
     try {
       const moderationAction = await this.prisma.channelAction.findUnique({
         where: {
-          channelActionTargetId_channelActionOnChannelId: {
+          channelActionTargetId_channelActionOnChannelId_type: {
             channelActionTargetId: userTargetId,
             channelActionOnChannelId: channelId,
+            type: channelActionType,
           },
         },
         select: {
@@ -515,7 +515,6 @@ export class ChannelService {
           channelActionTime: true,
         },
       });
-      console.log(moderationAction);
       return moderationAction;
     } catch (error) {
       console.log(error);
@@ -979,35 +978,6 @@ export class ChannelService {
       });
       return MutedUser;
     } catch (error) {}
-  }
-
-  async unMuteFromChannelWS(
-    requesterId: string,
-    unMuteInfo: ModerateChannelDto,
-  ) {
-    try {
-      const checksResults = await this.checkIfCanEnforceModeration(
-        requesterId,
-        unMuteInfo,
-      );
-      if (checksResults !== 'Ok') {
-        return checksResults;
-      }
-      const unMuteResult = this.prisma.channelAction.delete({
-        where: {
-          channelActionTargetId_channelActionOnChannelId_channelActionRequesterId_type:
-            {
-              channelActionOnChannelId: unMuteInfo.channelActionOnChannelId,
-              channelActionRequesterId: requesterId,
-              channelActionTargetId: unMuteInfo.channelActionTargetId,
-              type: unMuteInfo.type,
-            },
-        },
-      });
-      return unMuteResult;
-    } catch (error) {
-      return null;
-    }
   }
 
   async updateAdminRoleByChannelIdWS(

@@ -26,10 +26,10 @@ function ChatBox({ userId, channelId }: ChatBoxProps) {
   ]);
 
   useEffect(() => {
-    if (isMutedQuery && isMutedQuery.valueOf()) {
+    if (isMutedQuery?.valueOf()) {
       setIsMuted(true);
     }
-    if (!isMutedQuery || !isMutedQuery?.valueOf()) {
+    if (!isMutedQuery || !isMutedQuery.valueOf()) {
       setIsMuted(false);
     }
   }, [queryClient, isMutedQuery]);

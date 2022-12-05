@@ -259,24 +259,6 @@ export class ChannelGateway {
         .emit('muteSucceeded', muteResult);
     }
   }
-  @SubscribeMessage('unMuteUser')
-  async unMuteUserFromChannel(
-    @GetCurrentUserId() requesterId: string,
-    @MessageBody('unMuteInfo') muteInfo: ModerateChannelDto,
-    @ConnectedSocket() clientSocket: Socket,
-  ) {
-    const muteResult = await this.channelService.unMuteFromChannelWS(
-      requesterId,
-      muteInfo,
-    );
-    if (muteResult == null || typeof muteResult === 'string') {
-      this.server.to(clientSocket.id).emit('unMuteFailed', muteResult);
-    } else {
-      this.server
-        .to(muteInfo.channelActionOnChannelId)
-        .emit('unMuteSucceeded', muteResult);
-    }
-  }
 
   @SubscribeMessage('updateRole')
   async editRole(
