@@ -93,6 +93,7 @@ function MembersList({
       }
     });
     socket.on('muteSucceeded', async (muteInfo: ModerationInfo) => {
+      console.log('USER MUTED: ', muteInfo);
       await queryClient.invalidateQueries([
         isCurrentUserUnderModerationQueryKey,
         muteInfo.channelActionOnChannelId,
@@ -117,34 +118,11 @@ function MembersList({
       });
     });
 
-    socket.on('unMuteSucceeded', async (muteInfo: ModerationInfo) => {
-      await queryClient.invalidateQueries([
-        isCurrentUserUnderModerationQueryKey,
-        muteInfo.channelActionOnChannelId,
-        channelActionType.Mute,
-      ]);
-      await queryClient.invalidateQueries([
-        channelUsersUnderModeration,
-        muteInfo.channelActionOnChannelId,
-        channelActionType.Mute,
-      ]);
-      await queryClient.invalidateQueries([
-        isUserUnderModerationQueryKey,
-        muteInfo.channelActionOnChannelId,
-        muteInfo.channelActionTargetId,
-        channelActionType.Mute,
-      ]);
-    });
-    socket.on('unMuteFailed', () => {
-      toast.error('Cannot unmute user 🤷', {
-        toastId: moderationToastId,
-        position: toast.POSITION.TOP_RIGHT,
-      });
-    });
-
     return () => {
       socket.off('banSucceeded');
       socket.off('banFailed');
+      socket.off('muteSucceeded');
+      socket.off('muteSucceeded');
       socket.off('roleUpdated');
       socket.off('updateRoleFailed');
     };

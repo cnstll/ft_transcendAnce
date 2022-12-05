@@ -557,36 +557,30 @@ export class ChannelService {
     return usersUnderModeration;
   }
 
-  async listAndUpdateBannedUsers(
-    bannedList: ChannelAction[],
+  async listAndUpdateUsersUnderModeration(
+    moderationActions: ChannelAction[],
     channelId: string,
-    banAction: ChannelActionType,
+    actionType: ChannelActionType,
   ) {
-    const banUsersList = [];
-    for (let index = 0; index < bannedList.length; index++) {
+    const userUnderModerationList = [];
+    for (let index = 0; index < moderationActions.length; index++) {
       const banExpirationDate = Number(
-        Date.parse(bannedList[index].channelActionTime.toString()),
+        Date.parse(moderationActions[index].channelActionTime.toString()),
       );
       const currentTime = Date.now();
       if (banExpirationDate - currentTime < 0) {
         await this.deleteChannelAction(
           channelId,
-          bannedList[index].channelActionTargetId,
-          banAction,
+          moderationActions[index].channelActionTargetId,
+          actionType,
         );
       } else {
-        banUsersList.push(bannedList[index].channelActionTargetId);
+        userUnderModerationList.push(
+          moderationActions[index].channelActionTargetId,
+        );
       }
     }
-    return banUsersList;
-  }
-
-  async listMutedUsers(bannedList: ChannelAction[]) {
-    const mutedUsersList = [];
-    for (let index = 0; index < bannedList.length; index++) {
-      mutedUsersList.push(bannedList[index].channelActionTargetId);
-    }
-    return mutedUsersList;
+    return userUnderModerationList;
   }
 
   async getUsersUnderModerationAction(
@@ -599,17 +593,11 @@ export class ChannelService {
           channelId,
           channelActionType,
         );
-      if (channelActionType === ChannelActionType.BAN) {
-        return this.listAndUpdateBannedUsers(
-          usersUnderModeration,
-          channelId,
-          channelActionType,
-        );
-      } else if (channelActionType === ChannelActionType.MUTE) {
-        return this.listMutedUsers(usersUnderModeration);
-      } else {
-        throw new BadRequestException();
-      }
+      return this.listAndUpdateUsersUnderModeration(
+        usersUnderModeration,
+        channelId,
+        channelActionType,
+      );
     } catch (error) {
       console.log(error);
     }
@@ -617,14 +605,13 @@ export class ChannelService {
 
   async isUserUnderModeration(moderationInfo: ModerateChannelDto) {
     try {
-      const userUnderModeration = await this.prisma.channelAction.findFirst({
-        where: {
-          channelActionOnChannelId: moderationInfo.channelActionOnChannelId,
-          channelActionTargetId: moderationInfo.channelActionTargetId,
-          type: moderationInfo.type,
-        },
-      });
-      return userUnderModeration !== null;
+      const usersUnderModeration = await this.getUsersUnderModerationAction(
+        moderationInfo.channelActionOnChannelId,
+        moderationInfo.type,
+      );
+      return usersUnderModeration.some(
+        (targetId) => targetId === moderationInfo.channelActionTargetId,
+      );
     } catch (error) {}
   }
 

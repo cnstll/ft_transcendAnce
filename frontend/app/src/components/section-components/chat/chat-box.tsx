@@ -1,33 +1,38 @@
 import { faMicrophoneSlash, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { useQueryClient, UseQueryResult } from 'react-query';
+import { useQueryClient } from 'react-query';
 import { socket } from '../../global-components/client-socket';
 import {
   AcknoledgementStatus,
+  channelActionType,
   Message,
 } from '../../global-components/interface';
 
 interface ChatBoxProps {
   userId: string;
   channelId: string;
-  userIsMuted: UseQueryResult<boolean | undefined>;
 }
 
-function ChatBox({ userId, channelId, userIsMuted }: ChatBoxProps) {
+function ChatBox({ userId, channelId }: ChatBoxProps) {
   const [messageContent, setMessageContent] = useState<string>('');
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const queryClient = useQueryClient();
+  const currentUserIsMutedQueryKey = 'isCurrentUserUnderModeration';
+  const isMutedQuery: boolean | undefined = queryClient.getQueryData([
+    currentUserIsMutedQueryKey,
+    channelId,
+    channelActionType.Mute,
+  ]);
 
   useEffect(() => {
-    if (userIsMuted.isSuccess && userIsMuted.data?.valueOf()) {
+    if (isMutedQuery && isMutedQuery.valueOf()) {
       setIsMuted(true);
     }
-    if (userIsMuted.isSuccess && !userIsMuted.data?.valueOf()) {
+    if (!isMutedQuery || !isMutedQuery?.valueOf()) {
       setIsMuted(false);
     }
-    console.log(userIsMuted.data?.valueOf());
-  }, [queryClient]);
+  }, [queryClient, isMutedQuery]);
 
   function onSendMessageHandler(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
