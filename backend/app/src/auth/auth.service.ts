@@ -63,18 +63,4 @@ export class AuthService {
       return;
     }
   }
-
-  // async retrieveProfileData(accessToken: string): Promise<any> {
-  //   const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
-  //     headers: { Authorization: `Bearer ${accessToken}` },
-  //   });
-  //   const profile = await lastValueFrom(req);
-  //   const tailoredProfile = {
-  //     provider: 'api42',
-  //     id: profile.data.id.toString(),
-  //     displayName: profile.data.displayname,
-  //     username: profile.data.login,
-  //   };
-  //   return tailoredProfile;
-  // }
 }

@@ -275,4 +275,8 @@ export class ChannelGateway {
       ? this.server.in(channelId).emit('roleUpdated', roleUpdated)
       : this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated);
   }
+  @SubscribeMessage('signalBlock')
+  async signalBlock(@ConnectedSocket() clientSocket: Socket) {
+    return this.server.to(clientSocket.id).emit('signalBlock');
+  }
 }

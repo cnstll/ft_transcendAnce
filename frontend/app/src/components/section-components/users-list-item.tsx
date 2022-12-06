@@ -19,7 +19,7 @@ import {
 import { useContext, useEffect, useState } from 'react';
 import FriendsOptions from './profile/friends-options';
 import MembersOptions from './chat/members-options';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { channelContext } from '../global-components/chat';
 import { useIsUserUnderModerationInChannel } from '../query-hooks/useIsUserUnderModerationInChannel';
 import { UseQueryResult } from 'react-query';
@@ -46,6 +46,7 @@ function UsersListItem({
   usersWhoBlocked,
   role,
 }: UsersListProps) {
+  const location = useLocation();
   const [isShown, setIsShown] = useState(false);
   let resultBlock = false;
   const isBlocked = usersWhoBlocked?.includes(user.id);
@@ -57,12 +58,14 @@ function UsersListItem({
       currentChannel.id,
       user.id,
       channelActionType.Ban,
+      location.pathname.includes('/chat/'),
     );
   const userIsMuted: UseQueryResult<boolean | undefined> =
     useIsUserUnderModerationInChannel(
       currentChannel.id,
       user.id,
       channelActionType.Mute,
+      location.pathname.includes('/chat/'),
     );
 
   useEffect(() => {
@@ -91,27 +94,19 @@ function UsersListItem({
         )}
         <div className="relative">
           <div className="absolute -left-2 z-10">
-            {userIsBanned.isSuccess &&
-              !userIsBanned.data?.valueOf() &&
-              !userIsMuted.data?.valueOf() && (
-                <>
-                  {user.status === UserConnectionStatus.ONLINE && (
-                    <FontAwesomeIcon
-                      className="text-green-600"
-                      icon={faCircle}
-                    />
-                  )}
-                  {user.status === UserConnectionStatus.OFFLINE && (
-                    <FontAwesomeIcon
-                      className="text-gray-500"
-                      icon={faCircle}
-                    />
-                  )}
-                  {user.status === UserConnectionStatus.PLAYING && (
-                    <FontAwesomeIcon icon={faGamepad} />
-                  )}
-                </>
-              )}
+            {!userIsBanned.data?.valueOf() && !userIsMuted.data?.valueOf() && (
+              <>
+                {user.status === UserConnectionStatus.ONLINE && (
+                  <FontAwesomeIcon className="text-green-600" icon={faCircle} />
+                )}
+                {user.status === UserConnectionStatus.OFFLINE && (
+                  <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
+                )}
+                {user.status === UserConnectionStatus.PLAYING && (
+                  <FontAwesomeIcon icon={faGamepad} />
+                )}
+              </>
+            )}
             {userIsBanned.isSuccess && userIsBanned.data?.valueOf() && (
               <FontAwesomeIcon className="text-purple-medium" icon={faBan} />
             )}

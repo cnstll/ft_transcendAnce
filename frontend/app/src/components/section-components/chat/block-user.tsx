@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { socket } from 'src/components/global-components/client-socket';
 import { useGetBlockedUsers } from 'src/components/query-hooks/useBlockedUser';
@@ -17,28 +16,29 @@ function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
   const listBlockedUser = useGetBlockedUsers();
   const directMessageId = useGetDirectMessageIdBetweenUsers(user.id);
   const queryClient = useQueryClient();
+  const listUsersBlockedQueryKey = 'blockedUsersList';
 
   let isBlocked = false;
 
   if (listBlockedUser.data && listBlockedUser.data.length > 0)
     isBlocked = listBlockedUser.data.includes(user.id);
 
-  useEffect(() => {
-    void queryClient.invalidateQueries('blockedUsersList');
-  }, [queryClient, setBlocked]);
-
   const onBlock = () => {
     setIsShown(false);
     // Add user to the blocked list
-    void axios.post(
-      `${apiUrl}/block/add-blocked-user`,
-      { targetId: user.id },
-      {
-        withCredentials: true,
-      },
-    );
+    void axios
+      .post(
+        `${apiUrl}/block/add-blocked-user`,
+        { targetId: user.id },
+        {
+          withCredentials: true,
+        },
+      )
+      .then(async () => {
+        await queryClient.invalidateQueries(listUsersBlockedQueryKey);
+        socket.emit('signalBlock');
+      });
     setBlocked(true);
-
     // If dm exists delete it
     if (directMessageId.data) {
       socket.emit('leaveRoom', {
@@ -52,13 +52,18 @@ function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
 
   const onUnblock = () => {
     setIsShown(false);
-    void axios.post(
-      `${apiUrl}/block/remove-blocked-user`,
-      { targetId: user.id },
-      {
-        withCredentials: true,
-      },
-    );
+    void axios
+      .post(
+        `${apiUrl}/block/remove-blocked-user`,
+        { targetId: user.id },
+        {
+          withCredentials: true,
+        },
+      )
+      .then(async () => {
+        await queryClient.invalidateQueries(listUsersBlockedQueryKey);
+        socket.emit('signalBlock');
+      });
     setBlocked(false);
   };
 
