@@ -23,10 +23,6 @@ function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
   if (listBlockedUser.data && listBlockedUser.data.length > 0)
     isBlocked = listBlockedUser.data.includes(user.id);
 
-  //   useEffect(() => {
-  //     void queryClient.invalidateQueries(listUsersBlockedQueryKey);
-  //   }, [queryClient, setBlocked]);
-
   const onBlock = () => {
     setIsShown(false);
     // Add user to the blocked list
