@@ -172,18 +172,19 @@ function Chat() {
   }, [activeChannelId, socket, user, channels.data?.length, queryClient]);
 
   /** Fallback on 404 when the channel is not accessible (not invited, not existing) */
-  if (activeChannel) {
-    if (
-      channels.data &&
-      !channels.data.find((channel) => channel.id === activeChannel)
-    )
-      return <PageNotFound />;
+  let displayChannel = true;
+  if (activeChannel && channels.data) {
+    const foundChannel = channels.data.find((channel) => channel.id === activeChannel);
+    if (foundChannel === undefined)
+      displayChannel = false;
   }
+
 
   return (
     <>
       {user.isLoading && <LoadingSpinner />}
-      {user.isSuccess && (
+      {!displayChannel && channels.data && channels.data.length > 0 && <PageNotFound />}
+      {displayChannel && user.isSuccess && (
         <div className="h-full min-h-screen bg-black z-0">
           <Navbar
             text={<FontAwesomeIcon icon={faHouse} />}
