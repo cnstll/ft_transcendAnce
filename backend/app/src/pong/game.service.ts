@@ -212,7 +212,10 @@ export class GameService {
 
   pause(id: string, server: Server) {
     const game = this.GameMap.getGame(id);
-    if (game && game.status === Status.PAUSED) {
+    if (
+      game &&
+      (game.status === Status.PAUSED || game.status === Status.PENDING)
+    ) {
       this.deleteTimeout(game.gameRoomId);
       this.GameMap.delete(id);
     } else if (game && game.status === Status.PLAYING) {
