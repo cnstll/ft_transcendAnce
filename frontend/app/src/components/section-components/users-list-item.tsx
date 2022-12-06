@@ -94,27 +94,19 @@ function UsersListItem({
         )}
         <div className="relative">
           <div className="absolute -left-2 z-10">
-            {userIsBanned.isSuccess &&
-              !userIsBanned.data?.valueOf() &&
-              !userIsMuted.data?.valueOf() && (
-                <>
-                  {user.status === UserConnectionStatus.ONLINE && (
-                    <FontAwesomeIcon
-                      className="text-green-600"
-                      icon={faCircle}
-                    />
-                  )}
-                  {user.status === UserConnectionStatus.OFFLINE && (
-                    <FontAwesomeIcon
-                      className="text-gray-500"
-                      icon={faCircle}
-                    />
-                  )}
-                  {user.status === UserConnectionStatus.PLAYING && (
-                    <FontAwesomeIcon icon={faGamepad} />
-                  )}
-                </>
-              )}
+            {!userIsBanned.data?.valueOf() && !userIsMuted.data?.valueOf() && (
+              <>
+                {user.status === UserConnectionStatus.ONLINE && (
+                  <FontAwesomeIcon className="text-green-600" icon={faCircle} />
+                )}
+                {user.status === UserConnectionStatus.OFFLINE && (
+                  <FontAwesomeIcon className="text-gray-500" icon={faCircle} />
+                )}
+                {user.status === UserConnectionStatus.PLAYING && (
+                  <FontAwesomeIcon icon={faGamepad} />
+                )}
+              </>
+            )}
             {userIsBanned.isSuccess && userIsBanned.data?.valueOf() && (
               <FontAwesomeIcon className="text-purple-medium" icon={faBan} />
             )}
