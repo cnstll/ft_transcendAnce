@@ -644,7 +644,7 @@ export class UserService {
   }
   async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
     try {
-      if (userId)
+      if (userId) {
         await this.prismaService.user.update({
           where: {
             id: userId,
@@ -653,6 +653,7 @@ export class UserService {
             status: connectionStatus,
           },
         });
+      }
     } catch (error) {
       throw new ForbiddenException(error);
     }
