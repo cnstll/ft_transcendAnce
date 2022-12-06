@@ -10,4 +10,6 @@ import { AuthModule } from 'src/auth/auth.module';
   exports: [TwoFactorAuthenticationService],
   imports: [UserModule, AuthModule],
 })
-export class TwoFactorAuthenticationModule {}
+export class TwoFactorAuthenticationModule {
+  void;
+}

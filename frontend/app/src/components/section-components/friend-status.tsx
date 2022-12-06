@@ -24,11 +24,13 @@ function FriendStatus(props: FriendStatusProps) {
     <>
     {(friendRequest.isLoading || friendUpdate.isLoading)?
     <LoadingSpinner /> :
+    (friendRequest.isError|| friendUpdate.isError)?
+    <p className="text-base text-gray-400">We encountered an error 🤷</p> :
       <div>
         <div>
         {props.status === null && (
           <button
-            onClick={() => friendRequest.mutate({ target: props.nickname })}
+            onClick={() => friendRequest.mutate({ target: props.nickname, friends: false })}
           >
             {' '}
             <Tooltip

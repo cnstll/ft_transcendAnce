@@ -21,8 +21,9 @@ function Play() {
     if (user.isError) navigate('/sign-in');});
 
   useEffect(() => {
+
     socket.emit('reJoin', { mode: gameMode }, (response: string | null) => {
-      setGameMode(response);
+      if (response) setGameMode(response);
     });
   }, []);
 
