@@ -10,4 +10,6 @@ import { ChannelService } from './channel.service';
   providers: [ChannelService, ChannelGateway],
   imports: [BlockModule, UserModule],
 })
-export class ChannelModule {}
+export class ChannelModule {
+  void;
+}

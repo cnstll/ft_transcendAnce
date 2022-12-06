@@ -15,8 +15,8 @@ export class BlockService {
       });
       return blockedUser;
     } catch (error) {
-      console.log(error);
-      return null;
+      if (typeof error === 'string') return error;
+      return 'errorBlockService';
     }
   }
 
@@ -32,8 +32,8 @@ export class BlockService {
       });
       return blockedUser;
     } catch (error) {
-      console.log(error);
-      return null;
+      if (typeof error === 'string') return error;
+      return 'errorRemoveBlockUser';
     }
   }
 
@@ -48,13 +48,13 @@ export class BlockService {
           channelBlockedRequesterId: true,
         },
       });
-      for (let i = 0; i < usersBlocked.length; i++) {
-        listUsersBlocked.push(usersBlocked[i].channelBlockedRequesterId);
+      for (const user of usersBlocked) {
+        listUsersBlocked.push(user.channelBlockedRequesterId);
       }
       return listUsersBlocked;
     } catch (error) {
-      console.log(error);
-      return null;
+      if (typeof error === 'string') return error;
+      return 'errorUsersWhoBlocked';
     }
   }
 
@@ -69,13 +69,13 @@ export class BlockService {
           channelBlockedTargetId: true,
         },
       });
-      for (let i = 0; i < usersWhoBlocked.length; i++) {
-        listUsersWhoBlocked.push(usersWhoBlocked[i].channelBlockedTargetId);
+      for (const user of usersWhoBlocked) {
+        listUsersWhoBlocked.push(user.channelBlockedTargetId);
       }
       return listUsersWhoBlocked;
     } catch (error) {
-      console.log(error);
-      return null;
+      if (typeof error === 'string') return error;
+      return 'errorUsersBlockedBy';
     }
   }
 
@@ -102,8 +102,8 @@ export class BlockService {
       if (!userIsBlocked) return false;
       else return true;
     } catch (error) {
-      console.log(error);
-      return false;
+      if (typeof error === 'string') return error;
+      return 'errorCheckBlockRelationship';
     }
   }
 }

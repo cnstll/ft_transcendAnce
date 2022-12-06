@@ -68,18 +68,21 @@ export class UserController {
   @Put('update-avatarImg')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', storage))
-  updateAvatar(
-    @UploadedFile() file,
+  async updateAvatar(
+    @UploadedFile() file: Express.Multer.File,
     @Res() res: Response,
     @GetCurrentUserId() userId: string,
   ) {
-    const filename = `${process.env.PUBLIC_URL}/user/` + file.path;
-    this.userService.updateAvatarImg(userId, filename, res);
-    return res.status(200).send();
+    if (file.path && process.env.PUBLIC_URL) {
+      const filename = `${process.env.PUBLIC_URL}/user/${file.path}`;
+      await this.userService.updateAvatarImg(userId, filename, res);
+      return res.status(200).send();
+    }
   }
+
   @Get('avatar/:fileId')
-  async serveAvatar(@Param('fileId') fileId, @Res() res): Promise<void> {
-    return res.sendFile(fileId, { root: 'avatar' });
+  serveAvatar(@Param('fileId') fileId: string, @Res() res: Response) {
+    res.sendFile(fileId, { root: 'avatar' });
   }
 
   @Put('update-nickname')

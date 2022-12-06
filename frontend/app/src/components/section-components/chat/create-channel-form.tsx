@@ -30,7 +30,7 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       setFormData(defaultFormData);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
-      if (channel === 'alreadyUsedname') {
+      if (channel === 'alreadyUsed') {
         setInputStatus('invalidAlreadyUsedname');
       }
     });

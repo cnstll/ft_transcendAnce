@@ -2,15 +2,8 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
-import {
-  User,
-  FriendshipStatus,
-  UserStatus,
-  Match,
-  Achievement,
-} from '@prisma/client';
+import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserDto } from './dto/user.dto';
 import { Stat } from './interfaces/stats.interface';
@@ -42,7 +35,7 @@ export class UserService {
         user.immutableId === '76076' ||
         user.immutableId === '75984'
       )
-        this.setAchievement(user.id, 'achievement7');
+        void this.setAchievement(user.id, 'achievement7').catch();
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -82,8 +75,7 @@ export class UserService {
       });
       return res.status(200).send(nicknames);
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      return res.status(403).send();
     }
   }
 
@@ -121,27 +113,28 @@ export class UserService {
 
   async getInfo(userId: string, userId1: string) {
     try {
-      const user: User = await this.prismaService.user.findUnique({
+      const user: User | null = await this.prismaService.user.findUnique({
         where: {
           id: userId1,
         },
       });
-      const friendStatus = await this.getFriendStatus(userId, userId1);
-      const userInfo = {
-        id: user.id,
-        nickname: user.nickname,
-        avatarImg: user.avatarImg,
-        eloScore: user.eloScore,
-        status: user.status,
-        friendStatus: friendStatus,
-      };
-      return userInfo;
-    } catch (error) {
-      return null;
-    }
+      if (user) {
+        const friendStatus = await this.getFriendStatus(userId, userId1);
+        const userInfo = {
+          id: user.id,
+          nickname: user.nickname,
+          avatarImg: user.avatarImg,
+          eloScore: user.eloScore,
+          status: user.status,
+          friendStatus: friendStatus,
+        };
+        return userInfo;
+      }
+    } catch (error) {}
+    return null;
   }
 
-  async getUserInfo(userId: string): Promise<User | undefined> {
+  async getUserInfo(userId: string): Promise<User | null> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -167,9 +160,7 @@ export class UserService {
     });
   }
 
-  async findOneFromUserNickname(
-    userNickname: string,
-  ): Promise<User | undefined> {
+  async findOneFromUserNickname(userNickname: string): Promise<User | null> {
     return await this.prismaService.user.findUnique({
       where: {
         nickname: userNickname,
@@ -177,7 +168,7 @@ export class UserService {
     });
   }
 
-  findOneFromImmutableId(immutableId: string): Promise<User | undefined> {
+  findOneFromImmutableId(immutableId: string): Promise<User | null> {
     return this.prismaService.user.findUnique({
       where: {
         immutableId: immutableId,
@@ -196,7 +187,9 @@ export class UserService {
         },
       });
       return res.status(200).clearCookie('jwtToken', { httpOnly: true }).send();
-    } catch (error) {}
+    } catch (error) {
+      return res.status(403).send();
+    }
   }
 
   /** Friendship management */
@@ -206,25 +199,26 @@ export class UserService {
     futureFriendNickname: string,
     res: Response,
   ) {
-    const futureFriend: User = await this.findOneFromUserNickname(
-      futureFriendNickname,
-    );
     try {
-      await this.prismaService.user.update({
-        where: {
-          id: requesterId,
-        },
-        data: {
-          friendsRequester: {
-            create: [{ addresseeId: futureFriend.id }],
+      const futureFriend: User | null = await this.findOneFromUserNickname(
+        futureFriendNickname,
+      );
+      if (futureFriend) {
+        await this.prismaService.user.update({
+          where: {
+            id: requesterId,
           },
-        },
-      });
+          data: {
+            friendsRequester: {
+              create: [{ addresseeId: futureFriend.id }],
+            },
+          },
+        });
+      }
+      return res.status(201).send();
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      return res.status(403).send();
     }
-    return res.status(201).send();
   }
 
   async updateFriendshipStatus(
@@ -233,41 +227,44 @@ export class UserService {
     friends: boolean,
     res: Response,
   ) {
-    if (friends === true) {
-      this.addFriend(activeUserId, affectedUserId, res);
+    if (friends) {
+      await this.addFriend(activeUserId, affectedUserId, res);
     } else {
-      this.deleteFriendship(activeUserId, affectedUserId, res);
+      await this.deleteFriendship(activeUserId, affectedUserId, res);
     }
   }
 
   async deleteFriendship(activeUserId: string, target: string, res: Response) {
-    const user: User = await this.findOneFromUserNickname(target);
-    try {
-      const result = await this.prismaService.friendship.findFirst({
-        where: {
-          OR: [
-            {
-              AND: [{ requesterId: activeUserId }, { addresseeId: user.id }],
-            },
-            {
-              AND: [{ addresseeId: activeUserId }, { requesterId: user.id }],
-            },
-          ],
-        },
-      });
-      await this.prismaService.friendship.delete({
-        where: {
-          friendshipId: {
-            addresseeId: result.addresseeId,
-            requesterId: result.requesterId,
+    const user: User | null = await this.findOneFromUserNickname(target);
+    if (user) {
+      try {
+        const result = await this.prismaService.friendship.findFirst({
+          where: {
+            OR: [
+              {
+                AND: [{ requesterId: activeUserId }, { addresseeId: user.id }],
+              },
+              {
+                AND: [{ addresseeId: activeUserId }, { requesterId: user.id }],
+              },
+            ],
           },
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+        });
+        if (result) {
+          await this.prismaService.friendship.delete({
+            where: {
+              friendshipId: {
+                addresseeId: result.addresseeId,
+                requesterId: result.requesterId,
+              },
+            },
+          });
+        }
+      } catch (error) {
+        throw new ForbiddenException(error);
+      }
+      return res.status(200).send();
     }
-    return res.status(200).send();
   }
 
   async addFriend(
@@ -276,35 +273,36 @@ export class UserService {
     res: Response,
   ) {
     const status: FriendshipStatus = 'ACCEPTED';
-    const requester: User = await this.findOneFromUserNickname(
+    const requester: User | null = await this.findOneFromUserNickname(
       requesterNickname,
     );
-    try {
-      await this.prismaService.user.update({
-        where: {
-          id: activeUserId,
-        },
-        data: {
-          friendsAddressee: {
-            update: {
-              where: {
-                friendshipId: {
-                  requesterId: requester.id,
-                  addresseeId: activeUserId,
+    if (requester) {
+      try {
+        await this.prismaService.user.update({
+          where: {
+            id: activeUserId,
+          },
+          data: {
+            friendsAddressee: {
+              update: {
+                where: {
+                  friendshipId: {
+                    requesterId: requester.id,
+                    addresseeId: activeUserId,
+                  },
                 },
-              },
-              data: {
-                status: status,
+                data: {
+                  status: status,
+                },
               },
             },
           },
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+        });
+      } catch (error) {
+        throw new ForbiddenException(error);
+      }
+      return res.status(200).send();
     }
-    return res.status(200).send();
   }
 
   async getUserFriendRequests(userId: string, res: Response) {
@@ -323,16 +321,36 @@ export class UserService {
         },
       },
     });
-    const friendsList = [];
-    for (let i = 0; i < friends.friendsAddressee.length; i++) {
-      friendsList.push(
-        await this.getInfo(userId, friends.friendsAddressee[i].requesterId),
-      );
+    if (friends) {
+      let info: {
+        id: string;
+        nickname: string;
+        avatarImg: string | null;
+        eloScore: number;
+        status: string;
+        friendStatus: string | null;
+      } | null;
+      const friendsList: {
+        id: string;
+        nickname: string;
+        avatarImg: string | null;
+        eloScore: number;
+        status: string;
+        friendStatus: string | null;
+      }[] = [];
+      for (const friendsAddressee of friends.friendsAddressee) {
+        if ((info = await this.getInfo(userId, friendsAddressee.requesterId))) {
+          friendsList.push(info);
+        }
+      }
+      return res.status(200).send(friendsList);
     }
-    return res.status(200).send(friendsList);
   }
 
-  async getFriendStatus(userId1: string, userId2: string): Promise<string> {
+  async getFriendStatus(
+    userId1: string,
+    userId2: string,
+  ): Promise<string | null> {
     try {
       const friendStatus = await this.prismaService.friendship.findFirst({
         where: {
@@ -354,10 +372,8 @@ export class UserService {
         return 'PENDING';
       }
       return 'REQUESTED';
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
+    } catch (error) {}
+    return null;
   }
 
   async getTargetInfo(
@@ -366,16 +382,23 @@ export class UserService {
     res: Response,
   ) {
     try {
-      const target: User = await this.findOneFromUserNickname(targetUserId);
-      const info: {
-        id: string;
-        nickname: string;
-        avatarImg: string;
-        eloScore: number;
-        status: UserStatus;
-        friendStatus: string;
-      } = await this.getInfo(activeUserId, target.id);
-      return res.status(200).send(info);
+      const target: User | null = await this.findOneFromUserNickname(
+        targetUserId,
+      );
+      if (target) {
+        const info:
+          | {
+              id: string;
+              nickname: string;
+              avatarImg: string | null;
+              eloScore: number;
+              status: UserStatus;
+              friendStatus: string | null;
+            }
+          | null
+          | undefined = await this.getInfo(activeUserId, target.id);
+        return res.status(200).send(info);
+      }
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -405,21 +428,39 @@ export class UserService {
         },
       },
     });
-    const friendsList = [];
+    if (friends) {
+      const friendsList: {
+        id: string;
+        nickname: string;
+        avatarImg: string | null;
+        eloScore: number;
+        status: string;
+        friendStatus: string | null;
+      }[] = [];
+      let info: {
+        id: string;
+        nickname: string;
+        avatarImg: string | null;
+        eloScore: number;
+        status: string;
+        friendStatus: string | null;
+      } | null;
 
-    for (let i = 0; i < friends.friendsAddressee.length; i++) {
-      friendsList.push(
-        await this.getInfo(userId, friends.friendsAddressee[i].requesterId),
-      );
+      for (const friendsAddressee of friends.friendsAddressee) {
+        if ((info = await this.getInfo(userId, friendsAddressee.requesterId))) {
+          friendsList.push(info);
+        }
+      }
+      for (const friendsRequester of friends.friendsRequester) {
+        if ((info = await this.getInfo(userId, friendsRequester.addresseeId))) {
+          friendsList.push(info);
+        }
+      }
+      /* Set achievement social animal */
+      if (friendsList.length === 1)
+        await this.setAchievement(userId, 'achievement2');
+      return res.status(200).send(friendsList);
     }
-    for (let i = 0; i < friends.friendsRequester.length; i++) {
-      friendsList.push(
-        await this.getInfo(userId, friends.friendsRequester[i].addresseeId),
-      );
-    }
-    /* Set achievement social animal */
-    if (friendsList.length === 1) this.setAchievement(userId, 'achievement2');
-    return res.status(200).send(friendsList);
   }
 
   /**
@@ -438,10 +479,8 @@ export class UserService {
           twoFactorAuthenticationSet: false,
         },
       });
-    } catch (error) {
-      console.log(error);
-    }
-    return;
+    } catch (error) {}
+    return null;
   }
 
   async enableTwoFactorAuthentication(userId: string, res: Response) {
@@ -455,12 +494,10 @@ export class UserService {
         },
       });
       /* Set achievement security first */
-      this.setAchievement(userId, 'achievement5');
+      await this.setAchievement(userId, 'achievement5');
       return res.status(200).send();
-    } catch (error) {
-      console.log(error);
-    }
-    return;
+    } catch (error) {}
+    return null;
   }
 
   /** Game management */
@@ -475,83 +512,95 @@ export class UserService {
         playerTwoMatch: {},
       },
     });
-    const matchesList: Match[] = [];
+    if (matches) {
+      const matchesList: Match[] = [];
 
-    if (matches?.playerOneMatch !== null) {
-      for (let i = 0; i < matches.playerOneMatch.length; i++) {
-        matchesList.push(matches.playerOneMatch[i]);
+      for (const match of matches.playerOneMatch) {
+        matchesList.push(match);
       }
-    }
-    if (matches?.playerTwoMatch !== null) {
-      for (let i = 0; i < matches.playerTwoMatch.length; i++) {
-        matchesList.push(matches.playerTwoMatch[i]);
+
+      for (const match of matches.playerTwoMatch) {
+        matchesList.push(match);
       }
-    }
-    if (matchesList)
+
       matchesList.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    return matchesList;
+      return matchesList;
+    }
+    return null;
   }
 
   async getUserMatchesStats(userNickname: string, res: Response) {
     const user = await this.findOneFromUserNickname(userNickname);
     const ranking = await this.getUserRanking(userNickname);
-    const stats: Stat = {
-      numberOfWin: 0,
-      numberOfLoss: 0,
-      ranking: ranking,
-      eloScore: user.eloScore,
-    };
+    if (user && ranking) {
+      const stats: Stat = {
+        numberOfWin: 0,
+        numberOfLoss: 0,
+        ranking: ranking,
+        eloScore: user.eloScore,
+      };
 
-    const matchesList = await this.getUserMatches(userNickname);
-    for (let i = 0; i < matchesList.length; i++) {
-      if (
-        (matchesList[i].playerOneId === user.id && matchesList[i].p1s == 10) ||
-        (matchesList[i].playerTwoId === user.id && matchesList[i].p2s == 10)
-      )
-        stats.numberOfWin++;
+      const matchesList = await this.getUserMatches(userNickname);
+      if (matchesList) {
+        // for (let i = 0; i < matchesList.length; i++) {
+        for (const match of matchesList) {
+          if (
+            (match.playerOneId === user.id && match.p1s == 10) ||
+            (match.playerTwoId === user.id && match.p2s == 10)
+          )
+            stats.numberOfWin++;
+        }
+        stats.numberOfLoss = matchesList.length - stats.numberOfWin;
+        this.setMatchAchievement(
+          user.id,
+          stats.numberOfWin,
+          stats.numberOfLoss,
+        );
+        return res.status(200).send(stats);
+      }
     }
-    stats.numberOfLoss = matchesList.length - stats.numberOfWin;
-    this.setMatchAchievement(user.id, stats.numberOfWin, stats.numberOfLoss);
-    return res.status(200).send(stats);
   }
 
   async getUserMatchHistory(userNickname: string, res: Response) {
     const matchesList = await this.getUserMatches(userNickname);
     const matchHistory: MatchHistory[] = [];
     const currentUser = await this.findOneFromUserNickname(userNickname);
-    let opponent: User;
+    let opponent: User | null;
     let matchWon: boolean;
     let score: string;
 
-    try {
-      for (let i = 0; i < matchesList.length; i++) {
-        if (matchesList[i].playerOneId === currentUser.id) {
-          opponent = await this.getUserInfo(matchesList[i].playerTwoId);
-          score =
-            matchesList[i].p1s.toString() + '-' + matchesList[i].p2s.toString();
-          if (matchesList[i].p1s == 10) matchWon = true;
-          else matchWon = false;
-        } else {
-          opponent = await this.getUserInfo(matchesList[i].playerOneId);
-          score =
-            matchesList[i].p2s.toString() + '-' + matchesList[i].p1s.toString();
-          if (matchesList[i].p2s == 10) matchWon = true;
-          else matchWon = false;
+    if (matchesList && currentUser) {
+      try {
+        // for (let i = 0; i < matchesList.length; i++) {
+        for (const match of matchesList) {
+          if (match.playerOneId === currentUser.id) {
+            opponent = await this.getUserInfo(match.playerTwoId);
+            score = match.p1s.toString() + '-' + match.p2s.toString();
+            if (match.p1s == 10) matchWon = true;
+            else matchWon = false;
+          } else {
+            opponent = await this.getUserInfo(match.playerOneId);
+            score = match.p2s.toString() + '-' + match.p1s.toString();
+            if (match.p2s == 10) matchWon = true;
+            else matchWon = false;
+          }
+          if (opponent) {
+            const imageOpponent = opponent.avatarImg;
+            matchHistory.push({
+              id: match.gameId,
+              imageCurrentUser: currentUser.avatarImg,
+              imageOpponent: imageOpponent,
+              score: score,
+              matchWon: matchWon,
+            });
+          }
         }
-        const imageOpponent = opponent.avatarImg;
-        matchHistory.push({
-          id: matchesList[i].gameId,
-          imageCurrentUser: currentUser.avatarImg,
-          imageOpponent: imageOpponent,
-          score: score,
-          matchWon: matchWon,
-        });
+        return res.status(200).send(matchHistory);
+      } catch (error) {
+        throw new ForbiddenException(error);
       }
-      return res.status(200).send(matchHistory);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send();
     }
+    return res.status(500).send();
   }
 
   async getLeaderboard(res: Response) {
@@ -570,8 +619,7 @@ export class UserService {
       });
       return res.status(200).send(leaderboard);
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      throw new ForbiddenException(error);
     }
   }
 
@@ -588,7 +636,7 @@ export class UserService {
         const rank = i + 1;
         userRank = rank.toString() + '/' + users.length.toString();
         /* Set achievement who is the boss if the user is a leader */
-        if (rank === 1) this.setAchievement(users[i].id, 'achievement1');
+        if (rank === 1) await this.setAchievement(users[i].id, 'achievement1');
         return userRank;
       }
     }
@@ -596,23 +644,24 @@ export class UserService {
   }
   async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
     try {
-      await this.prismaService.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          status: connectionStatus,
-        },
-      });
+      if (userId)
+        await this.prismaService.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            status: connectionStatus,
+          },
+        });
     } catch (error) {
-      console.log(error);
+      throw new ForbiddenException(error);
     }
   }
 
   /** Achievement management */
   async getAchievement(nickname: string, res: Response) {
     try {
-      const UserAchivements = await this.prismaService.user.findUnique({
+      const userAchivements = await this.prismaService.user.findUnique({
         where: {
           nickname: nickname,
         },
@@ -620,19 +669,26 @@ export class UserService {
           achievements: true,
         },
       });
-      const achievementList: Achievement[] = [];
-      for (let i = 0; i < UserAchivements.achievements.length; i++) {
-        const achievement = await this.prismaService.achievement.findUnique({
-          where: {
-            id: UserAchivements.achievements[i].achievementId,
-          },
-        });
-        achievementList.push(achievement);
+      if (userAchivements) {
+        const achievementList: {
+          id: string;
+          label: string;
+          description: string;
+          image: string;
+        }[] = [];
+        for (const achievements of userAchivements.achievements) {
+          const achievement = await this.prismaService.achievement.findUnique({
+            where: {
+              id: achievements.achievementId,
+            },
+          });
+          if (achievement) achievementList.push(achievement);
+        }
+        return res.status(200).send(achievementList);
       }
-      return res.status(200).send(achievementList);
-    } catch (error) {
-      console.log(error);
       return res.status(500).send();
+    } catch (error) {
+      throw new ForbiddenException(error);
     }
   }
 
@@ -648,19 +704,21 @@ export class UserService {
           },
         },
       });
-      if (achievement.achievements.length === 0)
-        await this.prismaService.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            achievements: {
-              create: [{ achievementId: achievementId }],
+      if (achievement) {
+        if (achievement.achievements.length === 0)
+          await this.prismaService.user.update({
+            where: {
+              id: userId,
             },
-          },
-        });
+            data: {
+              achievements: {
+                create: [{ achievementId: achievementId }],
+              },
+            },
+          });
+      }
     } catch (error) {
-      console.log(error);
+      throw new ForbiddenException(error);
     }
   }
 
@@ -670,9 +728,9 @@ export class UserService {
     numberOfLoss: number,
   ) {
     if (numberOfWin + numberOfLoss === 10)
-      this.setAchievement(userId, 'achievement6');
-    if (numberOfLoss === 5) this.setAchievement(userId, 'achievement4');
-    if (numberOfWin === 5) this.setAchievement(userId, 'achievement3');
+      void this.setAchievement(userId, 'achievement6');
+    if (numberOfLoss === 5) void this.setAchievement(userId, 'achievement4');
+    if (numberOfWin === 5) void this.setAchievement(userId, 'achievement3');
   }
 
   /** Channel invitations for the current user */
@@ -690,14 +748,15 @@ export class UserService {
           },
         },
       });
-      const invites: { id: string }[] = [];
-      for (let i = 0; i < invitesList.invites.length; i++) {
-        invites.push(invitesList.invites[i]);
+      if (invitesList) {
+        const invites: { id: string }[] = [];
+        for (const invitees of invitesList.invites) {
+          invites.push(invitees);
+        }
+        return invites;
       }
-      return invites;
     } catch (error) {
-      if (error.status === 404) throw new NotFoundException(error);
-      else throw new ForbiddenException(error);
+      throw new ForbiddenException(error);
     }
   }
 }
