@@ -1,22 +1,6 @@
 version: "3"
 
 services:
-  frontend:
-    build: ./frontend/
-    container_name: frontend 
-    ports:
-      - 8080:3000
-    volumes:
-      - ./frontend/app:/home/app
-      - ./frontend/entrypoint_scripts/:/home/entrypoint_scripts
-    entrypoint: /home/entrypoint_scripts/start.sh
-    networks:
-      - frontend
-    environment: 
-      WDS_SOCKET_PORT: 0
-      REACT_APP_FRONTEND_URL: 'localhost:8080'
-      REACT_APP_BACKEND_URL: 'http://localhost:3000'
-      REACT_APP_DOMAIN: 'localhost:3333'
   nginx:
     build: ./nginx/
     container_name: nginx 
@@ -41,36 +25,11 @@ services:
     networks:
       - backend
       - frontend
-  dev-backend:
-    build: ./backend/
-    container_name: dev-backend
-    ports:
-      - 3000:3000
-      - 3333:3333
-      - 5555:5555
-      - 5556:5556
-    volumes:
-      - ./backend/app:/home/app
-      - ${ENTRYPOINT_PATH}:/home/entrypoint_scripts
-    entrypoint: /home/entrypoint_scripts/start.sh
-    networks:
-      - backend
-      - frontend
   dev-db:
     container_name: db 
     image: postgres:13
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
-    networks:
-      - backend
-  test-db:
-    container_name: test-db 
-    image: postgres:13
-    ports:
-      - 5433:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123

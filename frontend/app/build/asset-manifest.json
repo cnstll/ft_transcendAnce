@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.991fa00e.css",
+    "main.js": "/static/js/main.751ea8eb.js",
+    "static/media/disco.png": "/static/media/disco.2c40ffceff0f38571e85.png",
+    "static/media/disco2.png": "/static/media/disco2.f0ba058a3f91a7c98c22.png",
+    "static/media/42_logo.png": "/static/media/42_logo.99d65aab988c639366ed.png",
+    "index.html": "/index.html",
+    "main.991fa00e.css.map": "/static/css/main.991fa00e.css.map",
+    "main.751ea8eb.js.map": "/static/js/main.751ea8eb.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.991fa00e.css",
+    "static/js/main.751ea8eb.js"
+  ]
+}
