@@ -234,8 +234,8 @@ export class GameService {
       this.GameMap.delete(id);
     } else if (game && game.status === Status.PLAYING) {
       if (game.p1id === id || game.p2id === id) {
-        this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
+        this.deleteInterval(game.gameRoomId);
         if (id === game.p1id && game.p2id) {
           this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
         } else if (game.p1id) {
