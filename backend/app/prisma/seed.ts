@@ -74,11 +74,11 @@ async function main() {
     update: {},
     create: {
       id: 'channel1',
-      name: 'Les démons de minuit',
+      name: 'Les demons de minuit',
       users: {
         create: [
           { userId: 'user1', role: 'OWNER' },
-          { userId: 'user2', role: 'ADMIN'  },
+          { userId: 'user2', role: 'ADMIN' },
           { userId: 'user3' },
         ],
       },
@@ -90,14 +90,17 @@ async function main() {
     update: {},
     create: {
       id: 'channel2',
-      name: 'Hidden chaaaaaaaaaaaaaaaaaaaat group',
+      name: 'Hidden chaaaaaat group',
       type: 'PRIVATE',
       users: {
-        create: [{ userId: 'user2', role: 'OWNER' }, { userId: 'user4', role: 'USER' }],
+        create: [
+          { userId: 'user2', role: 'OWNER' },
+          { userId: 'user4', role: 'USER' },
+        ],
       },
       invites: {
-        connect: [{id: 'user1'}, {id: 'user2'}],
-      }
+        connect: [{ id: 'user1' }, { id: 'user2' }],
+      },
     },
   });
 
@@ -108,9 +111,14 @@ async function main() {
       id: 'channel3',
       name: 'You shall not pass: hello',
       type: 'PROTECTED',
-      passwordHash: '$argon2id$v=19$m=65536,t=3,p=4$u7C7YawZ2zrB8EMSxbnneg$R2p8E8EKJu7mr5TNRK8gmSipfZzfh2LvnM61CiCRdqY',
+      passwordHash:
+        '$argon2id$v=19$m=65536,t=3,p=4$u7C7YawZ2zrB8EMSxbnneg$R2p8E8EKJu7mr5TNRK8gmSipfZzfh2LvnM61CiCRdqY',
       users: {
-        create: [{ userId: 'user1', role: 'ADMIN' }, { userId: 'user2', role: 'OWNER' }, { userId: 'user4', role: 'USER' }],
+        create: [
+          { userId: 'user1', role: 'ADMIN' },
+          { userId: 'user2', role: 'OWNER' },
+          { userId: 'user4', role: 'USER' },
+        ],
       },
     },
   });
