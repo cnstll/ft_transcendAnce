@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { User, FriendshipStatus, UserStatus, Match } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -76,8 +75,7 @@ export class UserService {
       });
       return res.status(200).send(nicknames);
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      return res.status(403).send();
     }
   }
 
@@ -189,7 +187,9 @@ export class UserService {
         },
       });
       return res.status(200).clearCookie('jwtToken', { httpOnly: true }).send();
-    } catch (error) {}
+    } catch (error) {
+      return res.status(403).send();
+    }
   }
 
   /** Friendship management */
@@ -199,11 +199,11 @@ export class UserService {
     futureFriendNickname: string,
     res: Response,
   ) {
-    const futureFriend: User | null = await this.findOneFromUserNickname(
-      futureFriendNickname,
-    );
-    if (futureFriend) {
-      try {
+    try {
+      const futureFriend: User | null = await this.findOneFromUserNickname(
+        futureFriendNickname,
+      );
+      if (futureFriend) {
         await this.prismaService.user.update({
           where: {
             id: requesterId,
@@ -214,12 +214,11 @@ export class UserService {
             },
           },
         });
-      } catch (error) {
-        console.log(error);
-        return res.status(500).send();
       }
+      return res.status(201).send();
+    } catch (error) {
+      return res.status(403).send();
     }
-    return res.status(201).send();
   }
 
   async updateFriendshipStatus(
@@ -262,8 +261,7 @@ export class UserService {
           });
         }
       } catch (error) {
-        console.log(error);
-        return res.status(500).send();
+        throw new ForbiddenException(error);
       }
       return res.status(200).send();
     }
@@ -301,8 +299,7 @@ export class UserService {
           },
         });
       } catch (error) {
-        console.log(error);
-        return res.status(500).send();
+        throw new ForbiddenException(error);
       }
       return res.status(200).send();
     }
@@ -375,10 +372,8 @@ export class UserService {
         return 'PENDING';
       }
       return 'REQUESTED';
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
+    } catch (error) {}
+    return null;
   }
 
   async getTargetInfo(
@@ -484,9 +479,8 @@ export class UserService {
           twoFactorAuthenticationSet: false,
         },
       });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
+    return null;
   }
 
   async enableTwoFactorAuthentication(userId: string, res: Response) {
@@ -502,10 +496,8 @@ export class UserService {
       /* Set achievement security first */
       await this.setAchievement(userId, 'achievement5');
       return res.status(200).send();
-    } catch (error) {
-      console.log(error);
-    }
-    return;
+    } catch (error) {}
+    return null;
   }
 
   /** Game management */
@@ -605,8 +597,7 @@ export class UserService {
         }
         return res.status(200).send(matchHistory);
       } catch (error) {
-        console.log(error);
-        return res.status(500).send();
+        throw new ForbiddenException(error);
       }
     }
     return res.status(500).send();
@@ -628,8 +619,7 @@ export class UserService {
       });
       return res.status(200).send(leaderboard);
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      throw new ForbiddenException(error);
     }
   }
 
@@ -654,16 +644,17 @@ export class UserService {
   }
   async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
     try {
-      await this.prismaService.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          status: connectionStatus,
-        },
-      });
+      if (userId)
+        await this.prismaService.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            status: connectionStatus,
+          },
+        });
     } catch (error) {
-      console.log(error);
+      throw new ForbiddenException(error);
     }
   }
 
@@ -678,16 +669,6 @@ export class UserService {
           achievements: true,
         },
       });
-      // // <<<<<<< Updated upstream
-      //       const achievementList: Achievement[] = [];
-      //       for (let i = 0; i < userAchivements.achievements.length; i++) {
-      //         const achievement = await this.prismaService.achievement.findUnique({
-      //           where: {
-      //             id: userAchivements.achievements[i].achievementId,
-      //           },
-      //         });
-      //         achievementList.push(achievement);
-      // =======
       if (userAchivements) {
         const achievementList: {
           id: string;
@@ -695,7 +676,6 @@ export class UserService {
           description: string;
           image: string;
         }[] = [];
-        // for (let i = 0; i < userAchivements.achievements.length; i++) {
         for (const achievements of userAchivements.achievements) {
           const achievement = await this.prismaService.achievement.findUnique({
             where: {
@@ -705,12 +685,10 @@ export class UserService {
           if (achievement) achievementList.push(achievement);
         }
         return res.status(200).send(achievementList);
-        // >>>>>>> Stashed changes
       }
       return res.status(500).send();
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      throw new ForbiddenException(error);
     }
   }
 
@@ -740,7 +718,7 @@ export class UserService {
           });
       }
     } catch (error) {
-      console.log(error);
+      throw new ForbiddenException(error);
     }
   }
 
@@ -778,7 +756,7 @@ export class UserService {
         return invites;
       }
     } catch (error) {
-      throw new InternalServerErrorException(error);
+      throw new ForbiddenException(error);
     }
   }
 }
