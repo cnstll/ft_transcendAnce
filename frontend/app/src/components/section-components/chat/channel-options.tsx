@@ -10,6 +10,7 @@ import {
 import { socket } from '../../global-components/client-socket';
 import EditChannelForm from './edit-channel-form';
 import InviteModal from './invite-modal';
+import { toast } from 'react-toastify';
 import { channelContext } from '../../global-components/chat';
 
 /* review datafetching of role in channel to not refetch multiple times */
@@ -48,7 +49,10 @@ function ChannelOptions({ setIsShown }: ChannelOptions) {
     if (currentChannelCtx.id !== '') {
       leaveChannel(currentChannelCtx);
     } else {
-      alert('Failed to leave room');
+      toast.error("Couldn't leave the channel sorry 🤷", {
+        toastId: 'toast-error-leave-channel',
+        position: toast.POSITION.TOP_RIGHT,
+      });
     }
   }
 

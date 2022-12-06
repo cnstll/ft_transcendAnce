@@ -1,7 +1,12 @@
 import { Dispatch, useEffect, useState } from 'react';
 import { Channel, channelType } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
-import { validateNameInput, validatePwdInput } from './regex-input-validations';
+import {
+  validateNameInput,
+  isValidNameLength,
+  isValidPassLength,
+  validatePwdInput,
+} from './form-input-validations';
 
 interface EditChannelFormProps {
   setShowModal: Dispatch<React.SetStateAction<boolean>>;
@@ -44,11 +49,11 @@ function EditChannelForm(props: EditChannelFormProps) {
       [e.target.id]: e.target.value,
     }));
     setInputStatus('editing');
-    if (e.target.name === 'name' && e.target.value.length > 21)
+    if (e.target.name === 'name' && !isValidNameLength(e.target.value))
       setInputStatus('invalidNameLength');
     else if (e.target.name === 'name' && !validateNameInput(e.target.value))
       setInputStatus('invalidName');
-    else if (e.target.name === 'password' && e.target.value.length > 32)
+    else if (e.target.name === 'password' && !isValidPassLength(e.target.value))
       setInputStatus('invalidPasswordLength');
     else if (e.target.name === 'password' && !validatePwdInput(e.target.value))
       setInputStatus('invalidPassword');
@@ -57,14 +62,23 @@ function EditChannelForm(props: EditChannelFormProps) {
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const channelId: string = props.currentChannel.id;
-    if (!validateNameInput(formData.name)) setInputStatus('invalidName');
-    else if (
+    if (!validateNameInput(formData.name)) {
+      setInputStatus('invalidName');
+    } else if (!isValidNameLength(formData.name)) {
+      setInputStatus('invalidNameLength');
+    } else if (
       formData.type === channelType.Protected &&
       formData.passwordHash.length > 0 &&
       !validatePwdInput(formData.passwordHash)
-    )
+    ) {
       setInputStatus('invalidPassword');
-    else {
+    } else if (
+      formData.type === channelType.Protected &&
+      formData.passwordHash.length > 0 &&
+      !isValidPassLength(formData.passwordHash)
+    ) {
+      setInputStatus('invalidPasswordLength');
+    } else {
       socket.emit('editRoom', { channelId, editInfo: formData });
     }
   }

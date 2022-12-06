@@ -22,23 +22,23 @@ export class AuthController {
   @UseGuards(Api42OauthGuard)
   @UseFilters(Api42Filter)
   @Get('/42/callback')
-  async loginIntra(
-    @Res() res: Response,
-    @Req() req: UserRequest,
-  ): Promise<void> {
+  async loginIntra(@Res() res, @Req() req): Promise<void> {
     if (process.env.DOMAIN) {
       const url = new URL(process.env.DOMAIN);
-      const token = this.authService.login(req.user);
       const url2FA = new URL(`${process.env.DOMAIN}/2fa-sign-in`);
+      const urlFirstSignIn = new URL(`${process.env.DOMAIN}/profile`);
+      const token = this.authService.login(req.user);
       const user = req.user;
       if (user.twoFactorAuthenticationSet) {
         return res
           .cookie('temporaryToken', `${token}`, { httpOnly: true })
-          .redirect(url2FA.toString());
+          .redirect(url2FA);
       }
-      res
-        .cookie('jwtToken', `${token}`, { httpOnly: true })
-        .redirect(url.toString());
+      if (user.updatedAt - user.createdAt === 0)
+        res
+          .cookie('jwtToken', `${token}`, { httpOnly: true })
+          .redirect(urlFirstSignIn);
+      else res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
     }
   }
 

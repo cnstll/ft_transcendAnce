@@ -33,9 +33,12 @@ const fetchCurrentChannel = (channelId: string) =>
 
 export function getCurrentChannel(
   channelId: string,
+  activateQuery: boolean,
 ): UseQueryResult<Channel | undefined> {
-  return useQuery(['currentChannel', channelId], () =>
-    fetchCurrentChannel(channelId),
+  return useQuery(
+    ['currentChannel', channelId],
+    () => fetchCurrentChannel(channelId),
+    { enabled: activateQuery },
   );
 }
 

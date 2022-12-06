@@ -75,17 +75,19 @@ export class ChannelService {
      */
     for (const channel of channels) {
       if (channel.type === 'DIRECTMESSAGE') {
-        const channelUser: {
-          id: string;
-          avatarImg: string | null;
-          nickname: string;
-          eloScore: number;
-          status: UserStatus;
-          twoFactorAuthenticationSet: boolean;
-        }[] = await this.getUsersOfAChannel(channel.id);
-        if (channelUser[0].id === userId && channelUser[1])
+        const channelUser:
+          | {
+              id: string;
+              avatarImg: string | null;
+              nickname: string;
+              eloScore: number;
+              status: UserStatus;
+              twoFactorAuthenticationSet: boolean;
+            }[]
+          | undefined = await this.getUsersOfAChannel(channel.id);
+        if (channelUser && channelUser[0].id === userId && channelUser[1])
           channel.name = channelUser[1].nickname;
-        else channel.name = channelUser[0].nickname;
+        else if (channelUser) channel.name = channelUser[0].nickname;
       }
     }
     return channels;
@@ -122,10 +124,11 @@ export class ChannelService {
     for (const message of allDirectMessages) {
       const users = await this.getUsersOfAChannel(message.id);
       if (
-        (users.length > 1 &&
+        users &&
+        ((users.length > 1 &&
           users[0].id === userId &&
           users[1].id === participantId) ||
-        (users[0].id === participantId && users[1].id === userId)
+          (users[0].id === participantId && users[1].id === userId))
       )
         return message;
     }
@@ -233,7 +236,8 @@ export class ChannelService {
       }
       return flattenUsers;
     } catch (error) {
-      throw new ForbiddenException(error);
+      if (error.status === 404) return undefined;
+      else throw new ForbiddenException(error);
     }
   }
 
