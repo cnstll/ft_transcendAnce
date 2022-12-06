@@ -197,7 +197,7 @@ export class ChannelService {
       }
       return flattenUsers;
     } catch (error) {
-      if (error.status === 404) throw new NotFoundException(error);
+      if (error.status === 404) return undefined;
       else throw new ForbiddenException(error);
     }
   }
