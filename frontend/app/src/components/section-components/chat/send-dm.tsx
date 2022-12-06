@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { socket } from 'src/components/global-components/client-socket';
 import { channelType, User } from '../../global-components/interface';
 
@@ -23,7 +24,10 @@ function SendDM({ user, setIsShown, setActiveChannelId }: BlockFriendsProps) {
     });
     socket.on('createRoomFailed', (channel: null | string) => {
       if (channel === null || typeof channel === 'string') {
-        alert('You can not speak to one another, someone is blocked');
+        toast.error("You can't speak to one another, someone is blocked", {
+          toastId: 'toast-error-block-message',
+          position: toast.POSITION.TOP_RIGHT,
+        });
       }
     });
     return () => {

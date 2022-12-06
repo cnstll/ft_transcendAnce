@@ -5,6 +5,7 @@ import { Message, User } from '../../global-components/interface';
 import { useChannelAuthors } from '../../query-hooks/useGetChannelAuthors';
 import { useGetAllMessages } from '../../query-hooks/useGetMessages';
 import LoadingSpinner from '../loading-spinner';
+import { toast } from 'react-toastify';
 
 interface UserMessagesProps {
   content: string;
@@ -68,7 +69,10 @@ function DisplayMessages({
 
   useEffect(() => {
     socket.on('messageRoomFailed', () => {
-      alert('Could not send your message sry ;(');
+      toast.error("Couldn't send your message sorry 🤷", {
+        toastId: 'toast-error-send-message',
+        position: toast.POSITION.TOP_RIGHT,
+      });
     });
     socket.on('incomingMessage', async () => {
       await queryClient.invalidateQueries(messageQueryKey);
