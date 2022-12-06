@@ -9,4 +9,6 @@ import 'socket.io-msgpack-parser';
   providers: [UserService, SocketToUserIdStorage],
   exports: [UserService, SocketToUserIdStorage],
 })
-export class UserModule {}
+export class UserModule {
+  void;
+}

@@ -23,7 +23,7 @@ export class GameService {
 
   mutateGameStatus(game: Game, status: Status, server: Server) {
     game.status = status;
-    if (status === Status.DONE) {
+    if (status === Status.DONE && game.p1id) {
       this.GameMap.delete(game.p1id);
     }
     server.to(game.gameRoomId).emit('gameStatus', {
@@ -236,9 +236,9 @@ export class GameService {
       if (game.p1id === id || game.p2id === id) {
         this.deleteInterval(game.gameRoomId);
         this.mutateGameStatus(game, Status.PAUSED, server);
-        if (id === game.p1id) {
+        if (id === game.p1id && game.p2id) {
           this.addTimeout(game.gameRoomId, 10000, server, game.p2id);
-        } else {
+        } else if (game.p1id) {
           this.addTimeout(game.gameRoomId, 10000, server, game.p1id);
         }
       }
@@ -278,8 +278,10 @@ export class GameService {
   winGame(game: Game, server: Server) {
     this.deleteInterval(game.gameRoomId);
     this.mutateGameStatus(game, Status.OVER, server);
-    if (game.p1s === 10) this.addWinningTimeout(5000, server, game.p1id);
-    else if (game.p2s === 10) this.addWinningTimeout(5000, server, game.p2id);
+    if (game.p1s === 10 && game.p1id)
+      this.addWinningTimeout(5000, server, game.p1id);
+    else if (game.p2s === 10 && game.p2id)
+      this.addWinningTimeout(5000, server, game.p2id);
   }
 
   addInterval(

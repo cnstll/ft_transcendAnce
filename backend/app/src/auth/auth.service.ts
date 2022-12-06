@@ -34,7 +34,7 @@ export class AuthService {
   }
 
   public async loginIntra(userData: AuthDto) {
-    const user: User = await this.userService.findOneFromImmutableId(
+    const user: User | null = await this.userService.findOneFromImmutableId(
       userData.id.toString(),
     );
     if (!user) {
@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   public async create_user_dev(userData: UserDto) {
-    const user: User = await this.userService.findOneFromUserNickname(
+    const user: User | null = await this.userService.findOneFromUserNickname(
       userData.nickname,
     );
     if (!user) {

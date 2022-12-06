@@ -8,7 +8,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: JwtRequest) => {
-          if (req.cookies.jwtToken && req.cookies.jwtToken.length > 0) {
+          if (
+            req.cookies !== undefined &&
+            req.cookies.jwtToken &&
+            req.cookies.jwtToken.length > 0
+          ) {
             return req.cookies.jwtToken;
           } else {
             return null;

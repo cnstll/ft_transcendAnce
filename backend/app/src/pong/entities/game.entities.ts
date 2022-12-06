@@ -74,7 +74,7 @@ export class DoubleKeyMap {
   }
   setPlayer1(player1Id: string, game: Game) {
     game.p1id = player1Id;
-    game.p2id = null;
+    game.p2id = undefined;
     this.playerMap.set(player1Id, game);
     this.size++;
   }
@@ -86,9 +86,9 @@ export class DoubleKeyMap {
 
   delete(userId: string) {
     const game = this.playerMap.get(userId);
-    if (game.p1id === userId) {
+    if (game?.p1id === userId && game.p2id) {
       this.playerMap.delete(game.p2id);
-    } else {
+    } else if (game?.p1id) {
       this.playerMap.delete(game.p1id);
     }
     this.playerMap.delete(userId);
@@ -118,8 +118,8 @@ export class Game {
     // speedIncrease: 4,
   };
   gameRoomId: string;
-  p1id: string | null = null;
-  p2id: string | null = null;
+  p1id: string | undefined = undefined;
+  p2id: string | undefined = undefined;
   status: Status;
   dirx = this.gameConstants.speeds[0];
   diry = 0.0;
@@ -354,58 +354,62 @@ export class Game {
       eloPlayer1: 0,
       eloPlayer2: 0,
     };
-    const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
-    const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
+    if (typeof this.p1id === 'string' && typeof this.p2id === 'string') {
+      const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
+      const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
+      if (eloPlayer1 && eloPlayer2) {
+        const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
 
-    if (eloPlayer1 && eloPlayer2) {
-      const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
-
-      if (winner) {
-        newElos.eloPlayer1 = Math.ceil(
-          eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
-        );
-        newElos.eloPlayer2 = Math.ceil(
-          eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
-        );
-      } else {
-        newElos.eloPlayer1 = Math.ceil(
-          eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
-        );
-        newElos.eloPlayer2 = Math.ceil(
-          eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
-        );
+        if (winner) {
+          newElos.eloPlayer1 = Math.ceil(
+            eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
+          );
+          newElos.eloPlayer2 = Math.ceil(
+            eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
+          );
+        } else {
+          newElos.eloPlayer1 = Math.ceil(
+            eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
+          );
+          newElos.eloPlayer2 = Math.ceil(
+            eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
+          );
+        }
+        if (newElos.eloPlayer2 < 100) {
+          newElos.eloPlayer2 = 100;
+        }
+        if (newElos.eloPlayer1 < 100) {
+          newElos.eloPlayer2 = 100;
+        }
+        return newElos;
       }
-      if (newElos.eloPlayer2 < 100) {
-        newElos.eloPlayer2 = 100;
-      }
-      if (newElos.eloPlayer1 < 100) {
-        newElos.eloPlayer2 = 100;
-      }
-      return newElos;
+      return null;
     }
   }
 
   async saveGameResults(prismaService: PrismaService) {
-    await prismaService.user.update({
-      where: {
-        id: this.p1id,
-      },
-      data: {
-        playerOneMatch: {
-          create: [
-            {
-              gameId: this.gameRoomId,
-              p1s: this.p1s,
-              p2s: this.p2s,
-              playerTwoId: this.p2id,
-            },
-          ],
+    if (this.p2id) {
+      await prismaService.user.update({
+        where: {
+          id: this.p1id,
         },
-      },
-    });
+        data: {
+          playerOneMatch: {
+            create: [
+              {
+                gameId: this.gameRoomId,
+                p1s: this.p1s,
+                p2s: this.p2s,
+                playerTwoId: this.p2id,
+              },
+            ],
+          },
+        },
+      });
+    }
 
     const newElos = await this.getNewElos(prismaService, this.p1s >= 10);
-    if (newElos) {
+    if (newElos && this.p1id && this.p2id) {
       await this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
       await this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
     }

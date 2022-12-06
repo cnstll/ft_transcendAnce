@@ -19,16 +19,19 @@ export class TwoFactorAuthenticationService {
     try {
       const secret: string = authenticator.generateSecret();
       await this.userService.toggleTwoFactorAuthentication(secret, userId);
-      const otpauthURL = authenticator.keyuri(
-        userId,
-        this.configService.get('TranscenDance'),
-        secret,
-      );
-      const qrCode = await QRCode.toDataURL(otpauthURL);
-      return res.status(201).send(qrCode);
+      if (this.configService !== undefined) {
+        const temp: string | undefined =
+          this.configService.get('TranscenDance');
+        if (temp !== undefined) {
+          const otpauthURL = authenticator.keyuri(userId, temp, secret);
+          const qrCode = await QRCode.toDataURL(otpauthURL);
+          return res.status(201).send(qrCode);
+        }
+      }
+      return null;
     } catch (error) {
-      console.log(error);
-      return res.status(500).send();
+      if (typeof error === 'string') return error;
+      return 'errorGenerate2FA';
     }
   }
 
@@ -37,9 +40,12 @@ export class TwoFactorAuthenticationService {
     userId: string,
   ) {
     const user = await this.userService.getUserInfo(userId);
-    return authenticator.verify({
-      token: twoFactorAuthenticationCode,
-      secret: user.twoFactorAuthenticationSecret,
-    });
+    if (user !== null) {
+      return authenticator.verify({
+        token: twoFactorAuthenticationCode,
+        secret: user.twoFactorAuthenticationSecret,
+      });
+    }
+    return user;
   }
 }

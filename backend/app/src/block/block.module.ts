@@ -7,4 +7,6 @@ import { BlockService } from './block.service';
   providers: [BlockService],
   exports: [BlockService],
 })
-export class BlockModule {}
+export class BlockModule {
+  void;
+}
