@@ -23,6 +23,7 @@ export class AuthController {
   async loginIntra(@Res() res, @Req() req): Promise<void> {
     const url = new URL(process.env.DOMAIN);
     const url2FA = new URL(`${process.env.DOMAIN}/2fa-sign-in`);
+    const urlFirstSignIn = new URL(`${process.env.DOMAIN}/profile`);
     const token = this.authService.login(req.user);
     const user = req.user;
     if (user.twoFactorAuthenticationSet) {
@@ -30,7 +31,11 @@ export class AuthController {
         .cookie('temporaryToken', `${token}`, { httpOnly: true })
         .redirect(url2FA);
     }
-    res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
+    if (user.updatedAt - user.createdAt === 0)
+      res
+        .cookie('jwtToken', `${token}`, { httpOnly: true })
+        .redirect(urlFirstSignIn);
+    else res.cookie('jwtToken', `${token}`, { httpOnly: true }).redirect(url);
   }
 
   @Post('/login-user-dev')

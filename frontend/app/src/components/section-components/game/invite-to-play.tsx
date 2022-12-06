@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { socket } from '../../global-components/client-socket';
 import { User } from '../../global-components/interface';
 
@@ -20,7 +21,10 @@ function InviteToPlay({ user, setIsShown }: InviteToPlayProps) {
         } else if (msg === 'inviteFailed') {
           //Nothing to Do here as it is handled by a listener
         } else {
-          alert('Your invitation was deflected by a mighty pong spirit');
+          toast.error('Your invitation was deflected by a mighty pong spirit', {
+            toastId: 'toast-error-invite-failed',
+            position: toast.POSITION.TOP_RIGHT,
+          });
         }
       },
     );
