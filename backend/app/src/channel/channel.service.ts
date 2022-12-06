@@ -257,9 +257,7 @@ export class ChannelService {
           },
         });
       return myRole;
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
+    } catch (error) {}
   }
 
   async getRolesOfUsersChannel(channelId: string) {
@@ -278,9 +276,7 @@ export class ChannelService {
         },
       });
       return roles;
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
+    } catch (error) {}
   }
 
   async getInvitesOfAChannel(channelId: string) {

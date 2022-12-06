@@ -654,9 +654,7 @@ export class UserService {
           },
         });
       }
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
+    } catch (error) {}
   }
 
   /** Achievement management */
