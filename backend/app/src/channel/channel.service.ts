@@ -841,7 +841,7 @@ export class ChannelService {
       if (error.code === 'P2002') {
         return 'alreadyUsed';
       }
-      if (typeof error === 'string' && error == 'Error: passwordIncorrect') {
+      if (error == 'Error: passwordIncorrect') {
         return 'passwordIncorrect';
       }
       if (typeof error === 'string') return error;
