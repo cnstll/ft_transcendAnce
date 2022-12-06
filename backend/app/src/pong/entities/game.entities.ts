@@ -63,7 +63,7 @@ export class DoubleKeyMap {
 
   matchPlayer(player2Id: string) {
     for (const [_, game] of this.playerMap) {
-      if (game.p2id === undefined && _) {
+      if (game.p2id === null && _) {
         // the above is ugly but a linting rule is forcing me to add it
         game.p2id = player2Id;
         this.playerMap.set(player2Id, game);
@@ -118,8 +118,8 @@ export class Game {
     // speedIncrease: 4,
   };
   gameRoomId: string;
-  p1id: string = null;
-  p2id: string = null;
+  p1id: string | null = null;
+  p2id: string | null = null;
   status: Status;
   dirx = this.gameConstants.speeds[0];
   diry = 0.0;
