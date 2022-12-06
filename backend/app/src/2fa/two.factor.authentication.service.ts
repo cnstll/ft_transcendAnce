@@ -19,16 +19,9 @@ export class TwoFactorAuthenticationService {
     try {
       const secret: string = authenticator.generateSecret();
       await this.userService.toggleTwoFactorAuthentication(secret, userId);
-      if (this.configService !== undefined) {
-        const temp: string | undefined =
-          this.configService.get('TranscenDance');
-        if (temp !== undefined) {
-          const otpauthURL = authenticator.keyuri(userId, temp, secret);
-          const qrCode = await QRCode.toDataURL(otpauthURL);
-          return res.status(201).send(qrCode);
-        }
-      }
-      return null;
+      const otpauthURL = authenticator.keyuri(userId, 'Transcendance', secret);
+      const qrCode = await QRCode.toDataURL(otpauthURL);
+      return res.status(201).send(qrCode);
     } catch (error) {
       if (typeof error === 'string') return error;
       return 'errorGenerate2FA';
