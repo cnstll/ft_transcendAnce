@@ -137,12 +137,14 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         } else if (text.status === 'OVER') {
           gameInfo.playerOneScore = text.player1score;
           setGameStatus(GameStatus.OVER);
+          drawGameStatus(gameInfo, gameStatus);
         } else if (text.status === 'PLAYING') {
           setGameStatus(GameStatus.PLAYING);
           setPlayerOneId(text.player1id);
           setPlayerTwoId(text.player2id);
         } else if (text.status === 'PAUSED') {
           setGameStatus(GameStatus.PAUSED);
+          drawGameStatus(gameInfo, gameStatus);
         }
       };
 
@@ -177,7 +179,9 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         gameInfo.fontSize = 0.03 * window.innerWidth;
         gameInfo.context.drawImage(gameInfo.cacheCanvas, 0, 0);
 
-        drawGameStatus(gameInfo, gameStatus);
+        window.requestAnimationFrame(function () {
+          drawGameStatus(gameInfo, gameStatus);
+        });
 
         const messageListener = (encoded: Uint8Array) => {
           try {
@@ -224,37 +228,6 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     }
   }
 
-  // function movePaddleTouch(event: React.TouchEvent) {
-  //   
-  //   event.preventDefault();
-  //   const touch = (event.changedTouches)[0];
-  //   // const clientY = touch.clientY;
-
-  //   const mouseEvent = new MouseEvent("mousemove", {
-  //   clientX: touch.clientX,
-  //   clientY: touch.clientY
-  // });
-  //   if (
-  //     gameInfo.context !== null &&
-  //     gameInfo.canvas!== null &&
-  //     canvasRef.current !== null &&
-  //     gameStatus === GameStatus.PLAYING
-  //   ) {
-  //     gameInfo.canvas.dispatchEvent(mouseEvent);
-  //   }
-    //   gameInfo.context.textBaseline = 'middle';
-    //   gameInfo.context.textAlign = 'center';
-    //   const rect = canvasRef.current.getBoundingClientRect();
-    //   const posy: number = Math.round(
-    //     ((clientY - rect.top) / canvasRef.current.height) *
-    //       gameConstants.relativeGameWidth,
-    //   );
-    //   message.setYpos(posy);
-    //   encodedMessage = message.serializeBinary();
-    //   socket.volatile.emit('PP', encodedMessage.buffer);
-    // }
-  // }
-
   let opponentId: string | undefined = userId;
   if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
   else if (gameInfo.playerNumber === 2 && playerOneId) opponentId = playerOneId;
@@ -267,9 +240,6 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         {gameStatus === GameStatus.PLAYING && (
           <canvas
             onMouseMove={movePaddle}
-            // onTouchMove={movePaddleTouch}
-            // onTouchStart={movePaddleTouch}
-            // onTouchEnd={(e) => {e.preventDefault()}}
             ref={canvasRef}
             className="border-solid border-2 border-white"
           />
