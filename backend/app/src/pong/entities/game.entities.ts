@@ -320,10 +320,7 @@ export class Game {
         },
       });
       if (user) return user.eloScore;
-    } catch (error) {
-      console.log(error);
-      //TODO should this error be handled? should be excedingly rare
-    }
+    } catch (error) {}
   }
 
   async updateUserElo(
