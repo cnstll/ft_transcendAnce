@@ -20,7 +20,7 @@ function ChatTopBar({
 }: ChatTopBarProps) {
   const currentChannelCtx = useContext(channelContext);
   return (
-    <div className="flex lg:sticky lg:top-0 xl:sticky xl:top-0">
+    <div className="flex">
       <div
         className="flex-1 flex flex-wrap pl-3 sm:pl-0 sm:justify-center content-center
   backdrop-blur-sm bg-gray-900/50 overflow-hidden max-h-20"
