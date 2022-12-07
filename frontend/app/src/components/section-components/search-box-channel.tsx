@@ -52,9 +52,8 @@ function SearchBoxChannel({
           setShowModal(false);
           navigate(`../chat/${joiningInfo.channelId}`);
           setActiveChannelId(joiningInfo.channelId);
-        } else {
-          //TODO notify other users that a new user joined
-        }
+        } 
+        
       },
     );
     socket.on('joinRoomFailed', () => {

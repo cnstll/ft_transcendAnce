@@ -466,7 +466,6 @@ export class ChannelService {
 
   async storeMessage(userId: string, messageInfo: IncomingMessageDto) {
     try {
-      //TODO Check if user is muted/banned
       const messagesObj: { messages: Message[] } =
         await this.prisma.channel.update({
           where: {

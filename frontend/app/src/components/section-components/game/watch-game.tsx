@@ -109,7 +109,6 @@ function WatchGame({
       'watchGame',
       { playerId: playerId },
       (response: { playerNumber: number }) => {
-        console.log('here i am the server responded');
         gameInfo.playerNumber = response.playerNumber;
       },
     );

@@ -310,7 +310,6 @@ export class Game {
       return user.eloScore;
     } catch (error) {
       console.log(error);
-      //TODO should this error be handled? should be excedingly rare
     }
   }
 

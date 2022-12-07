@@ -75,7 +75,6 @@ export class UserService {
         },
       });
       return res.status(200).send(nicknames);
-      //TODO select so you don't return unneeded user info
     } catch (error) {
       console.log(error);
       return res.status(500).send();
@@ -141,7 +140,6 @@ export class UserService {
       where: {
         id: userId,
       },
-      //TODO select useful info
     });
     return user;
   }

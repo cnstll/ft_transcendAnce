@@ -29,7 +29,6 @@ function JoinChannel(channelInfo: Channel) {
         });
         break;
       default:
-      //TODO handle all states of the channelType so we don't need a default case
       break;
     }
 }

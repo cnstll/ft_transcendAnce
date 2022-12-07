@@ -60,9 +60,8 @@ function ChannelOptions({ setActiveChannelId, setIsShown }: ChannelOptions) {
             setActiveChannelId(nextChannelId);
             navigate(`../chat/${nextChannelId}`);
           }
-        } else {
-          //TODO User still in the room should get notified that a user left
-        }
+        } 
+        
         await queryClient.invalidateQueries(channelsQueryKey);
       },
     );
