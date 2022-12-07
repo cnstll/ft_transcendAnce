@@ -68,9 +68,7 @@ function ChatBox({ userId, channelId }: ChatBoxProps) {
                 ['getAllMessages', channelId],
                 previousChatState,
               );
-            } else {
-              //TODO Checking system like whatzapp
-            }
+            } 
           },
         );
         setMessageContent('');

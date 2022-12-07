@@ -10,6 +10,7 @@ import JoinChannel from '../../custom-hooks/emit-join-channel';
 import { useQueryClient } from 'react-query';
 import PasswordModal from './password-modal';
 import { getMyChannelInvites } from '../../query-hooks/getChannelInvites';
+import { toast } from 'react-toastify';
 
 interface SearchBoxChannelProps {
   height: string;
@@ -50,11 +51,13 @@ function SearchBoxChannel({
         setShowModal(false);
         navigate(`../chat/${joiningInfo.channelId}`);
         setActiveChannelId(joiningInfo.channelId);
-        //   //TODO notify other users that a new user joined
       },
     );
     socket.on('joinRoomFailed', () => {
-      alert('Failed to join room, sorry');
+      toast.error("Couldn't join room sorry 🤷", {
+        toastId: 'toast-error-join-room',
+        position: toast.POSITION.TOP_RIGHT,
+      });
     });
     return () => {
       socket.off('roomJoined');
@@ -107,7 +110,10 @@ function SearchBoxChannel({
           else JoinChannel(filteredChannels[0]);
         }
       } else {
-        alert('No channel found ;(');
+        toast.error("Couldn't find channel sorry 🤷", {
+          toastId: 'toast-error-find-channel',
+          position: toast.POSITION.TOP_RIGHT,
+        });
       }
     }
   }

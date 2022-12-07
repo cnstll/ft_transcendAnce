@@ -381,9 +381,6 @@ describe('Channel controller (e2e)', () => {
         .set('Authorization', bearer)
         .send({})
         .expect(404)
-        .then((response) => {
-          console.log(response.text);
-        })
     });
 
     // To be completed with more users with other roles when we have a join channel

@@ -1,6 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
+// import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { TwoFaRequest } from 'src/pong/entities/game.entities';
 import { JwtPayload } from '../auth/types';
 
 export class TwoFaStrategy extends PassportStrategy(
@@ -22,7 +23,7 @@ export class TwoFaStrategy extends PassportStrategy(
     return jwtPayload;
   }
 
-  private static extractJWT(req: Request): string | null {
+  private static extractJWT(req: TwoFaRequest): string | null {
     if (
       req.cookies &&
       'temporaryToken' in req.cookies &&

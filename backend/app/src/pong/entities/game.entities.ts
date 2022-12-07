@@ -7,6 +7,17 @@ export interface HandshakeRequest extends Request {
   handshake?: { headers: { cookie: string } };
 }
 
+export interface TwoFaRequest extends Request {
+  // req.cookies &&
+  // 'temporaryToken' in req.cookies &&
+  // req.cookies.temporaryToken.length > 0
+  cookies: { temporaryToken: string };
+}
+
+export interface JwtRequest extends Request {
+  cookies: { jwtToken: string };
+}
+
 export enum UserConnectionStatus {
   OFFLINE = 'OFFLINE',
   ONLINE = 'ONLINE',
@@ -43,7 +54,7 @@ export class DoubleKeyMap {
   }
 
   rejoinGame(playerId: string) {
-    const game: Game = this.playerMap.get(playerId);
+    const game: Game | undefined = this.playerMap.get(playerId);
     if (game !== undefined) {
       return game;
     }
@@ -52,7 +63,7 @@ export class DoubleKeyMap {
 
   matchPlayer(player2Id: string) {
     for (const [_, game] of this.playerMap) {
-      if (game.p2id === null && _) {
+      if (game.p2id === undefined && _) {
         // the above is ugly but a linting rule is forcing me to add it
         game.p2id = player2Id;
         this.playerMap.set(player2Id, game);
@@ -63,7 +74,7 @@ export class DoubleKeyMap {
   }
   setPlayer1(player1Id: string, game: Game) {
     game.p1id = player1Id;
-    game.p2id = null;
+    game.p2id = undefined;
     this.playerMap.set(player1Id, game);
     this.size++;
   }
@@ -75,9 +86,9 @@ export class DoubleKeyMap {
 
   delete(userId: string) {
     const game = this.playerMap.get(userId);
-    if (game.p1id === userId) {
+    if (game?.p1id === userId && game.p2id) {
       this.playerMap.delete(game.p2id);
-    } else {
+    } else if (game?.p1id) {
       this.playerMap.delete(game.p1id);
     }
     this.playerMap.delete(userId);
@@ -104,11 +115,10 @@ export class Game {
     maxSpeed: 6,
     speed: 0,
     speeds: [7, 8, 10, 12, 14, 15, 20],
-    // speedIncrease: 4,
   };
   gameRoomId: string;
-  p1id: string = null;
-  p2id: string = null;
+  p1id: string | undefined = undefined;
+  p2id: string | undefined = undefined;
   status: Status;
   dirx = this.gameConstants.speeds[0];
   diry = 0.0;
@@ -145,7 +155,10 @@ export class Game {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx > 0) {
-              this.dirx = this.gameConstants.maxSpeed;
+              if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+                this.gameConstants.speed = 5;
+                this.dirx = this.gameConstants.speeds[5];
+              }
             } else {
               this.dirx = this.dirx * -1;
               if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
@@ -179,7 +192,10 @@ export class Game {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx < 0) {
-              this.dirx = -this.gameConstants.maxSpeed;
+              if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+                this.gameConstants.speed = 5;
+                this.dirx = -this.gameConstants.speeds[5];
+              }
             } else {
               this.dirx = this.dirx * -1;
               if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
@@ -200,8 +216,7 @@ export class Game {
             break;
           }
         }
-        // this number stays magic because it actually is magic
-        this.diry = (this.by - this.p2y) / 2;
+        this.diry = this.by - this.p2y;
       }
     }
 
@@ -215,14 +230,13 @@ export class Game {
           this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           this.bx = this.gameConstants.relativeMiddle;
           this.by = this.gameConstants.relativeMiddle;
-          // this number stays magic because it actually is magic
-          this.diry = generateRandomNumber(-10, 10) / 20;
+          this.diry = generateRandomNumber(-20, 20);
           break;
         }
 
         case GameMode.MAYHEM: {
-          // this.dirx = this.gameConstants.initialSpeed;
-          this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 0)];
+          this.bx = 0;
+          this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 1)];
           break;
         }
       }
@@ -240,16 +254,14 @@ export class Game {
             -this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           this.bx = this.gameConstants.relativeMiddle;
           this.by = this.gameConstants.relativeMiddle;
-          // this number stays magic because it actually is magic
-          this.diry = generateRandomNumber(-10, 10) / 20;
+          this.diry = generateRandomNumber(-20, 20);
           break;
         }
 
         case GameMode.MAYHEM: {
           this.bx = this.gameConstants.relativeGameWidth;
-          // this.dirx = -this.gameConstants.initialSpeed;
           this.dirx =
-            -this.gameConstants.speeds[(this.gameConstants.speed = 0)];
+            -this.gameConstants.speeds[(this.gameConstants.speed = 1)];
           break;
         }
       }
@@ -307,11 +319,8 @@ export class Game {
           eloScore: true,
         },
       });
-      return user.eloScore;
-    } catch (error) {
-      console.log(error);
-      //TODO should this error be handled? should be excedingly rare
-    }
+      if (user) return user.eloScore;
+    } catch (error) {}
   }
 
   async updateUserElo(
@@ -343,57 +352,65 @@ export class Game {
       eloPlayer1: 0,
       eloPlayer2: 0,
     };
-    const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
-    const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
+    if (typeof this.p1id === 'string' && typeof this.p2id === 'string') {
+      const eloPlayer1 = await this.getUserElo(this.p1id, prismaService);
+      const eloPlayer2 = await this.getUserElo(this.p2id, prismaService);
+      if (eloPlayer1 && eloPlayer2) {
+        const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
 
-    const expectedElos = this.computeExpectedElos(eloPlayer1, eloPlayer2);
-
-    if (winner) {
-      newElos.eloPlayer1 = Math.ceil(
-        eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
-      );
-      newElos.eloPlayer2 = Math.ceil(
-        eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
-      );
-    } else {
-      newElos.eloPlayer1 = Math.ceil(
-        eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
-      );
-      newElos.eloPlayer2 = Math.ceil(
-        eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
-      );
+        if (winner) {
+          newElos.eloPlayer1 = Math.ceil(
+            eloPlayer1 + 15 * (1 - expectedElos.expectedEloPlayer1),
+          );
+          newElos.eloPlayer2 = Math.ceil(
+            eloPlayer2 + 15 * (0 - expectedElos.expectedEloPlayer2),
+          );
+        } else {
+          newElos.eloPlayer1 = Math.ceil(
+            eloPlayer1 + 15 * (0 - expectedElos.expectedEloPlayer1),
+          );
+          newElos.eloPlayer2 = Math.ceil(
+            eloPlayer2 + 15 * (1 - expectedElos.expectedEloPlayer2),
+          );
+        }
+        if (newElos.eloPlayer2 < 100) {
+          newElos.eloPlayer2 = 100;
+        }
+        if (newElos.eloPlayer1 < 100) {
+          newElos.eloPlayer2 = 100;
+        }
+        return newElos;
+      }
+      return null;
     }
-    if (newElos.eloPlayer2 < 100) {
-      newElos.eloPlayer2 = 100;
-    }
-    if (newElos.eloPlayer1 < 100) {
-      newElos.eloPlayer2 = 100;
-    }
-    return newElos;
   }
 
   async saveGameResults(prismaService: PrismaService) {
-    await prismaService.user.update({
-      where: {
-        id: this.p1id,
-      },
-      data: {
-        playerOneMatch: {
-          create: [
-            {
-              gameId: this.gameRoomId,
-              p1s: this.p1s,
-              p2s: this.p2s,
-              playerTwoId: this.p2id,
-            },
-          ],
+    if (this.p2id) {
+      await prismaService.user.update({
+        where: {
+          id: this.p1id,
         },
-      },
-    });
+        data: {
+          playerOneMatch: {
+            create: [
+              {
+                gameId: this.gameRoomId,
+                p1s: this.p1s,
+                p2s: this.p2s,
+                playerTwoId: this.p2id,
+              },
+            ],
+          },
+        },
+      });
+    }
 
     const newElos = await this.getNewElos(prismaService, this.p1s >= 10);
-    this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
-    this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
+    if (newElos && this.p1id && this.p2id) {
+      await this.updateUserElo(this.p1id, newElos.eloPlayer1, prismaService);
+      await this.updateUserElo(this.p2id, newElos.eloPlayer2, prismaService);
+    }
   }
 }
 

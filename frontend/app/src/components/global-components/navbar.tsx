@@ -106,7 +106,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
         onClose: () => {
           if (acceptInvite) {
             socket.emit('acceptInvite', challenger);
-            navigate('/play');
+            if (location.pathname.includes('/play')) navigate('/play', {state: false} );
+            else navigate('/play');
           } else {
             socket.emit('refuseInvite', challenger);
           }

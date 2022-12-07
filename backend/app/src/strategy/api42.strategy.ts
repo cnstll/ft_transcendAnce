@@ -5,6 +5,7 @@ import { Strategy } from 'passport-42';
 import { HttpService } from '@nestjs/axios';
 import { User } from '@prisma/client';
 import { lastValueFrom } from 'rxjs';
+import { AuthDto } from 'src/auth/dto';
 
 @Injectable()
 export class Api42Strategy extends PassportStrategy(Strategy) {
@@ -18,12 +19,13 @@ export class Api42Strategy extends PassportStrategy(Strategy) {
       callbackURL: process.env.API_URI,
     });
   }
-  async validate(accessToken: string): Promise<User> {
-    const { data } = await lastValueFrom(
-      this.httpService.get('https://api.intra.42.fr/v2/me', {
+  async validate(accessToken: string): Promise<User | undefined> {
+    const response = await lastValueFrom(
+      this.httpService.get<AuthDto>('https://api.intra.42.fr/v2/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       }),
     );
+    const data: AuthDto = response.data;
     return this.authService.loginIntra(data);
   }
 }

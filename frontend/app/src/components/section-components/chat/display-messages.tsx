@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient, UseQueryResult } from 'react-query';
 import { socket } from '../../global-components/client-socket';
 import { Message, User } from '../../global-components/interface';
 import { useChannelAuthors } from '../../query-hooks/useGetChannelAuthors';
 import { useGetAllMessages } from '../../query-hooks/useGetMessages';
 import LoadingSpinner from '../loading-spinner';
+import { toast } from 'react-toastify';
 
 interface UserMessagesProps {
   content: string;
@@ -61,14 +62,22 @@ function DisplayMessages({
   const channelAuthorsQuery: UseQueryResult<User[] | undefined> =
     useChannelAuthors(channelId);
 
+  const [blockSignal, setIsBlockSignal] = useState(false);
   const queryClient = useQueryClient();
   const messageQueryKey = 'getAllMessages';
   const channelUsersQueryKey = 'channelUsers';
   const channelAuthorsQueryKey = 'channelAuthors';
+  const listUsersBlockedQueryKey = 'blockedUsersList';
+  const usersIBlocked: string[] | undefined = queryClient.getQueryData(
+    listUsersBlockedQueryKey,
+  );
 
   useEffect(() => {
     socket.on('messageRoomFailed', () => {
-      alert('Could not send your message sry ;(');
+      toast.error("Couldn't send your message sorry 🤷", {
+        toastId: 'toast-error-send-message',
+        position: toast.POSITION.TOP_RIGHT,
+      });
     });
     socket.on('incomingMessage', async () => {
       await queryClient.invalidateQueries(messageQueryKey);
@@ -77,11 +86,15 @@ function DisplayMessages({
     socket.on('roomJoined', async () => {
       await queryClient.invalidateQueries(channelUsersQueryKey);
     });
+    socket.on('signalBlock', () => {
+      setIsBlockSignal(!blockSignal);
+    });
     return () => {
       socket.off('messageRoomFailed');
       socket.off('incomingMessage');
+      socket.off('signalBlock');
     };
-  }, [socket, queryClient]);
+  }, [queryClient, blockSignal]);
 
   return (
     <div className="p-5 flex flex-col gap-4">
@@ -95,25 +108,30 @@ function DisplayMessages({
         channelAuthorsQuery.data &&
         messageQuery.data &&
         messageQuery.data.length > 0 &&
-        messageQuery.data.map((message) =>
-          message.senderId === userId ? (
-            <CurrentUserMessage
-              key={message.id}
-              content={message.content}
-              image={avatarImg}
-            />
-          ) : (
-            <OtherUserMessage
-              key={message.id}
-              content={message.content}
-              image={
-                channelAuthorsQuery.data?.filter(
-                  (user) => user.id === message.senderId,
-                )[0]?.avatarImg
-              }
-            />
-          ),
-        )}
+        messageQuery.data
+          .filter(
+            (message) =>
+              !usersIBlocked?.some((userId) => userId === message.senderId),
+          )
+          .map((message) =>
+            message.senderId === userId ? (
+              <CurrentUserMessage
+                key={message.id}
+                content={message.content}
+                image={avatarImg}
+              />
+            ) : (
+              <OtherUserMessage
+                key={message.id}
+                content={message.content}
+                image={
+                  channelAuthorsQuery.data?.filter(
+                    (user) => user.id === message.senderId,
+                  )[0]?.avatarImg
+                }
+              />
+            ),
+          )}
       {messageQuery.isSuccess &&
         messageQuery.data &&
         messageQuery.data.length === 0 && (

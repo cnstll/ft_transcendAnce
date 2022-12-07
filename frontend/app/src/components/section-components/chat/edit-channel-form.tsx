@@ -32,7 +32,7 @@ function EditChannelForm(props: EditChannelFormProps) {
       setFormData(defaultFormData);
     });
     socket.on('editRoomFailed', (ret: null | string) => {
-      if (ret === 'alreadyUsedname') {
+      if (ret === 'alreadyUsed') {
         setInputStatus('invalidAlreadyUsedname');
       } else if (ret === 'passwordIncorrect') {
         setInputStatus('invalidWrongPassword');
