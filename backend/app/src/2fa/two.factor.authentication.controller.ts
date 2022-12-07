@@ -41,12 +41,12 @@ export class TwoFactorAuthenticationController {
     @Res() res: Response,
   ) {
     /* Check that the user has a valid 2fa secret */
-    const user: User = await this.userService.getUserInfo(userId);
-    if (!user.twoFactorAuthenticationSecret) {
+    const user: User | null = await this.userService.getUserInfo(userId);
+    if (!user?.twoFactorAuthenticationSecret) {
       throw new UnauthorizedException('The user does not have a 2fa secret');
     }
 
-    const isCodeValid: boolean =
+    const isCodeValid: boolean | null =
       await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         userId,
@@ -54,7 +54,7 @@ export class TwoFactorAuthenticationController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    this.userService.enableTwoFactorAuthentication(userId, res);
+    await this.userService.enableTwoFactorAuthentication(userId, res);
     return res.status(201).send();
   }
 
@@ -66,12 +66,12 @@ export class TwoFactorAuthenticationController {
     @Res() res: Response,
   ) {
     /* Check that the user has a valid 2fa secret */
-    const user: User = await this.userService.getUserInfo(userId);
-    if (!user.twoFactorAuthenticationSecret) {
+    const user: User | null = await this.userService.getUserInfo(userId);
+    if (!user?.twoFactorAuthenticationSecret) {
       throw new UnauthorizedException('The user does not have a 2fa secret');
     }
 
-    const isCodeValid: boolean =
+    const isCodeValid: boolean | null =
       await this.twoFactorAuthenticationService.isTwoFactorAuthenticationCodeValid(
         data.twoFactorAuthenticationCode,
         userId,

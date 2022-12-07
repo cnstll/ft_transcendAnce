@@ -19,6 +19,10 @@ import {
   InviteChannelDto,
   IncomingMessageDto,
 } from './dto';
+import { Channel, ChannelRole, ChannelType } from '@prisma/client';
+import { socketToUserId } from 'src/user/socketToUserIdStorage.service';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
+import * as msgpack from 'socket.io-msgpack-parser';
 
 enum acknoledgementStatus {
   OK = 'OK',
@@ -35,14 +39,14 @@ enum acknoledgementStatus {
     ],
     credentials: true,
   },
-  parser: require('socket.io-msgpack-parser'),
+  parser: msgpack,
 })
+@UseGuards(JwtAuthGuard)
 export class ChannelGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly channelService: ChannelService) {}
 
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('connectToRoom')
   async connectToChannel(
     @GetCurrentUserId() userId: string,
@@ -60,7 +64,6 @@ export class ChannelGateway {
   }
 
   //When a user send create a channel, a room is created in backend with a name and id and the user gets admin role
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createRoom')
   async createChannel(
     @GetCurrentUserId() userId: string,
@@ -70,24 +73,39 @@ export class ChannelGateway {
     dto = {
       ...dto,
     };
-    const channel = await this.channelService.createChannelWS(
-      dto,
-      userId,
-      clientSocket,
-    );
-    channel === null || typeof channel === 'string'
+    let channel: Channel | string | null;
+    if (dto.type === ChannelType.DIRECTMESSAGE) {
+      channel = await this.channelService.createDirectMessageWS(
+        dto,
+        userId,
+        clientSocket,
+      );
+      /** Get the second user's socketId and make it join the channel's room */
+      if (typeof dto.userId === 'string') {
+        const secondUserSocket = socketToUserId.getFromUserId(dto.userId);
+        if (secondUserSocket && channel && typeof channel !== 'string')
+          this.server.in([secondUserSocket]).socketsJoin(channel.id);
+      }
+    } else {
+      channel = await this.channelService.createChannelWS(
+        dto,
+        userId,
+        clientSocket,
+      );
+    }
+    typeof channel === 'string' || !channel
       ? this.server.to(clientSocket.id).emit('createRoomFailed', channel)
-      : this.server.emit('roomCreated', channel.id);
+      : this.server.emit('roomCreated', channel.id, userId);
   }
 
   // When a user join a channel, her ids are added to the users in the corresponding room
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('joinRoom')
   async joinChannel(
     @GetCurrentUserId() userId: string,
     @MessageBody('joinInfo') dto: JoinChannelDto,
     @ConnectedSocket() clientSocket: Socket,
   ) {
+    // Change UserId depending if the channel is of type direct message
     const joinedRoom = await this.channelService.joinChannelWS(
       dto,
       userId,
@@ -95,15 +113,14 @@ export class ChannelGateway {
     );
     typeof joinedRoom === 'string'
       ? this.server.to(clientSocket.id).emit('joinRoomError', joinedRoom)
-      : typeof joinedRoom === null
-      ? this.server.to(clientSocket.id).emit('joinRoomFailed')
-      : this.server
+      : joinedRoom
+      ? this.server
           .to(dto.id)
-          .emit('roomJoined', { userId: userId, channelId: joinedRoom.id });
+          .emit('roomJoined', { userId: userId, channelId: joinedRoom.id })
+      : this.server.to(clientSocket.id).emit('joinRoomFailed');
   }
 
   //   When a user send a message in a channel, all the users within the room receive the message
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('messageRoom')
   async sendMessage(
     @GetCurrentUserId() senderId: string,
@@ -126,16 +143,6 @@ export class ChannelGateway {
     }
   }
 
-  // When a user is typing in a channel, a 'someone is typing' should be displayed to other users in the room
-  @SubscribeMessage('typing')
-  someoneIsTyping(
-    @MessageBody('roomId') roomId: string,
-    @ConnectedSocket() clientSocket: Socket,
-  ) {
-    return clientSocket.to(roomId).emit('typing');
-  }
-
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('editRoom')
   async editRoom(
     @GetCurrentUserId() userId: string,
@@ -156,7 +163,6 @@ export class ChannelGateway {
   }
 
   //Delete channel
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('leaveRoom')
   async deleteRoom(
     @GetCurrentUserId() userId: string,
@@ -167,18 +173,33 @@ export class ChannelGateway {
       userId,
       leaveChannelDto,
     );
-    if (userLeaving == null) {
+    if (!userLeaving || typeof userLeaving === 'string') {
       this.server.to(clientSocket.id).emit('leaveRoomFailed');
+    } else if (leaveChannelDto.type === ChannelType.DIRECTMESSAGE) {
+      this.server.to(leaveChannelDto.id).emit('roomLeft', {
+        userId: userId,
+        channelId: leaveChannelDto.id,
+        secondUserId: userLeaving.userId,
+      });
+      /** Get the first user's socketId to leave the channel's room */
+      await clientSocket.leave(leaveChannelDto.id);
+      /** Get the second user's socketId to leave the channel's room */
+      if (typeof userLeaving !== 'string') {
+        const secondUserSocket = socketToUserId.getFromUserId(
+          userLeaving.userId,
+        );
+        if (secondUserSocket && typeof userLeaving !== 'string')
+          this.server.in(secondUserSocket).socketsLeave(userLeaving.channelId);
+      }
     } else {
       this.server
         .to(leaveChannelDto.id)
         .emit('roomLeft', { userId: userId, channelId: leaveChannelDto.id });
-      clientSocket.leave(leaveChannelDto.id);
+      await clientSocket.leave(leaveChannelDto.id);
     }
   }
 
   // Invite other users to a private channel
-  @UseGuards(JwtAuthGuard)
   @SubscribeMessage('inviteToChannel')
   async inviteToChannel(
     @GetCurrentUserId() userId: string,
@@ -189,7 +210,7 @@ export class ChannelGateway {
       userId,
       inviteChannelDto,
     );
-    if (inviteToChannel == null || typeof inviteToChannel === 'string') {
+    if (!inviteToChannel || typeof inviteToChannel === 'string') {
       this.server.to(clientSocket.id).emit('inviteFailed', inviteToChannel);
     } else {
       this.server
@@ -198,7 +219,44 @@ export class ChannelGateway {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('banUser')
+  async banUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('banInfo') banInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const banResult = await this.channelService.banFromChannelWS(
+      requesterId,
+      banInfo,
+    );
+    if (!banResult || typeof banResult === 'string') {
+      this.server.to(clientSocket.id).emit('banFailed', banResult);
+    } else {
+      this.server
+        .to(banInfo.channelActionOnChannelId)
+        .emit('banSucceeded', banResult);
+    }
+  }
+
+  @SubscribeMessage('muteUser')
+  async muteUserFromChannel(
+    @GetCurrentUserId() requesterId: string,
+    @MessageBody('muteInfo') muteInfo: ModerateChannelDto,
+    @ConnectedSocket() clientSocket: Socket,
+  ) {
+    const muteResult = await this.channelService.muteFromChannelWS(
+      requesterId,
+      muteInfo,
+    );
+    if (!muteResult || typeof muteResult === 'string') {
+      this.server.to(clientSocket.id).emit('muteFailed', muteResult);
+    } else {
+      this.server
+        .to(muteInfo.channelActionOnChannelId)
+        .emit('muteSucceeded', muteResult);
+    }
+  }
+
   @SubscribeMessage('updateRole')
   async editRole(
     @GetCurrentUserId() userId: string,
@@ -211,10 +269,14 @@ export class ChannelGateway {
       channelId,
       editRoleDto,
     );
-    roleUpdated == null ||
-    roleUpdated === 'PromotionNotAuthorized' ||
-    roleUpdated === 'noEligibleRights'
-      ? this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated)
-      : this.server.in(channelId).emit('roleUpdated', roleUpdated);
+    roleUpdated === ChannelRole.ADMIN ||
+    roleUpdated === ChannelRole.OWNER ||
+    roleUpdated === ChannelRole.USER
+      ? this.server.in(channelId).emit('roleUpdated', roleUpdated)
+      : this.server.to(clientSocket.id).emit('updateRoleFailed', roleUpdated);
+  }
+  @SubscribeMessage('signalBlock')
+  async signalBlock(@ConnectedSocket() clientSocket: Socket) {
+    return this.server.to(clientSocket.id).emit('signalBlock');
   }
 }

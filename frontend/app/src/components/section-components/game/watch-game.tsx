@@ -91,10 +91,8 @@ const gameInfo: GameInformation = {
 };
 
 function WatchGame({
-  avatarImg,
   userId,
 }: {
-  avatarImg: string;
   userId: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,6 +110,9 @@ function WatchGame({
         gameInfo.playerNumber = response.playerNumber;
       },
     );
+    return () => {
+      socket.emit('leaveWatch', {playerId: playerId});
+    };
   }, []);
 
   useEffect(() => {
@@ -199,10 +200,16 @@ function WatchGame({
   }, [window.innerWidth, window.innerHeight, gameStatus]);
 
   let opponentId: string | undefined = userId;
-  if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
-  else if (gameInfo.playerNumber === 2 && playerOneId) opponentId = playerOneId;
+  const currentUserId: string | undefined = userId;
+  if (gameInfo.playerNumber === 1 && playerTwoId) {
+    opponentId = playerTwoId;
+  }
+  else if (gameInfo.playerNumber === 2 && playerOneId) {
+   opponentId = playerOneId;
+  }
 
   const opponent = useOpponentInfo(opponentId);
+  const currentUser = useOpponentInfo(currentUserId);
 
   return (
     <div className="fixed top-1/4">
@@ -235,10 +242,10 @@ function WatchGame({
           />
         )}
         {gameStatus === GameStatus.PLAYING &&
-          opponent.isSuccess &&
+          opponent.isSuccess && currentUser.isSuccess &&
           gameInfo.playerNumber && (
             <PlayerAvatar
-              currentPlayerAvatar={avatarImg}
+              currentPlayerAvatar={currentUser.data.avatarImg}
               opponentAvatar={opponent.data.avatarImg}
               playerNumber={gameInfo.playerNumber}
             />

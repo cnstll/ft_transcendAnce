@@ -28,6 +28,8 @@ model User {
   userOnChannels                ChannelUser[]     @relation("userOnChannel")
   channelActionRequester        ChannelAction[]   @relation("channelActionRequester")
   channelActionTarget           ChannelAction[]   @relation("channelActionTarget")
+  channelBlockedRequester       BlockedUser[]     @relation("channelBlockedRequester")
+  channelBlockedTarget          BlockedUser[]     @relation("channelBlockedTarget")
   playerOneMatch                Match[]           @relation("playerOne")
   playerTwoMatch                Match[]           @relation("playerTwo")
   invites                       Channel[]         @relation("inviteOnChannel")
@@ -90,7 +92,7 @@ model UserAchievement {
 
 model Channel {
   id           String      @id @default(cuid())
-  name         String      @unique
+  name         String      @unique @default(cuid())
   type         ChannelType @default(PUBLIC)
   passwordHash String?
 
@@ -134,12 +136,26 @@ model ChannelUser {
   @@map("channel_users")
 }
 
+model BlockedUser {
+  channelBlockedTargetId    String
+  channelBlockedTarget      User   @relation("channelBlockedTarget", fields: [channelBlockedTargetId], references: [id], onDelete: Cascade)
+  channelBlockedRequesterId String
+  channelBlockedRequester   User   @relation("channelBlockedRequester", fields: [channelBlockedRequesterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([channelBlockedTargetId, channelBlockedRequesterId])
+  @@unique(fields: [channelBlockedRequesterId, channelBlockedTargetId], name: "blockedId")
+  @@map("blocked")
+}
+
 model ChannelAction {
   channelActionTargetId    String
   channelActionTarget      User              @relation("channelActionTarget", fields: [channelActionTargetId], references: [id], onDelete: Cascade)
   channelActionOnChannelId String
   channelActionOnChannel   Channel           @relation("channelActionOnChannel", fields: [channelActionOnChannelId], references: [id], onDelete: Cascade)
-  channelActionTime        DateTime          @db.Time
+  channelActionTime        DateTime
   type                     ChannelActionType
 
   channelActionRequesterId String
@@ -148,14 +164,13 @@ model ChannelAction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@id([channelActionTargetId, channelActionOnChannelId, type])
-  @@unique([channelActionTargetId, channelActionOnChannelId])
+  @@id([channelActionTargetId, channelActionOnChannelId, channelActionRequesterId, type])
+  @@unique([channelActionTargetId, channelActionOnChannelId, type])
   @@map("channel_actions")
 }
 
 enum ChannelActionType {
   BAN
-  BLOCK
   MUTE
 }
 

@@ -1,8 +1,18 @@
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { ChannelActionType } from '@prisma/client';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { ChannelService } from './channel.service';
+import { ModerateChannelDto } from './dto/moderateChannelUser.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('channels')
@@ -19,9 +29,9 @@ export class ChannelController {
     return this.channelService.getGroupChannels();
   }
 
-  @Get('get-channels-by-user-id')
-  getChannelsByUserId(@GetCurrentUserId() userId: string) {
-    return this.channelService.getChannelsByUserId(userId);
+  @Get('get-all-channels-by-user-id')
+  getAllChannelsByUserId(@GetCurrentUserId() userId: string) {
+    return this.channelService.getAllChannelsByUserId(userId);
   }
 
   @Get(':id')
@@ -74,10 +84,63 @@ export class ChannelController {
     @Param('id') channelId: string,
     @Res() res: Response,
   ) {
-    return this.channelService.getMessagesFromChannel(userId, channelId, res);
+    return this.channelService.getMessagesFromChannel(channelId, userId, res);
   }
   @Get('get-authors-from-channel/:id')
   getAuthorsFromAChannel(@Param('id') channelId: string) {
     return this.channelService.getChannelAuthors(channelId);
+  }
+
+  @Post('get-direct-message-between-users')
+  async getDirectMessageBetweenUsers(
+    @GetCurrentUserId() userId: string,
+    @Body() data: { targetId: string },
+    @Res() res: Response,
+  ) {
+    const channel = await this.channelService.getDirectMessageByUserId(
+      userId,
+      data.targetId,
+    );
+    if (channel) return res.status(200).send(channel.id);
+    else return res.status(200).send(null);
+  }
+
+  @Get('get-users-under-moderation-action/:channelId/:actionType')
+  getUsersUnderModerationAction(
+    @Param('channelId') channelId: string,
+    @Param('actionType') actionType: ChannelActionType,
+  ) {
+    return this.channelService.getUsersUnderModerationAction(
+      channelId,
+      actionType,
+    );
+  }
+
+  @Get('get-is-current-user-under-moderation/:channelId/:actionType')
+  getIsCurrentUserUnderModeration(
+    @GetCurrentUserId() userId: string,
+    @Param('channelId') channelId: string,
+    @Param('actionType') actionType: ChannelActionType,
+  ) {
+    const moderationInfo: ModerateChannelDto = {
+      channelActionTargetId: userId,
+      channelActionOnChannelId: channelId,
+      type: actionType,
+    };
+    return this.channelService.isUserUnderModeration(moderationInfo);
+  }
+
+  @Get('get-is-user-under-moderation/:channelId/:userId/:actionType')
+  getIsUserUnderModeration(
+    @Param('channelId') channelId: string,
+    @Param('userId') userId: string,
+    @Param('actionType') actionType: ChannelActionType,
+  ) {
+    const moderationInfo: ModerateChannelDto = {
+      channelActionTargetId: userId,
+      channelActionOnChannelId: channelId,
+      type: actionType,
+    };
+    return this.channelService.isUserUnderModeration(moderationInfo);
   }
 }

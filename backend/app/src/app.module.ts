@@ -27,4 +27,6 @@ import { UserGateway } from './user/user.gateway';
   controllers: [AppController],
   providers: [UserGateway],
 })
-export class AppModule {}
+export class AppModule {
+  void;
+}

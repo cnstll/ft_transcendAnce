@@ -3,6 +3,7 @@ import { useQueryClient } from 'react-query';
 import setAvatarImg from '../../query-hooks/setAvatarImg';
 import { UseOutsideDivClick } from '../../custom-hooks/use-outside-click';
 import { apiUrl, User } from '../../global-components/interface';
+import { toast } from 'react-toastify';
 
 interface AvatarImgFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
@@ -12,13 +13,14 @@ interface AvatarImgFormProps {
 function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
   const queryClient = useQueryClient();
   const avatarImgMutation = setAvatarImg();
+  const customToastId = "custom-toast-cant-upload-picture";
 
   function onFileChange(
     event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) {
     let fileName = '';
     if ('files' in event.target) selectedFile = event.target.files?.[0];
-    const formData = new FormData();
+      const formData = new FormData();
     if (selectedFile) {
       formData.append('file', selectedFile);
       fileName =
@@ -37,22 +39,62 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
           });
         }
       },
+      onError: () => {
+        toast.error("Your image doesn't meet requirements", {
+          toastId: customToastId,
+          position: toast.POSITION.TOP_RIGHT
+        });
+      }
     });
   }
 
   return (
-    <div className="absolute block p-3 mr-6 rounded-lg shadow-lg bg-purple-light w-72 z-20">
-      <form>
-        <input
-          className="form-control w-full py-1.5 bg-clip-padding
-          text-sm sm:text-sm md:text-lg"
-          type="file"
-          id="avatarImgInput"
-          accept="image/png, image/jpeg, image/webp"
-          onChange={onFileChange}
-        ></input>
-      </form>
-    </div>
+    <>
+      <div
+        className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 w-full md:inset-0
+          h-modal h-full bg-[#222] bg-opacity-50 "
+      >
+        <div className="relative p-4 w-full max-w-sm h-full md:h-auto left-1/2 -translate-x-1/2">
+          <div className="relative bg-white rounded-lg shadow text-black p-6">
+            <h3
+              className="xl:text-xl lg:text-lg md:text-base sm:text-base text-base font-semibold text-gray-900
+                p-4 border-b"
+            >
+              Your avatar
+            </h3>
+            <form>
+            <div id="form-avatar" className="form-group mt-4">
+                <label
+                  className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
+                      text-purple-light my-3 font-bold"
+                  htmlFor="changePicture"
+                >
+                  Upload a new picture
+                </label>
+                <input
+                  className="form-control text-gray-500 bg-white hover:bg-gray-100 rounded-lg
+                  text-xs px-2 py-2.5 hover:text-gray-900"
+                  type="file"
+                  id="avatarImgInput"
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={onFileChange}
+                ></input>
+              </div>
+              <div className="flex items-center py-2 space-x-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200
+                  text-sm font-medium px-5 py-2.5 hover:text-gray-900"
+                >
+                  Quit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

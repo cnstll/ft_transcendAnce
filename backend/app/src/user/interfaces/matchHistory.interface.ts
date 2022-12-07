@@ -1,7 +1,7 @@
 export interface MatchHistory {
   id: string;
-  imageCurrentUser: string;
-  imageOpponent: string;
+  imageCurrentUser: string | null;
+  imageOpponent: string | null;
   score: string;
   matchWon: boolean;
 }

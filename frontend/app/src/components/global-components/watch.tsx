@@ -6,12 +6,12 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import useUserInfo from '../query-hooks/useUserInfo';
 import WatchGame from '../section-components/game/watch-game';
+import useUserInfo from '../query-hooks/useUserInfo';
 
 function Watch() {
-  const user = useUserInfo();
   const { playerId } = useParams();
+  const user = useUserInfo();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +27,7 @@ function Watch() {
             avatarImg={user.data.avatarImg}
           />
           {playerId != null && (
-            <WatchGame avatarImg={user.data.avatarImg} userId={user.data.id} />
+            <WatchGame  userId={user.data.id} />
           )}
         </Background>
       </div>

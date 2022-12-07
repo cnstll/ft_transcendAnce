@@ -1,5 +1,5 @@
-import React from 'react';
-import { useEffect, useRef, useState, MouseEvent } from 'react';
+import React  from 'react';
+import { useEffect, useRef, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOpponentInfo } from 'src/components/query-hooks/useTargetInfo';
 import { socket } from '../../global-components/client-socket';
@@ -187,7 +187,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
               draw(gameInfo);
             });
           } catch (e) {
-            console.log(e);
+            void(e);
           }
         };
 
@@ -202,7 +202,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     return;
   }, [window.innerWidth, window.innerHeight, gameStatus]);
 
-  function movePaddle(event: MouseEvent<HTMLCanvasElement>) {
+  function movePaddle(event: React.MouseEvent<HTMLCanvasElement>) {
     event.preventDefault();
     const clientY = event.clientY;
 
@@ -224,6 +224,37 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
     }
   }
 
+  // function movePaddleTouch(event: React.TouchEvent) {
+  //   
+  //   event.preventDefault();
+  //   const touch = (event.changedTouches)[0];
+  //   // const clientY = touch.clientY;
+
+  //   const mouseEvent = new MouseEvent("mousemove", {
+  //   clientX: touch.clientX,
+  //   clientY: touch.clientY
+  // });
+  //   if (
+  //     gameInfo.context !== null &&
+  //     gameInfo.canvas!== null &&
+  //     canvasRef.current !== null &&
+  //     gameStatus === GameStatus.PLAYING
+  //   ) {
+  //     gameInfo.canvas.dispatchEvent(mouseEvent);
+  //   }
+    //   gameInfo.context.textBaseline = 'middle';
+    //   gameInfo.context.textAlign = 'center';
+    //   const rect = canvasRef.current.getBoundingClientRect();
+    //   const posy: number = Math.round(
+    //     ((clientY - rect.top) / canvasRef.current.height) *
+    //       gameConstants.relativeGameWidth,
+    //   );
+    //   message.setYpos(posy);
+    //   encodedMessage = message.serializeBinary();
+    //   socket.volatile.emit('PP', encodedMessage.buffer);
+    // }
+  // }
+
   let opponentId: string | undefined = userId;
   if (gameInfo.playerNumber === 1 && playerTwoId) opponentId = playerTwoId;
   else if (gameInfo.playerNumber === 2 && playerOneId) opponentId = playerOneId;
@@ -236,6 +267,9 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         {gameStatus === GameStatus.PLAYING && (
           <canvas
             onMouseMove={movePaddle}
+            // onTouchMove={movePaddleTouch}
+            // onTouchStart={movePaddleTouch}
+            // onTouchEnd={(e) => {e.preventDefault()}}
             ref={canvasRef}
             className="border-solid border-2 border-white"
           />

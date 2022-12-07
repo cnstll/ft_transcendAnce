@@ -34,7 +34,7 @@ export class AuthService {
   }
 
   public async loginIntra(userData: AuthDto) {
-    const user: User = await this.userService.findOneFromImmutableId(
+    const user: User | null = await this.userService.findOneFromImmutableId(
       userData.id.toString(),
     );
     if (!user) {
@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   public async create_user_dev(userData: UserDto) {
-    const user: User = await this.userService.findOneFromUserNickname(
+    const user: User | null = await this.userService.findOneFromUserNickname(
       userData.nickname,
     );
     if (!user) {
@@ -63,18 +63,4 @@ export class AuthService {
       return;
     }
   }
-
-  // async retrieveProfileData(accessToken: string): Promise<any> {
-  //   const req = this.httpService.get('https://api.intra.42.fr/v2/me', {
-  //     headers: { Authorization: `Bearer ${accessToken}` },
-  //   });
-  //   const profile = await lastValueFrom(req);
-  //   const tailoredProfile = {
-  //     provider: 'api42',
-  //     id: profile.data.id.toString(),
-  //     displayName: profile.data.displayname,
-  //     username: profile.data.login,
-  //   };
-  //   return tailoredProfile;
-  // }
 }

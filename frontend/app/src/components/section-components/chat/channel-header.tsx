@@ -2,28 +2,35 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 import { Channel } from '../../global-components/interface';
 import { useQueryClient, UseQueryResult } from 'react-query';
-import { useGroupChannelsList } from '../../query-hooks/useGetChannels';
 import { useState } from 'react';
 import CreateChannelForm from './create-channel-form';
-import SearchBoxChannel from '../search-box-channel';
+import SearchBoxChannel from './search-box-channel';
 import LoadingSpinner from '../loading-spinner';
 
 function ChannelHeader({
   setActiveChannelId,
+  channels,
 }: {
   setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+  channels: UseQueryResult<Channel[] | undefined>;
 }) {
   const queryClient = useQueryClient();
   const channelsQueryKey = 'channelsByUserList';
   const myChannelsQueryData: Channel[] | undefined =
     queryClient.getQueryData(channelsQueryKey);
 
-  const channelsData: UseQueryResult<Channel[] | undefined> =
-    useGroupChannelsList();
   const [showForm, setShowForm] = useState<boolean>(false);
 
   function showCreateChannelForm() {
     setShowForm(!showForm);
+  }
+
+  function filterOutAlreadyJoinedChannels() {
+    const filteredOutChannels = channels.data?.filter(
+      (channel) =>
+        !myChannelsQueryData?.map((channel) => channel.id).includes(channel.id),
+    );
+    return filteredOutChannels;
   }
 
   return (
@@ -35,34 +42,24 @@ function ChannelHeader({
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
           <div className="z-20">
-            {showForm && (
-              <CreateChannelForm
-                setShowForm={setShowForm}
-                setActiveChannelId={setActiveChannelId}
-              />
-            )}
+            {showForm && <CreateChannelForm setShowForm={setShowForm} />}
           </div>
         </div>
       </div>
-      {!channelsData}
-      {channelsData.isLoading && <LoadingSpinner />}
-      {channelsData.isError && (
+      {!channels}
+      {channels.isLoading && <LoadingSpinner />}
+      {channels.isError && (
         <p className="m-4 text-base text-gray-400">
           We encountered an error 🤷
         </p>
       )}
-      {channelsData.data && channelsData.isSuccess && (
+      {channels.data && channels.isSuccess && (
         <SearchBoxChannel
           height="h-8 sm:h-9 md:h-10 lg:h-12 xl:h-12 "
           width="w-36 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
           placeholder="channel"
           setActiveChannelId={setActiveChannelId}
-          channels={channelsData.data.filter(
-            (channel) =>
-              !myChannelsQueryData
-                ?.map((channel) => channel.id)
-                .includes(channel.id),
-          )}
+          channels={filterOutAlreadyJoinedChannels()}
         />
       )}
     </div>

@@ -21,4 +21,6 @@ const ProtoBufProvider = {
   ],
   imports: [],
 })
-export class GameModule {}
+export class GameModule {
+  void;
+}

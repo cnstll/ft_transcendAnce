@@ -1,21 +1,18 @@
 import ChannelsList from './channels-list';
-import { useEffect } from 'react';
+import { Dispatch, useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { Channel } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
 import LoadingSpinner from '../loading-spinner';
 
 interface MyChannelsListProps {
-  activeChannelId: string;
-  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
+  setActiveChannelId: Dispatch<React.SetStateAction<string>>;
 }
-function MyChannelsList({
-  activeChannelId,
-  setActiveChannelId,
-}: MyChannelsListProps) {
+
+function MyChannelsList({ setActiveChannelId }: MyChannelsListProps) {
+  /* Getting state data from query cache */
   const queryClient = useQueryClient();
   const channelsQueryKey = 'channelsByUserList';
-
   const channelsQueryData = queryClient.getQueryData(channelsQueryKey);
   const channelsQueryState = queryClient.getQueryState(channelsQueryKey);
 
@@ -36,9 +33,8 @@ function MyChannelsList({
           We encountered an error 🤷
         </p>
       )}
-      {channelsQueryState?.status === 'success' && (
+      {channelsQueryState?.status === 'success' && channelsQueryData && (
         <ChannelsList
-          activeChannelId={activeChannelId}
           setActiveChannelId={setActiveChannelId}
           channels={channelsQueryData as Channel[]}
         />

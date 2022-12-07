@@ -5,12 +5,13 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import Background from '../section-components/background';
 import OneBox from '../section-components/one-box';
 import { NumericFormat } from 'react-number-format';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import { RankingData } from './interface';
 import useLeaderboard from '../query-hooks/useLeaderboard';
 import { socket } from './client-socket';
+import LoadingSpinner from '../section-components/loading-spinner';
 
 interface RankingDataProps {
   rankingData: RankingData;
@@ -33,13 +34,19 @@ function RankingList({ rankingData, position }: RankingDataProps) {
         </td>
       )}
       <td>
-        <img
-          className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
-          src={rankingData.avatarImg}
-          alt="Rounded avatar"
-        />
+        <Link to={'/profile/' + rankingData.nickname}>
+          <img
+            className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full"
+            src={rankingData.avatarImg}
+            alt="Rounded avatar"
+          />
+        </Link>
       </td>
-      <td>{rankingData.nickname}</td>
+      <td>
+        <Link to={'/profile/' + rankingData.nickname}>
+          {rankingData.nickname}
+        </Link>
+      </td>
       <td className="flex justify-center">
         <NumericFormat
           className="text-lg sm:text-lg md:text-xl lg:text-2xl"
@@ -67,6 +74,7 @@ function Ranking() {
 
   return (
     <>
+      {user.isLoading && <LoadingSpinner />}
       {user.isError ||
         (leaderboard.isError && (
           <p className="text-base text-gray-400">We encountered an error 🤷</p>

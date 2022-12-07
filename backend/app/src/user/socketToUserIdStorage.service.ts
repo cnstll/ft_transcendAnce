@@ -18,7 +18,7 @@ export class SocketToUserIdStorage {
   delete(socketId: string) {
     const userId = this.socketToUserId.get(socketId);
     this.socketToUserId.delete(socketId);
-    this.userIdToSocket.delete(userId);
+    if (userId) this.userIdToSocket.delete(userId);
   }
 }
 

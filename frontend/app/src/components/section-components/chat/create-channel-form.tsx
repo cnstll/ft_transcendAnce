@@ -1,13 +1,15 @@
 import { Dispatch, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { channelType } from '../../global-components/interface';
 import { socket } from '../../global-components/client-socket';
-import { validateNameInput, validatePwdInput } from './regex-input-validations';
-import { useQueryClient } from 'react-query';
+import {
+  isValidNameLength,
+  isValidPassLength,
+  validateNameInput,
+  validatePwdInput,
+} from './form-input-validations';
 
 interface CreateChannelFormProps {
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
-  setActiveChannelId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const defaultFormData = {
@@ -20,26 +22,19 @@ function CreateChannelForm(props: CreateChannelFormProps) {
   const [formData, setFormData] = useState(defaultFormData);
   const [inputStatus, setInputStatus] = useState<string>('empty');
   const { name, passwordHash } = formData;
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const channelsQueryKey = 'channelsByUserList';
   const specials = '!?@#$%^&*()+./\'${"}{-';
 
   useEffect(() => {
-    socket.on('roomCreated', async (channelId: string) => {
+    socket.on('roomCreated', () => {
       props.setShowForm(false);
-      await queryClient.refetchQueries(channelsQueryKey);
       setFormData(defaultFormData);
-      props.setActiveChannelId(channelId);
-      navigate('../chat/' + channelId);
     });
     socket.on('createRoomFailed', (channel: null | string) => {
-      if (channel === 'alreadyUsedname') {
+      if (channel === 'alreadyUsed') {
         setInputStatus('invalidAlreadyUsedname');
       }
     });
     return () => {
-      socket.off('roomCreated');
       socket.off('createRoomFailed');
     };
   }, [formData]);
@@ -50,11 +45,11 @@ function CreateChannelForm(props: CreateChannelFormProps) {
       [e.target.id]: e.target.value,
     }));
     setInputStatus('editing');
-    if (e.target.name === 'name' && e.target.value.length > 21)
+    if (e.target.name === 'name' && !isValidNameLength(e.target.value))
       setInputStatus('invalidNameLength');
     else if (e.target.name === 'name' && !validateNameInput(e.target.value))
       setInputStatus('invalidName');
-    else if (e.target.name === 'password' && e.target.value.length > 32)
+    else if (e.target.name === 'password' && !isValidPassLength(e.target.value))
       setInputStatus('invalidPasswordLength');
     else if (e.target.name === 'password' && !validatePwdInput(e.target.value))
       setInputStatus('invalidPassword');
@@ -62,13 +57,24 @@ function CreateChannelForm(props: CreateChannelFormProps) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!validateNameInput(formData.name)) setInputStatus('invalidName');
-    else if (
+    if (!validateNameInput(formData.name)) {
+      setInputStatus('invalidName');
+    } else if (!isValidNameLength(formData.name)) {
+      setInputStatus('invalidNameLength');
+    } else if (
       formData.type === channelType.Protected &&
       !validatePwdInput(formData.passwordHash)
-    )
+    ) {
       setInputStatus('invalidPassword');
-    else socket.emit('createRoom', { createInfo: formData });
+    } else if (
+      formData.type === channelType.Protected &&
+      formData.passwordHash.length > 0 &&
+      !isValidPassLength(formData.passwordHash)
+    ) {
+      setInputStatus('invalidPasswordLength');
+    } else {
+      socket.emit('createRoom', { createInfo: formData });
+    }
   }
 
   return (

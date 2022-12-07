@@ -14,7 +14,6 @@ import DropDownMenu from '../section-components/drop-down-menu';
 import { socket } from './client-socket';
 import useUserInfo from '../query-hooks/useUserInfo';
 import LoadingSpinner from '../section-components/loading-spinner';
-// import { socket } from './client-socket';
 
 interface BannerProps {
   children?: React.ReactNode;
@@ -107,7 +106,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
         onClose: () => {
           if (acceptInvite) {
             socket.emit('acceptInvite', challenger);
-            navigate('/play');
+            if (location.pathname.includes('/play')) navigate('/play', {state: false} );
+            else navigate('/play');
           } else {
             socket.emit('refuseInvite', challenger);
           }
@@ -126,7 +126,11 @@ function Navbar({ text, avatarImg }: BannerProps) {
         position: 'bottom-right',
         icon: '😭',
         autoClose: 1000,
-        onClose: () => navigate('/'),
+        onClose: () => {
+          if (location.pathname === '/play') {
+            navigate('/');
+          }
+        },
       });
     });
 
@@ -142,49 +146,53 @@ function Navbar({ text, avatarImg }: BannerProps) {
 
   return (
     <>
-    <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
-      <Link to="/">
-        <h2
-          className={`${
-            typeof text === 'string' ? 'text-[8px] ' : 'text-[18px] '
-          } sm:text-xl md:text-4xl lg:text-5xl text-white font-bold`}
-        >
-          {text}
-        </h2>
-      </Link>
-      {currentUserData.isSuccess && usersData.isSuccess && (
-        <SearchBoxUser
-          height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
-          width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
-          placeholder="player"
-          users={usersData.data.filter(
-            (user) => user.id !== currentUserData.data.id,
-          )}
-        />
-      )}
-      {(currentUserData.isLoading || usersData.isLoading) && <LoadingSpinner />}
-      {(currentUserData.isError || usersData.isError) && <div> Whoops </div>}
-      <div className="relative" ref={ref}>
-        <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
-          <img
-            className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
-            src={avatarImg}
-            alt="Rounded avatar"
+      <div className="flex flex-row px-2 sm:px-2 md:px-5 lg:px-8 py-5 justify-between items-center">
+        <Link to="/">
+          <h2
+            className={`${
+              typeof text === 'string' ? 'text-[8px] ' : 'text-[18px] '
+            } sm:text-xl md:text-4xl lg:text-5xl text-white font-bold`}
+          >
+            {text}
+          </h2>
+        </Link>
+        {currentUserData.isSuccess && usersData.isSuccess && (
+          <SearchBoxUser
+            height="h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14 "
+            width="w-24 sm:w-36 md:w-40 lg:w-56 xl:w-56 "
+            placeholder="player"
+            users={usersData.data.filter(
+              (user) => user.id !== currentUserData.data.id,
+            )}
           />
-          <button onClick={showInfo} className="text-white font-bold">
-            <FontAwesomeIcon icon={faChevronDown} />
-          </button>
-        </div>
-        {isShown && (
-          <div className="top-20">
-            <DropDownMenu>
-              <UserInfo />
-            </DropDownMenu>
-          </div>
         )}
+        {(currentUserData.isLoading || usersData.isLoading) && (
+          <LoadingSpinner />
+        )}
+        {(currentUserData.isError || usersData.isError) && <div> Whoops </div>}
+        <div className="relative" ref={ref}>
+          <div className="text-sm sm:text-xl md:text-2xl lg:text-3xl flex flex-row gap-2">
+            <Link to="/profile">
+              <img
+                className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 rounded-full"
+                src={avatarImg}
+                alt="Rounded avatar"
+              />
+            </Link>
+            <button onClick={showInfo} className="text-white font-bold">
+              <FontAwesomeIcon icon={faChevronDown} />
+            </button>
+          </div>
+          {isShown && (
+            <div className="top-20">
+              <DropDownMenu>
+                <UserInfo />
+              </DropDownMenu>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-     <ToastContainer closeButton={false} />
+      <ToastContainer closeButton={false} />
     </>
   );
 }
