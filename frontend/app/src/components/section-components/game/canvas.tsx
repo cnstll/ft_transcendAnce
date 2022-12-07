@@ -137,12 +137,14 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         } else if (text.status === 'OVER') {
           gameInfo.playerOneScore = text.player1score;
           setGameStatus(GameStatus.OVER);
+          drawGameStatus(gameInfo, gameStatus);
         } else if (text.status === 'PLAYING') {
           setGameStatus(GameStatus.PLAYING);
           setPlayerOneId(text.player1id);
           setPlayerTwoId(text.player2id);
         } else if (text.status === 'PAUSED') {
           setGameStatus(GameStatus.PAUSED);
+          drawGameStatus(gameInfo, gameStatus);
         }
       };
 
