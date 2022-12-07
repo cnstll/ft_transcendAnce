@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useQueryClient } from 'react-query';
 import { socket } from 'src/components/global-components/client-socket';
 import { useGetBlockedUsers } from 'src/components/query-hooks/useBlockedUser';
-import { useGetDirectMessageIdBetweenUsers } from 'src/components/query-hooks/useGetChannels';
 import { apiUrl, channelType, User } from '../../global-components/interface';
 import LoadingSpinner from '../loading-spinner';
 
@@ -14,9 +13,13 @@ interface BlockUserProps {
 
 function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
   const listBlockedUser = useGetBlockedUsers();
-  const directMessageId = useGetDirectMessageIdBetweenUsers(user.id);
   const queryClient = useQueryClient();
   const listUsersBlockedQueryKey = 'blockedUsersList';
+  const directMessageIdQueryKey = 'directMessageId';
+  const directMessageId = queryClient.getQueryData([
+    directMessageIdQueryKey,
+    user.id,
+  ]);
 
   let isBlocked = false;
 
@@ -40,10 +43,10 @@ function BlockUser({ user, setIsShown, setBlocked }: BlockUserProps) {
       });
     setBlocked(true);
     // If dm exists delete it
-    if (directMessageId.data) {
+    if (directMessageId) {
       socket.emit('leaveRoom', {
         leaveInfo: {
-          id: directMessageId.data,
+          id: directMessageId,
           type: channelType.DirectMessage,
         },
       });
