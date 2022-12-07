@@ -2,7 +2,6 @@ import BackgroundGeneral from '../../img/disco2.png';
 import { Link } from 'react-router-dom';
 import Background from '../section-components/background';
 import Button from '../section-components/button';
-// import { useEffect } from 'react';
 import useUserInfo from '../query-hooks/useUserInfo';
 import Navbar from './navbar';
 import LoadingSpinner from '../section-components/loading-spinner';
