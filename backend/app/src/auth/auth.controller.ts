@@ -9,7 +9,7 @@ import {
   UseFilters,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtPayload, UserRequest } from './types';
+import { JwtPayload } from './types';
 import { Api42OauthGuard } from './guard/api42.auth-guards';
 import { Api42Filter } from './middleware/api.filter';
 import { Response } from 'express';

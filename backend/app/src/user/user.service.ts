@@ -55,9 +55,7 @@ export class UserService {
           id: userId,
         },
       });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
     return res.send(204);
   }
 

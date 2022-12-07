@@ -320,9 +320,7 @@ export class Game {
         },
       });
       if (user) return user.eloScore;
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
 
   async updateUserElo(
