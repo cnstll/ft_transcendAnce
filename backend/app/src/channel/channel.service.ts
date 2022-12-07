@@ -257,7 +257,9 @@ export class ChannelService {
           },
         });
       return myRole;
-    } catch (error) {}
+    } catch (error) {
+      return null;
+    }
   }
 
   async getRolesOfUsersChannel(channelId: string) {
