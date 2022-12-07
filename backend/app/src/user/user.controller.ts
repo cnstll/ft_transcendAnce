@@ -18,7 +18,7 @@ import { UserService } from './user.service';
 import { GetCurrentUserId } from '../common/decorators/getCurrentUserId.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import path = require('path');
+import * as path from 'path';
 
 const fileTypes = [
   'image/apng',
