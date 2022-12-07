@@ -22,7 +22,7 @@ import MembersOptions from './chat/members-options';
 import { Link, useLocation } from 'react-router-dom';
 import { channelContext } from '../global-components/chat';
 import { useIsUserUnderModerationInChannel } from '../query-hooks/useIsUserUnderModerationInChannel';
-import { UseQueryResult } from 'react-query';
+import { useQueryClient, UseQueryResult } from 'react-query';
 import { useGetDirectMessageIdBetweenUsers } from '../query-hooks/useGetChannels';
 
 interface UsersListProps {
@@ -68,10 +68,13 @@ function UsersListItem({
       channelActionType.Mute,
       location.pathname.includes('/chat/'),
     );
-  console.log('USER ID : ', user.id);
-  useGetDirectMessageIdBetweenUsers(user.id);
+
+  const queryClient = useQueryClient();
+  const directMessageIdQueryKey = 'directMessageId';
+  useGetDirectMessageIdBetweenUsers(user.id, !!user);
 
   useEffect(() => {
+    void queryClient.invalidateQueries([directMessageIdQueryKey, user.id]);
     setBlocked(resultBlock);
   }, [resultBlock]);
 
