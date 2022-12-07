@@ -90,8 +90,11 @@ const getDirectMessageIdBetweenUsers = (targetId: string) =>
 
 export function useGetDirectMessageIdBetweenUsers(
   targetId: string,
+  activateQuery: boolean,
 ): UseQueryResult<string> {
-  return useQuery(['directMessageId', targetId], () =>
-    getDirectMessageIdBetweenUsers(targetId),
+  return useQuery(
+    ['directMessageId', targetId],
+    () => getDirectMessageIdBetweenUsers(targetId),
+    { enabled: activateQuery },
   );
 }
