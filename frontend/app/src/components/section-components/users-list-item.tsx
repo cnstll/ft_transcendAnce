@@ -93,7 +93,7 @@ function UsersListItem({
           </Link>
         )}
         <div className="relative">
-          <div className="absolute -left-2 z-10">
+          <div className="absolute -left-2">
             {!userIsBanned.data?.valueOf() && !userIsMuted.data?.valueOf() && (
               <>
                 {user.status === UserConnectionStatus.ONLINE && (
