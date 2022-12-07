@@ -301,7 +301,9 @@ export class GameService {
   }
 
   deleteInterval(name: string) {
-    this.schedulerRegistry.deleteInterval(name);
+    try {
+      this.schedulerRegistry.deleteInterval(name);
+    } catch (e) {}
   }
 
   getInterval(name: string) {
