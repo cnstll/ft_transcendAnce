@@ -80,14 +80,7 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/2fa-sign-in"
-          element={
-            <RequireAuth>
-              <SignIn2FA />
-            </RequireAuth>
-          }
-        />
+        <Route path="/2fa-sign-in" element={<SignIn2FA />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
