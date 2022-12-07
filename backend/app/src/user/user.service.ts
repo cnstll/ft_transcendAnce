@@ -55,9 +55,7 @@ export class UserService {
           id: userId,
         },
       });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
     return res.send(204);
   }
 
@@ -139,7 +137,6 @@ export class UserService {
       where: {
         id: userId,
       },
-      //TODO select useful info
     });
     return user;
   }
