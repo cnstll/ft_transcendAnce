@@ -13,19 +13,27 @@ interface AvatarImgFormProps {
 function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
   const queryClient = useQueryClient();
   const avatarImgMutation = setAvatarImg();
-  const customToastId = "custom-toast-cant-upload-picture";
+  const customToastId = 'custom-toast-cant-upload-picture';
 
   function onFileChange(
     event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) {
     let fileName = '';
+    // Check that file exist and put the only file in a variable
     if ('files' in event.target) selectedFile = event.target.files?.[0];
-      const formData = new FormData();
+    // Check that the size of the file is roughly 2MB
+    if (selectedFile && selectedFile.size > 2097152) {
+      toast.error('Your image is too big', {
+        toastId: customToastId,
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      return;
+    }
+    const formData = new FormData();
     if (selectedFile) {
       formData.append('file', selectedFile);
       fileName =
-        `${apiUrl}/user/avatar/` +
-        selectedFile.name.replace(/\s/g, '');
+        `${apiUrl}/user/avatar/` + selectedFile.name.replace(/\s/g, '');
     }
     avatarImgMutation.mutate(formData, {
       onSuccess: ({ status }) => {
@@ -42,9 +50,9 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
       onError: () => {
         toast.error("Your image doesn't meet requirements", {
           toastId: customToastId,
-          position: toast.POSITION.TOP_RIGHT
+          position: toast.POSITION.TOP_RIGHT,
         });
-      }
+      },
     });
   }
 
@@ -63,7 +71,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
               Your avatar
             </h3>
             <form>
-            <div id="form-avatar" className="form-group mt-4">
+              <div id="form-avatar" className="form-group mt-4">
                 <label
                   className="xl:text-base lg:text-base md:text-sm sm:text-xs text-xs
                       text-purple-light my-3 font-bold"
@@ -76,7 +84,7 @@ function UploadPictureForm({ setShowForm, selectedFile }: AvatarImgFormProps) {
                   text-xs px-2 py-2.5 hover:text-gray-900"
                   type="file"
                   id="avatarImgInput"
-                  accept="image/png, image/jpeg, image/webp"
+                  accept="image/*"
                   onChange={onFileChange}
                 ></input>
               </div>
