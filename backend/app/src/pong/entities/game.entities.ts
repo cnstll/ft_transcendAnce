@@ -115,7 +115,6 @@ export class Game {
     maxSpeed: 6,
     speed: 0,
     speeds: [7, 8, 10, 12, 14, 15, 20],
-    // speedIncrease: 4,
   };
   gameRoomId: string;
   p1id: string | undefined = undefined;
@@ -156,7 +155,10 @@ export class Game {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx > 0) {
-              this.dirx = this.gameConstants.maxSpeed;
+              if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+                this.gameConstants.speed = 5;
+                this.dirx = this.gameConstants.speeds[5];
+              }
             } else {
               this.dirx = this.dirx * -1;
               if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
@@ -190,7 +192,10 @@ export class Game {
         switch (this.mode) {
           case GameMode.MAYHEM: {
             if (this.dirx < 0) {
-              this.dirx = -this.gameConstants.maxSpeed;
+              if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
+                this.gameConstants.speed = 5;
+                this.dirx = -this.gameConstants.speeds[5];
+              }
             } else {
               this.dirx = this.dirx * -1;
               if (this.gameConstants.speed < this.gameConstants.maxSpeed) {
@@ -211,8 +216,7 @@ export class Game {
             break;
           }
         }
-        // this number stays magic because it actually is magic
-        this.diry = (this.by - this.p2y) / 2;
+        this.diry = this.by - this.p2y;
       }
     }
 
@@ -226,14 +230,13 @@ export class Game {
           this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           this.bx = this.gameConstants.relativeMiddle;
           this.by = this.gameConstants.relativeMiddle;
-          // this number stays magic because it actually is magic
-          this.diry = generateRandomNumber(-10, 10) / 20;
+          this.diry = generateRandomNumber(-20, 20);
           break;
         }
 
         case GameMode.MAYHEM: {
-          // this.dirx = this.gameConstants.initialSpeed;
-          this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 0)];
+          this.bx = 0;
+          this.dirx = this.gameConstants.speeds[(this.gameConstants.speed = 1)];
           break;
         }
       }
@@ -251,16 +254,14 @@ export class Game {
             -this.gameConstants.speeds[(this.gameConstants.speed = 0)];
           this.bx = this.gameConstants.relativeMiddle;
           this.by = this.gameConstants.relativeMiddle;
-          // this number stays magic because it actually is magic
-          this.diry = generateRandomNumber(-10, 10) / 20;
+          this.diry = generateRandomNumber(-20, 20);
           break;
         }
 
         case GameMode.MAYHEM: {
           this.bx = this.gameConstants.relativeGameWidth;
-          // this.dirx = -this.gameConstants.initialSpeed;
           this.dirx =
-            -this.gameConstants.speeds[(this.gameConstants.speed = 0)];
+            -this.gameConstants.speeds[(this.gameConstants.speed = 1)];
           break;
         }
       }
