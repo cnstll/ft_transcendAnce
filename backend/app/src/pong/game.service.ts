@@ -52,11 +52,6 @@ export class GameService {
     }
   }
 
-  acceptInvite(userId: string) {
-    const game = this.GameMap.getGame(userId);
-    if (game) this.deleteTimeout(game.gameRoomId);
-  }
-
   async createInvitationGame(
     client: Socket,
     server: Server,
@@ -95,7 +90,7 @@ export class GameService {
         client.to(opponentSocket).emit('invitedToGame', challenger);
         return 'gameJoined';
       } catch (error) {
-        return;
+        return 'inviteFailed';
       }
     }
   }
@@ -227,7 +222,7 @@ export class GameService {
       game &&
       (game.status === Status.PAUSED || game.status === Status.PENDING)
     ) {
-      this.deleteTimeout(game.gameRoomId);
+      if (game.status === Status.PAUSED) this.deleteTimeout(game.gameRoomId);
       this.GameMap.delete(id);
     } else if (game && game.status === Status.PLAYING) {
       if (game.p1id === id || game.p2id === id) {
