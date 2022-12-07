@@ -184,7 +184,7 @@ function WatchGame({
               draw(gameInfo);
             });
           } catch (e) {
-            console.log(e);
+            void(e);
           }
         };
 
