@@ -20,10 +20,26 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import path = require('path');
 
+const fileTypes = [
+  'image/apng',
+  'image/bmp',
+  'image/gif',
+  'image/jpeg',
+  'image/pjpeg',
+  'image/png',
+  'image/svg+xml',
+  'image/tiff',
+  'image/webp',
+  'image/x-icon',
+];
+
 export const storage = {
   storage: diskStorage({
     destination: './avatar',
     filename: (req, file, cb) => {
+      if (!fileTypes.includes(file.mimetype)) {
+        return;
+      }
       const initialFilename: string = path
         .parse(file.originalname)
         .name.replace(/\s/g, '');
