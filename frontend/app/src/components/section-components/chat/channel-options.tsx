@@ -77,7 +77,7 @@ function ChannelOptions({ setIsShown }: ChannelOptions) {
         </Link>
         {myRoleQueryData?.role === channelRole.Owner &&
         currentChannelCtx.type !== channelType.DirectMessage ? (
-          <div className="z-40">
+          <div>
             <div onClick={handleEditModal}>
               <p className="text-center hover:underline my-2">Edit channel</p>
             </div>
@@ -96,7 +96,7 @@ function ChannelOptions({ setIsShown }: ChannelOptions) {
           myRoleQueryData?.role === channelRole.Admin) &&
         currentChannelCtx.type === channelType.Private &&
         !userIsBanned?.valueOf() ? (
-          <div className="z-40">
+          <div>
             <div onClick={handleInviteModal}>
               <p className="text-center hover:underline my-2">Invite members</p>
             </div>
