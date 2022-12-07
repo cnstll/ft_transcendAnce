@@ -61,7 +61,7 @@ export class GameService {
   ) {
     const opponentSocket = socketToUserId.getFromUserId(p2id);
     if (opponentSocket) {
-      if (this.GameMap.getGame(p2id) !== null) {
+      if (this.GameMap.getGame(p2id) !== null || this.GameMap.getGame(p1id)) {
         server
           .to(client.id)
           .emit(
