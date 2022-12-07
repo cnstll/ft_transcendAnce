@@ -137,14 +137,12 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         } else if (text.status === 'OVER') {
           gameInfo.playerOneScore = text.player1score;
           setGameStatus(GameStatus.OVER);
-          drawGameStatus(gameInfo, gameStatus);
         } else if (text.status === 'PLAYING') {
           setGameStatus(GameStatus.PLAYING);
           setPlayerOneId(text.player1id);
           setPlayerTwoId(text.player2id);
         } else if (text.status === 'PAUSED') {
           setGameStatus(GameStatus.PAUSED);
-          drawGameStatus(gameInfo, gameStatus);
         }
       };
 
@@ -179,7 +177,9 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         gameInfo.fontSize = 0.03 * window.innerWidth;
         gameInfo.context.drawImage(gameInfo.cacheCanvas, 0, 0);
 
-        drawGameStatus(gameInfo, gameStatus);
+        window.requestAnimationFrame(function () {
+          drawGameStatus(gameInfo, gameStatus);
+        });
 
         const messageListener = (encoded: Uint8Array) => {
           try {
