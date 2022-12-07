@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Res,
-  UseGuards,
-  Delete,
-} from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards, Delete } from '@nestjs/common';
 import { TwoFactorAuthenticationService } from './two.factor.authentication.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guard/jwt.auth-guard';
