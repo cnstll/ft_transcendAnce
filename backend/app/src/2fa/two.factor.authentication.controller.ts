@@ -43,7 +43,7 @@ export class TwoFactorAuthenticationController {
     /* Check that the user has a valid 2fa secret */
     const user: User | null = await this.userService.getUserInfo(userId);
     if (!user?.twoFactorAuthenticationSecret) {
-      throw new UnauthorizedException('The user does not have a 2fa secret');
+      return res.send('invalidSecret');
     }
 
     const isCodeValid: boolean | null =
@@ -52,7 +52,7 @@ export class TwoFactorAuthenticationController {
         userId,
       );
     if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code');
+      return res.send('invalidCode');
     }
     await this.userService.enableTwoFactorAuthentication(userId, res);
     return res.status(201).send();
@@ -68,7 +68,7 @@ export class TwoFactorAuthenticationController {
     /* Check that the user has a valid 2fa secret */
     const user: User | null = await this.userService.getUserInfo(userId);
     if (!user?.twoFactorAuthenticationSecret) {
-      throw new UnauthorizedException('The user does not have a 2fa secret');
+      return res.send('invalidSecret');
     }
 
     const isCodeValid: boolean | null =
@@ -77,7 +77,7 @@ export class TwoFactorAuthenticationController {
         userId,
       );
     if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code');
+      return res.send('invalidCode');
     }
     const token = this.authService.login2FA(user);
     res.clearCookie('temporaryToken', { httpOnly: true });
