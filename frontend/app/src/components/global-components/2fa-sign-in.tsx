@@ -2,10 +2,10 @@ import Background from '../section-components/background';
 import BackgroundSignin from '../../img/disco.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { FormEvent, useRef, useState } from 'react';
-import { authenticate } from '../query-hooks/set2fa';
+import axios from 'axios';
+import { apiUrl } from './interface';
 
 function SignIn2FA() {
-  const authenticate2faMutation = authenticate();
   const [validCode, setValidCode] = useState<boolean>(true);
   const verficationCodeRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -15,15 +15,20 @@ function SignIn2FA() {
     const input = verficationCodeRef.current
       ? verficationCodeRef.current.value
       : '';
-    authenticate2faMutation.mutate(input, {
-      onSuccess: () => {
-        setValidCode(true);
-        navigate('/');
-      },
-      onError: () => {
-        setValidCode(false);
-      },
-    });
+    void axios
+      .post<string>(
+        `${apiUrl}/2fa/authenticate`,
+        { twoFactorAuthenticationCode: input },
+        { withCredentials: true },
+      )
+      .then((res) => {
+        if (res.data === 'invalidCode' || res.data === 'invalidSecret')
+          setValidCode(false);
+        else {
+          setValidCode(true);
+          navigate('/');
+        }
+      });
   }
 
   return (
@@ -55,6 +60,7 @@ function SignIn2FA() {
                     : ' border-red-500 text-red-500'
                 }`}
               ref={verficationCodeRef}
+              onInput={() => setValidCode(true)}
             />
             <button
               type="submit"

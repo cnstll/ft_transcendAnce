@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { Dispatch, FormEvent, useRef, useState } from 'react';
 import { User } from '../../global-components/interface';
-import { validate2faCode } from '../../query-hooks/set2fa';
 import LoadingSpinner from '../loading-spinner';
 import { apiUrl } from '../../global-components/interface';
 
@@ -33,7 +32,6 @@ function TwoFaModal({
   qrCode,
   setQRCode,
 }: TwoFaModalProps) {
-  const validate2faMutation = validate2faCode();
   const verficationCodeRef = useRef<HTMLInputElement>(null);
   const [validCode, setValidCode] = useState<boolean>(true);
 
@@ -53,15 +51,20 @@ function TwoFaModal({
     const input = verficationCodeRef.current
       ? verficationCodeRef.current.value
       : '';
-    validate2faMutation.mutate(input, {
-      onSuccess: () => {
-        setValidCode(true);
-        setShowModal(false);
-      },
-      onError: () => {
-        setValidCode(false);
-      },
-    });
+    void axios
+      .post<string>(
+        `${apiUrl}/2fa/validate`,
+        { twoFactorAuthenticationCode: input },
+        { withCredentials: true },
+      )
+      .then((res) => {
+        if (res.data === 'invalidCode' || res.data === 'invalidSecret')
+          setValidCode(false);
+        else {
+          setValidCode(true);
+          setShowModal(false);
+        }
+      });
   }
 
   return (
