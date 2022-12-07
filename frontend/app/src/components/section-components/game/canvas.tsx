@@ -179,7 +179,9 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
         gameInfo.fontSize = 0.03 * window.innerWidth;
         gameInfo.context.drawImage(gameInfo.cacheCanvas, 0, 0);
 
-        drawGameStatus(gameInfo, gameStatus);
+        window.requestAnimationFrame(function () {
+          drawGameStatus(gameInfo, gameStatus);
+        });
 
         const messageListener = (encoded: Uint8Array) => {
           try {
