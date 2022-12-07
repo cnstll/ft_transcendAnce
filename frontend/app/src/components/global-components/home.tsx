@@ -14,7 +14,7 @@ function Home() {
   return (
     <div>
       <Background background={BackgroundGeneral}>
-        {user.isSuccess && (
+        {user.isSuccess && user.data && (
           <Navbar text="TRANSCENDANCE 🕺" avatarImg={user.data.avatarImg} />
         )}
         {user.isLoading && <LoadingSpinner />}
