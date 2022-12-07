@@ -204,7 +204,7 @@ function UserInfo() {
       .get(`${apiUrl}/user/logout`, {
         withCredentials: true,
       })
-      .catch((error) => console.log(error));
+      .catch((error) => void error);
   }
   return (
     <>

@@ -22,7 +22,8 @@ import MembersOptions from './chat/members-options';
 import { Link, useLocation } from 'react-router-dom';
 import { channelContext } from '../global-components/chat';
 import { useIsUserUnderModerationInChannel } from '../query-hooks/useIsUserUnderModerationInChannel';
-import { UseQueryResult } from 'react-query';
+import { useQueryClient, UseQueryResult } from 'react-query';
+import { useGetDirectMessageIdBetweenUsers } from '../query-hooks/useGetChannels';
 
 interface UsersListProps {
   user: User;
@@ -68,14 +69,19 @@ function UsersListItem({
       location.pathname.includes('/chat/'),
     );
 
+  const queryClient = useQueryClient();
+  const directMessageIdQueryKey = 'directMessageId';
+  useGetDirectMessageIdBetweenUsers(user.id, !!user);
+
   useEffect(() => {
+    void queryClient.invalidateQueries([directMessageIdQueryKey, user.id]);
     setBlocked(resultBlock);
   }, [resultBlock]);
 
   return (
     <div className="flex items-center justify-center">
       <div className="flex items-center justify-center mr-2">
-        {blocked || isBlocked ? (
+        {blocked ? (
           <Link to={'/profile/' + user.nickname}>
             <img
               className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded-full blur-sm"
