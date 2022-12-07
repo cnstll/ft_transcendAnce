@@ -6,9 +6,11 @@ import useUserInfo from '../query-hooks/useUserInfo';
 import Navbar from './navbar';
 import LoadingSpinner from '../section-components/loading-spinner';
 import ErrorMessage from '../section-components/error-message';
+import { UseQueryResult } from 'react-query';
+import { User } from './interface';
 
 function Home() {
-  const user = useUserInfo();
+  const user: UseQueryResult<User | undefined> = useUserInfo();
 
   return (
     <div>
