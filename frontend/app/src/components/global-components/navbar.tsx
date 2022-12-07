@@ -106,7 +106,8 @@ function Navbar({ text, avatarImg }: BannerProps) {
         onClose: () => {
           if (acceptInvite) {
             socket.emit('acceptInvite', challenger);
-            if (location.pathname.includes('/play')) navigate('/play', {state: false} );
+            if (location.pathname.includes('/play'))
+              navigate('/play', { state: false });
             else navigate('/play');
           } else {
             socket.emit('refuseInvite', challenger);
@@ -192,7 +193,7 @@ function Navbar({ text, avatarImg }: BannerProps) {
           )}
         </div>
       </div>
-      <ToastContainer closeButton={false} />
+      <ToastContainer closeButton={false} draggable={false} />
     </>
   );
 }
