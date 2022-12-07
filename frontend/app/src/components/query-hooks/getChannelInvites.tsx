@@ -30,7 +30,7 @@ UseQueryResult<User[] | undefined> {
 
 const fetchChannelInvites = () =>
 axios
-  .get<{id: string}[]>('${apiUrl}/user/get-channel-invites', {
+  .get<{id: string}[]>(`${apiUrl}/user/get-channel-invites`, {
     withCredentials: true,
   })
   .then((res) => res.data);
