@@ -89,7 +89,7 @@ export class UserController {
     @Res() res: Response,
     @GetCurrentUserId() userId: string,
   ) {
-    if (file.path && process.env.PUBLIC_URL) {
+    if (file && file.path && process.env.PUBLIC_URL) {
       const filename = `${process.env.PUBLIC_URL}/user/${file.path}`;
       await this.userService.updateAvatarImg(userId, filename, res);
       return res.status(200).send();
