@@ -55,9 +55,7 @@ export class UserService {
           id: userId,
         },
       });
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
     return res.send(204);
   }
 
@@ -139,7 +137,6 @@ export class UserService {
       where: {
         id: userId,
       },
-      //TODO select useful info
     });
     return user;
   }
@@ -644,7 +641,7 @@ export class UserService {
   }
   async updateConnectionStatus(userId: string, connectionStatus: UserStatus) {
     try {
-      if (userId)
+      if (userId) {
         await this.prismaService.user.update({
           where: {
             id: userId,
@@ -653,9 +650,8 @@ export class UserService {
             status: connectionStatus,
           },
         });
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
+      }
+    } catch (error) {}
   }
 
   /** Achievement management */

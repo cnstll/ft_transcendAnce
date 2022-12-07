@@ -142,7 +142,6 @@ function Chat() {
           setActiveChannelId(nextChannelId);
           navigate(`../chat/${nextChannelId}`);
         }
-        //TODO User still in the room should get notified that a user left
         //void queryClient.invalidateQueries(channelUsersQueryKey);
         void queryClient.invalidateQueries(getCurrentChannelKey);
         void queryClient.invalidateQueries(channelsByUserListKey);

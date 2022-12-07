@@ -41,7 +41,7 @@ function ChannelHeader({
           <button className="mx-2" onClick={showCreateChannelForm}>
             <FontAwesomeIcon icon={faSquarePlus} />
           </button>
-          <div className="z-20">
+          <div>
             {showForm && <CreateChannelForm setShowForm={setShowForm} />}
           </div>
         </div>

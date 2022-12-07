@@ -100,7 +100,6 @@ export class GameService {
     }
   }
 
-  // <<<<<<< Updated upstream
   async leaveWatch(client: Socket, playerId: string) {
     const game = this.GameMap.getGame(playerId);
     if (game !== null) {
@@ -121,13 +120,8 @@ export class GameService {
         player1score: game.p1s,
       });
     }
-    //TODO make this return dynamic
-    // =======
-    //   async watch(client: Socket, playerId: string) {
-    //     const game = this.GameMap.getGame(playerId);
-    //     if (game) await client.join(game.gameRoomId);
-    // >>>>>>> Stashed changes
-    return { playerNumber: 1 };
+    if (playerId === game?.p1id) return { playerNumber: 1 };
+    return { playerNumber: 2 };
   }
 
   async join(client: Socket, userId: string, server: Server, mode: GameMode) {

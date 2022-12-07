@@ -187,7 +187,7 @@ function Game({ gameMode, avatarImg, userId }: GameProps) {
               draw(gameInfo);
             });
           } catch (e) {
-            console.log(e);
+            void(e);
           }
         };
 
