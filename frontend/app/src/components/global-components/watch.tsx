@@ -27,7 +27,7 @@ function Watch() {
             avatarImg={user.data.avatarImg}
           />
           {playerId != null && (
-            <WatchGame  userId={user.data.id} />
+            <WatchGame userId={playerId} />
           )}
         </Background>
       </div>
