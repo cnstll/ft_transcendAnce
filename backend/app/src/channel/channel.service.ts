@@ -993,7 +993,6 @@ export class ChannelService {
         return 'isAlreadyBanned';
       }
       // Getting ban timings
-      // TODO: Adapt time so its over 30s
       const banDurationInMS = 30 * 1000;
       const banExpirationDate = new Date(Date.now() + banDurationInMS);
       // Actual ban added in DB
@@ -1033,7 +1032,6 @@ export class ChannelService {
       }
 
       // Getting ban timings
-      // TODO: Adapt time so its over 30s
       const MuteDurationInMS = 30 * 1000;
       const MuteExpirationDate = new Date(Date.now() + MuteDurationInMS);
       // Actual Mute added in DB
