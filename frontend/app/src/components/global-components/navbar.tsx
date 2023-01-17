@@ -105,7 +105,6 @@ function Navbar({ text, avatarImg }: BannerProps) {
         icon: '🏓',
         onClose: () => {
           if (acceptInvite) {
-            socket.emit('acceptInvite', challenger);
             if (location.pathname.includes('/play'))
               navigate('/play', { state: false });
             else navigate('/play');
@@ -205,7 +204,7 @@ function UserInfo() {
       .get(`${apiUrl}/user/logout`, {
         withCredentials: true,
       })
-      .catch((error) => console.log(error));
+      .catch((error) => void error);
   }
   return (
     <>

@@ -54,11 +54,6 @@ export class GameGateway {
     return this.gameService.rejoin(userId);
   }
 
-  @SubscribeMessage('acceptInvite')
-  acceptGameInvite(@Body() challenger: FrontendUser) {
-    this.gameService.acceptInvite(challenger.id);
-  }
-
   @SubscribeMessage('refuseInvite')
   refuseGameInvite(
     @Body() challenger: FrontendUser,
